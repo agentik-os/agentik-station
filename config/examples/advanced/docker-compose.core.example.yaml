@@ -1,0 +1,18 @@
+services:
+  hermes:
+    image: nousresearch/hermes-agent:<PINNED_VERSION_OR_DIGEST>
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    shm_size: 1gb
+
+    volumes:
+      - /var/lib/agentik/hermes:/opt/data
+      - /srv/agentik/projects:/workspace/projects
+
+    ports:
+      - "127.0.0.1:8642:8642"
+      - "127.0.0.1:9119:9119"
+
+    environment:
+      HERMES_DASHBOARD: "1"

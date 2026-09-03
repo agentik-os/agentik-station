@@ -1,0 +1,52 @@
+engineering:
+  constitution_version: "1.0"
+
+  hermes:
+    verify_on_stop: true
+    verify_guidance: true
+    max_verify_nudges: 3
+    tool_loop_guardrails:
+      warnings_enabled: true
+      hard_stop_enabled: true
+
+  ponytail:
+    required_for:
+      - devops
+      - builder
+      - engineering
+    default_mode: full
+    review_before_merge: true
+
+  delegation:
+    max_concurrent_children: 3
+    max_spawn_depth: 2
+    orchestrator_enabled: true
+    worktree_isolation: true
+
+  gauntlet:
+    enabled: true
+    max_passes: 3
+    fresh_critic_context: true
+    self_approval: false
+    integration_critic: true
+
+  verification:
+    fail_closed: true
+    require_fresh_evidence: true
+    live_test_for_production: true
+
+  learning:
+    hermes_self_improvement: true
+    shared_skill_promotion_requires_eval: true
+    policy_self_modification: false
+    security_self_modification: false
+
+  model_agnostic:
+    use_route_aliases: true
+    allow_per_task_override: true
+    fallback_required_for_critical_roles: true
+
+  loop_graph:
+    require_graph_for_complex_missions: true
+    bounded_loops: true
+    require_fan_in_verification: true

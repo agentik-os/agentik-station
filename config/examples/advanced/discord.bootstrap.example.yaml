@@ -1,0 +1,43 @@
+schema: 1
+
+discord_bootstrap:
+  target_guild_id: "<guild-id>"
+
+  mode: adopt-and-extend
+  plan_required: true
+  auto_apply_safe_changes: true
+
+  destructive:
+    delete_unknown_channels: false
+    delete_unknown_roles: false
+    rename_unmanaged_resources: false
+    require_explicit_approval: true
+
+  privilege:
+    bootstrap_permission: administrator-temporary
+    maintenance_window_minutes: 30
+    auto_demote_after_verify: true
+    fail_if_demote_fails: true
+
+  hierarchy:
+    verify_bot_role_position: true
+    never_manage_roles_at_or_above_bot: true
+
+  verification:
+    require_binding_for_exposed_channel: true
+    test_message_route: true
+    test_mission_thread: true
+    test_runtime_permissions_after_demote: true
+
+  evidence:
+    capture_plan: true
+    capture_apply_log: true
+    capture_final_state_hash: true
+
+  bot_mode:
+    compile_installed_os_bots: true
+    compile_bot_groups: true
+    compile_virtual_mentions: true
+    bind_channel_defaults: true
+    one_real_gateway_per_organization: true
+    separate_real_bot_requires_explicit_boundary: true

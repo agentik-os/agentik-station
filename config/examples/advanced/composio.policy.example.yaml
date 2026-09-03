@@ -1,0 +1,27 @@
+schema_version: "1.0"
+enabled: true
+identity:
+  user_id_source: station_principal_id
+  forbid_default_in_production: true
+  forbid_email_as_primary_id: true
+sessions:
+  default_lifecycle: per_mission
+  reuse_same_mission: true
+  mcp_default: false
+  sandbox_default: false
+discovery:
+  default: direct
+  meta_tools_allowed_for:
+    - operator
+    - research
+connections:
+  package_contains_references_only: true
+  cross_organization_binding: deny
+  cross_trust_zone_binding: deny
+approvals:
+  external_write: policy
+  destructive: explicit
+evidence:
+  redact_secret_material: true
+triggers:
+  route_via_station_ingress: true

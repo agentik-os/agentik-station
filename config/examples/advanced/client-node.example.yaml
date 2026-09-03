@@ -1,0 +1,18 @@
+client_station:
+  station_id: client-acme-01
+  organization_id: acme
+  deployment: dedicated_vps
+  ring: client_stable
+  central_fleet_visibility:
+    - station_version
+    - hermes_version
+    - os_versions
+    - health
+    - doctor_receipt
+    - backup_age
+  centrally_forbidden_by_default:
+    - raw_memory
+    - sessions
+    - plaintext_secrets
+    - private_documents
+    - production_database_copy

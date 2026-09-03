@@ -1,0 +1,92 @@
+schema: 3
+
+discord:
+  organization_id: example
+  provisioning:
+    mode: adopt-and-extend
+    destructive_changes: deny
+    bootstrap_admin: temporary
+    auto_demote_after_verify: true
+    managed_resource_tag: agentik-managed
+
+  os_bots:
+    identity_model: dedicated-per-os
+    source: installed-os-manifests
+    specialist_discord_apps_default: false
+    token_policy: secure-profile-secret-reference
+    runtime_administrator: false
+    required_bindings:
+      - guild_id
+      - os_id
+      - nano_director_profile
+      - application_id
+      - bot_user_id
+      - primary_channel_id
+
+  roles:
+    - key: owner
+      name: "Owner"
+      managed: false
+    - key: agentik-runtime
+      name: "Agentik Runtime"
+      managed: true
+
+  categories:
+    - key: control
+      preferred_name: "00_CONTROL"
+      channels:
+        - key: command-center
+          preferred_name: command-center
+        - key: approvals
+          preferred_name: approvals
+        - key: system-status
+          preferred_name: system-status
+    - key: engineering
+      preferred_name: "40_ENGINEERING"
+      channels:
+        - key: devops
+          preferred_name: devops
+          route:
+            os_id: agk.devops
+            nano_director_profile: devops-atlas
+            dedicated_bot: devops
+            project: platform
+            board: engineering
+          thread_policy: mission-capable
+        - key: qa
+          preferred_name: qa
+          route:
+            os_id: agk.devops
+            nano_director_profile: devops-atlas
+            dedicated_bot: devops
+            board: engineering
+        - key: deployments
+          preferred_name: deployments
+          route:
+            os_id: agk.devops
+            nano_director_profile: devops-atlas
+            dedicated_bot: devops
+    - key: system
+      preferred_name: "90_SYSTEM"
+      channels:
+        - key: evidence
+          preferred_name: evidence
+        - key: incidents
+          preferred_name: incidents
+        - key: node-health
+          preferred_name: node-health
+
+  display:
+    semantic_progress_controller: true
+    hermes_tool_progress: log
+    hermes_interim_messages: false
+    show_reasoning: false
+    show_commentary: false
+    cleanup_native_progress: true
+
+  thread_policy:
+    default: conversation
+    mission_channels: director-decision
+
+  bindings:
+    persistence: /var/lib/agentik/discord/bindings.yaml

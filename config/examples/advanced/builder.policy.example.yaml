@@ -1,0 +1,35 @@
+kind: AGKBuilderPolicy
+apiVersion: agk.agentik/v1
+spec:
+  model_agnostic: true
+  hermes_native_first: true
+  immutable_candidate_before_mutation: true
+  skills:
+    promotion_requires_review: true
+  memory:
+    governance_sensitive_writes_require_review: true
+  high_impact_actions:
+    - registry.release
+    - github.push
+    - discord.provision
+    - discord.permissions
+    - gateway.reload
+    - os.install
+    - os.update
+    - os.rollback
+  gates:
+    - plan
+    - orchestration
+    - programming
+    - agentic
+    - verification
+    - doctor
+    - rollback
+    - recovery
+    - discord_readback
+    - fresh_session
+    - release
+  forbidden_completion_states:
+    - recover_pending
+    - review_pending
+    - fresh_session_pending

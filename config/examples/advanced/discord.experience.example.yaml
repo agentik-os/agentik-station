@@ -1,0 +1,44 @@
+schema: 1
+discord_experience:
+  mode: semantic-mission-card
+  components: v2-preferred
+  fallback: legacy-embed-text
+  plan_first:
+    required: true
+    allow_preplan_mutations: false
+    provisional_inspection_plan: true
+  progress:
+    one_primary_message_per_mission: true
+    edit_in_place: true
+    debounce_ms: 900
+    heartbeat_seconds: 90
+    low_level_tool_events: evidence_only
+    max_visible_plan_nodes: 10
+  final_report:
+    replace_progress_card: true
+    include_plan_result: true
+    include_verification: true
+    include_material_problems: true
+  controls:
+    details: true
+    graph: true
+    evidence: true
+    pause_resume: policy
+    cancel: policy
+    approvals: policy
+  renderer:
+    validate_platform_limits: true
+    never_silently_truncate_actions: true
+    long_choice_strategy: select_or_modal
+  security:
+    resolve_destinations_from_station_bindings: true
+    model_supplied_channel_ids: deny
+    custom_ids_contain_secrets: deny
+
+status_truth:
+  evidence_before_claims: required
+  stages: [prepared, observed, reported, verified, read_back, accepted]
+  show_execution_owner: true
+  show_verification_owner: true
+  reported_done_color_is_success: false
+  plan_completion_is_verification: false

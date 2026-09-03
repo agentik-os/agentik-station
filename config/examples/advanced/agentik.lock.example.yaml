@@ -1,0 +1,28 @@
+schema: 3
+station:
+  version: 0.6.0
+  release: "<station-release-id>"
+
+hermes:
+  upstream_repo: NousResearch/hermes-agent
+  approved_commit: "<exact-sha>"
+  upstream_branch: main
+  ring: candidate
+  update_strategy: station_release_promotion
+
+plugins:
+  ponytail:
+    repo: DietrichGebert/ponytail
+    commit: "<approved-full-sha>"
+    enabled_for: [builder-os, devops-os]
+    install_template: "hermes plugins install DietrichGebert/ponytail --enable --ref <full-sha>"
+  station_policy:
+    source: local-reviewed
+    version: "0.6.0"
+
+os:
+  station-maintainer-os: {version: "0.6.0"}
+  discord-bootstrap-os: {version: "0.6.0"}
+  librarian-os: {version: "conversation-pack-2026.09.03+station-v6"}
+  builder-os: {version: "conversation-pack-2026.09.03+station-v6"}
+  devops-os: {version: "0.6.0"}
