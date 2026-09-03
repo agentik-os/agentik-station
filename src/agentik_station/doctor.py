@@ -160,7 +160,9 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         actual_files = sorted(
             str(path.relative_to(repo_root))
             for path in repo_root.rglob("*")
-            if path.is_file() and ".git" not in path.parts
+            if path.is_file()
+            and ".git" not in path.parts
+            and not any(part.endswith(".egg-info") for part in path.parts)
         )
         if files != actual_files:
             missing = sorted(set(actual_files) - set(files))[:5]

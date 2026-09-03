@@ -26,6 +26,11 @@ jobs:
       - name: Install verification dependencies
         run: python -m pip install --upgrade pip && python -m pip install -e '.[dev]'
 
+      - name: Remove editable-install metadata from the checkout
+        run: |
+          find . -type d -name '*.egg-info' -prune -exec rm -rf {} +
+          find . -type d -name '.eggs' -prune -exec rm -rf {} +
+
       - name: Repository Doctor
         run: ./station doctor --repo
 
@@ -95,7 +100,9 @@ jobs:
           jsonschema.validate(release_manifest, release_schema)
           actual_files = sorted(
               str(path) for path in Path('.').rglob('*')
-              if path.is_file() and '.git' not in path.parts
+              if path.is_file()
+              and '.git' not in path.parts
+              and not any(part.endswith('.egg-info') for part in path.parts)
           )
           assert release_manifest['files'] == actual_files
           assert release_manifest['file_count'] == len(actual_files)
