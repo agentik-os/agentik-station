@@ -1,0 +1,15 @@
+.pytest_cache/
+__pycache__/
+*.pyc
+.env
+.env.*
+!*.example
+*.secret
+*.token
+runtime-state/
+dist/
+*.egg-info/
+.venv/
+venv/
+.eggs/
+build/

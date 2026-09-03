@@ -1,0 +1,129 @@
+name: station-ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install verification dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e '.[dev]'
+
+      - name: Repository Doctor
+        run: ./station doctor --repo
+
+      - name: Unit, security, contract and temp-root install tests
+        run: pytest -q -p no:cacheprovider
+
+      - name: Builder and Librarian deterministic gates
+        run: python factory/tests/run_tests.py
+
+      - name: Validate Python syntax without generating bytecode
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          ignored = {"history"}
+          files = []
+          for path in Path('.').rglob('*.py'):
+              if any(part in ignored for part in path.parts):
+                  continue
+              ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+              files.append(path)
+          print(f'PYTHON_AST_OK {len(files)} files')
+          PY
+
+      - name: Validate JSON, YAML and selected schemas
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import yaml
+          import jsonschema
+
+          ignored_parts = {"history"}
+          json_files = []
+          yaml_files = []
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or any(part in ignored_parts for part in path.parts):
+                  continue
+              if path.suffix == '.json':
+                  json.loads(path.read_text(encoding='utf-8'))
+                  json_files.append(path)
+              elif path.suffix in {'.yaml', '.yml'}:
+                  yaml.safe_load(path.read_text(encoding='utf-8'))
+                  yaml_files.append(path)
+
+          install_schema = json.loads(Path('contracts/install-spec.schema.json').read_text())
+          install_example = {
+              "schema_version": 1,
+              "release_version": Path('VERSION').read_text().strip(),
+              "operation_id": "op-ci-example",
+              "host_id": "moonbase-prod-01",
+              "role": "client",
+              "install_system_packages": False,
+              "configure_fail2ban": False,
+              "enable_doctor_timer": False,
+              "seed": {
+                  "category": "CLIENTS",
+                  "name": "moonbase",
+                  "environment": "production",
+                  "organization": "moonbase",
+                  "project": "platform"
+              }
+          }
+          jsonschema.validate(install_example, install_schema)
+          release_schema = json.loads(Path('contracts/release-manifest.schema.json').read_text())
+          release_manifest = json.loads(Path('MANIFEST.json').read_text())
+          jsonschema.validate(release_manifest, release_schema)
+          actual_files = sorted(
+              str(path) for path in Path('.').rglob('*')
+              if path.is_file() and '.git' not in path.parts
+          )
+          assert release_manifest['files'] == actual_files
+          assert release_manifest['file_count'] == len(actual_files)
+          print(f'JSON_OK {len(json_files)} YAML_OK {len(yaml_files)} SCHEMA_OK')
+          PY
+
+      - name: Compile exact core and client plans
+        run: |
+          ./station plan --host-id gareth-core-01 --role core --json > /tmp/core-plan.json
+          ./station plan \
+            --host-id moonbase-prod-01 \
+            --role client \
+            --seed-category CLIENTS \
+            --seed-name moonbase \
+            --seed-env production \
+            --seed-organization moonbase \
+            --seed-project platform \
+            --json > /tmp/client-plan.json
+          python - <<'PY'
+          import json
+          for path in ['/tmp/core-plan.json', '/tmp/client-plan.json']:
+              payload = json.load(open(path))
+              assert payload['final_claim_if_successful'] == 'READY_FOR_SETUP'
+          print('PLAN_CONTRACT_OK')
+          PY
+
+      - name: Final repository hygiene
+        run: |
+          find . -type d \( -name __pycache__ -o -name .pytest_cache -o -name .mypy_cache -o -name .ruff_cache \) -print -quit | (! grep .)
+          find . -type f \( -name '*.pyc' -o -name '*.pyo' \) -print -quit | (! grep .)
+          ./station doctor --repo
