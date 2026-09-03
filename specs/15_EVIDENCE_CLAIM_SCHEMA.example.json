@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station Evidence Claim v1",
+  "type": "object",
+  "required": [
+    "claim_id",
+    "mission_id",
+    "subject",
+    "claim",
+    "stage",
+    "evidence_type",
+    "observer",
+    "observed_at"
+  ],
+  "properties": {
+    "claim_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "claim": {
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "prepared",
+        "observed",
+        "reported",
+        "verified",
+        "read_back",
+        "accepted"
+      ]
+    },
+    "evidence_type": {
+      "type": "string"
+    },
+    "observer": {
+      "type": "string"
+    },
+    "verifier": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_locator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observed_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

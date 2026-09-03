@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station Deliverable Quality Gate v1",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "class",
+    "taste_brief",
+    "gates",
+    "status"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string"
+    },
+    "class": {
+      "enum": [
+        "website",
+        "visual",
+        "report",
+        "deck",
+        "pdf",
+        "poster",
+        "diagram",
+        "data_visualization",
+        "other"
+      ]
+    },
+    "taste_brief": {
+      "type": "object"
+    },
+    "render": {
+      "type": "object"
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "passed",
+              "failed",
+              "waived"
+            ]
+          },
+          "evidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "prepared",
+        "rendered",
+        "verified",
+        "accepted"
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+capabilities:
+  - id: example.read
+    risk: read
+    environments: [development, staging, production]
+    approval: none
+    adapter: auto

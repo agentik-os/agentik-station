@@ -1,0 +1,15 @@
+{
+  "schema_version": "2.0",
+  "os_id": "librarian-os",
+  "name": "AGK Librarian OS",
+  "version": "conversation-pack-2026.09.03+station-v6",
+  "type": "operative_system",
+  "entrypoint": "LIBRARIAN_PROFILE.md",
+  "contract": "CONTRACT.json",
+  "secret_policy": "references_only",
+  "dependency_os": [],
+  "distribution_class": "AGK core",
+  "surface": "dedicated Discord bot + channel or typed capability call from Builder",
+  "station_normalized": true,
+  "station_contract": "AGK_OS_V2"
+}

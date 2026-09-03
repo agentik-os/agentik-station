@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "release": "0.2.0-alpha.11",
+  "states": [
+    "SPECIFIED",
+    "SCAFFOLDED",
+    "INSTALLABLE",
+    "CONFIGURED",
+    "VERIFIED",
+    "OPERATIONAL",
+    "DEGRADED"
+  ],
+  "modules": [
+    {
+      "id": "station-kernel",
+      "maturity": "INSTALLABLE",
+      "claim": "Typed plan/apply, safe filesystem reconciliation, immutable releases, receipts, and deterministic Doctor are implemented.",
+      "binary_probes": ["station"]
+    },
+    {
+      "id": "host-foundation",
+      "maturity": "INSTALLABLE",
+      "claim": "Ubuntu/Debian systemd Host layout, Unix identities, exact permissions, and Zone/Project ownership are implemented.",
+      "binary_probes": []
+    },
+    {
+      "id": "zone-runtime",
+      "maturity": "INSTALLABLE",
+      "claim": "Placement-independent Zone and Project layouts are reconciled across /srv, /var/lib, /var/log, /run, and backup staging.",
+      "binary_probes": []
+    },
+    {
+      "id": "hermes-runtime",
+      "maturity": "SCAFFOLDED",
+      "claim": "Hermes architecture, managed policy, plugin scaffolds, and update-check receipts exist; profile/distribution compilation is not yet implemented.",
+      "binary_probes": ["hermes"],
+      "next_repair_action": "Implement Zone-local Profile Distribution compilation, profiles, plugins, boards, gateways, and Hermes/plugin Doctor evidence."
+    },
+    {
+      "id": "discord-experience",
+      "maturity": "SCAFFOLDED",
+      "claim": "Mission state, renderer, hook contract, and UX specifications exist; production Discord transport and interactions are not implemented.",
+      "binary_probes": [],
+      "next_repair_action": "Implement host-owned Discord transport, Components V2, authorization, idempotency, rate limits, and test-guild readback."
+    },
+    {
+      "id": "composio-plane",
+      "maturity": "SPECIFIED",
+      "claim": "Identity, session, MCP, trigger, and boundary contracts exist; no connected-account runtime is claimed.",
+      "binary_probes": ["composio"],
+      "next_repair_action": "Implement Station principal mapping, restricted sessions, MCP bindings, triggers, revocation, and cross-Zone negative tests."
+    },
+    {
+      "id": "rootless-runtime",
+      "maturity": "SPECIFIED",
+      "claim": "Rootless isolation policy is specified; per-Zone storage, networks, services, resource limits, and negative tests are not yet implemented.",
+      "binary_probes": ["podman"],
+      "next_repair_action": "Build and verify a per-Zone rootless runtime provider before marking it installable."
+    },
+    {
+      "id": "os-factory",
+      "maturity": "SCAFFOLDED",
+      "claim": "Builder/Librarian source, contracts, and deterministic scaffold tooling exist; complete install-to-Hermes acceptance is not yet implemented.",
+      "binary_probes": [],
+      "next_repair_action": "Complete canonical OS packages and prove build, Doctor, install, fresh-session acceptance, rollback, and recovery."
+    },
+    {
+      "id": "fleet-control",
+      "maturity": "SCAFFOLDED",
+      "claim": "Safe JSON-spec bootstrap transport exists; reconciled Node Agent, drift, remote receipts, and rollback are not yet implemented.",
+      "binary_probes": ["ssh", "rsync"],
+      "next_repair_action": "Implement the Station Node Agent and desired-state reconciliation before calling Fleet operational."
+    },
+    {
+      "id": "backup-recovery",
+      "maturity": "SPECIFIED",
+      "claim": "Recovery contracts and staging roots exist; no off-Host encrypted backup or restore rehearsal is claimed.",
+      "binary_probes": [],
+      "next_repair_action": "Choose a backup provider, implement per-Zone snapshots, and pass destructive restore acceptance."
+    },
+    {
+      "id": "observability",
+      "maturity": "SCAFFOLDED",
+      "claim": "Receipts, Doctor evidence, logs, and evidence semantics exist; complete metrics/alerts are not yet implemented.",
+      "binary_probes": [],
+      "next_repair_action": "Add alerting, retention, disk/log health, and Fleet health ingestion."
+    }
+  ]
+}

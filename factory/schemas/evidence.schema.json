@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "mission_id",
+    "kind",
+    "timestamp",
+    "result"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string"
+    },
+    "mission_id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "fail",
+        "info"
+      ]
+    },
+    "artifact": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

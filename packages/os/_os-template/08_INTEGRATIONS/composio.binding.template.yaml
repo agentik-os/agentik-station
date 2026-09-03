@@ -1,0 +1,18 @@
+schema_version: "1.0"
+os_id: example-os
+organization_id: org-example
+principal_ref: principal-example
+adapter: composio
+session:
+  lifecycle: per_mission
+  discovery: direct
+  mcp: false
+  sandbox: false
+toolkits:
+  allow: [gmail]
+tools:
+  allow: [GMAIL_SEND_EMAIL]
+auth:
+  auth_configs: references_only
+  connected_accounts: live_binding_registry
+triggers: []

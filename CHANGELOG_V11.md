@@ -101,7 +101,7 @@ The repository keeps the complete design work for:
 
 - Hermes as the Station execution kernel;
 - Bot Mode, profiles, Kanban, delegation, worktrees, cron, hooks, logs, and self-improvement governance;
-- AGK OS v2;
+- AGK Operative System v2;
 - Builder OS and Librarian multi-source research;
 - Ponytail and the DevOps engineering constitution;
 - Plan First, Loop-Graph, Gauntlet, Verification Engineering, parallel agents, subagent contracts, and model-agnostic execution;

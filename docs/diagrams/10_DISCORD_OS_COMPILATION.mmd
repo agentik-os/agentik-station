@@ -1,0 +1,9 @@
+flowchart LR
+  O[Organization desired state] --> C[Discord Desired State Compiler]
+  OS[Installed OS manifests] --> C
+  C --> PLAN[Plan / Diff]
+  PLAN --> APPLY[Bootstrap Director]
+  APPLY --> STRUCT[Roles / Categories / Channels]
+  APPLY --> BIND[Dedicated OS Bot + Channel Bindings]
+  BIND --> READ[Command / Routing Readback]
+  READ --> DEMOTE[Remove Bootstrap Administrator]

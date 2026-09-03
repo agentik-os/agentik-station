@@ -1,0 +1,22 @@
+[Unit]
+Description=Agentik Station deterministic Doctor
+After=local-fs.target
+ConditionPathExists=/usr/local/bin/station
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/station doctor --full --record --json
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ReadOnlyPaths=/etc/station /opt/station /srv/station
+ReadWritePaths=/var/lib/station/doctor /var/log/station /run/station
+
+[Install]
+WantedBy=multi-user.target

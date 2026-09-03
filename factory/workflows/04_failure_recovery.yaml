@@ -1,0 +1,12 @@
+workflow: failure_recovery
+steps:
+  - freeze_side_effects
+  - capture_evidence
+  - run_doctor
+  - classify_failure
+  - choose_forward_fix_or_rollback
+  - restore_package_and_config
+  - rebind_secret_references
+  - restore_data_if_needed
+  - fresh_session_acceptance
+  - restore_traffic

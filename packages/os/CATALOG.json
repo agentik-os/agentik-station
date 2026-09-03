@@ -1,0 +1,55 @@
+{
+  "contract": "AGK OS v2",
+  "packages": [
+    {
+      "claim": "Contract and partial source exist; Hermes runtime installation and acceptance are pending.",
+      "id": "station-maintainer-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Compile and install the Station Maintainer Hermes profiles, update workflows, Doctor gates, and fresh-session acceptance.",
+      "path": "packages/os/station-maintainer-os",
+      "runtime_state": "NOT_INSTALLED"
+    },
+    {
+      "claim": "Design package only; real Discord provisioning/readback is pending.",
+      "id": "discord-bootstrap-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Implement Discord provisioning transport, least-privilege demotion, command/message readback, and test-guild acceptance.",
+      "path": "packages/os/discord-bootstrap-os",
+      "runtime_state": "NOT_INSTALLED"
+    },
+    {
+      "claim": "Design package only; Node Agent and remote reconciliation are pending.",
+      "id": "fleet-operator-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Implement the authenticated Station Node Agent, reconciliation receipts, drift, health, and remote rollback.",
+      "path": "packages/os/fleet-operator-os",
+      "runtime_state": "NOT_INSTALLED"
+    },
+    {
+      "claim": "Rich source package exists; full AGK OS v2 Doctor and Hermes acceptance are pending.",
+      "id": "builder-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Complete AGK OS v2 package structure, compile to Hermes, and prove build-to-install-to-recovery acceptance.",
+      "path": "packages/os/builder-os",
+      "runtime_state": "NOT_INSTALLED"
+    },
+    {
+      "claim": "Rich source package exists; live multi-source research executor and acceptance are pending.",
+      "id": "librarian-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Implement live multi-lane source acquisition, freshness/source-quality evidence, and Builder handoff acceptance.",
+      "path": "packages/os/librarian-os",
+      "runtime_state": "NOT_INSTALLED"
+    },
+    {
+      "claim": "Engineering doctrine exists; profiles, programs, evals, Ponytail activation, and runtime evidence are pending.",
+      "id": "devops-os",
+      "maturity": "SCAFFOLDED",
+      "next_repair_action": "Implement profiles, programs, evals, Ponytail activation, worktree isolation, CI/readback, and Gauntlet acceptance.",
+      "path": "packages/os/devops-os",
+      "runtime_state": "NOT_INSTALLED"
+    }
+  ],
+  "release": "0.2.0-alpha.11",
+  "schema_version": 1
+}

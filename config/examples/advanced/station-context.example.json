@@ -1,0 +1,38 @@
+{
+  "station_id": "gareth-station-01",
+  "organization_id": "gareth",
+  "trust_zone": "os-factory",
+  "project_id": "station-os-factory",
+  "os_id": "builder-os",
+  "profile_id": "master-os-builder",
+  "environment": "development",
+  "capability_set": [
+    "github.read",
+    "github.write",
+    "web.search"
+  ],
+  "credential_namespace": "gareth/os-factory/builder-os",
+  "memory_namespace": "gareth/os-factory/builder-os",
+  "allowed_roots": [
+    "/srv/station/zones/os-factory"
+  ],
+  "deny_roots": [
+    "/srv/station/zones/private-self",
+    "/srv/station/fleet/client-state"
+  ],
+  "orchestration": {
+    "mission_id": "example-mission",
+    "active_lanes": [
+      "clarify_plan",
+      "connect_boundaries"
+    ],
+    "evidence_stage": "prepared",
+    "execution_owner": "master-os-builder",
+    "verification_owner": "specification-reviewer"
+  },
+  "capability_readiness": {
+    "github.read": "verified_ready",
+    "github.write": "scoped",
+    "web.search": "verified_ready"
+  }
+}

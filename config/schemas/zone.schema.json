@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "backup_staging_root": {
+      "pattern": "^/var/backups/station/zones/",
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "SYSTEM",
+        "PRIVATE",
+        "AGENTIK",
+        "CLIENTS",
+        "PROJECTS",
+        "FACTORY",
+        "LAB"
+      ]
+    },
+    "environment": {
+      "enum": [
+        "system",
+        "private",
+        "development",
+        "staging",
+        "production",
+        "factory",
+        "lab"
+      ]
+    },
+    "hermes_home": {
+      "pattern": "^/var/lib/station/zones/.+/hermes$",
+      "type": "string"
+    },
+    "host_id": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    },
+    "human_root": {
+      "pattern": "^/srv/station/2_ZONES/",
+      "type": "string"
+    },
+    "id": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    },
+    "isolation": {
+      "additionalProperties": false,
+      "properties": {
+        "credentials": {
+          "const": "zone-scoped"
+        },
+        "cross_zone_mounts": {
+          "const": "deny"
+        },
+        "filesystem": {
+          "const": "unix-identity"
+        },
+        "hermes_home": {
+          "const": "dedicated"
+        }
+      },
+      "required": [
+        "filesystem",
+        "hermes_home",
+        "credentials",
+        "cross_zone_mounts"
+      ],
+      "type": "object"
+    },
+    "log_root": {
+      "pattern": "^/var/log/station/zones/",
+      "type": "string"
+    },
+    "name": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    },
+    "organization": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "placement": {
+      "enum": [
+        "local",
+        "remote"
+      ]
+    },
+    "runtime_root": {
+      "pattern": "^/run/station/zones/",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "state_root": {
+      "pattern": "^/var/lib/station/zones/",
+      "type": "string"
+    },
+    "unix_user": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "category",
+    "environment",
+    "host_id",
+    "unix_user",
+    "human_root",
+    "state_root",
+    "hermes_home",
+    "placement",
+    "isolation"
+  ],
+  "title": "Station Zone desired/observed record",
+  "type": "object"
+}

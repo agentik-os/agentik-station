@@ -1,0 +1,13 @@
+routes:
+  orchestration:
+    preferred: <reasoning-model>
+    fallback: <fallback>
+  coding:
+    preferred: <coding-model>
+    fallback: <fallback>
+  review:
+    preferred: <independent-review-model>
+    fallback: <fallback>
+  fast-routing:
+    preferred: <fast-low-cost-model>
+credentials: external_references_only

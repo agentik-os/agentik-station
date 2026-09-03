@@ -1,0 +1,9 @@
+commands:
+  - mission
+  - status
+  - plan
+  - approve
+  - review
+  - doctor
+  - recover
+  - help

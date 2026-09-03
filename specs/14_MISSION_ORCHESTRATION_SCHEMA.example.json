@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station Mission Orchestration v1",
+  "type": "object",
+  "required": [
+    "mission_id",
+    "objective",
+    "acceptance_criteria",
+    "lanes",
+    "plan_revision",
+    "nodes",
+    "status",
+    "evidence_stage"
+  ],
+  "properties": {
+    "mission_id": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "constraints": {
+      "type": "array"
+    },
+    "assumptions": {
+      "type": "array"
+    },
+    "acceptance_criteria": {
+      "type": "array"
+    },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "clarify_plan",
+          "build_leverage",
+          "research_learn",
+          "code_ship",
+          "polished_deliverables",
+          "remember_operate",
+          "connect_boundaries"
+        ]
+      }
+    },
+    "plan_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "enum": [
+        "planning",
+        "ready",
+        "running",
+        "blocked",
+        "verifying",
+        "shipping",
+        "degraded",
+        "done",
+        "failed"
+      ]
+    },
+    "evidence_stage": {
+      "enum": [
+        "prepared",
+        "observed",
+        "reported",
+        "verified",
+        "read_back",
+        "accepted"
+      ]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "owner",
+          "status",
+          "evidence_stage"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "object"
+          },
+          "verifier": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "ready",
+              "running",
+              "reported_done",
+              "verifying",
+              "done",
+              "blocked",
+              "failed",
+              "skipped"
+            ]
+          },
+          "evidence_stage": {
+            "enum": [
+              "prepared",
+              "observed",
+              "reported",
+              "verified",
+              "read_back",
+              "accepted"
+            ]
+          },
+          "depends_on": {
+            "type": "array"
+          }
+        }
+      }
+    }
+  }
+}

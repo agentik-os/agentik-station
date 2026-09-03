@@ -1,0 +1,27 @@
+flowchart TB
+    U[Human] --> D[Discord / Agentik UI / API]
+    D --> HG[Hermes Gateway / API]
+    HG --> HS[Hermes Session]
+    HS --> ND[Nano Director Profile]
+
+    ND --> DT[delegate_task]
+    ND --> M[AGK Mission]
+    M --> K[Hermes Root Kanban Task]
+    K --> DAG[Kanban DAG]
+    DAG --> W[Worker Profiles / Subagents]
+
+    W --> SK[Skills / Ponytail]
+    W --> MCP[Toolsets / MCP / Plugins]
+    W --> WS[Projects / Worktrees / Sandbox]
+
+    AGK[AGK Desired State / Policies] --> NC[Agentik Node Controller]
+    NC --> HP[Hermes Config / Profiles]
+    NC --> DP[Discord Provisioner]
+    NC --> REG[Org + OS Registry]
+    NC --> CAP[Capability Policy]
+
+    DP --> D
+    CAP --> MCP
+    K --> EV[Evidence Hooks]
+    MCP --> EV
+    EV --> AO[Agentik Observability / Evals]

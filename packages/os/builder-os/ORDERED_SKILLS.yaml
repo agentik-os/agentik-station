@@ -1,0 +1,19 @@
+ordered_skills:
+  - plan-first
+  - graph-loop
+  - librarian-handoff
+  - contract-design
+  - orchestration-design
+  - deterministic-programming
+  - tool-contracts
+  - memory-knowledge
+  - provider-routing
+  - discord-surface
+  - tdd
+  - evaluation-engineering
+  - verification-engineering
+  - doctor
+  - rollback-recovery
+  - fresh-session-acceptance
+  - independent-review
+  - packaging-registry

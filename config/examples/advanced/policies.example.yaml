@@ -1,0 +1,33 @@
+policies:
+  context:
+    deny_sensitive_action_if_unresolved: true
+
+  credentials:
+    global_secret_pool: false
+    require_scope:
+      - organization
+      - capability
+
+  memory:
+    subagent_direct_permanent_write: false
+    require_candidate_review: true
+
+  engineering:
+    worktree_required: true
+    tests_required: true
+    independent_review_required: true
+    evidence_required: true
+    ponytail_required_when_devops_os_installed: true
+    ponytail_review_required: true
+
+  production:
+    require_explicit_capability: true
+    require_post_deploy_verification: true
+
+  discord:
+    desired_state_is_source_of_truth: true
+    immutable_id_bindings: true
+    bootstrap_admin_temporary_only: true
+    runtime_administrator_forbidden: true
+    destructive_reconcile_requires_approval: true
+    deny_sensitive_action_on_ambiguous_binding: true

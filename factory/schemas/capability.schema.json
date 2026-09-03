@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "capability_id",
+    "owner_os",
+    "input_schema",
+    "output_schema",
+    "permissions"
+  ],
+  "properties": {
+    "capability_id": {
+      "type": "string"
+    },
+    "owner_os": {
+      "type": "string"
+    },
+    "input_schema": {
+      "type": "object"
+    },
+    "output_schema": {
+      "type": "object"
+    },
+    "permissions": {
+      "type": "object"
+    },
+    "idempotency": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array"
+    }
+  }
+}

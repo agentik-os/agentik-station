@@ -1,0 +1,61 @@
+{
+  "schema_version": "station.config/v2",
+  "station_id": "gareth-station",
+  "supported_platform": {
+    "os_ids": ["ubuntu", "debian"],
+    "requires_systemd": true,
+    "package_manager": "apt"
+  },
+  "roles": {
+    "core": {
+      "zones": [
+        {"category": "SYSTEM", "name": "station-maintainer", "environment": "system", "requested_os": ["station-maintainer-os"]},
+        {"category": "SYSTEM", "name": "discord-bootstrap", "environment": "system", "requested_os": ["discord-bootstrap-os"]},
+        {"category": "SYSTEM", "name": "fleet-operator", "environment": "system", "requested_os": ["fleet-operator-os"]},
+        {"category": "PRIVATE", "name": "gareth", "environment": "private", "organization": "gareth", "requested_os": []},
+        {"category": "AGENTIK", "name": "dev", "environment": "development", "organization": "agentik", "requested_os": ["devops-os"]},
+        {"category": "FACTORY", "name": "os", "environment": "factory", "organization": "agentik", "requested_os": ["builder-os", "librarian-os", "devops-os"]},
+        {"category": "LAB", "name": "hermes-edge", "environment": "lab", "organization": "agentik", "requested_os": ["devops-os"]}
+      ]
+    },
+    "client": {
+      "zones": [
+        {"category": "SYSTEM", "name": "station-maintainer", "environment": "system", "requested_os": ["station-maintainer-os"]},
+        {"category": "SYSTEM", "name": "discord-bootstrap", "environment": "system", "requested_os": ["discord-bootstrap-os"]},
+        {"category": "SYSTEM", "name": "fleet-operator", "environment": "system", "requested_os": ["fleet-operator-os"]}
+      ]
+    },
+    "project": {
+      "zones": [
+        {"category": "SYSTEM", "name": "station-maintainer", "environment": "system", "requested_os": ["station-maintainer-os"]},
+        {"category": "SYSTEM", "name": "discord-bootstrap", "environment": "system", "requested_os": ["discord-bootstrap-os"]},
+        {"category": "SYSTEM", "name": "fleet-operator", "environment": "system", "requested_os": ["fleet-operator-os"]}
+      ]
+    },
+    "lab": {
+      "zones": [
+        {"category": "SYSTEM", "name": "station-maintainer", "environment": "system", "requested_os": ["station-maintainer-os"]},
+        {"category": "SYSTEM", "name": "discord-bootstrap", "environment": "system", "requested_os": ["discord-bootstrap-os"]},
+        {"category": "SYSTEM", "name": "fleet-operator", "environment": "system", "requested_os": ["fleet-operator-os"]},
+        {"category": "LAB", "name": "hermes-edge", "environment": "lab", "organization": "agentik", "requested_os": ["devops-os"]}
+      ]
+    },
+    "worker": {
+      "zones": [
+        {"category": "SYSTEM", "name": "station-maintainer", "environment": "system", "requested_os": ["station-maintainer-os"]},
+        {"category": "SYSTEM", "name": "fleet-operator", "environment": "system", "requested_os": ["fleet-operator-os"]}
+      ]
+    }
+  },
+  "policy": {
+    "cross_zone_mounts": "deny",
+    "cross_zone_credentials": "deny",
+    "remote_secrets_in_control": false,
+    "development_has_production_credentials": false,
+    "plan_first": true,
+    "evidence_before_claims": true,
+    "external_installers_require_approval": true,
+    "unresolved_context": "block",
+    "production_mutation": "explicit-approval"
+  }
+}

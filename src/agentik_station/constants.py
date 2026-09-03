@@ -1,0 +1,91 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+PRODUCT_VERSION = "0.2.0-alpha.11"
+BLUEPRINT_VERSION = 11
+SPEC_SCHEMA_VERSION = 1
+
+CATEGORIES = {
+    "SYSTEM": "1_SYSTEM",
+    "PRIVATE": "2_PRIVATE",
+    "AGENTIK": "3_AGENTIK",
+    "CLIENTS": "4_CLIENTS",
+    "PROJECTS": "5_PROJECTS",
+    "FACTORY": "6_FACTORY",
+    "LAB": "7_LAB",
+}
+
+ZONE_SUBDIRS = ["projects", "os", "integrations", "credentials", "evidence", "ops"]
+PROJECT_SUBDIRS = [
+    "repos",
+    "docs",
+    "knowledge",
+    "integrations",
+    "credentials",
+    "workspaces",
+    "worktrees",
+    "state",
+    "artifacts",
+    "evidence",
+    "ops",
+]
+ZONE_STATE_SUBDIRS = ["home", "hermes", "mission-state", "databases", "connector-state", "caches", "projects"]
+
+SYSTEM_PACKAGES = [
+    "git",
+    "curl",
+    "ca-certificates",
+    "python3",
+    "python3-venv",
+    "python3-pip",
+    "jq",
+    "unzip",
+    "rsync",
+    "acl",
+    "sqlite3",
+    "fail2ban",
+    "ufw",
+    "podman",
+    "uidmap",
+    "slirp4netns",
+    "fuse-overlayfs",
+]
+
+MATURITY_STATES = [
+    "SPECIFIED",
+    "SCAFFOLDED",
+    "INSTALLABLE",
+    "CONFIGURED",
+    "VERIFIED",
+    "OPERATIONAL",
+    "DEGRADED",
+]
+
+REPO_EXCLUDES = {
+    ".git",
+    ".pytest_cache",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".DS_Store",
+    ".venv",
+    "venv",
+    ".eggs",
+    "build",
+    "dist",
+}
+
+TEXT_EXTENSIONS = {".md", ".yaml", ".yml", ".json", ".py", ".sh", ".toml", ".txt", ""}
+
+LIVE_ROOTS = {
+    "config": Path("/etc/station"),
+    "software": Path("/opt/station"),
+    "runtime": Path("/srv/station"),
+    "varlib": Path("/var/lib/station"),
+    "log": Path("/var/log/station"),
+    "backups": Path("/var/backups/station"),
+    "run": Path("/run/station"),
+    "systemd": Path("/etc/systemd/system"),
+    "bin": Path("/usr/local/bin"),
+}

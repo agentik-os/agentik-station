@@ -1,0 +1,11 @@
+flowchart TB
+    C[Composite OS]
+    C --> A[Domain OS A]
+    C --> B[Domain OS B]
+    A --> AD[Nano Director]
+    B --> BD[Nano Director]
+    AD --> AT[NanoTeam]
+    BD --> BT[NanoTeam]
+    AT --> L[Team Director optional]
+    L --> S1[Specialist]
+    L --> S2[Specialist]

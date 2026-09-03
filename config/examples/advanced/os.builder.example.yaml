@@ -1,0 +1,41 @@
+kind: AgentikOS
+apiVersion: agk.agentik/v1
+metadata:
+  id: builder-os
+  version: 1.0.0
+  system_os: true
+spec:
+  contract: locked-2026-08-31
+  director:
+    profile: master-os-builder
+    discord:
+      mode: dedicated
+      required_before_release: true
+  team:
+    persistent_profiles:
+      - domain-scout
+      - specification-reviewer
+      - test-engineer
+      - recovery-auditor
+      - security-reviewer
+      - discord-provisioner
+  dependencies:
+    - librarian
+    - devops-engineering-harness
+    - ponytail
+  board: builder
+  fresh_session_acceptance: required
+  librarian:
+    handoff_path: 14_BUILDER_HANDOFF.md
+    target_inputs: 15
+  faces:
+    client_face: mission-token-only
+    agk_ops: Operator
+    collective: Agentik
+    recover_pending_is_completion: false
+  release:
+    doctor: required
+    rollback_rehearsal: required
+    recovery_rehearsal: required
+    discord_readback: required
+    evidence_bundle: required

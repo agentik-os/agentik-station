@@ -1,0 +1,229 @@
+{
+  "schema_version": "2.0",
+  "os_id": "builder-os",
+  "version": "conversation-pack-2026.09.03+station-v6",
+  "outcome_contract": {
+    "owns": "build_and_upgrade_AGK_operating_systems",
+    "mission_types": [
+      "build_os",
+      "upgrade_os",
+      "audit_os",
+      "repair_os",
+      "migrate_os",
+      "release_os"
+    ]
+  },
+  "nano_director": {
+    "profile": "master-os-builder",
+    "persistent_bot": true,
+    "discord_identity": "dedicated"
+  },
+  "nanoteam": {
+    "persistent_profiles": [
+      "domain-scout",
+      "os-architect",
+      "program-engineer",
+      "integration-engineer",
+      "test-engineer",
+      "evaluation-engineer",
+      "discord-experience-engineer",
+      "security-tenancy-reviewer",
+      "recovery-auditor",
+      "specification-reviewer"
+    ],
+    "kanban_workers": [],
+    "ephemeral_roles": []
+  },
+  "profiles": [
+    "BUILDER_PROFILE.md"
+  ],
+  "ordered_skills": [
+    "plan-first",
+    "graph-loop",
+    "librarian-handoff",
+    "contract-design",
+    "orchestration-design",
+    "deterministic-programming",
+    "tool-contracts",
+    "memory-knowledge",
+    "provider-routing",
+    "discord-surface",
+    "tdd",
+    "evaluation-engineering",
+    "verification-engineering",
+    "doctor",
+    "rollback-recovery",
+    "fresh-session-acceptance",
+    "independent-review",
+    "packaging-registry"
+  ],
+  "programs": [
+    "../../programs/agk_builder.py",
+    "../../programs/mission_graph.py"
+  ],
+  "capability_contracts": [
+    "../../09_INTEGRATIONS/MCP_TOOL_CONTRACT.md"
+  ],
+  "integration_adapters": [
+    "hermes_native",
+    "github",
+    "optional_composio_for_declared_external_apps"
+  ],
+  "knowledge_memory": {
+    "knowledge_scopes": [
+      "AGK canonical contract",
+      "target OS brief",
+      "Librarian handoff",
+      "organization-approved project knowledge"
+    ],
+    "memory_scopes": [
+      "builder mission",
+      "target OS build state",
+      "evidence pointers; no cross-client implicit memory"
+    ]
+  },
+  "data_model": {
+    "schema": "package-defined-or-none",
+    "state_model": "mission_and_domain_state",
+    "migrations": "required"
+  },
+  "mission_model": {
+    "durable_engine": "hermes_kanban",
+    "root": "mission_root_task",
+    "graph": "kanban_dag"
+  },
+  "provider_routes": {
+    "policy": "model_agnostic",
+    "routes": [
+      "planning/reasoning",
+      "coding",
+      "review",
+      "fast routing; provider values are environment policy"
+    ]
+  },
+  "workflows": [
+    "build-new-os",
+    "upgrade-os",
+    "failure-recovery"
+  ],
+  "automations": [
+    "research-refresh trigger",
+    "release evidence retention according to organization policy"
+  ],
+  "governance": {
+    "context_envelope": true,
+    "capability_scoped": true,
+    "approvals": "risk_based",
+    "trust_zone": "os-factory"
+  },
+  "engineering_harness": {
+    "inherit_station_engineering_constitution": true
+  },
+  "evaluations": [
+    "four owner gates",
+    "contract completeness",
+    "deterministic tests",
+    "live integration tests",
+    "security tenancy",
+    "Discord readback",
+    "fresh-session acceptance"
+  ],
+  "evidence": {
+    "required": true,
+    "logs": "hermes_native",
+    "secret_redaction": true
+  },
+  "discord": {
+    "mode": "dedicated",
+    "bot_role": "Nano Director",
+    "commands": "discord/COMMANDS.yaml",
+    "thread_policy": "thread is Hermes session surface; substantial Discord-origin mission binds one thread; Mission/Kanban remains durable source of truth",
+    "experience": {
+      "plan_first": true,
+      "mission_progress_card": true,
+      "components": "v2-preferred",
+      "final_report": true
+    }
+  },
+  "views": [
+    "builder_status",
+    "contract_matrix",
+    "release_evidence"
+  ],
+  "doctor": {
+    "required": true,
+    "spec": "../../11_RECOVERY/DOCTOR_SPEC.md"
+  },
+  "update_migrations": {
+    "required": true,
+    "hermes_compatibility": "station_maintainer"
+  },
+  "rollback": {
+    "required": true,
+    "spec": "../../11_RECOVERY/ROLLBACK_SPEC.md"
+  },
+  "recovery": {
+    "required": true,
+    "spec": "../../11_RECOVERY/RECOVERY_ARTIFACT_SPEC.md"
+  },
+  "self_improvement": {
+    "learning": "hermes_native",
+    "promotion": "governed",
+    "may_not_weaken_hard_policy": true
+  },
+  "librarian": {
+    "dependency_os": "librarian-os",
+    "protocol": "../03_LIBRARIAN_OS/BOOK_DEEP_PROTOCOL.md",
+    "required_for_every_target_domain_os": true,
+    "handoff_name": "14_BUILDER_HANDOFF.md",
+    "selected_inputs": 15,
+    "research_lanes": [
+      "topic_map",
+      "book_deep",
+      "bestseller",
+      "web_deep",
+      "expert_operator_map",
+      "contrarian_failure"
+    ]
+  },
+  "deployment": {
+    "fresh_session_acceptance": true,
+    "automations_default": "disabled_until_accepted"
+  },
+  "legacy_fields_preserved": {
+    "station": {
+      "context_envelope_required": true,
+      "trust_zone": "os-factory",
+      "hermes_native_first": true,
+      "engineering_constitution_required_for_code": true,
+      "upstream_compatibility_checked_by": "station-maintainer-os"
+    }
+  },
+  "orchestration": {
+    "contract": "station-orchestration/v1",
+    "plan_first": true,
+    "evidence_before_claims": true,
+    "ownership_visible": true,
+    "lanes": [
+      "clarify_plan",
+      "build_leverage",
+      "research_learn",
+      "code_ship",
+      "polished_deliverables",
+      "remember_operate",
+      "connect_boundaries"
+    ]
+  },
+  "claim_evidence_policy": {
+    "stages": [
+      "prepared",
+      "observed",
+      "reported",
+      "verified",
+      "read_back",
+      "accepted"
+    ],
+    "reported_is_verified": false,
+    "plan_completion_is_evidence": false
+  }
+}

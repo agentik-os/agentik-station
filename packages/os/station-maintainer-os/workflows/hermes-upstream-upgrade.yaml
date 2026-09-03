@@ -1,0 +1,16 @@
+workflow: hermes-upstream-upgrade
+states:
+  - update_detected
+  - collect_update_plan
+  - capability_diff
+  - lab_backup
+  - lab_update
+  - config_compatibility
+  - doctor
+  - regression
+  - gauntlet
+  - recovery_rehearsal
+  - candidate_release
+  - promotion_gate
+  - observe
+failure: rollback_lab_and_block_promotion

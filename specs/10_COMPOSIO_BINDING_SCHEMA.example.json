@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AGK Composio Binding",
+  "type": "object",
+  "required": [
+    "os_id",
+    "organization_id",
+    "principal_ref",
+    "session",
+    "toolkits",
+    "tools",
+    "auth"
+  ],
+  "properties": {
+    "os_id": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "principal_ref": {
+      "type": "string"
+    },
+    "session": {
+      "type": "object",
+      "properties": {
+        "lifecycle": {
+          "enum": [
+            "per_mission",
+            "conversation_bound",
+            "manual"
+          ]
+        },
+        "discovery": {
+          "enum": [
+            "direct",
+            "meta"
+          ]
+        },
+        "mcp": {
+          "type": "boolean"
+        },
+        "sandbox": {
+          "type": "boolean"
+        }
+      }
+    },
+    "toolkits": {
+      "type": "object"
+    },
+    "tools": {
+      "type": "object"
+    },
+    "auth": {
+      "type": "object"
+    },
+    "triggers": {
+      "type": "array"
+    }
+  }
+}

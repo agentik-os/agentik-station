@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AGK OS Contract v2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "os_id",
+    "version",
+    "outcome_contract",
+    "nano_director",
+    "nanoteam",
+    "profiles",
+    "ordered_skills",
+    "programs",
+    "capability_contracts",
+    "integration_adapters",
+    "knowledge_memory",
+    "data_model",
+    "mission_model",
+    "provider_routes",
+    "workflows",
+    "automations",
+    "governance",
+    "evaluations",
+    "evidence",
+    "discord",
+    "views",
+    "doctor",
+    "update_migrations",
+    "rollback",
+    "recovery",
+    "self_improvement",
+    "librarian",
+    "deployment",
+    "orchestration",
+    "claim_evidence_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "os_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome_contract": {
+      "type": "object"
+    },
+    "nano_director": {
+      "type": "object",
+      "required": [
+        "profile",
+        "persistent_bot"
+      ]
+    },
+    "nanoteam": {
+      "type": "object"
+    },
+    "profiles": {
+      "type": "array"
+    },
+    "ordered_skills": {
+      "type": "array"
+    },
+    "programs": {
+      "type": "array"
+    },
+    "capability_contracts": {
+      "type": "array"
+    },
+    "integration_adapters": {
+      "type": "array"
+    },
+    "knowledge_memory": {
+      "type": "object"
+    },
+    "data_model": {
+      "type": "object",
+      "required": [
+        "schema",
+        "state_model"
+      ]
+    },
+    "mission_model": {
+      "type": "object"
+    },
+    "provider_routes": {
+      "type": "object"
+    },
+    "workflows": {
+      "type": "array"
+    },
+    "automations": {
+      "type": "array"
+    },
+    "governance": {
+      "type": "object"
+    },
+    "engineering_harness": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "evaluations": {
+      "type": "array"
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "discord": {
+      "type": "object",
+      "required": [
+        "dedicated_bot",
+        "dedicated_channel",
+        "commands"
+      ]
+    },
+    "views": {
+      "type": "array"
+    },
+    "doctor": {
+      "type": "object"
+    },
+    "update_migrations": {
+      "type": "object"
+    },
+    "rollback": {
+      "type": "object"
+    },
+    "recovery": {
+      "type": "object"
+    },
+    "self_improvement": {
+      "type": "object"
+    },
+    "librarian": {
+      "type": "object",
+      "required": [
+        "handoff",
+        "minimum_inputs"
+      ]
+    },
+    "deployment": {
+      "type": "object",
+      "required": [
+        "fresh_session_acceptance"
+      ]
+    },
+    "orchestration": {
+      "type": "object",
+      "required": [
+        "contract",
+        "plan_first",
+        "evidence_before_claims",
+        "lanes"
+      ]
+    },
+    "claim_evidence_policy": {
+      "type": "object",
+      "required": [
+        "stages",
+        "reported_is_verified"
+      ]
+    }
+  }
+}

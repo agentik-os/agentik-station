@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "organization_id": "example",
+  "guild_id": "1234567890",
+  "bindings": [
+    {
+      "surface_key": "engineering.devops",
+      "category_id": "2345678901",
+      "channel_id": "3456789012",
+      "os_id": "agk.devops",
+      "director_profile": "devops-director",
+      "project_id": "platform",
+      "board_id": "engineering",
+      "capability_policy": "devops-standard"
+    }
+  ],
+  "desired_state_version": "v1"
+}

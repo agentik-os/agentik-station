@@ -1,0 +1,51 @@
+schema_version: station.desired/v2
+station:
+  id: gareth-station
+  host_id: gareth-core-01
+  role: core
+  release_version: 0.2.0-alpha.11
+
+paths:
+  desired_state: /etc/station
+  releases: /opt/station/releases
+  human_runtime: /srv/station
+  observed_state: /var/lib/station
+  logs: /var/log/station
+  backup_staging: /var/backups/station
+  ephemeral: /run/station
+
+kernel:
+  requested: true
+  expected_maturity: INSTALLABLE
+
+modules:
+  hermes-runtime:
+    requested: true
+    expected_maturity: SCAFFOLDED
+    runtime_state: NOT_CONFIGURED
+  discord-experience:
+    requested: true
+    expected_maturity: SCAFFOLDED
+    runtime_state: NOT_CONFIGURED
+  composio-plane:
+    requested: true
+    expected_maturity: SPECIFIED
+    runtime_state: NOT_CONFIGURED
+  rootless-runtime:
+    requested: true
+    expected_maturity: SPECIFIED
+    runtime_state: NOT_CONFIGURED
+  backup-recovery:
+    requested: true
+    expected_maturity: SPECIFIED
+    runtime_state: NOT_CONFIGURED
+
+policy:
+  cross_zone_mounts: deny
+  cross_zone_credentials: deny
+  development_has_production_credentials: false
+  remote_secrets_in_control: false
+  unresolved_context: block
+  production_mutation: explicit-approval
+  plan_first: true
+  evidence_before_claims: true

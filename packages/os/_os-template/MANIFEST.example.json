@@ -1,0 +1,12 @@
+{
+  "schema_version": "2.0",
+  "os_id": "example-os",
+  "name": "Example OS",
+  "version": "0.1.0",
+  "type": "operative_system",
+  "contract": "CONTRACT.json",
+  "secret_policy": "references_only",
+  "station_requires": ">=7.0.0",
+  "hermes_requires": "declared_at_build",
+  "dependencies": []
+}

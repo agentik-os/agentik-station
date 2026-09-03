@@ -1,0 +1,33 @@
+schema_version: 2
+
+station:
+  id: gareth-station-01
+  mode: owner
+  release_channel: candidate
+
+node:
+  organization_id: gareth
+  environment: production
+
+runtime:
+  engine: hermes
+  stable_release_from_lock: true
+  direct_upstream_updates_allowed_only_in: [lab]
+
+security:
+  checkpoints: true
+  verify_on_stop: true
+  require_context_for_sensitive_actions: true
+  trust_zone_isolation: unix_user_and_hermes_home
+  production_clients_on_separate_nodes: true
+
+integrations:
+  discord: true
+  github: true
+
+system_os:
+  - station-maintainer-os
+  - discord-bootstrap-os
+  - librarian-os
+  - builder-os
+  - devops-os

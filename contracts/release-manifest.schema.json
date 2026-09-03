@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agentik Station release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "release",
+    "blueprint_version",
+    "posture",
+    "archive_root",
+    "verified_claim",
+    "architecture",
+    "evidence_model",
+    "history_is_non_canonical",
+    "validation",
+    "file_count",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "name": {"const": "agentik-station"},
+    "release": {"const": "0.2.0-alpha.11"},
+    "blueprint_version": {"const": 11},
+    "posture": {"const": "safe-kernel-alpha"},
+    "archive_root": {"const": "agentik-station"},
+    "verified_claim": {"const": "READY_FOR_SETUP"},
+    "architecture": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["Station", "Host", "Control Plane", "Zone", "Project", "Operative System", "Workspace", "Fleet"]}
+    },
+    "evidence_model": {
+      "const": ["PREPARED", "OBSERVED", "REPORTED", "VERIFIED", "READ_BACK", "ACCEPTED"]
+    },
+    "history_is_non_canonical": {"const": true},
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_doctor", "station_tests", "factory_pytest", "builder_librarian_gates"],
+      "properties": {
+        "repository_doctor": {"const": "PASS"},
+        "station_tests": {"type": "integer", "minimum": 1},
+        "factory_pytest": {"type": "integer", "minimum": 1},
+        "builder_librarian_gates": {"const": "7/7 PASS"}
+      }
+    },
+    "file_count": {"type": "integer", "minimum": 1},
+    "files": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

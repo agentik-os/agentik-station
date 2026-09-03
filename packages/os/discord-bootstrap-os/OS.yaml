@@ -1,0 +1,4 @@
+id: discord-bootstrap-os
+version: 1.0.0
+director: discord-bootstrap-director
+dedicated_discord_bot: true

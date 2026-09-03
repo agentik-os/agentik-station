@@ -1,0 +1,47 @@
+version: 1
+
+mission:
+  plan_first: required
+  evidence_before_claims: required
+  ownership_visible: true
+  next_repair_action_on_degraded: required
+
+ambiguity:
+  reversible_low_risk: proceed_with_explicit_assumptions
+  irreversible_or_boundary_sensitive: owner_gate
+
+lanes:
+  clarify_plan: enabled
+  build_leverage: enabled
+  research_learn: enabled
+  code_ship: enabled
+  polished_deliverables: enabled
+  remember_operate: enabled
+  connect_boundaries: enabled
+
+evidence:
+  stages: [prepared, observed, reported, verified, read_back, accepted]
+  reported_is_verified: false
+  plan_done_is_evidence: false
+
+parallel:
+  require_owner_per_node: true
+  require_fan_in: true
+  mutable_code_requires_worktree: true
+
+connectors:
+  probe_before_dependency: true
+  production_minimum_state: verified_ready
+  cache_readiness_seconds: 900
+
+research:
+  freshness_required: true
+  source_quality_required: true
+
+artifacts:
+  render_before_polished_claim: true
+  visual_quality_gate: true
+
+memory:
+  review_before_promotion: true
+  raw_logs_are_memory: false

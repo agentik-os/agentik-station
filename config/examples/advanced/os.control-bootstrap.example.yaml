@@ -1,0 +1,27 @@
+id: agk.control.bootstrap
+name: Control Bootstrap OS
+version: 0.1.0
+
+system_os: true
+
+director:
+  profile: discord-bootstrap-director
+
+capabilities:
+  bootstrap_window_only:
+    - discord.state.read
+    - discord.bootstrap.plan
+    - discord.bootstrap.apply
+    - discord.bootstrap.verify
+    - discord.bootstrap.demote
+    - discord.bindings.write
+
+  denied:
+    - shell.root
+    - secrets.export
+    - cross_organization.access
+
+runtime:
+  drift_read: true
+  apply_requires_maintenance_window: true
+  administrator_retention: forbidden

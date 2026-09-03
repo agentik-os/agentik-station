@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "mission_id",
+    "os_id",
+    "goal",
+    "acceptance",
+    "state"
+  ],
+  "properties": {
+    "mission_id": {
+      "type": "string"
+    },
+    "parent_mission_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "os_id": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "planned",
+        "approved",
+        "running",
+        "blocked",
+        "review",
+        "fix",
+        "verified",
+        "completed",
+        "failed",
+        "recovery"
+      ]
+    }
+  }
+}

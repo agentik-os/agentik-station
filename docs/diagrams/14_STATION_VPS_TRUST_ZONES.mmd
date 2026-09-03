@@ -1,0 +1,11 @@
+flowchart TB
+  VPS[Gareth Station VPS]
+  VPS --> SYS[station-system]
+  VPS --> PRIV[private-self]
+  VPS --> PROJ[personal-projects]
+  VPS --> DEV[agentik-dev]
+  VPS --> FACT[os-factory]
+  VPS --> LAB[lab]
+  FLEET[Client Fleet] --> C1[Client A Station VPS]
+  FLEET --> C2[Client B Station VPS]
+  SYS -. metadata only .-> FLEET

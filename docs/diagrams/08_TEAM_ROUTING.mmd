@@ -1,0 +1,14 @@
+flowchart TB
+    MSG[Discord Message] --> CID[channel_id]
+    CID --> BR[Binding Registry]
+    BR --> ORG[Organization]
+    BR --> OS[OS]
+    BR --> DIR[Director Profile]
+    BR --> PRJ[Project]
+    BR --> BOARD[Board]
+    DIR --> H[Hermes Session]
+    H --> DEC{Work type}
+    DEC -->|answer| RESP[Response]
+    DEC -->|temporary| SUB[delegate_task]
+    DEC -->|durable| M[Mission / Root Kanban Task]
+    M --> COLLAB[Other OS contracts / NanoTeams]

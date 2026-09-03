@@ -1,0 +1,21 @@
+{
+  "schema_version": "station.maturity/v1",
+  "states": [
+    "SPECIFIED",
+    "SCAFFOLDED",
+    "INSTALLABLE",
+    "CONFIGURED",
+    "VERIFIED",
+    "OPERATIONAL",
+    "DEGRADED"
+  ],
+  "definitions": {
+    "SPECIFIED": "A reviewed contract or design exists.",
+    "SCAFFOLDED": "Code or files exist, but deterministic installation is not yet proven.",
+    "INSTALLABLE": "A deterministic installer completed successfully.",
+    "CONFIGURED": "Required local configuration and credential references resolve.",
+    "VERIFIED": "Doctor and module tests passed with observed evidence.",
+    "OPERATIONAL": "External readback and fresh-session acceptance passed.",
+    "DEGRADED": "A formerly operational module is failing and declares a repair action."
+  }
+}

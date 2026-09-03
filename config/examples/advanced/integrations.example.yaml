@@ -1,0 +1,24 @@
+integrations:
+  discord:
+    enabled: true
+    secret_ref: secret://discord/main
+
+  github:
+    enabled: true
+    secret_ref: secret://github/main
+
+  linear:
+    enabled: true
+    secret_ref: secret://linear/main
+
+  notion:
+    enabled: true
+    secret_ref: secret://notion/main
+
+  parakeet:
+    enabled: false
+    endpoint: http://parakeet:8080
+
+  voicestudio:
+    enabled: false
+    endpoint: http://voicestudio:8000

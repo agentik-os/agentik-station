@@ -1,0 +1,16 @@
+commands:
+  - /os-new
+  - /os-plan
+  - /os-graph
+  - /os-research
+  - /os-gates
+  - /os-build
+  - /os-review
+  - /os-doctor
+  - /os-package
+  - /os-install
+  - /os-upgrade
+  - /os-rollback
+  - /os-recover
+  - /os-status
+  - /help

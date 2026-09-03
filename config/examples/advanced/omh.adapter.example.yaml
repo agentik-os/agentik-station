@@ -1,0 +1,18 @@
+# Optional. Station does not require OMH to operate.
+enabled: false
+role: observed-executor-and-prepared-handoff-adapter
+binary: omh
+
+policy:
+  station_is_source_of_truth: true
+  may_grant_capabilities: false
+  may_cross_trust_zones: false
+  prepared_handoff_is_execution: false
+  executor_report_is_verification: false
+
+health:
+  check_command: [omh, doctor]
+
+update:
+  ring: lab_then_candidate
+  auto_client_rollout: false

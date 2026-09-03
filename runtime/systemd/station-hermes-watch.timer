@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Hermes upstream every six hours after explicit enablement
+
+[Timer]
+OnBootSec=30min
+OnUnitActiveSec=6h
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

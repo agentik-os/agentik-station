@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Agentik Station Doctor
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=6h
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

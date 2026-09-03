@@ -1,0 +1,347 @@
+{
+  "schema_version": "1.0",
+  "theme": "<theme>",
+  "research_run_id": "<run-id>",
+  "sources": [
+    {
+      "source_id": "src-001",
+      "title": "<real source title>",
+      "author_or_org": "<real author/org>",
+      "date": "<date>",
+      "source_type": "book|paper|standard|official_doc|talk|practitioner",
+      "locator": "<isbn/doi/url/reference>",
+      "verification_status": "verified",
+      "scores": {
+        "relevance": 0,
+        "authority": 0,
+        "evidence_strength": 0,
+        "practical_transferability": 0,
+        "independence": 0,
+        "recency_fitness": 0
+      },
+      "principles": [
+        "<original synthesis>"
+      ],
+      "caveats": [
+        "<caveat>"
+      ]
+    }
+  ],
+  "selected_inputs": [
+    {
+      "input_id": "in-01",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-02",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-03",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-04",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-05",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-06",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-07",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-08",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-09",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-10",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-11",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-12",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-13",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-14",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    },
+    {
+      "input_id": "in-15",
+      "principle": "<principle>",
+      "source_ids": [
+        "src-001"
+      ],
+      "why_it_matters": "<reason>",
+      "os_mapping": {
+        "skills": [],
+        "programs": [],
+        "workflows": [],
+        "automations": [],
+        "memory": [],
+        "knowledge": [],
+        "discord": []
+      },
+      "eval": "<eval>",
+      "doctor_probe": "<probe>",
+      "recovery_implication": "<recovery>",
+      "confidence": "<confidence>"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "address": {
+      "maxLength": 253,
+      "minLength": 1,
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    },
+    "placement": {
+      "enum": [
+        "local",
+        "remote"
+      ]
+    },
+    "release_version": {
+      "pattern": "^[0-9A-Za-z](?:[0-9A-Za-z.+-]{0,62}[0-9A-Za-z])?$",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "core",
+        "client",
+        "project",
+        "lab",
+        "worker"
+      ]
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "state": {
+      "enum": [
+        "DESIRED_ONLY",
+        "RECONCILING",
+        "READY_FOR_SETUP",
+        "VERIFIED",
+        "OPERATIONAL",
+        "DEGRADED"
+      ]
+    },
+    "tailscale_name": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "role",
+    "state"
+  ],
+  "title": "Station Host registry record",
+  "type": "object"
+}

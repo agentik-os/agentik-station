@@ -1,0 +1,13 @@
+workflow: builder.build
+requires:
+  - plan-first
+  - graph-loop
+  - librarian-handoff
+  - four-owner-gates
+  - tdd
+  - independent-review
+  - doctor
+  - live-tests
+  - discord-readback
+  - fresh-session-acceptance
+  - recovery-artifact

@@ -1,0 +1,21 @@
+workflow: build_new_os
+steps:
+  - intake
+  - plan_first
+  - graph_loop
+  - librarian_deep_research
+  - validate_15_inputs
+  - write_specification
+  - owner_gate_plan
+  - owner_gate_orchestration
+  - owner_gate_programming
+  - owner_gate_agentic
+  - tdd_build
+  - independent_review
+  - fix_rounds
+  - doctor
+  - package
+  - install
+  - discord_readback
+  - fresh_session_acceptance
+  - release

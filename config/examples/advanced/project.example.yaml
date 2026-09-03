@@ -1,0 +1,15 @@
+project:
+  id: example-project
+  organization_id: gareth
+  trust_zone: personal-projects
+  sensitivity: private
+  environment: development
+  repo_ref: "github:owner/repo"
+  runtime: container
+  profile_id: project-example-director
+  board_id: project-example
+  os_bindings: [devops-os]
+  secret_namespace: gareth/projects/example-project
+  memory_namespace: gareth/projects/example-project
+  allowed_roots:
+    - /srv/station/zones/personal-projects/projects/example-project

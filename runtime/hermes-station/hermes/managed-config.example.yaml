@@ -1,0 +1,15 @@
+security:
+  redact_secrets: true
+  protected_instruction_files: true
+updates:
+  pre_update_backup: full
+  non_interactive_local_changes: stash
+hooks_auto_accept: false
+hooks:
+  pre_llm_call:
+    - command: /opt/station/hooks/station_context_injector.py
+      timeout: 5
+  pre_tool_call:
+    - command: /opt/station/hooks/station_policy_guard.py
+      timeout: 5
+      fail_closed: true

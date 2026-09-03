@@ -1,0 +1,9 @@
+id: platform
+zone_id: moonbase-dev
+organization: moonbase
+repos:
+  - name: app
+    url: null
+credentials:
+  - id: github
+    storage: runtime-reference

@@ -1,0 +1,12 @@
+workflow: upgrade_os
+steps:
+  - load_installed_version_and_lock
+  - define_upgrade_goal
+  - librarian_delta_research_if_domain_changes
+  - migration_plan
+  - regression_tests
+  - staged_install
+  - doctor
+  - live_tests
+  - fresh_session_acceptance
+  - promote_or_rollback

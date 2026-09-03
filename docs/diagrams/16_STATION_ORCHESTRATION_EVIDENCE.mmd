@@ -1,0 +1,18 @@
+flowchart TD
+  A[Human Intent] --> B[Clarify + Mission Contract]
+  B --> C[Capability Readiness Probes]
+  C --> D[Plan + Loop-Graph + Owners]
+  D --> E[PREPARED\nPlan not run]
+  E --> F[Executor Starts]
+  F --> G[OBSERVED\nCode running]
+  G --> H[Executor Reports Complete]
+  H --> I[REPORTED\nNot verified]
+  I --> J[Verifier / Tests / CI / Render Gate]
+  J -->|fail| K[Targeted Repair]
+  K --> F
+  J -->|pass| L[VERIFIED]
+  L --> M[Deploy / External Action]
+  M --> N[READ BACK]
+  N --> O[Acceptance Criteria]
+  O --> P[ACCEPTED]
+  P --> Q[Memory Review + Operate]

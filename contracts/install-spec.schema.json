@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "configure_fail2ban": {
+      "type": "boolean"
+    },
+    "enable_doctor_timer": {
+      "type": "boolean"
+    },
+    "host_id": {
+      "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+      "type": "string"
+    },
+    "install_system_packages": {
+      "type": "boolean"
+    },
+    "operation_id": {
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$",
+      "type": "string"
+    },
+    "release_version": {
+      "pattern": "^[0-9A-Za-z](?:[0-9A-Za-z.+-]{0,62}[0-9A-Za-z])?$",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "core",
+        "client",
+        "project",
+        "lab",
+        "worker"
+      ]
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "seed": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "CLIENTS",
+            "PROJECTS"
+          ]
+        },
+        "environment": {
+          "enum": [
+            "development",
+            "staging",
+            "production"
+          ]
+        },
+        "name": {
+          "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+          "type": "string"
+        },
+        "organization": {
+          "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "project": {
+          "pattern": "^[a-z](?:[a-z0-9-]{0,46}[a-z0-9])?$",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "category",
+        "name",
+        "environment",
+        "organization",
+        "project"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "release_version",
+    "operation_id",
+    "host_id",
+    "role",
+    "install_system_packages",
+    "configure_fail2ban",
+    "enable_doctor_timer",
+    "seed"
+  ],
+  "title": "Agentik Station InstallSpec",
+  "type": "object"
+}

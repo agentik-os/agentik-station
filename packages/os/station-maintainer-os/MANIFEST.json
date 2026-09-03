@@ -1,0 +1,13 @@
+{
+  "schema_version": "2.0",
+  "os_id": "station-maintainer-os",
+  "name": "Station Maintainer OS",
+  "version": "0.6.0",
+  "type": "system_operative_system",
+  "entrypoint": "PROFILE.md",
+  "contract": "CONTRACT.json",
+  "secret_policy": "references_only",
+  "distribution_class": "AGK core",
+  "surface": "dedicated Operator Discord bot + station operations channel",
+  "station_contract": "AGK_OS_V2"
+}

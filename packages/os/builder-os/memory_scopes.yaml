@@ -1,0 +1,9 @@
+memory:
+  build_mission:
+    read: [builder-nanoteam]
+    write: [master-os-builder, approved-specialists]
+  target_client_memory:
+    inheritance: deny
+  cross_client:
+    read: deny
+    write: deny

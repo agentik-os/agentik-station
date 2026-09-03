@@ -1,0 +1,16 @@
+name: research-os
+steps:
+  - mission-frame
+  - topic-map
+  - parallel-discovery:
+      branches:
+        - book-deep
+        - web-deep
+        - expert-operator-map
+  - source-verification
+  - contradiction-analysis
+  - bestseller-editorial-synthesis
+  - candidate-input-matrix
+  - select-15-best-inputs
+  - os-mapping
+  - builder-handoff

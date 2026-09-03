@@ -1,0 +1,7 @@
+flowchart LR
+  U[Hermes upstream main] -->|check/plan| L[LAB edge]
+  L -->|doctor + regression + gauntlet| C[Gareth candidate]
+  C -->|burn-in + acceptance| S[Station stable release]
+  S -->|policy + maintenance window| CL[Client stable Stations]
+  L -->|fail| RB[Rollback / block promotion]
+  C -->|fail| RB

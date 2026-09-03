@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "theme",
+    "sources",
+    "selected_inputs"
+  ],
+  "properties": {
+    "theme": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1
+    },
+    "selected_inputs": {
+      "type": "array",
+      "minItems": 15,
+      "maxItems": 15
+    }
+  }
+}

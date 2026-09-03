@@ -1,0 +1,23 @@
+organization:
+  id: example-client
+  name: Example Client
+  type: company
+
+macro_domains:
+  - id: operations
+    name: Operations
+    domains:
+      - id: core_operations
+        os: [operations]
+
+  - id: technology
+    name: Technology
+    domains:
+      - id: engineering
+        os: [devops, qa, security]
+
+  - id: knowledge
+    name: Knowledge
+    domains:
+      - id: company_knowledge
+        os: [knowledge]

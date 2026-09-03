@@ -1,0 +1,26 @@
+flowchart TD
+    A[Intent / Mission] --> B[Spec + Acceptance Criteria]
+    B --> C[Repository Comprehension]
+    C --> D[Ponytail Ladder]
+    D --> E[Loop-Graph Plan]
+    E --> F{Parallelizable?}
+    F -->|Yes| G1[Worker A / Worktree A]
+    F -->|Yes| G2[Worker B / Worktree B]
+    F -->|No| G3[Single Worker / Worktree]
+    G1 --> H[Deterministic Verification]
+    G2 --> H
+    G3 --> H
+    H --> I{Pass?}
+    I -->|No| J[Diagnose + Targeted Retry]
+    J --> H
+    I -->|Yes| K[Fresh Gauntlet Critic]
+    K --> L{Pass?}
+    L -->|No| M[Ranked Critic Failures]
+    M --> J
+    L -->|Yes| N[Fan-in Integration]
+    N --> O[Integration Verification]
+    O --> P[PR / CI / Staging]
+    P --> Q[Live E2E]
+    Q --> R[Evidence Episode]
+    R --> S[Hermes Learning Review]
+    S --> T[Skill / Memory Candidate]

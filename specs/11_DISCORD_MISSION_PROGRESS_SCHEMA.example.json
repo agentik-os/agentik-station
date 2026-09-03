@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StationMissionProgress",
+  "type": "object",
+  "required": [
+    "mission_id",
+    "os_id",
+    "status",
+    "plan_revision",
+    "nodes",
+    "evidence_stage",
+    "work_kind"
+  ],
+  "properties": {
+    "mission_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "os_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "planning",
+        "ready",
+        "running",
+        "waiting_approval",
+        "blocked",
+        "verifying",
+        "retrying",
+        "done",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "objective": {
+      "type": "string"
+    },
+    "plan_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "status",
+          "owner",
+          "evidence_stage"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "ready",
+              "running",
+              "reported_done",
+              "blocked",
+              "verifying",
+              "done",
+              "failed",
+              "skipped"
+            ]
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verification": {
+            "type": "boolean"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "verifier": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence_stage": {
+            "enum": [
+              "prepared",
+              "observed",
+              "reported",
+              "verified",
+              "read_back",
+              "accepted"
+            ]
+          }
+        }
+      }
+    },
+    "current_node_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blocker": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "loop": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_stage": {
+      "enum": [
+        "prepared",
+        "observed",
+        "reported",
+        "verified",
+        "read_back",
+        "accepted"
+      ]
+    },
+    "work_kind": {
+      "enum": [
+        "plan",
+        "code",
+        "test",
+        "ship",
+        "mission",
+        "research",
+        "artifact",
+        "connector"
+      ]
+    },
+    "execution_owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verification_owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

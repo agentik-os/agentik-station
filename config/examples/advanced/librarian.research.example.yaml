@@ -1,0 +1,20 @@
+schema: 2
+librarian:
+  default_pipeline: research-os
+  lanes:
+    topic_map: required
+    book_deep: required
+    bestseller: required
+    web_deep: required
+    expert_operator_map: adaptive-required
+    contrarian_failure: risk-based-required
+  selected_inputs: 15
+  source_policy:
+    prefer_primary_for_facts: true
+    require_provenance: true
+    verify_current_claims: true
+    diversity_gate: true
+    copyright_synthesis_only: true
+  refresh:
+    classify_recency: true
+    current_web_required_for_time_sensitive_domains: true

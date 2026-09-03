@@ -1,0 +1,25 @@
+[Unit]
+Description=Agentik Station Hermes upstream read-only watcher
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/usr/local/bin/station
+
+[Service]
+Type=oneshot
+User=station-system
+Group=station-system
+ExecStart=/usr/local/bin/station hermes check --record
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+ReadOnlyPaths=/etc/station /opt/station /srv/station
+ReadWritePaths=/var/lib/station/system/hermes-updates /var/log/station/system /run/station
+
+# Installed but intentionally not enabled until Hermes setup, LAB compatibility,
+# and the Station Maintainer acceptance gate have passed.

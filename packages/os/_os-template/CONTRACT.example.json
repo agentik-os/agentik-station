@@ -1,0 +1,123 @@
+{
+  "schema_version": "2.0",
+  "os_id": "example-os",
+  "version": "0.1.0",
+  "outcome_contract": {
+    "owns": "domain_outcome",
+    "mission_types": []
+  },
+  "nano_director": {
+    "profile": "example-director",
+    "persistent_bot": true,
+    "discord_identity": "dedicated"
+  },
+  "nanoteam": {
+    "persistent_profiles": [],
+    "kanban_workers": [],
+    "ephemeral_roles": []
+  },
+  "profiles": [],
+  "ordered_skills": [],
+  "programs": [],
+  "capability_contracts": [],
+  "integration_adapters": [],
+  "knowledge_memory": {
+    "knowledge_scopes": [],
+    "memory_scopes": []
+  },
+  "data_model": {
+    "schema": "11_DATA/schema.json",
+    "state_model": "11_DATA/state-machine.yaml",
+    "migrations": "22_UPDATE_MIGRATIONS/"
+  },
+  "mission_model": {
+    "durable_engine": "hermes_kanban",
+    "root": "mission_root_task",
+    "graph": "kanban_dag"
+  },
+  "provider_routes": {
+    "policy": "model_agnostic"
+  },
+  "workflows": [],
+  "automations": [],
+  "governance": {
+    "context_envelope": true,
+    "capability_scoped": true,
+    "approvals": "risk_based",
+    "trust_zone": "required"
+  },
+  "engineering_harness": null,
+  "evaluations": [],
+  "evidence": {
+    "required": true,
+    "logs": "hermes_native",
+    "secret_redaction": true
+  },
+  "discord": {
+    "dedicated_bot": true,
+    "dedicated_channel": true,
+    "commands": "19_DISCORD/commands.yaml",
+    "experience": {
+      "plan_first": true,
+      "mission_progress_card": true,
+      "components": "v2-preferred",
+      "final_report": true
+    }
+  },
+  "views": [],
+  "doctor": {
+    "required": true
+  },
+  "update_migrations": {
+    "required": true
+  },
+  "rollback": {
+    "required": true
+  },
+  "recovery": {
+    "required": true
+  },
+  "self_improvement": {
+    "learning": "hermes_native",
+    "promotion": "governed"
+  },
+  "librarian": {
+    "handoff": "27_LIBRARIAN/14_BUILDER_HANDOFF.md",
+    "minimum_inputs": 15,
+    "research_lanes": [
+      "topic_map",
+      "book_deep",
+      "bestseller",
+      "web_deep",
+      "expert_operator_map",
+      "contrarian_failure"
+    ]
+  },
+  "deployment": {
+    "fresh_session_acceptance": true,
+    "automations_default": "disabled_until_accepted"
+  },
+  "orchestration": {
+    "contract": "station-orchestration/v1",
+    "plan_first": true,
+    "evidence_before_claims": true,
+    "ownership_visible": true,
+    "lanes": [
+      "clarify_plan",
+      "connect_boundaries",
+      "remember_operate"
+    ]
+  },
+  "claim_evidence_policy": {
+    "stages": [
+      "prepared",
+      "observed",
+      "reported",
+      "verified",
+      "read_back",
+      "accepted"
+    ],
+    "reported_is_verified": false,
+    "plan_completion_is_evidence": false
+  }
+}

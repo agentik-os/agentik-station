@@ -1,0 +1,40 @@
+kind: AgentikOS
+apiVersion: agk.agentik/v2
+metadata:
+  id: devops
+  name: DevOps OS
+  version: 2.0.0
+
+nano_director:
+  id: atlas
+  title: DevOps Director
+  hermes:
+    profile: devops-atlas
+    soul: ./bots/atlas/SOUL.md
+  discord:
+    dedicated_application: true
+    primary_channel: devops
+    wake: mention-in-thread
+
+internal_bots:
+  - id: forge
+    title: Senior Developer
+    hermes:
+      profile: devops-forge
+    skills: [ponytail]
+    discord_exposed: false
+  - id: sentinel
+    title: QA & Security
+    hermes:
+      profile: devops-sentinel
+    skills: [ponytail-review, ponytail-audit]
+    discord_exposed: false
+
+teams:
+  - id: engineering-core
+    type: hermes_bot_group
+    director: atlas
+    members: [atlas, forge, sentinel]
+
+workers:
+  ephemeral: [researcher, code-explorer, test-runner]

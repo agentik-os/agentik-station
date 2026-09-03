@@ -1,0 +1,24 @@
+schema: 3
+organization_id: example
+
+teams:
+  - team_id: devops
+    os_id: agk.devops
+    nano_director_profile: devops-atlas
+    dedicated_discord_bot: devops
+    project: platform
+    board: engineering
+    bot_group: engineering-core
+    surfaces: [devops, qa, deployments]
+    internal_profiles: [devops-forge, devops-sentinel]
+
+routing:
+  precedence:
+    - dedicated_os_bot_identity
+    - thread_session_binding
+    - primary_os_channel_binding
+  bot_to_bot_via_discord: deny
+  internal_collaboration: hermes_bot_group_or_message_agent
+  use_immutable_discord_ids: true
+  fallback_to_name_matching: bootstrap_only
+  deny_sensitive_action_on_ambiguous_binding: true

@@ -1,0 +1,86 @@
+id: agk.devops
+name: DevOps OS
+version: 0.3.0
+
+runtime:
+  engine: hermes
+  bot_mode: true
+
+director:
+  bot_id: atlas
+  distribution:
+    repo: agentik-os/director-devops
+
+bots:
+  - id: atlas
+    title: DevOps Director
+    persistent: true
+    hermes_profile: devops-atlas
+    ponytail_mode: full
+    discord:
+      exposed: true
+      default_channel: devops
+
+  - id: forge
+    title: Senior Developer
+    persistent: true
+    hermes_profile: devops-forge
+    ponytail_mode: full
+    discord:
+      exposed: true
+
+  - id: sentinel
+    title: QA & Security
+    persistent: true
+    hermes_profile: devops-sentinel
+    ponytail_mode: audit
+    discord:
+      exposed: true
+      default_channel: qa
+
+nanoteam:
+  persistent_group:
+    id: engineering-core
+    director: atlas
+    members: [atlas, forge, sentinel]
+  ephemeral_workers:
+    - architect-researcher
+    - code-explorer
+    - test-runner
+
+execution:
+  kanban: true
+  worktree_isolation: true
+  independent_review: true
+  temporary_specialists_use_delegate_task: true
+
+plugins:
+  required:
+    - id: ponytail
+      source: DietrichGebert/ponytail
+      hermes_install: "hermes plugins install DietrichGebert/ponytail --enable"
+
+skills:
+  bundles:
+    - devops-engineering
+  ponytail:
+    director_mode: full
+    engineering_mode: full
+    qa_mode: review
+    security_mode: audit
+    reviewer_mode: review
+
+capabilities:
+  required:
+    - github
+  optional:
+    - linear
+    - notion
+
+surfaces:
+  discord:
+    category_key: engineering
+    channels:
+      - devops
+      - qa
+      - deployments

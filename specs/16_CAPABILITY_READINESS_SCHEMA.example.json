@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station Capability Readiness v1",
+  "type": "object",
+  "required": [
+    "capability",
+    "adapter",
+    "principal",
+    "state",
+    "checked_at"
+  ],
+  "properties": {
+    "capability": {
+      "type": "string"
+    },
+    "adapter": {
+      "type": "string"
+    },
+    "principal": {
+      "type": "string"
+    },
+    "organization": {
+      "type": "string"
+    },
+    "account_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "environment": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "unknown",
+        "configured",
+        "available",
+        "authenticated",
+        "scoped",
+        "verified_ready",
+        "degraded",
+        "unavailable"
+      ]
+    },
+    "checks": {
+      "type": "array"
+    },
+    "checked_at": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

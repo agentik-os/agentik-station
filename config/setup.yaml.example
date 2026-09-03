@@ -1,0 +1,36 @@
+schema_version: station.setup/v2
+host:
+  host_id: gareth-core-01
+  kernel_state: READY_FOR_SETUP
+
+gates:
+  tailscale:
+    state: NOT_CONFIGURED
+    evidence: []
+  hermes:
+    state: NOT_CONFIGURED
+    profile_distributions_verified: false
+    plugins_verified: false
+    zone_boundary_tests_passed: false
+  github:
+    state: NOT_CONFIGURED
+    project_bindings: []
+  composio:
+    state: NOT_CONFIGURED
+    principals: []
+    connected_accounts_verified: false
+  discord:
+    state: NOT_CONFIGURED
+    guild_id: null
+    os_bots: []
+    command_readback_passed: false
+    mission_card_readback_passed: false
+  backup_recovery:
+    state: NOT_CONFIGURED
+    off_host_encrypted: false
+    restore_rehearsal_passed: false
+  fresh_session_acceptance:
+    state: NOT_RUN
+    accepted_os_instances: []
+
+final_state: READY_FOR_SETUP

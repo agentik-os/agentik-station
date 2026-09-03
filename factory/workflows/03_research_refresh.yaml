@@ -1,0 +1,9 @@
+workflow: research_refresh
+steps:
+  - identify_time_sensitive_knowledge
+  - librarian_refresh
+  - compare_handoff_versions
+  - open_change_proposals
+  - targeted_evals
+  - owner_review
+  - versioned_upgrade

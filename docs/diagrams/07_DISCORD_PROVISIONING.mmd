@@ -1,0 +1,18 @@
+flowchart LR
+    ORG[organization.yaml] --> C[Discord Desired-State Compiler]
+    OS[Installed OS surface manifests] --> C
+    TB[team-bindings.yaml] --> C
+    POL[policies.yaml] --> C
+
+    C --> DES[Desired Discord State]
+    CUR[Current Guild State] --> DIFF[Planner / Diff]
+    DES --> DIFF
+    DIFF --> BOOT[Discord Bootstrap Director]
+    BOOT --> ROLES[Roles]
+    BOOT --> CATS[Categories]
+    BOOT --> CH[Channels]
+    BOOT --> PERM[Permissions]
+    BOOT --> BIND[Binding Registry]
+    BIND --> HG[Hermes Gateway Routing]
+    BOOT --> VERIFY[Verify]
+    VERIFY --> DEMOTE[Demote Administrator]
