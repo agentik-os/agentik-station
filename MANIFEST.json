@@ -28,7 +28,7 @@
   "validation": {
     "repository_doctor": "PASS",
     "station_tests": 91,
-    "factory_pytest": "PASS",
+    "factory_pytest": 7,
     "builder_librarian_gates": "7/7 PASS"
   },
   "file_count": 849,
