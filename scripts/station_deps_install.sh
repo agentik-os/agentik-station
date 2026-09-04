@@ -19,7 +19,7 @@ usage: station_deps_install.sh [--all] [--list]
        station_deps_install.sh --platforms-guide
        station_deps_install.sh --check-web
 
-Components: scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
+Components: strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
 USAGE
 }
 
@@ -106,17 +106,32 @@ install_scrapegraphai() {
   install_web_runtime scrapegraphai "$SCRAPEGRAPHAI_VERSION"
 }
 
+install_strix() {
+  install_web_runtime strix "$STRIX_VERSION"
+}
+
 install_web_runtime() {
   require_uv
   [[ "$(id -u)" -eq 0 ]] || { echo 'Shared web runtimes require sudo' >&2; return 2; }
   local component="$1" version="$2" base=/opt/station/tools/web
   local runtime="$base/${component}-${version}-py${AI_PYTHON_VERSION}-pw${PLAYWRIGHT_VERSION}"
+  local package="$component==$version"
+  if [[ "$component" == strix ]]; then
+    base=/opt/station/tools/security
+    runtime="$base/strix-${version}-py${AI_PYTHON_VERSION}"
+    [[ "$(uname -s)" == Linux ]] || { echo 'Station Strix installation requires Linux' >&2; return 2; }
+    case "$(uname -m)" in
+      x86_64) package="${STRIX_WHEEL_AMD64_URL}#sha256=${STRIX_WHEEL_AMD64_SHA256}";;
+      aarch64|arm64) package="${STRIX_WHEEL_ARM64_URL}#sha256=${STRIX_WHEEL_ARM64_SHA256}";;
+      *) echo 'Unsupported Strix architecture' >&2; return 2;;
+    esac
+  fi
   local venv="$runtime/venv" runner="$ROOT/components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py"
   PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" python3 - "$runtime" "$STATION_USER" <<'PY'
 import pathlib, pwd, sys
 from agentik_station.filesystem import SafeFS
-base = pathlib.Path('/opt/station/tools/web')
 runtime = pathlib.Path(sys.argv[1])
+base = runtime.parent
 account = pwd.getpwnam(sys.argv[2])
 fs = SafeFS([base])
 fs.mkdir(base)
@@ -133,11 +148,19 @@ PY
     # Download/build as the dedicated account; published code is then root-owned.
     as_station env UV_PYTHON_INSTALL_DIR="$runtime/python" "$STATION_HOME/.local/bin/uv" python install "$AI_PYTHON_VERSION"
     as_station env UV_PYTHON_INSTALL_DIR="$runtime/python" "$STATION_HOME/.local/bin/uv" venv --python "$AI_PYTHON_VERSION" "$venv"
-    as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" \
-      "$component==$version" "playwright==$PLAYWRIGHT_VERSION"
-    # Browser system libraries are the only root package-manager operation here.
-    "$venv/bin/python" -m playwright install-deps chromium
-    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" "$venv/bin/python" -m playwright install chromium
+    if [[ "$component" == strix ]]; then
+      as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" "$package"
+    else
+      as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" \
+        "$component==$version" "playwright==$PLAYWRIGHT_VERSION"
+      # Browser system libraries are the only root package-manager operation here.
+      "$venv/bin/python" -m playwright install-deps chromium
+      as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" "$venv/bin/python" -m playwright install chromium
+      if [[ "$component" == scrapegraphai ]]; then
+        as_station env TIKTOKEN_CACHE_DIR="$runtime/tokenizers" "$venv/bin/python" -c \
+          'import tiktoken; tiktoken.get_encoding("o200k_base"); tiktoken.get_encoding("cl100k_base")'
+      fi
+    fi
     chown -R root:root "$runtime"
     chmod -R a+rX,go-w "$runtime"
     PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" python3 - "$runtime" <<'PY'
@@ -146,6 +169,11 @@ from agentik_station.filesystem import SafeFS
 runtime = pathlib.Path(sys.argv[1])
 SafeFS([runtime]).write_text(runtime / 'BUILT', 'INSTALLED_NOT_VERIFIED\n', mode=0o644)
 PY
+  fi
+  if [[ "$component" == strix ]]; then
+    as_station "$venv/bin/strix" --version
+    echo 'Strix CLI only: no Docker grant, image pull, cloud connection or scan was performed.'
+    return
   fi
   check_web_runtime "$component" "$version"
   echo "$component $version is installed; Zone credentials and live extraction remain separate."
@@ -156,7 +184,7 @@ check_web_runtime() {
   local runtime="/opt/station/tools/web/${component}-${version}-py${AI_PYTHON_VERSION}-pw${PLAYWRIGHT_VERSION}"
   local venv="$runtime/venv" runner="$ROOT/components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py"
   printf '{"component":"%s","health":true}\n' "$component" | \
-    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" PYTHONDONTWRITEBYTECODE=1 \
+    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" TIKTOKEN_CACHE_DIR="$runtime/tokenizers" PYTHONDONTWRITEBYTECODE=1 \
       "$venv/bin/python" "$runner"
 }
 
@@ -264,11 +292,12 @@ if [[ "$ENABLE_AUTO" -eq 1 ]]; then
 fi
 
 if [[ "$ALL" -eq 1 ]]; then
-  COMPONENTS=(scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
+  COMPONENTS=(strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
 fi
 
 for id in "${COMPONENTS[@]}"; do
   case "$id" in
+    strix) install_strix;;
     scrapegraphai) install_scrapegraphai;;
     ponytail) install_ponytail;;
     langfuse) install_langfuse;;

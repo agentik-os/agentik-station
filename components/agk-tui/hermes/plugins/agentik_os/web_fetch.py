@@ -14,7 +14,7 @@ from urllib.parse import urljoin, urlsplit
 MAX_HTML_BYTES = 2 * 1024 * 1024
 
 
-def public_target(source: str):
+def public_target(source: str, *, resolve: bool = True):
     if not isinstance(source, str) or not 8 <= len(source) <= 4096:
         raise ValueError("source must be a bounded URL")
     if any(ord(c) <= 32 or ord(c) == 127 for c in source) or "\\" in source:
@@ -28,6 +28,10 @@ def public_target(source: str):
     if host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
         raise ValueError("local hostnames are not allowed")
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    if not resolve:
+        # Parent Hermes process validates syntax only. DNS belongs inside the
+        # deadline-controlled worker, where it cannot block the chat indefinitely.
+        return parsed, host, port, []
     addresses = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     if not addresses:
         raise ValueError("source hostname has no addresses")

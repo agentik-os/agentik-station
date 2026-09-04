@@ -36,6 +36,7 @@ _SECRET_KEYS = {
     "vercel": "VERCEL_TOKEN",
     "slack": "SLACK_BOT_TOKEN",
     "telegram": "TELEGRAM_BOT_TOKEN",
+    "strix": "STRIX_LLM_API_KEY",
 }
 _DEVICE_AUTH_HOSTS = {
     "github.com",
@@ -409,7 +410,21 @@ class SetupLinkStore:
             key = _SECRET_KEYS.get(provider)
             if not key or key != record.get("credential_key"):
                 raise LinkUnavailable("setup link credential mapping is invalid")
-            self._write_env_secret(self._credential_file(), key, secret)
+            if provider == "strix":
+                # Dedicated assessment key: never add it to Hermes's ambient environment.
+                if self.root.name != "setup-links" or self.root.parent.name != "connector-state":
+                    raise SecurityError("station-secret state must be <zone-root>/connector-state/setup-links")
+                if not secret or not secret.isascii() or len(secret) > 8192 or any(c.isspace() or c == "\x00" for c in secret):
+                    raise ValidationError("Strix credential must be bounded ASCII without whitespace")
+                from .filesystem import SafeFS
+                credentials = self.root.parent.parent / "credentials"
+                fs = SafeFS([credentials])
+                fs.mkdir(credentials, mode=0o700)
+                if credentials.stat().st_uid != os.geteuid():
+                    raise SecurityError("Credential directory must belong to the broker identity")
+                fs.write_text(credentials / "strix-api-key", secret + "\n", mode=0o600)
+            else:
+                self._write_env_secret(self._credential_file(), key, secret)
             record["consumed_at"] = timestamp
             self._write(record)
         return provider
@@ -491,7 +506,7 @@ def serve_setup_links(store: SetupLinkStore, *, host: str = "127.0.0.1", port: i
                 secret_form = session["purpose"] == "station-secret"
                 body = _page(
                     f"Connect {session['provider']}",
-                    "This one-time action is bound to your Station Zone. The credential goes directly to its mode-0600 Hermes environment and never through chat."
+                    "This one-time action is bound to your Station Zone. The credential goes directly to its private mode-0600 credential storage and never through chat."
                     if secret_form
                     else "This one-time action is bound to your Station Zone and will open the approved provider setup flow.",
                     action=urlsplit(self.path).path,

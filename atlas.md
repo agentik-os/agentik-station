@@ -936,3 +936,46 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - `docs/history/` — provenance only; never current runtime truth.
 
 When documents disagree, use this precedence: repository agent/security contracts, current canonical architecture/setup docs, machine-readable contracts and active code/tests; history comes last and cannot override current behavior.
+
+## 2026-09-05: security mission and runtime-boundary corrections
+
+Strix is a subordinate assessment capability of the existing **DevOps OS**, not a
+new central brain. The same Atlas → Architect → SRE → Sentinel → Forge → Release
+Engineer chain controls its scope, execution, independent verification and repair.
+The human operator authorizes source disclosure and a disposable LAB environment.
+Hermes remains responsible for sessions, routing, delegation, mission state and
+chat. Discord, Telegram and Slack are interchangeable Hermes surfaces, not separate
+security authorities. [Full team diagram and setup](resources/strix/README.md).
+
+Concrete locations:
+
+| Object | Location / owner |
+|---|---|
+| Canonical security resource | `resources/strix/`; reviewed pins in `config/versions.lock` |
+| Canonical team | `os/devops/team/STRIX.json`; compiled as `STRIX_TEAM.json` |
+| CLI and libraries | `/opt/station/tools/security/strix-1.6.1-py3.13.15/`; shared read-only software |
+| Prepared source and disposable execution | `<Project>/workspaces/strix/<job>/`; owning LAB Zone UID |
+| Dedicated key | `<Zone state>/credentials/strix-api-key`; `0600`, submitted through protected setup, never ambient Hermes `.env` |
+| Approval | `/var/lib/station/security/strix/<zone>/<project>/<job>.json`; root-owned, expiring, Zone-group-readable |
+| Summary | `<Project>/evidence/strix/<job>/summary.json`; never an automatic security acceptance |
+| Installed-source distributions | `/opt/station/os-distributions/<zone>/<project>/<os>/<version>/`; root-owned immutable public source |
+| Zone-readable binding | `/var/lib/station/zone-bindings/<zone>.json`; generated root-owned projection, not another editable source |
+
+The OS compiler now merges YAML structurally: each profile receives its own ID,
+the Project cwd and `terminal.home_mode: profile`, with no duplicate `terminal`
+mapping. Native distribution ownership includes command/research assets and the
+DevOps security plugin. Cross-identity process launches clear inherited secrets.
+Mixed system/Zone parent directories permit traversal (`0711`) while private
+children and control data remain restricted. Linux acceptance tests must exercise
+these paths as the actual Zone users, not merely as root.
+
+ScrapeGraphAI remains the structured-extraction tool; Crawl4AI remains the no-LLM
+Markdown alternative. DNS/network work is inside their 180-second worker deadline.
+Temporary output stays in the Zone cache; fresh ScrapeGraphAI installation prewarms
+its verified tokenizer assets. Real-library offline tests are distinct from paid
+provider extraction and deployed Chromium/network acceptance.
+
+The [deep audit](docs/audit/2026-09-05-station-deep-audit.md) explains remaining
+design decisions: privileged operator scope, real policy enforcement, canary
+updates, complete dependency locks and executable end-to-end acceptance. No count
+of profiles, tools, documents or passing static checks substitutes for those gates.

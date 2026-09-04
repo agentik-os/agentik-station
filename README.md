@@ -186,6 +186,19 @@ This installs or stages ScrapeGraphAI/Playwright, Ponytail, Langfuse, Honcho, Hi
 
 Web tools use guarded public HTML fetching: no JavaScript, private-network URLs or inherited chat credentials. `station_scrapegraph` produces structured data using a Zone OpenAI key; `station_crawl4ai` produces Markdown without an LLM key. Run `sudo station deps web-check` after installation, then accept a real extraction in each owning Zone. See the [web resource contract](resources/scrapegraphai/README.md) for limits and existing-profile activation.
 
+### Governed security assessments: Strix
+
+`sudo station deps install --component strix` installs the pinned Strix CLI; the
+complete `--with-ai-stack` / `--all` path includes it too. It does **not** start a
+scan or grant Docker access. The existing DevOps Hermes team controls preparation,
+human approval, LAB execution, independent verification, fixes and release gates.
+Only sanitized local source on an accepted disposable LAB Host is supported.
+See the [Strix setup and team guide](resources/strix/README.md).
+
+The [2026-09-05 deep audit](docs/audit/2026-09-05-station-deep-audit.md) separates
+repaired defects from remaining architecture decisions and unexercised live gates.
+Passing repository tests is not a production-readiness certificate.
+
 `full` maps to the complete Agentik Station (operator Host). `team` is the company install: shared System foundation + one Organization Zone; Discord/Composio/memory/credentials are member-scoped principals so several people share the Host without a single global Private Zone. There is no separate client-branded mode — pass your organization/project ids at bootstrap time.
 
 ## Canonical model

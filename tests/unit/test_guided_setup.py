@@ -131,6 +131,19 @@ def test_station_secret_rejects_unmapped_provider_and_multiline_values(tmp_path:
         store.submit_secret(*_url_parts(created.url), "first\nsecond", now=1001)
 
 
+def test_strix_key_is_separate_from_hermes_environment(tmp_path):
+    zone = tmp_path / "zone"
+    store = SetupLinkStore(zone / "connector-state/setup-links")
+    created = store.create(base_url="https://station.example.ts.net/station-setup", target_url=None,
+                           zone_id="lab", principal_id="operator", provider="strix", purpose="station-secret", now=1000)
+    store.submit_secret(*_url_parts(created.url), "fixture-not-a-key", now=1001)
+    key = zone / "credentials/strix-api-key"
+    assert key.read_text() == "fixture-not-a-key\n"
+    assert key.stat().st_mode & 0o777 == 0o600
+    assert not (zone / "hermes/.env").exists()
+    assert "fixture-not-a-key" not in (store.root / f"{_url_parts(created.url)[0]}.json").read_text()
+
+
 def test_station_secret_rejects_symlinked_env_without_touching_target(tmp_path: Path) -> None:
     zone = tmp_path / "zone"
     hermes = zone / "hermes"

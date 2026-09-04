@@ -280,3 +280,30 @@ sudo station platform status --zone organization-alpha-dev
 ```
 
 See [`docs/dependencies/HERMES_PLATFORMS.md`](docs/dependencies/HERMES_PLATFORMS.md).
+
+## Security assessment resource and post-audit migration
+
+`sudo station deps install --component strix` installs the reviewed security CLI;
+`--all` / `--with-ai-stack` includes it. No scan or Docker permission is automatic.
+Use the [Strix guide](resources/strix/README.md) to enroll an isolated disposable
+LAB and the existing Hermes DevOps mission team. Never grant its Docker access on
+the core or a shared/production Host.
+
+The September 5 audit corrected FHS parent traversal and OS compilation/publication.
+Existing Hosts need the new release reconciled to generate root-owned Zone binding
+projections, then OS profiles recompiled/reinstalled. Inspect preserved Hermes
+configuration before enabling the generated plugin sections. Compiled distributions
+now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes parent.
+Do not overwrite an already published same-version release: choose a new reviewed
+release ID and retain the previous release/backup for rollback.
+
+Existing-profile migration is supervised: native `hermes profile install` refuses
+an existing profile; `--force` replaces its config. Do not use `--force` unattended
+to make a retry pass. Back up and reconcile user overrides, credentials and the
+distribution source deliberately, then run a fresh-session test. The present
+`station os install` path is not an automatic in-place OS upgrade/retry mechanism.
+
+Fresh ScrapeGraphAI installs include verified tokenizer assets. For an older
+published runtime missing those assets, inspect and archive that exact runtime,
+then rebuild and pass `station deps web-check`. Paid extraction, voice messages,
+chat/provider enrollment and Strix worker isolation still need live acceptance.

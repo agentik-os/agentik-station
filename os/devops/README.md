@@ -4,6 +4,14 @@ Canonical engineering OS for Station. Hermes is the execution kernel. It applies
 
 Atlas owns the mission graph. Architect owns design/contracts, Forge implementation/tests, Sentinel independent security and quality, Release Engineer reproducibility/CI/staging/approved promotion, and SRE runtime health/recovery. Model providers are replaceable cognition routes; Hermes retains session, delegation, tools, state and evidence coordination. Production remains denied without explicit human policy authority.
 
+[`team/STRIX.json`](team/STRIX.json) maps this same team to governed security
+assessments. Newly compiled profiles include the native `station-strix` preparation/
+report plugin and the team contract. Strix is a subordinate tool, not another OS
+director or Discord gateway. [Setup and execution gates](../../resources/strix/README.md).
+Tool/role contracts describe workflow policy; they do not themselves sandbox a
+profile with terminal access. Zone/Host isolation and concrete adapters enforce the
+boundaries they implement.
+
 ## Executable anatomy
 
 - `semantics/CONTRACT.json` binds identity, authority, programs, idempotency,

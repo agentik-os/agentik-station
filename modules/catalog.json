@@ -12,6 +12,13 @@
   ],
   "modules": [
     {
+      "id": "strix",
+      "maturity": "INSTALLABLE",
+      "claim": "Pinned Strix CLI installer, native Hermes preparation/report tool, DevOps mission mapping and local-source LAB execution adapter. No live scan, Docker isolation or provider acceptance is claimed.",
+      "binary_probes": [],
+      "next_repair_action": "Install the CLI; accept a disposable Linux LAB Host and network, review sanitized source disclosure, provision a dedicated model credential and explicitly authorize a synthetic test job."
+    },
+    {
       "id": "station-kernel",
       "maturity": "VERIFIED",
       "claim": "Typed plan/apply, SafeFS, immutable releases, receipts, Doctor and adversarial safety tests are implemented and locally verified.",

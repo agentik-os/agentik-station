@@ -88,6 +88,7 @@ def build_gateway_argv(
         unix_user,
         "--",
         "/usr/bin/env",
+        "-i",
         f"HOME={state_root / 'home'}",
         f"HERMES_HOME={hermes_home}",
         f"XDG_RUNTIME_DIR={runtime_dir}",

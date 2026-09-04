@@ -73,6 +73,7 @@ def _run_worker(component: str, request: dict) -> dict:
         "PYTHONNOUSERSITE": "1",
         "SCRAPEGRAPHAI_TELEMETRY_ENABLED": "false",
         "PLAYWRIGHT_BROWSERS_PATH": str(runtime_root(component) / "browsers"),
+        "TIKTOKEN_CACHE_DIR": str(runtime_root(component) / "tokenizers"),
     }
     if component == "scrapegraphai":
         key = os.environ.get("SCRAPEGRAPHAI_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
@@ -84,7 +85,7 @@ def _run_worker(component: str, request: dict) -> dict:
         raise ValueError("request exceeds the 8 KiB limit")
     cache = Path.home() / ".cache/station-web"
     cache.mkdir(parents=True, exist_ok=True, mode=0o700)
-    with tempfile.TemporaryDirectory(prefix="request-", dir=cache) as workdir, tempfile.TemporaryFile() as output:
+    with tempfile.TemporaryDirectory(prefix="request-", dir=cache) as workdir, tempfile.TemporaryFile(dir=workdir) as output:
         env["TMPDIR"] = workdir
         process = subprocess.Popen(
             [str(python), str(Path(__file__).with_name("scrapegraph_runner.py"))],
@@ -94,9 +95,14 @@ def _run_worker(component: str, request: dict) -> dict:
         try:
             process.communicate(payload, timeout=180)
         except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
-            process.wait()
             raise ValueError("extraction exceeded 180 seconds") from None
+        finally:
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait()
         if process.returncode:
             raise ValueError("Extraction failed; verify runtime health, public URL and Zone credential")
         output.seek(0)
@@ -114,7 +120,7 @@ def _handle(component: str, args: dict[str, Any]) -> str:
         allowed = {"source", "prompt", "model"} if component == "scrapegraphai" else {"source"}
         if not isinstance(args, dict) or set(args) - allowed:
             raise ValueError("unsupported request fields")
-        public_target(args.get("source"))
+        public_target(args.get("source"), resolve=False)
         request = {"source": args["source"]}
         if component == "scrapegraphai":
             prompt = args.get("prompt")

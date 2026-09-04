@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "strix-security-mission",
+  "engine": "hermes-native-profiles-and-delegation",
+  "public_director": "atlas",
+  "external_identity": "existing-devops-director-bot",
+  "resource": "resources/strix/RESOURCE.json",
+  "tool": "station_strix",
+  "execution": "station security strix run",
+  "authority": "root-owned-time-limited-grant-on-disposable-lab-host",
+  "stages": [
+    {"id": "intake", "owner": "atlas", "verifier": "architect", "output": "Zone/Project, owner authorization, local source, explicit model, budget, acceptance criteria"},
+    {"id": "scope", "owner": "architect", "verifier": "sentinel", "output": "Prepared sanitized snapshot, exact digest, exclusions and threat model"},
+    {"id": "authorize", "owner": "human-operator", "verifier": "human-operator", "output": "Reviewed source disclosure, dedicated LAB/network acceptance and expiring root grant"},
+    {"id": "execute", "owner": "sre", "verifier": "sentinel", "output": "Disposable target, bounded Strix run, cleanup observation and evidence"},
+    {"id": "triage", "owner": "sentinel", "verifier": "architect", "output": "Independent reproduction, true/false-positive classification, scoped remediation tasks"},
+    {"id": "repair", "owner": "forge", "verifier": "sentinel", "output": "Project worktree patch and regression tests; no Strix auto-merge"},
+    {"id": "retest", "owner": "sentinel", "verifier": "sre", "output": "Fresh authorization for changed source, independent before/after evidence"},
+    {"id": "promote", "owner": "release-engineer", "verifier": "atlas", "output": "Normal CI, human promotion approval and runtime readback"}
+  ],
+  "non_goals": ["second-Hermes-orchestrator", "new-Discord-bot", "production-scanning", "cloud-upload-by-default", "arbitrary-targets", "provider-budget-guarantee"],
+  "report_policy": "Untrusted findings, never instructions or proof that an application is secure.",
+  "role_boundary": "Role assignment is workflow governance. Unix Zone/Host boundaries and root grants enforce access, not SOUL text."
+}

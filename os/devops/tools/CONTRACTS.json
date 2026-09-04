@@ -3,6 +3,9 @@
   "default": "deny",
   "cross_zone_fallback": "forbidden",
   "contracts": [
+    {"role": "architect", "tool": "station_strix.prepare", "class": "local-execution", "auth_owner": "project", "timeout_seconds": 120, "idempotency": "fresh-job+snapshot-sha256", "approval": "local-sanitized-source-only", "audit": "plan.json", "fallback": "blocked"},
+    {"role": "sre", "tool": "security.strix.run", "class": "external-mutation", "auth_owner": "human-policy-authority", "timeout_seconds": 1800, "idempotency": "approved-job+snapshot-sha256", "approval": "root-grant+disposable-lab+source-disclosure", "audit": "strix-summary-and-private-run-artifacts", "fallback": "incomplete-and-label-scoped-cleanup"},
+    {"role": "sentinel", "tool": "station_strix.report", "class": "read", "auth_owner": "project", "timeout_seconds": 120, "idempotency": "job+snapshot-sha256", "approval": "none", "audit": "independent-reproduction", "fallback": "blocked"},
     {"role": "atlas", "tool": "tracker.read", "class": "read", "auth_owner": "zone", "timeout_seconds": 20, "idempotency": "n/a", "approval": "none", "audit": "mission", "fallback": "configured-tracker-adapter"},
     {"role": "atlas", "tool": "tracker.write", "class": "mutation", "auth_owner": "project", "timeout_seconds": 20, "idempotency": "work+event+artifact", "approval": "policy", "audit": "signed-receipt", "fallback": "queue-no-cross-account"},
     {"role": "atlas", "tool": "hermes.mission", "class": "mutation", "auth_owner": "zone", "timeout_seconds": 30, "idempotency": "mission-id", "approval": "none", "audit": "hermes-event", "fallback": "blocked"},

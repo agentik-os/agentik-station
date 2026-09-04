@@ -8,3 +8,4 @@ provides_tools:
   - agentik_agent
   - station_scrapegraph
   - station_crawl4ai
+  - station_strix

@@ -168,7 +168,7 @@ class StationInstaller:
 
         with install_lock(self.paths, self.spec.operation_id):
             # Establish receipt storage before the rest of reconciliation.
-            self.fs.mkdir(self.paths.varlib, 0o750)
+            self.fs.mkdir(self.paths.varlib, 0o711)
             self.fs.mkdir(self.paths.receipts, 0o750)
             self.receipt.persist(self.fs, self.paths.receipts)
             try:
@@ -260,10 +260,10 @@ class StationInstaller:
             (self.paths.releases, 0o755, root_owner),
             (self.paths.staging, 0o700, root_owner),
             (self.paths.runtime, 0o755, root_owner),
-            (self.paths.varlib, 0o750, system_group_owner),
-            (self.paths.log, 0o750, system_group_owner),
-            (self.paths.backups, 0o750, system_group_owner),
-            (self.paths.run, 0o750, system_group_owner),
+            (self.paths.varlib, 0o711, system_group_owner),
+            (self.paths.log, 0o711, system_group_owner),
+            (self.paths.backups, 0o711, system_group_owner),
+            (self.paths.run, 0o711, system_group_owner),
         ]:
             self.fs.mkdir(path, mode, owner)
 
@@ -275,6 +275,7 @@ class StationInstaller:
             (self.paths.varlib / "registry", 0o750, system_group_owner),
             (self.paths.varlib / "doctor", 0o750, system_group_owner),
             (self.paths.zones_state, 0o711, root_owner),
+            (self.paths.varlib / "zone-bindings", 0o711, root_owner),
             (self.paths.log / "system", 0o750, system_owner),
             (self.paths.log / "zones", 0o711, root_owner),
             (self.paths.backups / "zones", 0o711, root_owner),
@@ -299,7 +300,7 @@ class StationInstaller:
         for category in CATEGORIES.values():
             self.fs.mkdir(zones / category, 0o755, root_owner)
         for name in ["packages", "schemas", "assets", "cache", "resources"]:
-            self.fs.mkdir(shared / name, 0o750, root_owner)
+            self.fs.mkdir(shared / name, 0o755, root_owner)
 
         self.fs.write_text(
             self.paths.runtime / "README.md",
@@ -491,6 +492,8 @@ class StationInstaller:
         root_owner = (0, 0) if not self.paths.test_mode else (os.getuid(), os.getgid())
         human = self._zone_human_path(zone)
 
+        if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
+            self.fs.mkdir(human.parent, 0o711, root_owner)
         self.fs.mkdir(human, 0o750, owner)
         created_human = [human]
         for name in ZONE_SUBDIRS:
@@ -595,6 +598,13 @@ class StationInstaller:
             ((0 if not self.paths.test_mode else os.getuid()), getattr(self, "_station_identity").gid if getattr(self, "_station_identity").gid >= 0 else os.getgid()),
         )
         self._zone_identities[zone.zone_id] = identity
+        # A root-owned, group-scoped projection lets a Zone read ONLY its own
+        # binding without opening /etc/station or trusting its editable ZONE.json.
+        self.fs.write_text(
+            self.paths.varlib / "zone-bindings" / f"{zone.zone_id}.json",
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", 0o640,
+            (root_owner[0], owner[1]),
+        )
         self._zone_paths[zone.zone_id] = human
 
     def _seed_zone_hermes_voice(self, state_root: Path, owner: tuple[int, int]) -> None:

@@ -4,15 +4,33 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import hashlib
 import importlib.metadata
 import json
 import logging
 import os
 import sys
+from pathlib import Path
 
 
 from web_fetch import fetch_html
 from web_runtime import PLAYWRIGHT_VERSION, VERSIONS
+
+
+def check_tokenizers() -> None:
+    # A deployed worker must not silently fetch its tokenizer on the first job.
+    cache = os.environ.get("TIKTOKEN_CACHE_DIR")
+    if not cache:
+        return  # Development/CI may use tiktoken's standard prewarmed cache.
+    assets = {
+        "o200k_base": "446a9538cb6c348e3516120d7c08b09f57c36495e2acfffe59a5bf8b0cfb1a2d",
+        "cl100k_base": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    }
+    for name, digest in assets.items():
+        url = f"https://openaipublic.blob.core.windows.net/encodings/{name}.tiktoken"
+        path = Path(cache) / hashlib.sha1(url.encode()).hexdigest()
+        if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            raise ValueError("Missing/corrupt tokenizer asset; rebuild the reviewed ScrapeGraphAI runtime")
 
 
 async def crawl_html(html: str, source: str) -> str:
@@ -33,6 +51,8 @@ def extract(request: dict) -> dict:
     component = request["component"]
     if importlib.metadata.version(component) != VERSIONS[component]:
         raise ValueError("installed package differs from the reviewed pin")
+    if component == "scrapegraphai":
+        check_tokenizers()
     if request.get("health"):
         if importlib.metadata.version("playwright") != PLAYWRIGHT_VERSION:
             raise ValueError("Playwright version differs from the reviewed pin")

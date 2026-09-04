@@ -21,6 +21,20 @@ The primary threats are:
 
 Doctor and reconciliation derive canonical roots from validated Host, Zone, environment, and Project identifiers. A path string stored in a JSON record never authorizes filesystem traversal by itself. Invalid records fail closed before their supplied roots are inspected.
 
+Mixed system/Zone FHS parents use mode `0711`: a Zone may traverse to its known
+private child, but cannot list the parent. Zone state remains UID-owned `0700`;
+control remains `0750`/`0640`. Root-owned, Zone-group-readable binding projections
+live under `/var/lib/station/zone-bindings`; `/etc/station` is not opened to agents.
+Compiled OS distributions are published under root-owned
+`/opt/station/os-distributions/<zone>/<project>/<os>/<version>`, never by root inside
+a Zone-writable parent. Cross-identity CLI launches clear the inherited environment.
+
+Strix execution requires a separately accepted disposable LAB Host. Docker access
+is host-root-equivalent; a root-owned approval file cannot contain a malicious
+Docker administrator. Do not enroll that capability on a shared/core/production
+Host. See [the Strix boundary](resources/strix/README.md) for source disclosure,
+network acceptance, cost limitations and cleanup requirements.
+
 ## v11 privileged-write rules
 
 - validate every identifier before constructing a path, Unix identity, filename, or operation;

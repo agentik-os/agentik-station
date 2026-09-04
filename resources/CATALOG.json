@@ -6,6 +6,15 @@
   "open_to_other_stacks": true,
   "resources": [
     {
+      "id": "strix",
+      "kind": "governed-security-cli-and-hermes-team",
+      "path": "resources/strix",
+      "package": "strix-agent",
+      "version": "1.6.1",
+      "install_scope": "shared-read-only-cli",
+      "runtime_policy": "No automatic scan. Approved sanitized local source only on an accepted disposable LAB Host."
+    },
+    {
       "id": "scrapegraphai",
       "kind": "isolated-python-hermes-tool",
       "path": "resources/scrapegraphai",

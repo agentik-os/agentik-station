@@ -11,6 +11,7 @@ from .runtime_tool import RUNTIME_TOOL_SCHEMA, handle_runtime, runtime_available
 from .agent_registry import AGENT_TOOL_SCHEMA, AgentCommandService, agent_router_prompt, handle_agent
 from .rules import rules_prompt
 from .web_plugin import register as register_web_tools
+from .strix_plugin import register as register_strix_tools
 
 
 def register(ctx) -> None:
@@ -48,6 +49,7 @@ def register(ctx) -> None:
         emoji="🤖",
     )
     register_web_tools(ctx)
+    register_strix_tools(ctx)
     ctx.register_system_prompt_section(
         "agentik.agent-router",
         agent_router_prompt,

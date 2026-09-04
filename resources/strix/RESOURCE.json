@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "strix",
+  "repository": "https://github.com/usestrix/strix",
+  "package": "strix-agent",
+  "version": "1.6.1",
+  "commit": "f1e24fe3f2a5d0d332e2c47f8511a436c9033fbf",
+  "python": "3.13.15",
+  "code_root": "/opt/station/tools/security/strix-1.6.1-py3.13.15",
+  "install_command": "station deps install --component strix",
+  "hermes_tool": "station_strix",
+  "team_contract": "os/devops/team/STRIX.json",
+  "runtime_claim": "NOT_INSTALLED",
+  "install_scope": "shared-read-only-cli-no-docker-permission-or-scan",
+  "execution_scope": "explicitly-approved-local-source-on-dedicated-disposable-linux-lab-host",
+  "security": {
+    "host_daemon": "unix:///var/run/docker.sock",
+    "image_policy": "preinstalled-architecture-digest-from-config/versions.lock",
+    "network": "operator-accepted-internal-bridge-plus-host-egress-filtering",
+    "approval": "root-owned-grant-bound-to-zone-project-uid-job-snapshot-model-budget-expiry",
+    "scan_mode": "quick",
+    "max_turns_per_agent": 80,
+    "max_budget_usd": 25,
+    "max_timeout_seconds": 1800,
+    "telemetry": false,
+    "mcp": false,
+    "remote_targets": false,
+    "auto_scan": false,
+    "credential": "<zone-state>/credentials/strix-api-key; uid-owned mode 0600"
+  },
+  "limitations": [
+    "Docker socket access is host-root-equivalent; never grant it on a shared/core/production Host.",
+    "An internal bridge alone does not isolate the host/gateway; operator network acceptance is mandatory.",
+    "File exclusions are not a secret scanner; the human must review all approved source disclosure.",
+    "Strix budgets are best effort per run, not hard or cumulative billing limits.",
+    "Profiles share a Zone trust boundary; prompt rules are not permission enforcement."
+  ]
+}

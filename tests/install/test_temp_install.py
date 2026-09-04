@@ -40,6 +40,13 @@ def test_client_install_isolated_layout_ownership_and_honest_state(tmp_path: Pat
     assert (os.lstat(zone / "credentials").st_mode & 0o777) == 0o700
     assert (os.lstat(project / "credentials").st_mode & 0o777) == 0o700
     assert (os.lstat(project).st_uid, os.lstat(project).st_gid) == (os.getuid(), os.getgid())
+    # Simulated installs use one UID: explicitly assert the ancestor traversal
+    # bits that a DIFFERENT live Zone identity needs (without directory listing).
+    for parent in (paths.varlib, paths.log, paths.run, paths.backups, paths.varlib / "zone-bindings", zone.parent):
+        assert parent.stat().st_mode & 0o777 == 0o711
+    binding = paths.varlib / "zone-bindings" / "organization-alpha-prod.json"
+    assert binding.stat().st_mode & 0o777 == 0o640
+    assert json.loads(binding.read_text()) == json.loads((zone / "ZONE.json").read_text())
 
     discord_hermes = paths.zones_state / "discord-bootstrap" / "hermes" / "config.yaml"
     voice_config = discord_hermes.read_text()

@@ -31,6 +31,7 @@ def test_gateway_command_preserves_zone_identity_and_home() -> None:
         runuser_binary=Path("/usr/sbin/runuser"),
     )
     assert argv[:4] == ["/usr/sbin/runuser", "--user", "z-org-alpha-dev", "--"]
+    assert argv[4:6] == ["/usr/bin/env", "-i"]
     assert "HERMES_HOME=/var/lib/station/zones/organization-alpha-dev/hermes" in argv
     assert "XDG_RUNTIME_DIR=/run/user/12001" in argv
     assert "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/12001/bus" in argv

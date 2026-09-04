@@ -74,6 +74,7 @@ def sbom_payload() -> dict[str, Any]:
         ("Python", "application", pins["PYTHON_VERSION"], "https://www.python.org"),
         ("Python AI", "application", pins["AI_PYTHON_VERSION"], "https://www.python.org"),
         ("ScrapeGraphAI", "library", pins["SCRAPEGRAPHAI_VERSION"], "https://github.com/ScrapeGraphAI/Scrapegraph-ai"),
+        ("Strix", "application", pins["STRIX_VERSION"], "https://github.com/usestrix/strix"),
         ("Playwright", "library", pins["PLAYWRIGHT_VERSION"], "https://playwright.dev/python/"),
         ("Node.js", "application", pins["NODE_VERSION"], "https://nodejs.org"),
         ("npm", "application", pins["NPM_VERSION"], "https://www.npmjs.com/package/npm"),

@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1075
+Total files: 1085
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -121,6 +121,7 @@ Total files: 1075
 - `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py`
 - `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py`
 - `components/agk-tui/hermes/plugins/agentik_os/store.py`
+- `components/agk-tui/hermes/plugins/agentik_os/strix_plugin.py`
 - `components/agk-tui/hermes/plugins/agentik_os/web_fetch.py`
 - `components/agk-tui/hermes/plugins/agentik_os/web_plugin.py`
 - `components/agk-tui/hermes/plugins/agentik_os/web_runtime.py`
@@ -237,6 +238,7 @@ Total files: 1075
 - `docs/architecture/13_TEAM_AND_FULL_MODES.md`
 - `docs/architecture/14_GITHUB_PUBLISHING.md`
 - `docs/architecture/15_AGK_STATION_USER_BOOTSTRAP.md`
+- `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
 - `docs/audit/V10_PROFESSIONAL_AUDIT.md`
 - `docs/builder/01_BUILDER_OS_CANONICAL.md`
@@ -663,6 +665,7 @@ Total files: 1075
 - `os/devops/self_improvement/POLICY.yaml`
 - `os/devops/semantics/CONTRACT.json`
 - `os/devops/skills/ORDER.yaml`
+- `os/devops/team/STRIX.json`
 - `os/devops/team/TEAM.yaml`
 - `os/devops/tools/CONTRACTS.json`
 - `os/devops/update/MIGRATIONS.yaml`
@@ -970,6 +973,8 @@ Total files: 1075
 - `resources/scrapegraphai/RESOURCE.json`
 - `resources/stacks/web-product/README.md`
 - `resources/stacks/web-product/STACK.json`
+- `resources/strix/README.md`
+- `resources/strix/RESOURCE.json`
 - `rules/STATION_AGENT_RULES.md`
 - `runtime/hermes-station/hermes/managed-config.example.yaml`
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/README.md`
@@ -1044,6 +1049,7 @@ Total files: 1075
 - `src/agentik_station/receipts.py`
 - `src/agentik_station/remote.py`
 - `src/agentik_station/resources.py`
+- `src/agentik_station/strix.py`
 - `station`
 - `station.sh`
 - `station.yaml.example`
@@ -1069,11 +1075,15 @@ Total files: 1075
 - `tests/install/test_core_install.py`
 - `tests/install/test_temp_install.py`
 - `tests/security/test_doctor_boundaries.py`
+- `tests/security/test_os_compiler_boundaries.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
+- `tests/security/test_strix_boundaries.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`
 - `tests/unit/test_hermes_platforms.py`
+- `tests/unit/test_hermes_update_receipt.py`
 - `tests/unit/test_identifiers.py`
 - `tests/unit/test_models.py`
+- `tests/unit/test_tailscale_readiness.py`

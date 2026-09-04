@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased — governed Strix and deep Station audit (2026-09-05)
+
+- integrate pinned Strix 1.6.1 as a subordinate tool of the existing Hermes DevOps
+  team, with reviewed local snapshots, separate human approval, disposable LAB
+  execution, dedicated protected-key setup, bounded evidence and cleanup;
+- fix profile YAML/identity/cwd, distribution-owned assets, privileged publication,
+  Zone ancestor traversal and inherited cross-identity environments;
+- fix false-success Hermes update receipts and Tailscale readiness;
+- prepare verified ScrapeGraphAI tokenizer assets; put DNS under the worker
+  deadline and validate actual offline graph execution;
+- document nine repaired defects, eleven remaining decisions and explicit external
+  acceptance gates. A new immutable release ID/profile migration is still required
+  before upgrading an already installed 11.12 Host.
+
 ## 11.12 — DevOps delivery and supply-chain completion
 
 - made the DevOps OS machine-semantic with six canonical identities, typed

@@ -136,6 +136,10 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "resources/discord-js-sdk/package-lock.json",
         "resources/scrapegraphai/RESOURCE.json",
         "resources/crawl4ai/RESOURCE.json",
+        "resources/strix/RESOURCE.json",
+        "src/agentik_station/strix.py",
+        "os/devops/team/STRIX.json",
+        "components/agk-tui/hermes/plugins/agentik_os/strix_plugin.py",
         "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py",
         "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py",
         "components/agk-tui/hermes/plugins/agentik_os/web_fetch.py",
@@ -882,7 +886,9 @@ def station_doctor(
 
     _check_mode(result, paths.config, {0o750}, "mode:/etc/station")
     _check_mode(result, paths.runtime, {0o755}, "mode:/srv/station")
-    _check_mode(result, paths.varlib, {0o750}, "mode:/var/lib/station")
+    for name, path in (("state", paths.varlib), ("logs", paths.log), ("run", paths.run), ("backups", paths.backups)):
+        _check_mode(result, path, {0o711}, f"mode:zone-traversal:{name}")
+    _check_mode(result, paths.varlib / "zone-bindings", {0o711}, "mode:zone-bindings")
 
     catalog_by_id: dict[str, dict[str, Any]] = {}
     if repo_root is not None:
@@ -940,6 +946,13 @@ def station_doctor(
         zone_id = zone.zone_id
         _check_directory(result, human, f"zone:{zone_id}:human")
         _check_directory(result, state_root, f"zone:{zone_id}:state")
+        if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
+            _check_mode(result, human.parent, {0o711}, f"zone:{zone_id}:parent-traversal")
+        binding_path = paths.varlib / "zone-bindings" / f"{zone_id}.json"
+        binding = _load_json(result, binding_path, f"zone:{zone_id}:readonly-binding")
+        if binding is not None and binding != payload:
+            result.fail(f"zone:{zone_id}:binding-match", "Zone binding projection differs from desired state.", "Reconcile the Zone.")
+        _check_mode(result, binding_path, {0o640}, f"zone:{zone_id}:binding-mode")
         _check_directory(result, human / "credentials", f"zone:{zone_id}:credentials")
         _check_directory(result, state_root / "hermes", f"zone:{zone_id}:hermes-home")
         _check_regular(result, state_root / "home" / ".config" / "containers" / "storage.conf", f"zone:{zone_id}:rootless-storage-config")
@@ -994,6 +1007,12 @@ def station_doctor(
                     )
                 else:
                     result.pass_check(f"zone:{zone_id}:identity-primary-group")
+                if binding is not None:
+                    binding_stat = os.lstat(binding_path)
+                    if (binding_stat.st_uid, binding_stat.st_gid) != (0, group.gr_gid):
+                        result.fail(f"zone:{zone_id}:binding-owner", "Binding must be root-owned and readable only by the Zone group.", "Reconcile the Zone binding projection.")
+                    else:
+                        result.pass_check(f"zone:{zone_id}:binding-owner")
                 for check_path in [human, state_root, human / "credentials", state_root / "hermes"]:
                     st = os.lstat(check_path)
                     if (st.st_uid, st.st_gid) != (entry.pw_uid, group.gr_gid):

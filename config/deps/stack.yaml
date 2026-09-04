@@ -55,6 +55,18 @@ resources:
   default_stack: web-product
   policy: Stack recipes are defaults, not a vendor lock; exact Project choices remain contract-driven.
 components:
+  - id: strix
+    repository: https://github.com/usestrix/strix
+    role: Subordinate security assessment tool controlled by the existing Hermes DevOps team
+    package: strix-agent
+    version: 1.6.1
+    commit_pin: f1e24fe3f2a5d0d332e2c47f8511a436c9033fbf
+    python: 3.13.15
+    install: optional-shared-read-only-cli-included-with-ai-stack
+    hermes_tool: station_strix
+    team: os/devops/team/STRIX.json
+    execution: authorized-local-source-disposable-lab-host-only
+    maturity: INSTALLABLE
   - id: scrapegraphai
     repository: https://github.com/ScrapeGraphAI/Scrapegraph-ai
     role: Hermes-governed AI web extraction and structured scraping tool

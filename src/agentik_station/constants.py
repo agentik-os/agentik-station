@@ -39,6 +39,7 @@ SYSTEM_PACKAGES = [
     "ca-certificates",
     "python3",
     "python3-venv",
+    "python3-yaml",
     "python3-pip",
     "jq",
     "unzip",

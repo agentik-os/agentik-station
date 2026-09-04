@@ -124,7 +124,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y git curl ca-certificates xz-utils sudo rsync jq unzip build-essential \
-  python3 python3-venv python3-dev pkg-config libssl-dev libffi-dev \
+  python3 python3-venv python3-yaml python3-dev pkg-config libssl-dev libffi-dev \
   podman ffmpeg libopus0 portaudio19-dev
 
 # Install at least the reviewed Tailscale stable version through its signed

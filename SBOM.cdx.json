@@ -2686,6 +2686,18 @@
       "version": "4.21.0"
     },
     {
+      "bom-ref": "station:strix@1.6.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/usestrix/strix"
+        }
+      ],
+      "name": "Strix",
+      "type": "application",
+      "version": "1.6.1"
+    },
+    {
       "bom-ref": "station:tigervnc@v1.16.2",
       "externalReferences": [
         {

@@ -53,6 +53,7 @@ These projects are not interchangeable Python dependencies:
 
 | Component | Pin | Station action | Still required before OPERATIONAL |
 |---|---:|---|---|
+| Strix | 1.6.1 / wheel and image digests | isolated CLI, existing Hermes DevOps team, typed local-source adapter | disposable LAB/network acceptance, reviewed source disclosure, dedicated model key, human grant and independent findings verification |
 | Ponytail | v4.9.0 / immutable commit | native `hermes plugins install ... --ref <sha> --enable` | plugin review + coding-session acceptance |
 | Langfuse | v4.28.1 | immutable tagged source checkout | secrets, compose/Kubernetes deployment, trace readback, backup |
 | Honcho | SDK 2.4.0 | isolated Python 3.13 venv | API/self-host, Zone credentials, memory round-trip |
@@ -75,6 +76,13 @@ sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
 It stages the complete optional stack but does not invent secrets, start Langfuse, expose VNC, or mark external services accepted.
+
+Strix adds no automatic scans or Docker permissions; its subordinate team and
+authorization contract are in the [security resource guide](../../resources/strix/README.md).
+Fresh ScrapeGraphAI installs prefetch and verify tokenizer assets in the read-only
+runtime. `web-check` refuses missing/corrupt deployed assets. An older same-version
+runtime without `tokenizers/` must be inspected and archived by an operator, then
+rebuilt; the installer does not silently overwrite an existing published runtime.
 
 ## Hermes update policy
 

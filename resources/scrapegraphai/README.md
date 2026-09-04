@@ -35,3 +35,14 @@ reinstalling. An already published runtime is not overwritten; reruns repeat its
 health check. Updating the pins creates a separate versioned runtime.
 
 Upstream: [ScrapeGraphAI](https://github.com/ScrapeGraphAI/Scrapegraph-ai).
+
+September 5 verification adds an actual `SmartScraperGraph.run()` test with a fake
+local model and network disabled. This exercises the installed library's graph,
+not only a mocked constructor; it does not prove paid-provider connectivity.
+DNS resolution now occurs only inside the bounded worker. Scratch output remains
+inside the Zone cache and cancellation terminates the worker process group.
+
+Fresh installations prewarm SHA256-verified `o200k_base` and `cl100k_base` assets
+under the published runtime's `tokenizers/`; health/extraction fail closed if those
+deployed assets are missing/corrupt. Older immutable runtimes lacking them require
+operator inspection/archive and rebuild, not a silent in-place overwrite.

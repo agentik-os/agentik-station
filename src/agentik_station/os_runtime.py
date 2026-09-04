@@ -2,22 +2,68 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import shutil
+import stat
 from pathlib import Path
 from typing import Any
 
 from .errors import SecurityError, ValidationError
 from .identifiers import validate_identifier
 from .os_contract import doctor_os_source
+from .filesystem import SafeFS
+
+
+def require_root_owned_directory_chain(path: Path) -> None:
+    """Privileged publication must never traverse an agent-writable parent."""
+    SafeFS._assert_existing_absolute_chain(path)
+    for parent in (path, *path.parents):
+        st = parent.stat(follow_symlinks=False)
+        if st.st_uid != 0 or not stat.S_ISDIR(st.st_mode) or st.st_mode & 0o022:
+            raise SecurityError(f"Publication ancestor must be root-owned and not group/world writable: {parent}")
+
+
+def _profile_config(template: str, profile_id: str, project_root: Path) -> dict[str, Any]:
+    """Merge mappings, never append duplicate YAML sections or interpolate YAML source."""
+    import yaml
+
+    class UniqueLoader(yaml.SafeLoader):
+        pass
+
+    def mapping(loader, node):
+        result = {}
+        for key_node, value_node in node.value:
+            key = loader.construct_object(key_node, deep=True)
+            if not isinstance(key, str) or key in result:
+                raise ValidationError("OS config contains a non-string or duplicate YAML key")
+            result[key] = loader.construct_object(value_node, deep=True)
+        return result
+
+    UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping)
+    try:
+        config = yaml.load(template, Loader=UniqueLoader)
+    except yaml.YAMLError as exc:
+        raise ValidationError("OS config must be valid, unambiguous YAML") from exc
+    if not isinstance(config, dict):
+        raise ValidationError("OS config must be a mapping")
+    if "plugins" in config:
+        raise ValidationError("OS config template plugins section is reserved for the distribution compiler")
+    for section in ("profile", "terminal"):
+        if not isinstance(config.setdefault(section, {}), dict):
+            raise ValidationError(f"OS config {section} must be a mapping")
+    config["profile"]["id"] = profile_id
+    config["terminal"].update(cwd=str(project_root), home_mode="profile")
+    config["plugins"] = {
+        "enabled": ["station-web"],
+        "entries": {"station-web": {"allow_tool_override": False}},
+    }
+    return config
 
 
 def _require_clean_output(output: Path) -> None:
     output = Path(output)
     if output.exists() or output.is_symlink():
         raise SecurityError(f"Compiler output must not already exist: {output}")
-    if output.parent.exists() and output.parent.is_symlink():
-        raise SecurityError(f"Compiler output parent must not be a symlink: {output.parent}")
+    SafeFS._assert_existing_absolute_chain(output.absolute().parent)
 
 
 def _profile_distribution(
@@ -49,16 +95,28 @@ def _profile_distribution(
         '  - STATION_RULES.md\n'
         '  - config.yaml\n'
         '  - skills/\n'
+        '  - research_fabric/\n'
+        '  - COMMANDS.yaml\n'
         '  - plugins/station-web/\n'
         '  - distribution.yaml\n'
     )
     config_template = (source / "hermes/config.template.yaml").read_text(encoding="utf-8")
-    config = config_template.replace("__PROJECT_ROOT__", str(project_root))
-    # Strict Zone/profile tool-home isolation is a Station invariant.
-    if "home_mode:" not in config:
-        config += "\nterminal:\n  home_mode: profile\n"
-    elif "home_mode: profile" not in config:
-        config = config.replace("terminal:\n", "terminal:\n  home_mode: profile\n", 1)
+    config = _profile_config(config_template, profile_id, project_root)
+    if os_id == "devops-os":
+        security_target = destination / "plugins/station-strix"
+        security_target.mkdir(parents=True)
+        original = source.parents[1] / "components/agk-tui/hermes/plugins/agentik_os/strix_plugin.py"
+        if original.is_symlink() or not original.is_file():
+            raise ValidationError("Missing canonical Strix plugin")
+        shutil.copyfile(original, security_target / "__init__.py")
+        (security_target / "plugin.yaml").write_text(
+            'name: station-strix\nversion: 1.0.0\nkind: standalone\n'
+            'description: Governed Strix preparation and evidence for the DevOps Hermes team\n'
+            'provides_tools: [station_strix]\n', encoding="utf-8")
+        config["plugins"]["enabled"].append("station-strix")
+        config["plugins"]["entries"]["station-strix"] = {"allow_tool_override": False}
+        distribution += '  - plugins/station-strix/\n  - STRIX_TEAM.json\n'
+        shutil.copyfile(source / "team/STRIX.json", destination / "STRIX_TEAM.json")
 
     # Ship only the governed web tools, not the operator's runtime/router/Discord plugin.
     plugin_source = source.parents[1] / "components/agk-tui/hermes/plugins/agentik_os"
@@ -74,16 +132,9 @@ def _profile_distribution(
         'description: Governed public HTML extraction through Station runtimes\n'
         'provides_tools: [station_scrapegraph, station_crawl4ai]\n', encoding="utf-8",
     )
-    # The compiler owns this section. Reject collisions rather than emit duplicate YAML keys.
-    if re.search(r"^plugins\s*:", config, re.MULTILINE):
-        raise ValidationError("OS config template plugins section is reserved for the distribution compiler")
-    config += (
-        "\nplugins:\n  enabled: [station-web]\n  entries:\n"
-        "    station-web:\n      allow_tool_override: false\n"
-    )
-
+    import yaml
     (destination / "distribution.yaml").write_text(distribution, encoding="utf-8")
-    (destination / "config.yaml").write_text(config, encoding="utf-8")
+    (destination / "config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     soul = (
         profile_text.rstrip()
         + "\n\n## Station universal agent rules\n\n"
@@ -106,6 +157,12 @@ def _profile_distribution(
 
 def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> dict[str, Any]:
     source = Path(source)
+    SafeFS._assert_existing_absolute_chain(source.absolute())
+    for current, dirs, files in os.walk(source, followlinks=False):
+        for name in dirs + files:
+            candidate = Path(current) / name
+            if candidate.is_symlink() or not (candidate.is_dir() or candidate.is_file()):
+                raise SecurityError(f"OS source contains a symlink or special file: {candidate}")
     result = doctor_os_source(source)
     if not result.ok:
         raise ValidationError(f"OS source Doctor failed for {source}: {result.issues[:3]}")
@@ -201,7 +258,10 @@ def install_compiled_bundle(
             unix_user,
             "--",
             "/usr/bin/env",
+            "-i",
+            f"HOME={hermes_home.parent / 'home'}",
             f"HERMES_HOME={hermes_home}",
+            "PATH=/usr/local/bin:/usr/bin:/bin",
             hermes_binary,
             "profile",
             "install",

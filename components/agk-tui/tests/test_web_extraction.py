@@ -171,6 +171,8 @@ def test_worker_environment_does_not_inherit_other_credentials(web, monkeypatch,
     captured = {}
     class Process:
         returncode = 0
+        def poll(self):
+            return self.returncode
         def __init__(self, argv, **kwargs):
             captured.update(argv=argv, **kwargs)
         def communicate(self, payload, timeout):
@@ -196,6 +198,8 @@ def test_timeout_kills_worker_group_and_removes_scratch(web, monkeypatch, tmp_pa
     killed = []
     class Process:
         pid = 123456
+        def poll(self):
+            return None
         def __init__(self, *args, **kwargs):
             pass
         def communicate(self, *args, **kwargs):
@@ -267,3 +271,26 @@ def test_real_crawl4ai_raw_html_when_dependency_is_installed(web):
     markdown = asyncio.run(web.runner.crawl_html("<h1>Station fixture</h1><p>Offline extraction works.</p>", "https://example.com"))
     assert "# Station fixture" in markdown
     assert "Offline extraction works." in markdown
+
+
+def test_hermes_parent_never_resolves_dns_outside_worker_deadline(web, monkeypatch):
+    monkeypatch.setattr(web.web_fetch.socket, "getaddrinfo", lambda *a, **kw: pytest.fail("DNS belongs in deadline-controlled worker"))
+    monkeypatch.setattr(web.scrapegraph_tool, "_run_worker", lambda *a: {"success": True, "markdown": "fixture"})
+    assert json.loads(web.scrapegraph_tool.handle_crawl4ai({"source": "https://example.com"}))["success"] is True
+
+
+def test_real_scrapegraph_graph_with_offline_model(web, monkeypatch):
+    graphs = pytest.importorskip("scrapegraphai.graphs")
+    from langchain_core.language_models.fake_chat_models import FakeListChatModel
+    real_graph = graphs.SmartScraperGraph
+    def offline_graph(**kwargs):
+        kwargs["config"]["llm"] = {"model_instance": FakeListChatModel(responses=['{"title":"Station fixture"}']), "model_tokens": 8192}
+        return real_graph(**kwargs)
+    monkeypatch.setattr(graphs, "SmartScraperGraph", offline_graph)
+    monkeypatch.setattr(web.runner, "fetch_html", lambda _: ("<h1>Station fixture</h1>", "https://example.com"))
+    monkeypatch.setenv("SCRAPEGRAPHAI_TELEMETRY_ENABLED", "false")
+    monkeypatch.setenv("SCRAPEGRAPHAI_OPENAI_API_KEY", "synthetic-not-a-key")
+    monkeypatch.setattr(socket.socket, "connect", lambda *a, **kw: pytest.fail("No network permitted in offline graph test"))
+    monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **kw: pytest.fail("Prewarm public tokenizer assets before the offline test"))
+    result = web.runner.extract({"component": "scrapegraphai", "source": "https://example.com", "prompt": "Return the title", "model": "openai/fixture"})
+    assert result == {"success": True, "data": {"title": "Station fixture"}}

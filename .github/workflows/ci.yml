@@ -36,12 +36,15 @@ jobs:
         run: |
           python -m pip install "$WEB_COMPONENT==$WEB_VERSION" playwright==1.62.0 pytest==8.4.2
           python -m playwright install --with-deps chromium
+          if [ "$WEB_COMPONENT" = scrapegraphai ]; then
+            python -c 'import tiktoken; tiktoken.get_encoding("o200k_base"); tiktoken.get_encoding("cl100k_base")'
+          fi
       - name: Verify actual imports and Chromium launch without provider credentials
         env:
           WEB_COMPONENT: ${{ matrix.component }}
         run: |
           printf '{"component":"%s","health":true}\n' "$WEB_COMPONENT" | python components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py
-      - name: Adversarial adapters and real offline Crawl4AI conversion
+      - name: Adversarial adapters and actual offline library execution
         run: pytest -q -p no:cacheprovider components/agk-tui/tests/test_web_extraction.py
 
   verify:

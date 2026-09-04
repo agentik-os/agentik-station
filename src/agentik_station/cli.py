@@ -619,7 +619,9 @@ def cmd_composio_discord(args: argparse.Namespace) -> int:
         unix_user,
         "--",
         "/usr/bin/env",
+        "-i",
         f"HOME={home}",
+        "PATH=/usr/local/bin:/usr/bin:/bin",
         f"COMPOSIO_USER_ID={principal}",
         str(binary),
         *commands[action],
@@ -917,19 +919,28 @@ def cmd_os_install(args: argparse.Namespace) -> int:
     if not hermes or not runuser:
         raise StationError("Hermes and runuser must be available before OS runtime installation")
 
-    version = str(item["version"])
-    final = state_root / "hermes" / "distributions" / str(item["id"]) / version
+    version = validate_version(str(item["version"]))
+    # Generated source is public, immutable software, not Zone-writable runtime state.
+    # Compiling as root underneath a Zone-owned parent is both a symlink race and
+    # a traversal-permission bug. Keep staging/publication outside that boundary.
+    layout = LayoutPaths.live()
+    fs = SafeFS(layout.allowed_roots)
+    from .os_runtime import require_root_owned_directory_chain
+    require_root_owned_directory_chain(layout.software)
+    final = layout.software / "os-distributions" / args.zone / project_id / str(item["id"]) / version
     if final.exists() or final.is_symlink():
         raise StationError(f"Immutable compiled OS distribution already exists: {final}")
 
-    staging_parent = state_root / "hermes" / "compile-staging"
-    staging_parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    staging_parent = layout.staging / "os"
+    fs.mkdir(staging_parent, mode=0o700, owner=(0, 0))
+    require_root_owned_directory_chain(staging_parent)
     with tempfile.TemporaryDirectory(prefix=f"{item['id']}-", dir=staging_parent) as td:
         generated = Path(td) / "bundle"
         compiled = compile_os_to_hermes(source, generated, project_root=project_root)
-        final.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        fs.mkdir(final.parent, mode=0o755, owner=(0, 0))
+        require_root_owned_directory_chain(final.parent)
+        fs.freeze_tree(generated)
         os.replace(generated, final)
-    _chown_generated_tree(final, entry.pw_uid, entry.pw_gid)
 
     result = install_compiled_bundle(
         final,
@@ -950,7 +961,6 @@ def cmd_os_install(args: argparse.Namespace) -> int:
         "claim": "CONFIGURED_NOT_OPERATIONAL" if result["state"] == "CONFIGURED" else "DEGRADED",
     }
     output = Path(str(zone["human_root"])) / "os" / f"{item['id']}.runtime.json"
-    fs = SafeFS(LayoutPaths.live().allowed_roots)
     fs.write_text(output, json.dumps(record, indent=2, sort_keys=True) + "\n", 0o640, (entry.pw_uid, entry.pw_gid))
     print(json.dumps(record, indent=2, sort_keys=True))
     return 0 if result["state"] == "CONFIGURED" else 1
@@ -971,11 +981,13 @@ def cmd_os_verify(args: argparse.Namespace) -> int:
         raise ValidationError("OS runtime record is missing; install the OS first")
     record = json.loads(record_path.read_text(encoding="utf-8"))
     profiles = record.get("runtime", {}).get("profiles", [])
-    profile_ids = [str(x.get("profile")) for x in profiles if x.get("profile")]
+    profile_ids = [validate_identifier(str(x.get("profile")), "Hermes profile") for x in profiles if x.get("profile")]
     observations = []
     ok = bool(profile_ids)
     for profile in profile_ids:
-        argv = [runuser, "--user", unix_user, "--", "/usr/bin/env", f"HERMES_HOME={hermes_home}", hermes, "-p", profile, "doctor"]
+        argv = [runuser, "--user", unix_user, "--", "/usr/bin/env", "-i",
+                f"HOME={hermes_home.parent / 'home'}", f"HERMES_HOME={hermes_home}",
+                "PATH=/usr/local/bin:/usr/bin:/bin", hermes, "-p", profile, "doctor"]
         completed = subprocess.run(argv, capture_output=True, text=True, check=False, timeout=300)
         observations.append({"profile": profile, "returncode": completed.returncode, "stdout": completed.stdout[-8000:], "stderr": completed.stderr[-8000:]})
         ok = ok and completed.returncode == 0
@@ -990,6 +1002,52 @@ def cmd_os_verify(args: argparse.Namespace) -> int:
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0 if ok else 1
+
+
+def cmd_strix(args: argparse.Namespace) -> int:
+    try:
+        return _cmd_strix(args)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        raise StationError("Strix prerequisite or evidence unavailable: check Zone reconciliation, approved scope, CLI/image/network, private credential and job files. No operational claim.") from None
+
+
+def _cmd_strix(args: argparse.Namespace) -> int:
+    from . import strix
+    zone_id = validate_identifier(args.zone, "zone")
+    layout = LayoutPaths.live()
+    if os.geteuid() == 0:
+        zone = _load_zone_record(zone_id)
+    else:
+        zone = strix.read_json(layout.varlib / "zone-bindings" / f"{zone_id}.json", uid=0, immutable=True)
+        if zone.get("id") != zone_id or zone.get("placement") != "local":
+            raise ValidationError("Invalid local Zone binding projection; reconcile the Zone")
+    project_id = validate_identifier(args.project, "project")
+    project = Path(str(zone["human_root"])) / "projects" / project_id
+    uid = pwd.getpwnam(validate_identifier(str(zone["unix_user"]))).pw_uid
+    common = {"zone": args.zone, "project_id": project_id, "uid": uid}
+    policy = layout.varlib / "security" / "strix" / args.zone / project_id
+    if args.strix_action == "prepare":
+        result = strix.prepare(project, args.repo, **common, model=args.model,
+                               budget=args.budget_usd, timeout=args.timeout_seconds)
+    elif args.strix_action == "approve":
+        result = strix.approve(project, job=args.job, **common, policy_root=policy,
+                              host_record=layout.observed / "host.json", network=args.network,
+                              acceptance_sha256=args.worker_acceptance_sha256,
+                              source_upload_approved=args.allow_source_to_model,
+                              dedicated_lab=args.disposable_lab_confirmed)
+    elif args.strix_action == "run":
+        result = strix.run(project, job=args.job, **common, policy_root=policy,
+                          credential_file=Path(str(zone["state_root"])) / "credentials" / "strix-api-key")
+    elif args.strix_action == "status":
+        result = strix.status(project, job=args.job, **common, policy_root=policy)
+    else:
+        if os.geteuid() != uid or uid == 0:
+            raise StationError("Read Strix evidence as the owning non-root Zone identity")
+        job = validate_identifier(args.job, "Strix job")
+        path = project / "evidence" / "strix" / job / "summary.json"
+        result = strix.read_json(path, uid=uid)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 1 if result.get("state") == "INCOMPLETE" else 0
 
 
 def cmd_composio_validate(args: argparse.Namespace) -> int:
@@ -1235,6 +1293,28 @@ def build_parser() -> argparse.ArgumentParser:
     rules_install.add_argument("--repo", required=True)
     rules_install.add_argument("--plan", action="store_true")
     rules_install.set_defaults(handler=cmd_rules_install)
+
+    security = sub.add_parser("security", help="Governed security tools; never an implicit scan authorization")
+    security_sub = security.add_subparsers(dest="security_command", required=True)
+    strix_parser = security_sub.add_parser("strix", help="Local-source assessment on an explicitly accepted disposable LAB Host")
+    strix_sub = strix_parser.add_subparsers(dest="strix_action", required=True)
+    for action in ("prepare", "approve", "run", "status", "report"):
+        command = strix_sub.add_parser(action)
+        command.add_argument("--zone", required=True)
+        command.add_argument("--project", required=True)
+        if action == "prepare":
+            command.add_argument("--repo", required=True, help="Relative path under the owning Project's repos directory")
+            command.add_argument("--model", required=True, help="Explicit provider/model route; no custom API endpoints")
+            command.add_argument("--budget-usd", type=float, default=5.0)
+            command.add_argument("--timeout-seconds", type=int, default=600)
+        else:
+            command.add_argument("--job", required=True)
+        if action == "approve":
+            command.add_argument("--network", required=True)
+            command.add_argument("--worker-acceptance-sha256", required=True)
+            command.add_argument("--allow-source-to-model", action="store_true")
+            command.add_argument("--disposable-lab-confirmed", action="store_true")
+        command.set_defaults(handler=cmd_strix)
 
     provider = sub.add_parser("provider")
     provider_sub = provider.add_subparsers(dest="provider_command", required=True)

@@ -85,6 +85,9 @@ else
     gateway_rc=0
   else
     gateway_rc=$?
+    if [[ "$status" == "VERIFIED_UPDATED" ]]; then
+      status="DEGRADED_GATEWAY_FAILED"
+    fi
   fi
 fi
 
