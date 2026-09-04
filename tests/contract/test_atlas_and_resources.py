@@ -45,6 +45,8 @@ def test_resource_catalog_and_exact_web_stack_plan() -> None:
     catalog = load_resource_catalog(ROOT / "resources" / "CATALOG.json")
     assert catalog["open_to_other_stacks"] is True
     assert find_resource(catalog, "shadcn-ui")["version"] == "4.21.0"
+    assert find_resource(catalog, "discord-js-sdk")["version"] == "14.27.0"
+    assert (ROOT / "docs/diagrams/16_DEVOPS_OS_END_TO_END.mmd").is_file()
     plan = build_stack_plan(catalog, "web-product")
     assert plan["claim"] == "PLAN_ONLY_NOT_INSTALLED"
     commands = plan["commands"]

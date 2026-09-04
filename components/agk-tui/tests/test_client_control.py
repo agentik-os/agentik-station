@@ -934,7 +934,7 @@ def test_bootstrap_is_safe_with_no_real_client(layout):
     client_control.bootstrap(layout, upgrade=True)
 
     assert client_control.load_registry(layout)["clients"] == []
-    assert "NO LINEAR ISSUE" in (layout.system / "CLIENT-STANDARD.md").read_text(
+    assert "NO DURABLE WORK RECORD / TRACKER ISSUE" in (layout.system / "CLIENT-STANDARD.md").read_text(
         encoding="utf-8"
     )
     assert client_control.show_doctor(layout, None, online=False) == 0
@@ -984,11 +984,14 @@ def test_bootstrap_upgrade_migrates_existing_client_workflow_and_team(layout):
 
     workflow = client_control.yaml_document(config / "workflow.yaml")
     team = client_control.yaml_document(config / "team.yaml")
-    assert workflow["schema_version"] == 4
+    assert workflow["schema_version"] == 5
     assert workflow["invariants"]["explicit_human_start_authorization_required"] is True
-    assert team["schema_version"] == 2
+    assert workflow["autonomy"]["default_behavior"] == "decide-act-verify-record-continue"
+    assert team["schema_version"] == 3
     assert team["client_id"] == "test-client"
     assert team["hermes_profile"] == client_control.hermes_profile_id("test-client")
+    operations = client_control.yaml_document(config / "operations.yaml")
+    assert operations["contract"] == "agk-client-operations/v1"
     backups = layout.system / "audit" / "client-config-migrations" / "test-client"
     assert (backups / "workflow.schema-1.yaml").is_file()
     assert (backups / "team.schema-1.yaml").is_file()
@@ -1161,14 +1164,23 @@ def test_client_team_uses_dedicated_project_manager_orchestration(layout):
         layout.client("test-client") / ".client" / "team.yaml"
     )
 
-    assert team["orchestrator"] == {"role": "project-manager", "provider": "hermes"}
+    assert team["orchestrator"] == {
+        "role": "atlas",
+        "provider": "hermes",
+        "public_alias": "project-manager",
+    }
+    assert set(team["canonical_identities"]) == {
+        "atlas", "architect", "forge", "sentinel", "release-engineer", "sre",
+    }
+    assert team["role_aliases"]["project-manager"] == "atlas"
+    assert team["role_aliases"]["frontend-engineer"] == "forge"
     assert team["roles"]["project-manager"]["scope"] == "delivery-orchestration"
     assert team["roles"]["product-manager"]["scope"] == "product-direction"
     assert team["roles"]["product-manager"]["reports_to"] == "project-manager"
     assert team["execution_model"] == {
         "client_profile": "dedicated",
         "agents": "on_demand_preserved_sessions",
-        "discord_identity": "dedicated_client_project_manager_bot",
+        "discord_identity": "dedicated_devops_atlas_bot",
         "production_gate": "cto_required",
         "supervision_surface": "agk_tui",
         "specialist_sessions": "preserved_and_visible",
@@ -1231,8 +1243,8 @@ def test_doctor_rejects_regressed_team_orchestration(layout):
     checks = client_control.doctor_one(layout, "test-client", online=False)
 
     failures = [message for level, message in checks if level == "fail"]
-    assert "team project-manager is the Hermes orchestrator" in failures
-    assert "team uses a dedicated client Project Manager Discord bot" in failures
+    assert "team Atlas is the Hermes DevOps orchestrator" in failures
+    assert "team uses a dedicated DevOps Atlas Discord bot" in failures
 
 
 def test_client_init_declares_vercel_convex_and_drive_as_first_class_integrations(layout):
@@ -2594,5 +2606,283 @@ def test_discord_review_actions_cannot_bypass_disabled_release_controller(layout
                 actor="discord:42",
                 decision_id="untrusted-deploy",
                 feedback=None,
+            ),
+        )
+
+
+def test_soft_autonomy_intent_rejects_negation_and_accepts_french_and_english():
+    assert client_control.is_owner_linear_batch_intent("Start all ready Linear work")
+    assert client_control.is_owner_linear_batch_intent("Lance toutes les tâches prêtes")
+    assert not client_control.is_owner_linear_batch_intent("Do not start all ready Linear work")
+    assert not client_control.is_owner_linear_batch_intent("Ne lance pas toutes les tâches prêtes")
+
+
+def test_blocked_requires_complete_contract_and_resumes_same_context(layout):
+    client_control.create_client(layout, init_args())
+    work = make_work(layout)
+    original_session = work["agent"]["session"]
+    args = Namespace(
+        slug="test-client",
+        work_id=work["id"],
+        actor="atlas",
+        blocked_by="Provider outage",
+        already_tried="Retried bounded health probe",
+        impact="No external readback is possible",
+        need="Provider service recovery",
+        resume="Rerun the exact readback",
+        no_useful_next_action=True,
+    )
+
+    blocked = client_control.block_work(layout, args)
+    replay = client_control.block_work(layout, args)
+    assert blocked["status"] == "blocked"
+    assert replay["blocker"]["fingerprint"] == blocked["blocker"]["fingerprint"]
+
+    resumed = client_control.unblock_work(
+        layout,
+        Namespace(
+            slug="test-client",
+            work_id=work["id"],
+            actor="atlas",
+            result="Provider health recovered",
+        ),
+    )
+    assert resumed["status"] == blocked["blocker"]["previous_status"]
+    assert resumed["agent"]["session"] == original_session
+    assert resumed["events"][-1]["event"] == "work.unblocked"
+
+
+def test_create_work_maps_specialist_to_canonical_identity(layout):
+    client_control.create_client(layout, init_args())
+    work = make_work(layout)
+    assert work["agent"]["role"] == "backend-engineer"
+    assert work["agent"]["canonical_identity"] == "forge"
+
+
+def test_accepted_release_controller_binds_exact_pr_head_and_signed_approvals(layout):
+    client_control.create_client(layout, init_args())
+    work = make_work(layout)
+    config_path = layout.client("test-client") / ".client" / "integrations.yaml"
+    integrations = client_control.yaml_document(config_path)
+    integrations["linear"]["release_controller"].update(
+        {"enabled": True, "operational_acceptance_verified": True}
+    )
+    client_control.atomic_yaml(config_path, integrations)
+    work_path, record = client_control.load_work(layout, "test-client", work["id"])
+    record["status"] = "ready_for_cto"
+    record["repository"].update(
+        {"pull_request": "https://github.example/acme/app/pull/7", "commit": "abc123"}
+    )
+    client_control.atomic_yaml(work_path, record)
+
+    engineering_args = Namespace(
+        slug="test-client",
+        work_id=work["id"],
+        approval_id="discord-review-7",
+        actor="owner-user",
+    )
+    approved = client_control.approve_work(layout, engineering_args)
+    replay = client_control.approve_work(layout, engineering_args)
+    assert approved["status"] == "cto_approved"
+    assert replay["approvals"]["engineering"]["receipt"] == approved["approvals"]["engineering"]["receipt"]
+
+    production_args = Namespace(
+        slug="test-client",
+        work_id=work["id"],
+        approval_id="discord-production-8",
+        actor="owner-user",
+    )
+    authorized = client_control.authorize_deploy(layout, production_args)
+    assert authorized["status"] == "ready_to_deploy"
+    assert authorized["approvals"]["production"]["head_sha"] == "abc123"
+    assert authorized["approvals"]["production"]["receipt"]
+
+    with pytest.raises(client_control.ClientError, match="approved PR head"):
+        client_control.start_run(
+            layout,
+            Namespace(
+                slug="test-client",
+                work_id=work["id"],
+                action="deploy_production",
+                actor="release-engineer",
+                machine="prod-01",
+                commit="different",
+                before="v1",
+                after="v2",
+                approval_id="discord-production-8",
+                rollback_available=True,
+            ),
+        )
+    run = client_control.start_run(
+        layout,
+        Namespace(
+            slug="test-client",
+            work_id=work["id"],
+            action="deploy_production",
+            actor="release-engineer",
+            machine="prod-01",
+            commit="abc123",
+            before="v1",
+            after="v2",
+            approval_id="discord-production-8",
+            rollback_available=True,
+        ),
+    )
+    assert run["status"] == "running"
+
+
+def test_owner_batch_authorizes_each_ready_non_production_work_with_thread_and_receipt(
+    layout, monkeypatch
+):
+    client_control.create_client(layout, init_args())
+    repository = declare_repository(layout, "test-client")
+    work = client_control.create_work(
+        layout,
+        Namespace(
+            slug="test-client",
+            issue="FOU-177",
+            title="Ready batch item",
+            role="frontend-engineer",
+            provider="hermes",
+            repo=repository,
+            branch=None,
+            session=None,
+            target="staging",
+        ),
+    )
+    path, record = client_control.load_work(layout, "test-client", work["id"])
+    attach_verified_linear_snapshot(layout, "test-client", record, "FOU-177")
+    client_control.atomic_yaml(path, record)
+    integrations_path = layout.client("test-client") / ".client" / "integrations.yaml"
+    integrations = client_control.yaml_document(integrations_path)
+    integrations["linear"]["delivery_project_id"] = "project-id"
+    integrations["discord"].update(
+        {
+            "owner_user_id": "owner-1",
+            "guild_id": "123456789012345678",
+            "channels": {"dev_requests": "123456789012345679"},
+        }
+    )
+    client_control.atomic_yaml(integrations_path, integrations)
+    timestamp = client_control.dt.datetime.now(client_control.dt.timezone.utc).isoformat()
+
+    def fake_get(_layout, _slug, endpoint):
+        if endpoint == "/channels/123456789012345679":
+            return {"guild_id": "123456789012345678"}
+        return {
+            "channel_id": "123456789012345679",
+            "author": {"id": "owner-1", "bot": False},
+            "content": "Start all ready Linear work",
+            "timestamp": timestamp,
+        }
+
+    monkeypatch.setattr(client_control, "discord_client_get", fake_get)
+    monkeypatch.setattr(
+        client_control,
+        "_ensure_linear_issue_thread",
+        lambda *_args, **_kwargs: {
+            "channel_id": "123456789012345679",
+            "starter_message_id": "223456789012345679",
+            "thread_id": "323456789012345679",
+        },
+    )
+    result = client_control.authorize_linear_batch(
+        layout,
+        Namespace(
+            slug="test-client",
+            channel_id="123456789012345679",
+            message_id="423456789012345679",
+            yes=True,
+        ),
+    )
+    assert result["authorized"] == [
+        {
+            "work_id": work["id"],
+            "issue": "FOU-177",
+            "thread_id": "323456789012345679",
+        }
+    ]
+    _, authorized = client_control.load_work(layout, "test-client", work["id"])
+    assert authorized["status"] == "todo"
+    assert authorized["authorization"]["source"] == "discord_batch"
+    assert authorized["authorization"]["receipt"]
+    client_control.validate_work_start_record(
+        layout, "test-client", work["id"], authorized
+    )
+
+
+def test_batch_skips_work_with_a_tampered_linear_snapshot_receipt(layout):
+    client_control.create_client(layout, init_args())
+    repository = declare_repository(layout, "test-client")
+    work = client_control.create_work(
+        layout,
+        Namespace(
+            slug="test-client", issue="FOU-188", title="Tampered snapshot",
+            role="backend-engineer", provider="hermes", repo=repository,
+            branch=None, session=None, target="staging",
+        ),
+    )
+    path, record = client_control.load_work(layout, "test-client", work["id"])
+    attach_verified_linear_snapshot(layout, "test-client", record, "FOU-188")
+    receipt = layout.system / record["context"]["linear_snapshot"]["receipt"]
+    receipt.chmod(0o600)
+    payload = json.loads(receipt.read_text())
+    payload["signature"] = "0" * 64
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    receipt.chmod(0o400)
+    client_control.atomic_yaml(path, record)
+
+    contract = client_control._batch_work_contract(layout, "test-client")
+
+    assert contract["eligible"] == []
+    assert contract["skipped"] == [
+        {"work_id": work["id"], "reason": "linear-snapshot-invalid"}
+    ]
+
+
+def test_production_run_rejects_a_tampered_signed_authorization(layout):
+    client_control.create_client(layout, init_args())
+    work = make_work(layout)
+    config_path = layout.client("test-client") / ".client" / "integrations.yaml"
+    integrations = client_control.yaml_document(config_path)
+    integrations["linear"]["release_controller"].update(
+        {"enabled": True, "operational_acceptance_verified": True}
+    )
+    client_control.atomic_yaml(config_path, integrations)
+    work_path, record = client_control.load_work(layout, "test-client", work["id"])
+    record["status"] = "ready_for_cto"
+    record["repository"].update(
+        {"pull_request": "https://github.example/acme/app/pull/9", "commit": "def456"}
+    )
+    client_control.atomic_yaml(work_path, record)
+    client_control.approve_work(
+        layout,
+        Namespace(
+            slug="test-client", work_id=work["id"],
+            approval_id="engineering-9", actor="owner-user",
+        ),
+    )
+    authorized = client_control.authorize_deploy(
+        layout,
+        Namespace(
+            slug="test-client", work_id=work["id"],
+            approval_id="production-9", actor="owner-user",
+        ),
+    )
+    receipt = layout.system / authorized["approvals"]["production"]["receipt"]
+    receipt.chmod(0o600)
+    payload = json.loads(receipt.read_text())
+    payload["signature"] = "f" * 64
+    receipt.write_text(json.dumps(payload), encoding="utf-8")
+    receipt.chmod(0o400)
+
+    with pytest.raises(client_control.ClientError, match="signature is invalid"):
+        client_control.start_run(
+            layout,
+            Namespace(
+                slug="test-client", work_id=work["id"], action="deploy_production",
+                actor="release-engineer", machine="prod-01", commit="def456",
+                before="v1", after="v2", approval_id="production-9",
+                rollback_available=True,
             ),
         )

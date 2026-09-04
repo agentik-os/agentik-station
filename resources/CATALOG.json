@@ -6,6 +6,16 @@
   "open_to_other_stacks": true,
   "resources": [
     {
+      "id": "discord-js-sdk",
+      "kind": "isolated-node-sdk",
+      "path": "resources/discord-js-sdk",
+      "package": "discord.js",
+      "version": "14.27.0",
+      "integrity": "sha512-qHbFlFG2N7y3LjPySYsL6A1+BnX6bkTVgo842EX0CqVPk/KTMwZkojPHEXKsQUpWZNyz5BISNHK1cPpQw0+m4A==",
+      "install_scope": "station-sdk-resource",
+      "runtime_policy": "Hermes is the only messaging gateway; SDK consumers are explicit Zone-scoped extensions."
+    },
+    {
       "id": "shadcn-ui",
       "kind": "component-source-and-cli",
       "path": "resources/frontend/shadcn-ui",

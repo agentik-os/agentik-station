@@ -1,0 +1,22 @@
+flowchart TD
+    HUMAN[Authorized human intent] --> SURFACE[Discord · Slack · Telegram · AGK UI · CLI]
+    SURFACE --> GATE[Station identity · Zone · Project · capability policy]
+    GATE --> HERMES[Hermes central brain<br/>Zone-isolated HERMES_HOME]
+    HERMES --> ATLAS[Atlas / Project Manager<br/>durable mission + work record]
+    ATLAS --> ARCH[Architect<br/>contracts · ADR · rollback]
+    ARCH --> FORGE[Forge<br/>worktree · code · tests]
+    FORGE --> SENTINEL[Sentinel<br/>independent review · QA · security]
+    SENTINEL --> RELEASE[Release Engineer<br/>CI · artifact · staging · approved promotion]
+    RELEASE --> SRE[SRE<br/>health · user path · incident · recovery]
+    SRE --> EVIDENCE[Evidence ladder<br/>observed → verified → read back → accepted]
+    EVIDENCE --> ATLAS
+
+    HERMES --> ROUTES[Replaceable LLM/provider routes]
+    HERMES --> TOOLS[Typed tools<br/>GitHub · Vercel · Composio · native APIs]
+    HERMES --> GATEWAY[Single Hermes messaging Gateway]
+    TOOLS --> REAL[Repositories · CI · cloud · Discord API · services]
+    REAL --> EVIDENCE
+    HUMAN -. exact production/destructive approval .-> RELEASE
+
+    COMPOSIO[Composio Discord<br/>Zone-scoped tool adapter] --> TOOLS
+    SDK[discord.js 14.27.0<br/>isolated SDK, no Gateway] --> TOOLS

@@ -1,8 +1,47 @@
-schema_version: 2
+schema_version: 3
 instantiation: on_demand
 orchestrator:
-  role: project-manager
+  role: atlas
   provider: hermes
+  public_alias: project-manager
+canonical_identities:
+  atlas:
+    owns: [orchestration, prioritization, tracker-flow, acceptance]
+    max_level: L3
+  architect:
+    owns: [architecture, contracts, decomposition]
+    max_level: L2
+  forge:
+    owns: [implementation, integration, local-tests, pull-requests]
+    max_level: L2
+  sentinel:
+    owns: [engineering-review, qa, visual-qa, security-review]
+    max_level: L2
+    independent_from: forge
+  release-engineer:
+    owns: [ci, packaging, staging, approved-deployment]
+    max_level: L3
+  sre:
+    owns: [infrastructure, observability, incidents, recovery, production-readback]
+    max_level: L3
+role_aliases:
+  project-manager: atlas
+  product-manager: atlas
+  meeting-intake-coordinator: atlas
+  platform-lead: atlas
+  tech-lead: architect
+  designer: architect
+  product-engineer: forge
+  frontend-engineer: forge
+  backend-engineer: forge
+  qa-engineer: sentinel
+  visual-qa: sentinel
+  security-engineer: sentinel
+  ci-cd-engineer: release-engineer
+  release-manager: release-engineer
+  infrastructure-engineer: sre
+  sre-observability: sre
+  finops: sre
 roles:
   project-manager:
     group: product
@@ -92,7 +131,7 @@ discord_channels:
 execution_model:
   client_profile: dedicated
   agents: on_demand_preserved_sessions
-  discord_identity: dedicated_client_project_manager_bot
+  discord_identity: dedicated_devops_atlas_bot
   production_gate: cto_required
   supervision_surface: agk_tui
   specialist_sessions: preserved_and_visible

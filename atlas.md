@@ -291,6 +291,15 @@ outcome contract
 + Hermes distribution template
 ```
 
+For the DevOps OS this is now executable, not only descriptive. The semantic
+spine is `os/devops/semantics/CONTRACT.json`; it binds the six identities to
+typed programs, tool contracts, provider routes, the closed workflow state
+machine, Discord controls, evaluation scenarios and an exact recovery artifact
+checksum. `os/devops/programs/runner.py` performs deterministic package and
+evidence validation plus read-only drift reporting. Station Doctor fails closed
+if any required semantic file, route, transition, role contract, Librarian input
+or recovery hash is missing.
+
 The build path is:
 
 ```text
@@ -397,6 +406,7 @@ The source catalog is `resources/CATALOG.json`. In an installed release its cano
 station resource list
 station resource show --id shadcn-ui
 station resource show --id lucide
+station resource show --id discord-js-sdk
 station resource stack-plan --id web-product
 ```
 
@@ -412,6 +422,7 @@ The preferred `web-product` stack is:
 | Tailwind CSS | styling primitives |
 | shadcn/ui | accessible, Project-owned component source |
 | Lucide | default semantic React icons |
+| discord.js 14.27.0 | isolated typed SDK for a reviewed Discord extension; never another Gateway |
 
 The `shadcn` CLI is installed in the pinned operator toolchain. shadcn components and `lucide-react` remain Project dependencies: they are added inside the owning repository, reviewed and committed there. A global CLI is not Project configuration.
 
@@ -425,6 +436,12 @@ External setup remains explicit:
 - Stripe test/live separation, webhook signing secret and event readback.
 
 Never put these keys in the resource catalog, repository or Discord.
+
+Hermes is the only bot protocol and messaging Gateway. The isolated
+`discord.js` resource exists for typed API extensions that Hermes/Station
+explicitly calls; it may not log in as a second concurrent bot. Composio
+Discord is another Zone-scoped tool adapter for selected actions, not ingress,
+session ownership or orchestration.
 
 ## 12. Discord architecture
 
@@ -560,6 +577,27 @@ The OpenAI key stays in the owning Zone. Parakeet is local ASR/STT, not TTS; its
 
 The DevOps OS uses Hermes as its coordination fabric and exposes Atlas as its public Nano Director.
 
+```mermaid
+flowchart TD
+    HUMAN[Authorized human intent] --> SURFACE[Discord · Slack · Telegram · AGK UI · CLI]
+    SURFACE --> GATE[Station identity · Zone · Project · capability policy]
+    GATE --> HERMES[Hermes central brain<br/>Zone-isolated HERMES_HOME]
+    HERMES --> ATLAS[Atlas / Project Manager<br/>durable mission + work record]
+    ATLAS --> ARCH[Architect<br/>contracts · rollback]
+    ARCH --> FORGE[Forge<br/>worktree · code · tests]
+    FORGE --> SENTINEL[Sentinel<br/>independent review · QA · security]
+    SENTINEL --> RELEASE[Release Engineer<br/>CI · staging · approved promotion]
+    RELEASE --> SRE[SRE<br/>health · user path · recovery]
+    SRE --> EVIDENCE[Observed → verified → read back → accepted]
+    EVIDENCE --> ATLAS
+    HERMES --> TOOLS[Typed tools · Composio · isolated discord.js SDK]
+    HERMES --> ROUTES[Replaceable LLM/provider routes]
+    HERMES --> CHAT[Single Hermes messaging Gateway]
+    HUMAN -. exact production/destructive approval .-> RELEASE
+```
+
+Standalone source: [`docs/diagrams/16_DEVOPS_OS_END_TO_END.mmd`](docs/diagrams/16_DEVOPS_OS_END_TO_END.mmd).
+
 | Member | Owns | Typical outputs | Cannot self-authorize |
 |---|---|---|---|
 | Atlas, Nano Director | scope, Plan First graph, capability routing, mission truth, evidence and acceptance | mission plan, assignments, status card, final decision | production/destructive authority, failed-gate waiver |
@@ -586,6 +624,30 @@ Safe non-overlapping research, test and implementation branches may run in paral
 
 Provider routing is role-based and model-agnostic: high-reasoning routes for Atlas/Architect, task-fit coding for Forge, an independent review route for Sentinel, release-task-fit for Release Engineer and operations-task-fit for SRE. If an approved provider fails, Hermes routes to another approved provider or marks the node blocked; it never silently expands permissions.
 
+The 17 familiar specialties remain available as capability aliases. Product
+Manager, Meeting Intake and Platform Lead route to Atlas; Tech Lead and Designer
+route to Architect; Product/Frontend/Backend Engineering route to Forge;
+QA/Visual QA/Security route to Sentinel; CI/CD and Release Manager route to
+Release Engineer; Infrastructure/SRE/FinOps route to SRE. This keeps ownership
+clear while avoiding 17 independent agents competing for state.
+
+Client delivery uses `agk-work-tracker/v1`: the AGK durable work record is
+canonical, Linear is the default adapter, and GitHub Issues/manual adapters can
+be selected by contract. The current automated client controller remains
+Linear-first. Normal work uses the compact view; regulated work exposes every
+QA, security and release state. Both enforce the same gates. Default autonomy
+is `decide → act → verify → record → continue`; `BLOCKED` is legal only when no
+useful path remains and records blocker, attempts, impact, need and exact resume
+point. Corrections always reuse the same issue, branch, PR and Hermes session.
+
+Each client also owns `.client/operations.yaml`. It closes the operational gap
+between “code merged” and “service owned”: service catalog, environment/data
+classification, pipelines and artifact identities, SLI/SLO/error budgets,
+alerts, incidents/on-call/postmortems, encrypted off-Host backup with RPO/RTO
+and restore rehearsal, dependency/vulnerability/license policy, cost controls,
+access reviews, offboarding, ADRs and runbooks. Use the same controller via
+`station client ...` or `agk client ...`.
+
 ## 15. GitHub, Vercel, Composio and external tools
 
 Tool installation, authentication, authorization and successful action are separate states.
@@ -603,7 +665,8 @@ binary present
 
 - **GitHub CLI** — repository and CI operations; `gh auth login` and `gh auth status` are operator-owned. Repositories stay under Project `repos/`.
 - **Vercel CLI** — project/team deployment; `vercel login` and `vercel whoami` do not replace Project link and deploy readback.
-- **Composio CLI** — connected capability setup; use stable Station principals and explicit toolkit/account allowlists. No generic global production principal.
+- **Composio CLI** — connected capability setup; use stable Station principals and explicit toolkit/account allowlists. No generic global production principal. The Discord adapter uses `station:<organization-or-personal>:<zone>:atlas`, default-deny execution and mutation readback.
+- **discord.js SDK** — exact 14.27.0 package/lock installed under `.local/share/station-sdk/discord-js`; no token, bot process or Gateway is created by the resource.
 - **Codex/Claude/Gemini** — coding cognition/execution clients governed by repository rules; they do not become Station authority.
 - **Model APIs** — provider routes are scoped per profile/mission. Keys remain in Zone/Project credential mechanisms.
 
@@ -614,6 +677,10 @@ station deps toolchain-plan
 sudo station deps toolchain-install
 station deps toolchain-check
 station provider status
+station provider composio-discord plan --zone <zone-id>
+sudo station provider composio-discord link --zone <zone-id>
+sudo station provider composio-discord verify --zone <zone-id>
+station client doctor <client-id> --online
 ```
 
 ## 16. Fresh Host installation: exact path
@@ -649,7 +716,7 @@ Organization/team Host:
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 ```
 
-Bootstrap creates the dedicated `agk-station` operator, relocates source outside `/root`, installs pinned Python runtimes, Node/npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI plus the signed stable Tailscale package, installs the reviewed Hermes version with voice/messaging dependencies, reconciles the Station FHS layout, creates declared Zones/Projects, starts local Parakeet, and starts the loopback setup broker. It publishes the broker through Tailscale Serve only when the Host is already enrolled; it never falls back to public exposure.
+Bootstrap creates the dedicated `agk-station` operator, relocates source outside `/root`, installs pinned Python runtimes, Node/npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI, shadcn CLI and the isolated discord.js SDK plus the signed stable Tailscale package, installs the reviewed Hermes version with voice/messaging dependencies, reconciles the Station FHS layout, creates declared Zones/Projects, starts local Parakeet, and starts the loopback setup broker. It publishes the broker through Tailscale Serve only when the Host is already enrolled; it never falls back to public exposure.
 
 ### C. Verify base state
 
@@ -787,8 +854,13 @@ Repository-verified or implemented:
 - universal provider/CLI rule distribution;
 - resource catalog and exact web-product stack plan;
 - Hermes multi-platform gateway lifecycle wrapper;
-- Composio binding policy and Discord message/binding foundations;
-- DevOps team ownership and mission graph.
+- Composio binding plus default-deny Discord tool policy and guided link/readback commands;
+- isolated, integrity-pinned discord.js SDK resource with no second Gateway;
+- DevOps six-identity team, tracker-neutral workflow contract, typed tools/routes,
+  deterministic programs, 15-source Librarian ledger, 12 adversarial evals,
+  exact recovery checksum and client operations schema;
+- CI coverage for Python 3.11/3.12/3.13, AGK components, Hermes Fleet build,
+  discord.js lock, shell/identity hygiene and a scheduled disposable Ubuntu bootstrap.
 
 External acceptance still required:
 
@@ -823,6 +895,9 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - [ ] OpenAI `gpt-transcribe` and `gpt-4o-mini-tts` pass a real Zone-scoped round-trip.
 - [ ] A forced OpenAI STT failure proves Discord audio falls back to local Parakeet.
 - [ ] DevOps work passes Architect → Forge → Sentinel → Release → SRE gates as applicable.
+- [ ] Every client has a complete `.client/operations.yaml`; Blocked records contain all five fields and correction loops preserve their original context.
+- [ ] Composio Discord is bound to the exact Zone principal, passes an approved read-only probe and cannot select another Zone account.
+- [ ] No process besides the owning Hermes Gateway logs in the discord.js resource as a bot.
 - [ ] Production actions have named human approval.
 - [ ] Logs/evidence contain no secrets.
 - [ ] Backup restore and rollback coordinates are known and tested.
@@ -841,11 +916,15 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - `config/versions.lock` — reviewed tool/dependency pins.
 - `config/deps/stack.yaml` — optional AI dependency roles and maturity.
 - `resources/CATALOG.json` — reusable resources and preferred stack recipe.
+- `resources/discord-js-sdk/` — integrity-locked typed Discord SDK, never a Gateway.
 - `modules/catalog.json` — module maturity claims and next actions.
 - `os/CATALOG.json` — canonical OS packages.
 - `os/librarian/` — research/intelligence OS.
 - `os/builder/` — OS factory/compiler-design OS.
 - `os/devops/` — engineering/release/operations team.
+- `os/devops/semantics/CONTRACT.json` — executable DevOps OS semantic spine.
+- `components/agk-tui/client/defaults/operations.yaml` — default client operational completeness contract.
+- `config/composio/discord-tool-policy.json` — Zone-scoped, default-deny Discord tool policy.
 - `os/discord-bootstrap/` — Discord desired topology/bootstrap contract.
 - `src/agentik_station/` — safe Station kernel and runtime adapters.
 - `runtime/hermes-station/` — Station-owned Hermes integration/plugin source.

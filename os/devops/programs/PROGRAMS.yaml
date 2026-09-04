@@ -1,7 +1,37 @@
 programs:
   - id: doctor
     deterministic: true
+    entrypoint: programs/runner.py
+    command: validate-package
+    authority: read-only
+    inputs: [canonical-os-root]
+    outputs: [validation-result]
+    idempotency: same-tree-same-result
+    recovery: repair-reported-contract-path-and-rerun
   - id: package-validation
     deterministic: true
+    entrypoint: programs/runner.py
+    command: validate-package
+    authority: read-only
+    inputs: [canonical-os-root]
+    outputs: [validation-result]
+    idempotency: same-tree-same-result
+    recovery: repair-reported-contract-path-and-rerun
   - id: evidence-ledger-validation
     deterministic: true
+    entrypoint: programs/runner.py
+    command: validate-evidence
+    authority: read-only
+    inputs: [evidence-json]
+    outputs: [content-addressed-validation-result]
+    idempotency: content-addressed-input
+    recovery: repair-evidence-and-rerun
+  - id: drift-report
+    deterministic: true
+    entrypoint: programs/runner.py
+    command: drift-report
+    authority: read-only
+    inputs: [expected-json, observed-json]
+    outputs: [difference-report]
+    idempotency: same-inputs-same-differences
+    recovery: explicit-versioned-reconciliation-only

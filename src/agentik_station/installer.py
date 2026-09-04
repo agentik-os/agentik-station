@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import fcntl
+import hashlib
 import json
 import os
 import platform
@@ -384,6 +385,21 @@ class StationInstaller:
             cli_target,
             allowed_existing_prefix=str(self.paths.software),
         )
+        source_manifest = self.repo_root / "MANIFEST.json"
+        installed_manifest = release / "MANIFEST.json"
+        loaded_manifest = self.paths.current / "MANIFEST.json"
+        hashes = {
+            "source_manifest_sha256": hashlib.sha256(source_manifest.read_bytes()).hexdigest(),
+            "installed_manifest_sha256": hashlib.sha256(installed_manifest.read_bytes()).hexdigest(),
+            "loaded_manifest_sha256": hashlib.sha256(loaded_manifest.read_bytes()).hexdigest(),
+        }
+        if len(set(hashes.values())) != 1:
+            raise ReconcileError("source, installed and loaded release manifest hashes differ")
+        self.receipt.evidence["release_provenance"] = {
+            **hashes,
+            "active_release": version,
+            "verified_equal": True,
+        }
 
     def _write_host_desired_state(self) -> None:
         root_owner = (0, 0) if not self.paths.test_mode else (os.getuid(), os.getgid())

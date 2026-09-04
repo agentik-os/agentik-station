@@ -1,5 +1,15 @@
 checks:
   - contract
+  - semantic-contract
+  - deterministic-program-entrypoints
+  - role-tool-authority
+  - workflow-transitions-and-receipts
+  - provider-routes-and-degraded-behavior
+  - librarian-exactly-15-inputs
+  - recovery-artifact-checksum
+  - adversarial-eval-scenarios
+  - discord-component-authority
+  - client-operations-schema
   - hermes-profile
   - tools
   - credentials-references

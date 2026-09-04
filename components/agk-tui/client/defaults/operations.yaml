@@ -1,0 +1,35 @@
+schema_version: 1
+contract: agk-client-operations/v1
+service_catalog:
+  required_fields: [id, owner, repositories, dependencies, environments, data_classification, health_probes]
+  services: []
+environments:
+  required: [development, staging, production]
+  production_credentials_in_development: forbidden
+  data_classes: [public, internal, confidential, restricted]
+pipelines:
+  required_fields: [service, build, test, staging, production, rollback, artifact_identity]
+  entries: []
+reliability:
+  required_fields: [service, sli, slo, health_probe, alert_route, dashboard, error_budget]
+  services: []
+incidents:
+  severities: [SEV0, SEV1, SEV2, SEV3]
+  required_fields: [id, severity, service, owner, commander, timeline, user_impact, mitigation, evidence, followups]
+  on_call_required_for_production: true
+  postmortem_required_for: [SEV0, SEV1]
+backups:
+  required_fields: [service, scope, encrypted, off_host, rpo, rto, retention, restore_runbook, last_restore_rehearsal]
+  production_restore_rehearsal_required: true
+dependencies:
+  required_fields: [owner, update_policy, vulnerability_policy, license_policy, exception_process]
+  default_update_policy: reviewed-pinned-updates
+costs:
+  required_fields: [owner, monthly_budget, alert_thresholds, anomaly_route]
+access:
+  required_fields: [owner, principals, capabilities, review_cadence, connector_aliases, revocation_plan]
+offboarding:
+  required_fields: [export, revoke, retain, destroy, owner_approval, evidence_receipt]
+  destruction_requires_human_approval: true
+knowledge:
+  required_fields: [adr_index, runbook_index, owner, review_cadence, last_reviewed]

@@ -1,0 +1,68 @@
+{
+  "schema_version": "agk-devops-semantics/v1",
+  "os_id": "devops-os",
+  "runtime_engine": "Hermes",
+  "director": "atlas",
+  "team": [
+    "atlas",
+    "architect",
+    "forge",
+    "sentinel",
+    "release-engineer",
+    "sre"
+  ],
+  "required_files": [
+    "programs/runner.py",
+    "tools/CONTRACTS.json",
+    "providers/ROUTES.json",
+    "workflows/STATE_MACHINE.json",
+    "evals/SCENARIOS.json",
+    "librarian/INPUTS.json",
+    "recovery/BASELINE.json",
+    "data/CLIENT_OPERATIONS.schema.json",
+    "discord/COMPONENTS.json"
+  ],
+  "programs": [
+    {
+      "id": "package-validation",
+      "entrypoint": "programs/runner.py",
+      "inputs": ["canonical-os-root"],
+      "outputs": ["validation-result"],
+      "authority": "read-only",
+      "idempotency": "same-tree-same-result",
+      "recovery": "repair-reported-contract-path-and-rerun"
+    },
+    {
+      "id": "evidence-ledger-validation",
+      "entrypoint": "programs/runner.py",
+      "inputs": ["evidence-json"],
+      "outputs": ["evidence-validation-result"],
+      "authority": "read-only",
+      "idempotency": "content-addressed-input",
+      "recovery": "repair-evidence-record-and-rerun"
+    },
+    {
+      "id": "drift-report",
+      "entrypoint": "programs/runner.py",
+      "inputs": ["expected-json", "observed-json"],
+      "outputs": ["read-only-difference-report"],
+      "authority": "read-only",
+      "idempotency": "same-inputs-same-differences",
+      "recovery": "explicit-versioned-reconciliation-only"
+    }
+  ],
+  "tool_contract": "tools/CONTRACTS.json",
+  "provider_routes": "providers/ROUTES.json",
+  "workflow_contract": "workflows/STATE_MACHINE.json",
+  "client_operations_schema": "data/CLIENT_OPERATIONS.schema.json",
+  "discord_components": "discord/COMPONENTS.json",
+  "recovery_artifact": {
+    "path": "recovery/BASELINE.json",
+    "sha256": "44c751c79b81bc7ebe1eeea7733ee1863b555a44b7c8f58b9902785cebd6813b"
+  },
+  "claims": {
+    "source": "SEMANTICALLY_VERIFIED",
+    "runtime": "NOT_INSTALLED",
+    "external_integrations": "READY_FOR_SETUP"
+  }
+}

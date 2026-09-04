@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "os_id": "devops-os",
+  "restore_scope": [
+    "compiled-hermes-profiles",
+    "zone-local-bindings",
+    "mission-and-evidence-indexes"
+  ],
+  "excluded": [
+    "plaintext-secrets",
+    "cross-zone-state",
+    "unverified-runtime-cache"
+  ],
+  "procedure": [
+    "stop-new-mutations",
+    "verify-target-zone-and-project",
+    "activate-previous-immutable-package",
+    "restore-zone-state-from-approved-backup",
+    "run-profile-and-connector-doctor",
+    "perform-fresh-session-readback",
+    "record-recovery-receipt"
+  ],
+  "acceptance": "Fresh-session mission and declared connector readback pass without widening authority."
+}

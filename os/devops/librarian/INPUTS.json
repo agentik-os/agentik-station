@@ -1,0 +1,142 @@
+{
+  "schema_version": "agk.librarian-input-ledger.v1",
+  "count": 15,
+  "refresh_policy": "Review current standards annually and books when a new edition is published.",
+  "inputs": [
+    {
+      "id": "INPUT-01",
+      "title": "Design Patterns: Elements of Reusable Object-Oriented Software",
+      "source_url": "https://www.pearson.com/en-us/subject-catalog/p/design-patterns-elements-of-reusable-object-oriented-software/P200000007395/9780201633610",
+      "insight": "Prefer named, composable collaboration contracts over ad-hoc branching logic.",
+      "decision": "adapt",
+      "mapped_to": ["team handoffs", "adapter contracts", "program interfaces"],
+      "limitation": "Patterns are vocabulary, not mandatory architecture."
+    },
+    {
+      "id": "INPUT-02",
+      "title": "Refactoring: Improving the Design of Existing Code, 2nd edition",
+      "source_url": "https://martinfowler.com/books/refactoring.html",
+      "insight": "Change behavior in small verified steps while preserving existing semantics.",
+      "decision": "adopt",
+      "mapped_to": ["Forge workflow", "migration gates", "same-context correction loop"],
+      "limitation": "Refactoring never substitutes for product acceptance."
+    },
+    {
+      "id": "INPUT-03",
+      "title": "Test-Driven Development: By Example",
+      "source_url": "https://www.pearson.com/en-us/subject-catalog/p/Beck-Test-Driven-Development-By-Example/P200000009421/9780321146533",
+      "insight": "Executable examples sharpen design and protect correction loops.",
+      "decision": "adopt",
+      "mapped_to": ["Forge tests", "Sentinel negative cases", "program validation"],
+      "limitation": "TDD alone does not prove integration or live behavior."
+    },
+    {
+      "id": "INPUT-04",
+      "title": "Continuous Delivery",
+      "source_url": "https://www.pearson.com/en-us/subject-catalog/p/continuous-delivery-reliable-software-releases-through-build-test-and-deployment-automation/P200000009113/9780321670229",
+      "insight": "Every candidate should be reproducible, releasable and recoverable through one governed path.",
+      "decision": "adopt",
+      "mapped_to": ["release controller", "immutable artifacts", "staging and rollback"],
+      "limitation": "Production authority remains policy-defined and human-bound."
+    },
+    {
+      "id": "INPUT-05",
+      "title": "Working Effectively with Legacy Code",
+      "source_url": "https://www.pearson.com/en-us/subject-catalog/p/working-effectively-with-legacy-code/P200000008984/9780131177055",
+      "insight": "Establish characterization tests before reconciling installed drift.",
+      "decision": "adopt",
+      "mapped_to": ["controller reconciliation", "migration fixtures", "drift reports"],
+      "limitation": "Characterization can preserve defects; Sentinel still evaluates intent."
+    },
+    {
+      "id": "INPUT-06",
+      "title": "A Philosophy of Software Design, 2nd edition",
+      "source_url": "https://web.stanford.edu/~ouster/cgi-bin/aposd.php",
+      "insight": "Deep modules should hide operational complexity behind narrow contracts.",
+      "decision": "adapt",
+      "mapped_to": ["Hermes gateway boundary", "tracker protocol", "tool adapters"],
+      "limitation": "Narrow interfaces must not hide authority or evidence."
+    },
+    {
+      "id": "INPUT-07",
+      "title": "Accelerate",
+      "source_url": "https://www.oreilly.com/library/view/accelerate/9781457191435/",
+      "insight": "Optimize delivery flow and stability together using observable outcomes.",
+      "decision": "adopt",
+      "mapped_to": ["delivery metrics", "workflow design", "FinOps and reliability views"],
+      "limitation": "Metrics must not become agent performance targets that encourage gaming."
+    },
+    {
+      "id": "INPUT-08",
+      "title": "Site Reliability Engineering: How Google Runs Production Systems",
+      "source_url": "https://sre.google/books/sre-book/table-of-contents/",
+      "insight": "Production completion requires SLO-aware readback, incident ownership and tested recovery.",
+      "decision": "adopt",
+      "mapped_to": ["SRE profile", "SLO contract", "incident and recovery workflows"],
+      "limitation": "Practices must be scaled to the service and team."
+    },
+    {
+      "id": "INPUT-09",
+      "title": "SWEBOK Guide v4",
+      "source_url": "https://www.computer.org/education/bodies-of-knowledge/software-engineering/v4",
+      "insight": "Engineering work spans requirements, design, construction, verification, operations and maintenance.",
+      "decision": "adapt",
+      "mapped_to": ["mission schema", "role coverage", "knowledge and maintenance contracts"],
+      "limitation": "The guide is a body of knowledge, not an executable lifecycle."
+    },
+    {
+      "id": "INPUT-10",
+      "title": "NIST Secure Software Development Framework 1.1",
+      "source_url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+      "insight": "Security requirements, provenance and response practices belong throughout delivery.",
+      "decision": "adopt",
+      "mapped_to": ["security gates", "dependency policy", "release evidence"],
+      "limitation": "Controls require project-specific risk interpretation."
+    },
+    {
+      "id": "INPUT-11",
+      "title": "SLSA Specification",
+      "source_url": "https://slsa.dev/spec/latest/",
+      "insight": "Artifact provenance and tamper resistance need machine-verifiable attestations.",
+      "decision": "experiment",
+      "mapped_to": ["release provenance", "SBOM and attestations", "artifact identity"],
+      "limitation": "Full SLSA adoption follows deterministic build stability."
+    },
+    {
+      "id": "INPUT-12",
+      "title": "OWASP Application Security Verification Standard",
+      "source_url": "https://owasp.org/www-project-application-security-verification-standard/",
+      "insight": "Security acceptance should use explicit, risk-selected verification requirements.",
+      "decision": "adapt",
+      "mapped_to": ["Sentinel review", "security evidence", "adversarial evaluations"],
+      "limitation": "Not every service needs every ASVS level."
+    },
+    {
+      "id": "INPUT-13",
+      "title": "DORA Accelerate State of DevOps Report 2024",
+      "source_url": "https://dora.dev/dora-report-2024",
+      "insight": "Sustainable delivery depends on feedback, platform quality and user outcomes rather than output volume.",
+      "decision": "adapt",
+      "mapped_to": ["observability", "team operating method", "evidence dashboards"],
+      "limitation": "Survey findings are contextual and should not be treated as deterministic laws."
+    },
+    {
+      "id": "INPUT-14",
+      "title": "Semantic Versioning 2.0.0",
+      "source_url": "https://semver.org/",
+      "insight": "Public contract changes require intentional version and migration semantics.",
+      "decision": "adopt",
+      "mapped_to": ["OS versions", "client schema migrations", "release compatibility"],
+      "limitation": "SemVer requires a clearly defined public API."
+    },
+    {
+      "id": "INPUT-15",
+      "title": "ISO/IEC 25010:2023 product quality model",
+      "source_url": "https://www.iso.org/standard/78176.html",
+      "insight": "Quality is multi-dimensional and cannot be reduced to unit-test success.",
+      "decision": "adapt",
+      "mapped_to": ["QA scenarios", "quality evidence", "acceptance criteria"],
+      "limitation": "The standard defines a model, not Station-specific thresholds."
+    }
+  ]
+}

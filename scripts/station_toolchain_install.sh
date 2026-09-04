@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCK="$ROOT/config/versions.lock"
+DISCORD_SDK_SOURCE="$ROOT/resources/discord-js-sdk"
 STATION_USER="${STATION_USER:-agk-station}"
 STATION_HOME="${STATION_HOME:-/home/${STATION_USER}}"
 MODE="install"
@@ -16,6 +17,7 @@ usage: station_toolchain_install.sh [--plan|--install|--check] [--without-codex]
 
 Installs pinned, user-local Python, Node.js, GitHub CLI, Vercel CLI,
 Codex CLI, Composio CLI and shadcn CLI. Hermes is installed separately by bootstrap.sh.
+Also installs the pinned discord.js SDK into an isolated, non-gateway resource directory.
 Account login and external connections are never performed automatically.
 USAGE
 }
@@ -60,6 +62,7 @@ Station pinned operator toolchain
   Vercel CLI:           ${VERCEL_CLI_VERSION}
   Codex CLI:            $([[ "$INSTALL_CODEX" -eq 1 ]] && printf '%s' "$CODEX_CLI_VERSION" || printf 'skipped')
   Composio CLI:         ${COMPOSIO_CLI_VERSION}
+  discord.js SDK:       ${DISCORD_JS_VERSION} (isolated; no gateway)
   shadcn CLI:           ${SHADCN_CLI_VERSION}
 
 Install root: ${STATION_HOME}/.local
@@ -118,6 +121,20 @@ check_toolchain() {
   fi
   check_pinned_tool composio "$tool_path/composio" "$COMPOSIO_CLI_VERSION" --version || failures=$((failures + 1))
   check_pinned_tool shadcn "$tool_path/shadcn" "$SHADCN_CLI_VERSION" --version || failures=$((failures + 1))
+  local discord_sdk="$STATION_HOME/.local/share/station-sdk/discord-js/node_modules/discord.js/package.json"
+  if [[ ! -f "$discord_sdk" ]]; then
+    printf 'MISSING %-12s %s\n' discord.js "$discord_sdk"
+    failures=$((failures + 1))
+  else
+    local observed_discord
+    observed_discord="$(as_station "$tool_path/node" -e 'process.stdout.write(require(process.argv[1]).version)' "$discord_sdk")" || observed_discord="ERROR"
+    if [[ "$observed_discord" != "$DISCORD_JS_VERSION" ]]; then
+      printf 'DRIFT   %-12s expected=%s observed=%s\n' discord.js "$DISCORD_JS_VERSION" "$observed_discord"
+      failures=$((failures + 1))
+    else
+      printf 'PINNED  %-12s %s\n' discord.js "$observed_discord"
+    fi
+  fi
   if [[ "$CHECK_HERMES" -eq 1 ]]; then
     if command -v hermes >/dev/null 2>&1 || [[ -x "$tool_path/hermes" ]]; then
       check_tool hermes "$(command -v hermes 2>/dev/null || printf '%s' "$tool_path/hermes")" version \
@@ -258,6 +275,19 @@ install_node_clis() {
   fi
 }
 
+install_discord_sdk() {
+  local destination="$STATION_HOME/.local/share/station-sdk/discord-js"
+  [[ -f "$DISCORD_SDK_SOURCE/package.json" && -f "$DISCORD_SDK_SOURCE/package-lock.json" ]] || {
+    echo "ERROR: bundled discord.js SDK lock is missing" >&2
+    return 1
+  }
+  verify_npm_integrity discord.js "$DISCORD_JS_VERSION" "$DISCORD_JS_INTEGRITY"
+  install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" "$destination"
+  install -m 0644 -o "$STATION_USER" -g "$STATION_USER" \
+    "$DISCORD_SDK_SOURCE/package.json" "$DISCORD_SDK_SOURCE/package-lock.json" "$destination/"
+  as_station "$tool_path/npm" ci --ignore-scripts --omit=dev --prefix "$destination"
+}
+
 install_composio() {
   local tmp
   tmp="$(mktemp)"
@@ -271,6 +301,10 @@ install_composio() {
   as_station env COMPOSIO_INSTALL_VERSION="$COMPOSIO_CLI_VERSION" \
     COMPOSIO_INSTALL_SHELL=none COMPOSIO_INSTALL_HELP=0 sh "$tmp"
   rm "$tmp"
+  local shared="/opt/station/tools/composio/${COMPOSIO_CLI_VERSION}"
+  install -d -m 0755 -o root -g root "$shared" /usr/local/bin
+  install -m 0755 -o root -g root "$tool_path/composio" "$shared/composio"
+  ln -sfn "$shared/composio" /usr/local/bin/composio
 }
 
 case "$MODE" in
@@ -288,5 +322,6 @@ install_github_cli
 install_uv
 install_python
 install_node_clis
+install_discord_sdk
 install_composio
 check_toolchain

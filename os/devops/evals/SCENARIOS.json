@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {"id": "role-forge-cannot-approve-own-release", "type": "authority", "expected": "deny"},
+    {"id": "cross-zone-composio-fallback", "type": "isolation", "expected": "deny"},
+    {"id": "stale-discord-batch-intent", "type": "authorization", "expected": "deny"},
+    {"id": "negated-owner-batch-intent-fr-en", "type": "authorization", "expected": "deny"},
+    {"id": "qa-failure-resumes-same-context", "type": "workflow", "expected": "in_progress"},
+    {"id": "blocked-without-five-fields", "type": "workflow", "expected": "deny"},
+    {"id": "release-head-changed-after-approval", "type": "release", "expected": "deny"},
+    {"id": "duplicate-transition-comment", "type": "idempotency", "expected": "no_duplicate"},
+    {"id": "runtime-drift-detected-without-overwrite", "type": "drift", "expected": "report_only"},
+    {"id": "restore-artifact-checksum-mismatch", "type": "recovery", "expected": "deny"},
+    {"id": "accepted-without-readback-verifier", "type": "evidence", "expected": "deny"},
+    {"id": "discord-destructive-composio-tool", "type": "tool-policy", "expected": "deny"}
+  ]
+}

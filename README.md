@@ -90,7 +90,7 @@ With `--mode full --with-ai-stack`, bootstrap:
 
 1. audits the current VPS and repository;
 2. creates the dedicated `agk-station` sudo account and moves managed source out of `/root`;
-3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain plus the signed stable Tailscale package;
+3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain, plus the isolated integrity-locked discord.js SDK and signed stable Tailscale package;
 4. installs the reviewed Hermes release, explicit voice/messaging extras and backup/Doctor-gated update timer;
 5. installs loopback-only Parakeet for Discord STT failover and stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
 6. installs AGK-TUI;
@@ -174,7 +174,7 @@ sudo ./bootstrap.sh --mode team --organization organization-alpha --project plat
 
 The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs the pinned operator toolchain, installs the reviewed Hermes release with voice/messaging support in `/opt/station/tools/hermes/current`, installs local Parakeet, and invokes the same typed Station plan/apply workflow. The shared Hermes launcher can execute for every Zone, but configuration, credentials, sessions and bot state remain isolated in that Zone's `HERMES_HOME`. Source and user tooling stay out of `/root`; external authentication remains an explicit setup gate.
 
-The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock).
+The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI, shadcn CLI and an isolated discord.js 14.27.0 SDK resource. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock). Hermes remains the only messaging Gateway; installing discord.js does not create another bot process.
 
 To stage every optional AI component as well:
 
@@ -299,6 +299,10 @@ station doctor --full
 station status
 station module status
 station provider status
+station provider composio-discord plan --zone <zone-id>
+sudo station provider composio-discord link --zone <zone-id>
+sudo station provider composio-discord verify --zone <zone-id>
+station client doctor <client-id> --online
 station deps toolchain-check
 station deps list
 sudo station platform setup --zone <zone-id> --platform slack
@@ -336,6 +340,7 @@ Read [`INSTALL.md`](INSTALL.md) before applying and [`SETUP.md`](SETUP.md) befor
 | Discord Experience | INSTALLABLE | dedicated test-guild create/edit/interactions/readback pending |
 | Composio plane | INSTALLABLE | OAuth/session/MCP/trigger/revocation gate pending |
 | OS Factory | INSTALLABLE | real Librarian→Builder→Hermes→recovery acceptance pending |
+| DevOps OS semantics | VERIFIED | live Hermes/Discord/provider/release acceptance still required |
 | Fleet Control | INSTALLABLE | remote disposable-Host drift/rollback gate pending |
 | Backup/recovery | INSTALLABLE | off-Host backup + destructive restore rehearsal pending |
 | Observability | INSTALLABLE | production alert/readback/retention gate pending |
@@ -380,13 +385,14 @@ Generic client and project examples use only `organization-alpha` and `example-p
 
 ## AGK-TUI (live sessions)
 
-After bootstrap, open Hermes / Codex / Claude Code / terminal sessions with `agk` or `station tui`.
+After bootstrap, open Hermes / Codex / Claude Code / terminal sessions with `agk` or `station tui`. Manage client organizations with either `agk client ...` or the same controller exposed as `station client ...`.
 Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATION_AGK_TUI.md`.
 
 
 ## Hermes platforms + optional deps
 
 - Verify the pinned toolchain: `station deps toolchain-check`
+- Plan/link/read back the Zone-scoped Composio Discord adapter: `station provider composio-discord plan --zone <zone-id>`
 - Inspect reviewed resources/default stack: `station resource list` and `station resource stack-plan`
 - Update Hermes with backup, Doctor and receipt: `station hermes update`
 - The weekly backup/Doctor/receipt-gated updater is enabled by bootstrap; opt out with `--skip-hermes-auto-update`, or enable it later with `sudo station deps enable-auto-update`.

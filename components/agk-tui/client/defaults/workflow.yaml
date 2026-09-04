@@ -1,12 +1,14 @@
-schema_version: 4
+schema_version: 5
 source_of_truth:
-  work: linear
+  work: durable_work_record
+  default_tracker: linear
   code: github
   design: figma
   execution: hermes
   human_decisions: discord_and_authorized_linear_state
   orchestration: agk
 invariants:
+  durable_work_record_required: true
   linear_issue_required: true
   full_issue_context_required: true
   backlog_is_passive: true
@@ -19,6 +21,41 @@ invariants:
   engineering_approval_is_not_deploy_authorization: true
   agents_never_mark_approved_for_prod: true
   agents_never_mark_done: true
+tracker:
+  protocol: agk-work-tracker/v1
+  default_adapter: linear
+  allowed_adapters: [linear, github-issues, manual]
+  mutation_requires_stable_record_id: true
+  configured_state_ids_are_authoritative: true
+  display_names_are_discovery_only: true
+  emergency_path:
+    allowed_for: [active-incident-mitigation]
+    creates_record_automatically: true
+    retrospective_record_deadline_minutes: 30
+autonomy:
+  default_behavior: decide-act-verify-record-continue
+  incomplete_context: choose-smallest-reversible-default-and-comment-assumption
+  questions: only-when-no-useful-path-remains
+  correction_context: preserve-same-issue-branch-pr-session
+  routine_failures_are_not_blockers: [failed-test, review-correction, qa-finding, reversible-preference, optional-dependency]
+blocked:
+  condition: no-useful-next-action-remains
+  required_fields: [blocked_by, already_tried, impact, need, resume]
+  dedupe_key: work_record+blocker_fingerprint
+  resume_context: same-work-record-branch-pr-session
+comments:
+  material_events: [claim, assumption, scope-change, pr-ready, review-result, qa-result, security-result, staging-ready, deployment-result, production-verification, blocked, unblocked, done]
+  required_fields: [status, result, evidence, next]
+  optional_fields: [decision]
+  dedupe_key: work_record+event+artifact_version
+  debug_stream: excluded
+workflow_modes:
+  compact:
+    visible_states: [backlog, todo, in_progress, agent_review, staging, ready_for_cto, production, verified, done, blocked]
+    semantic_gates_remain_required: true
+  regulated:
+    visible_states: [backlog, todo, in_progress, agent_review, automated_qa, failed_qa, security_review, failed_security, staging, business_review, ready_for_cto, changes_requested, cto_approved, ready_to_deploy, production, failed_deploy, rollback, verified, done, blocked]
+    semantic_gates_remain_required: true
 intake:
   discord_channel: dev-requests
   feedback_and_delivery_separated: true
@@ -52,18 +89,18 @@ transitions:
   todo: [in_progress, blocked]
   in_progress: [agent_review, blocked]
   agent_review: [automated_qa, in_progress, blocked]
-  automated_qa: [security_review, failed_qa, in_progress, blocked]
+  automated_qa: [security_review, staging, failed_qa, in_progress, blocked]
   failed_qa: [in_progress, blocked]
   security_review: [staging, failed_security, in_progress, blocked]
   failed_security: [in_progress, blocked]
   staging: [business_review, in_progress, blocked]
-  business_review: [ready_for_cto, changes_requested]
-  ready_for_cto: [changes_requested, cto_approved]
-  changes_requested: [in_progress]
-  cto_approved: [ready_to_deploy]
-  ready_to_deploy: [production, failed_deploy]
-  production: [verified, failed_deploy, rollback]
-  failed_deploy: [ready_to_deploy, rollback, blocked]
+  business_review: [ready_for_cto, changes_requested, blocked]
+  ready_for_cto: [changes_requested, cto_approved, blocked]
+  changes_requested: [in_progress, blocked]
+  cto_approved: [ready_to_deploy, blocked]
+  ready_to_deploy: [production, failed_deploy, blocked]
+  production: [verified, failed_deploy, rollback, blocked]
+  failed_deploy: [ready_to_deploy, in_progress, rollback, blocked]
   rollback: [in_progress, verified, blocked]
   verified: [done, rollback, blocked]
   done: []

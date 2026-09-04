@@ -21,6 +21,8 @@ def test_versions_lock_pins_hermes_and_deps():
         "CODEX_CLI_VERSION=0.153.2",
         "COMPOSIO_CLI_VERSION=0.4.0",
         "COMPOSIO_INSTALL_SHA256=7a63922b75d206d16c790cdf683edac23f536903a28e13e94bfe3e55690b7a63",
+        "DISCORD_JS_VERSION=14.27.0",
+        "DISCORD_JS_INTEGRITY=sha512-qHbFlFG2N7y3LjPySYsL6A1+BnX6bkTVgo842EX0CqVPk/KTMwZkojPHEXKsQUpWZNyz5BISNHK1cPpQw0+m4A==",
         "SHADCN_CLI_VERSION=4.21.0",
         "SHADCN_CLI_INTEGRITY=sha512-UU2mFNusW8C5rvadKdH69vERYZqUlOOlXBcf0MYhYLdTGP6DPti7X4qovCu+RTfCqsAgq/T+YfE0Vnttxh9aiw==",
         "NEXTJS_VERSION=16.3.4",
@@ -45,7 +47,7 @@ def test_versions_lock_pins_hermes_and_deps():
 
 def test_deps_stack_yaml_exists():
     stack = (ROOT / "config" / "deps" / "stack.yaml").read_text()
-    for name in ("ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai", "parakeet"):
+    for name in ("discord-js-sdk", "ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai", "parakeet"):
         assert name in stack
 
 
@@ -69,6 +71,8 @@ def test_hermes_update_and_deps_scripts_executable():
         "scripts/station_toolchain_install.sh",
         "scripts/station_parakeet_transcribe.sh",
         "scripts/station_guided_setup_enable.sh",
+        "scripts/ci_vps_acceptance.sh",
+        "scripts/generate_release_metadata.py",
     ):
         path = ROOT / rel
         assert path.is_file()
@@ -99,6 +103,8 @@ def test_cli_registers_deps_and_hermes_update():
     parser.parse_args(["resource", "list"])
     parser.parse_args(["resource", "stack-plan", "--id", "web-product"])
     parser.parse_args(["rules", "install", "--repo", "/tmp/example", "--plan"])
+    parser.parse_args(["client", "doctor", "organization-alpha"])
+    parser.parse_args(["provider", "composio-discord", "plan", "--zone", "organization-alpha-dev"])
     parser.parse_args([
         "setup-link", "create",
         "--state-root", "/var/lib/station/zones/discord-bootstrap/connector-state/setup-links",

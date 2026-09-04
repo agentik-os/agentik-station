@@ -1,10 +1,14 @@
 # FILE_INDEX
 
-Total files: 1040
+Total files: 1065
 
+- `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/copilot-instructions.md`
+- `.github/dependabot.yml`
 - `.github/workflows/ci.yml`
+- `.github/workflows/release-provenance.yml`
+- `.github/workflows/vps-acceptance.yml`
 - `.gitignore`
 - `AGENTS.md`
 - `AI_INSTALL_PROMPT.md`
@@ -21,7 +25,9 @@ Total files: 1040
 - `MANIFEST.json`
 - `Makefile`
 - `README.md`
+- `RELEASE_PROVENANCE.json`
 - `REPO_MAP.md`
+- `SBOM.cdx.json`
 - `SECURITY.md`
 - `SETUP.md`
 - `THIRD_PARTY.md`
@@ -78,6 +84,7 @@ Total files: 1040
 - `components/agk-tui/bootstrap-vps.sh`
 - `components/agk-tui/client/AGK_CLIENT_DELIVERY_SYSTEM_MASTER.md`
 - `components/agk-tui/client/CLIENT-STANDARD.md`
+- `components/agk-tui/client/defaults/operations.yaml`
 - `components/agk-tui/client/defaults/permissions.yaml`
 - `components/agk-tui/client/defaults/team.yaml`
 - `components/agk-tui/client/defaults/workflow.yaml`
@@ -162,6 +169,7 @@ Total files: 1040
 - `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
 - `components/agk-tui/tests/test_topology.py`
 - `config/agent-runtime-policy.json`
+- `config/composio/discord-tool-policy.json`
 - `config/deps/stack.yaml`
 - `config/examples/advanced/agentik.lock.example.yaml`
 - `config/examples/advanced/builder.policy.example.yaml`
@@ -261,6 +269,7 @@ Total files: 1040
 - `docs/diagrams/14_STATION_VPS_TRUST_ZONES.mmd`
 - `docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd`
 - `docs/diagrams/15_HERMES_UPDATE_RINGS.mmd`
+- `docs/diagrams/16_DEVOPS_OS_END_TO_END.mmd`
 - `docs/diagrams/16_STATION_ORCHESTRATION_EVIDENCE.mmd`
 - `docs/discord/01_DISCORD_EXPERIENCE_CONTRACT.md`
 - `docs/discord/02_PLAN_FIRST_AND_MISSION_PROTOCOL.md`
@@ -609,14 +618,17 @@ Total files: 1040
 - `os/devops/README.md`
 - `os/devops/automations/AUTOMATIONS.yaml`
 - `os/devops/capabilities/CAPABILITIES.yaml`
+- `os/devops/data/CLIENT_OPERATIONS.schema.json`
 - `os/devops/data/SCHEMA.json`
 - `os/devops/deployment/DEPLOYMENT.yaml`
 - `os/devops/director/PROFILE.md`
 - `os/devops/discord/BOT.yaml`
 - `os/devops/discord/COMMANDS.yaml`
+- `os/devops/discord/COMPONENTS.json`
 - `os/devops/discord/EXPERIENCE.yaml`
 - `os/devops/doctor/DOCTOR.yaml`
 - `os/devops/evals/EVALS.yaml`
+- `os/devops/evals/SCENARIOS.json`
 - `os/devops/evidence/SCHEMA.json`
 - `os/devops/governance/POLICY.yaml`
 - `os/devops/harness/POLICY.yaml`
@@ -625,6 +637,7 @@ Total files: 1040
 - `os/devops/integrations/INTEGRATIONS.yaml`
 - `os/devops/knowledge/SCOPE.yaml`
 - `os/devops/librarian/14_BUILDER_HANDOFF.md`
+- `os/devops/librarian/INPUTS.json`
 - `os/devops/memory/SCOPE.yaml`
 - `os/devops/missions/MISSION_SCHEMA.json`
 - `os/devops/orchestration/ACCEPTANCE.md`
@@ -635,14 +648,20 @@ Total files: 1040
 - `os/devops/profiles/sentinel/PROFILE.md`
 - `os/devops/profiles/sre/PROFILE.md`
 - `os/devops/programs/PROGRAMS.yaml`
+- `os/devops/programs/runner.py`
+- `os/devops/providers/ROUTES.json`
 - `os/devops/providers/ROUTES.yaml`
+- `os/devops/recovery/BASELINE.json`
 - `os/devops/recovery/RECOVERY.yaml`
 - `os/devops/rollback/ROLLBACK.yaml`
 - `os/devops/self_improvement/POLICY.yaml`
+- `os/devops/semantics/CONTRACT.json`
 - `os/devops/skills/ORDER.yaml`
 - `os/devops/team/TEAM.yaml`
+- `os/devops/tools/CONTRACTS.json`
 - `os/devops/update/MIGRATIONS.yaml`
 - `os/devops/views/VIEWS.yaml`
+- `os/devops/workflows/STATE_MACHINE.json`
 - `os/devops/workflows/WORKFLOWS.yaml`
 - `os/discord-bootstrap/1_MASTER/README.md`
 - `os/discord-bootstrap/CONTRACT.json`
@@ -932,6 +951,9 @@ Total files: 1040
 - `pyproject.toml`
 - `resources/CATALOG.json`
 - `resources/README.md`
+- `resources/discord-js-sdk/README.md`
+- `resources/discord-js-sdk/package-lock.json`
+- `resources/discord-js-sdk/package.json`
 - `resources/frontend/lucide/README.md`
 - `resources/frontend/lucide/RESOURCE.json`
 - `resources/frontend/shadcn-ui/README.md`
@@ -957,6 +979,8 @@ Total files: 1040
 - `runtime/systemd/station-hermes-watch.service`
 - `runtime/systemd/station-hermes-watch.timer`
 - `runtime/systemd/station-parakeet.service`
+- `scripts/ci_vps_acceptance.sh`
+- `scripts/generate_release_metadata.py`
 - `scripts/station_agk_sync.py`
 - `scripts/station_deps_install.sh`
 - `scripts/station_guided_setup_enable.sh`
@@ -1022,6 +1046,7 @@ Total files: 1040
 - `tests/contract/test_agk_tui_integration.py`
 - `tests/contract/test_atlas_and_resources.py`
 - `tests/contract/test_deps_stack.py`
+- `tests/contract/test_devops_os_semantics.py`
 - `tests/contract/test_discord_plugin.py`
 - `tests/contract/test_orchestration_state.py`
 - `tests/contract/test_plan.py`

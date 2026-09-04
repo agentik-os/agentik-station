@@ -1,0 +1,12 @@
+* @agentik-os
+
+# High-risk control-plane and supply-chain surfaces always require owner review.
+/.github/ @agentik-os
+/bootstrap.sh @agentik-os
+/install @agentik-os
+/scripts/ @agentik-os
+/src/agentik_station/ @agentik-os
+/components/agk-tui/scripts/ @agentik-os
+/config/ @agentik-os
+/contracts/ @agentik-os
+/os/ @agentik-os

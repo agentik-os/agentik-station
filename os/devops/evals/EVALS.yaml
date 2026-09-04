@@ -3,3 +3,11 @@ evals:
   - mission-acceptance
   - boundary-negative
   - recovery-readiness
+  - role-authority-negative
+  - cross-zone-account-negative
+  - owner-intent-negation
+  - stale-authorization
+  - release-head-drift
+  - comment-idempotency
+  - restore-checksum
+scenario_contract: evals/SCENARIOS.json

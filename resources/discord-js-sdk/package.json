@@ -1,0 +1,13 @@
+{
+  "name": "@agentik/station-discord-js-sdk",
+  "version": "11.12.0",
+  "private": true,
+  "description": "Isolated discord.js SDK resource for governed Station extensions; Hermes remains the gateway.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24.20.0"
+  },
+  "dependencies": {
+    "discord.js": "14.27.0"
+  }
+}

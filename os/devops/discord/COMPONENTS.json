@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "surface": "dedicated-devops-atlas-bot",
+  "provider_protocol": "hermes-messaging-gateway",
+  "controls": [
+    {"id": "mission-plan", "component": "button", "authority": "L0", "confirmation": "none", "readback": "mission-plan-id"},
+    {"id": "start-ready-work", "component": "button", "authority": "owner", "confirmation": "staged", "readback": "per-work-receipt-and-thread"},
+    {"id": "request-changes", "component": "modal", "authority": "reviewer", "confirmation": "explicit", "readback": "same-session-resumed"},
+    {"id": "approve-production", "component": "button", "authority": "production-approver", "confirmation": "exact-pr-and-head-sha", "readback": "signed-approval-receipt"},
+    {"id": "deploy-production", "component": "button", "authority": "production-approver", "confirmation": "separate-from-engineering", "readback": "release-run-id"},
+    {"id": "rollback", "component": "button", "authority": "incident-policy", "confirmation": "target-release", "readback": "health-and-user-path"},
+    {"id": "provider-setup", "component": "link", "authority": "zone-owner", "confirmation": "tailnet-one-time", "readback": "connector-status"}
+  ],
+  "security": {
+    "allow_mentions": false,
+    "secrets_in_messages": false,
+    "callback_identity_checked_outside_model": true,
+    "live_test_guild_required_for_operational": true
+  }
+}

@@ -4,7 +4,9 @@ Release claim: **READY_FOR_SETUP**. This is not a production OPERATIONAL claim.
 
 Locally verified release gates:
 
-- 110 Station tests PASS;
+- 123 Station tests PASS;
+- 181 AGK-TUI component tests PASS;
+- 15 Hermes Fleet TypeScript tests plus typecheck and production build PASS;
 - 7/7 Builder/Librarian deterministic gates PASS;
 
 - repository Doctor;
@@ -22,6 +24,9 @@ Locally verified release gates:
 - six canonical AGK OS source Doctors;
 - Librarian v3 canonical source and Hermes compiler path;
 - release manifest / file inventory readback;
+- SHA-256 release provenance, CycloneDX SBOM and source/install/loaded manifest receipt contract;
+- DevOps OS semantic Doctor: six identities, typed tools/provider routes, closed workflow, 15 Librarian sources, 12 adversarial scenarios and recovery checksum;
+- disposable Ubuntu 24.04 bootstrap workflow (weekly core profile; manual complete AI/voice profile);
 - ZIP integrity and extracted-repository Doctor.
 
 External gates still required before OPERATIONAL: fresh VPS installation, Hermes setup/provider chat, Hermes gateway/plugin Doctor, Discord test-guild readback, Composio OAuth/MCP readback, Tailscale enrollment, off-Host backup and destructive restore rehearsal.

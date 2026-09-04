@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "protocol": "agk-work-tracker/v1",
+  "default_adapter": "linear",
+  "states": ["backlog", "ready", "in_progress", "engineering_review", "qa", "security_review", "staging", "business_review", "production_approval", "release_queued", "deploying", "production_verify", "done", "blocked", "failed", "rollback"],
+  "transitions": {
+    "backlog": ["ready", "blocked"],
+    "ready": ["in_progress", "blocked"],
+    "in_progress": ["engineering_review", "blocked"],
+    "engineering_review": ["qa", "in_progress", "blocked"],
+    "qa": ["security_review", "staging", "in_progress", "blocked"],
+    "security_review": ["staging", "in_progress", "blocked"],
+    "staging": ["business_review", "in_progress", "blocked"],
+    "business_review": ["production_approval", "in_progress", "blocked"],
+    "production_approval": ["release_queued", "in_progress", "blocked"],
+    "release_queued": ["deploying", "failed", "blocked"],
+    "deploying": ["production_verify", "failed", "rollback"],
+    "production_verify": ["done", "rollback", "blocked"],
+    "failed": ["in_progress", "release_queued", "rollback", "blocked"],
+    "rollback": ["in_progress", "production_verify", "blocked"],
+    "blocked": ["ready", "in_progress"],
+    "done": []
+  },
+  "authorization": {
+    "work_record_required_before_mutation": true,
+    "emergency_incident_record_may_be_created_automatically": true,
+    "production_requires_distinct_human_approval": true
+  },
+  "receipts": {
+    "start": "actor+source+timestamp+zone+project+work+scope+constraints",
+    "transition": "work+from+to+event+artifact",
+    "release": "work+pr+head_sha+approval",
+    "completion": "deployment+readback+verification+acceptance"
+  },
+  "correction": "preserve-same-work-record-branch-pr-hermes-session",
+  "blocked": "only-when-no-useful-next-action-remains"
+}

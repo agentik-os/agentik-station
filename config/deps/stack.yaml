@@ -42,6 +42,7 @@ toolchain:
     vercel_cli: 59.11.2
     codex_cli: 0.153.2
     composio_cli: 0.4.0
+    discord_js_sdk: 14.27.0
     shadcn_cli: 4.21.0
     note: Remote installer scripts are checksum-locked; package/archive integrity is verified before install.
   tailscale:
@@ -54,6 +55,13 @@ resources:
   default_stack: web-product
   policy: Stack recipes are defaults, not a vendor lock; exact Project choices remain contract-driven.
 components:
+  - id: discord-js-sdk
+    repository: https://github.com/discordjs/discord.js
+    role: Isolated typed Discord API SDK for governed extensions; never a second gateway
+    version: 14.27.0
+    install: pinned-isolated-node-sdk
+    path: resources/discord-js-sdk
+    maturity: INSTALLABLE
   - id: ponytail
     repository: https://github.com/DietrichGebert/ponytail
     role: Agent skill / YAGNI coding posture for Hermes + Claude Code

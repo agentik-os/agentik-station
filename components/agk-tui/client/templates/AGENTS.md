@@ -11,10 +11,11 @@ These instructions apply to every provider and agent working in this tree.
    client before any external action.
 5. Never print, persist or commit a secret.
 
-## No issue, no code
+## No durable work record, no code
 
-No coding, commit, pull request or deployment may start without a valid Linear
-issue recorded in the AGK work record. Use the canonical issue in the branch
+No coding, commit, pull request or deployment may start without a valid tracker
+issue recorded in the AGK durable work record. Linear is the default adapter;
+use the adapter explicitly selected by `.client/workflow.yaml`. Use the canonical issue in the branch
 name, commits, pull request, CI evidence, review and deployment Run.
 
 ## Delivery
@@ -37,3 +38,8 @@ deletion is forbidden.
 Keep the Linear issue current. Attach pull request, CI, QA, security, preview,
 risk and rollback evidence before requesting CTO review. Discord is the human
 decision interface; it is not a substitute for updating Linear.
+
+Default to deciding and continuing with the smallest reversible safe action.
+Use `BLOCKED` only when no useful next action remains, and include
+`blocked_by`, `already_tried`, `impact`, `need` and `resume`. Resume the same
+work record, branch, PR and Hermes session.

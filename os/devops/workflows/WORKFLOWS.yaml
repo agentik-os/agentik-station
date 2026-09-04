@@ -15,3 +15,16 @@ workflows:
     production:
       approval: human-policy-authority
       default: denied
+    tracker:
+      protocol: agk-work-tracker/v1
+      default_adapter: linear
+      stable_state_ids: required
+    correction_context: same-work-record-branch-pr-hermes-session
+    blocked: only-when-no-useful-next-action-remains
+    material_comment_dedupe: work-record+event+artifact-version
+  - id: incident-mitigation
+    graph: observe -> declare-incident-record -> contain -> recover -> readback -> postmortem
+    emergency_record: create-automatically-before-first-mutation
+    production:
+      approval: incident-policy-authority
+      destructive_default: denied

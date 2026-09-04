@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "default": "deny",
+  "cross_zone_fallback": "forbidden",
+  "contracts": [
+    {"role": "atlas", "tool": "tracker.read", "class": "read", "auth_owner": "zone", "timeout_seconds": 20, "idempotency": "n/a", "approval": "none", "audit": "mission", "fallback": "configured-tracker-adapter"},
+    {"role": "atlas", "tool": "tracker.write", "class": "mutation", "auth_owner": "project", "timeout_seconds": 20, "idempotency": "work+event+artifact", "approval": "policy", "audit": "signed-receipt", "fallback": "queue-no-cross-account"},
+    {"role": "atlas", "tool": "hermes.mission", "class": "mutation", "auth_owner": "zone", "timeout_seconds": 30, "idempotency": "mission-id", "approval": "none", "audit": "hermes-event", "fallback": "blocked"},
+    {"role": "architect", "tool": "repo.read", "class": "read", "auth_owner": "project", "timeout_seconds": 60, "idempotency": "n/a", "approval": "none", "audit": "mission", "fallback": "blocked"},
+    {"role": "architect", "tool": "knowledge.read", "class": "read", "auth_owner": "project", "timeout_seconds": 30, "idempotency": "n/a", "approval": "none", "audit": "mission", "fallback": "sanitized-local"},
+    {"role": "forge", "tool": "repo.write", "class": "mutation", "auth_owner": "project", "timeout_seconds": 300, "idempotency": "branch+patch", "approval": "authorized-work-record", "audit": "commit-and-tests", "fallback": "blocked"},
+    {"role": "forge", "tool": "tests.run", "class": "local-execution", "auth_owner": "project", "timeout_seconds": 1800, "idempotency": "command+head-sha", "approval": "none", "audit": "test-result", "fallback": "targeted-suite"},
+    {"role": "sentinel", "tool": "repo.review", "class": "read", "auth_owner": "project", "timeout_seconds": 300, "idempotency": "head-sha+policy-version", "approval": "none", "audit": "review-evidence", "fallback": "blocked"},
+    {"role": "sentinel", "tool": "browser.qa", "class": "external-read", "auth_owner": "project", "timeout_seconds": 600, "idempotency": "build+viewport+scenario", "approval": "staging-only", "audit": "screenshots-and-network", "fallback": "blocked"},
+    {"role": "release-engineer", "tool": "github.pr", "class": "mutation", "auth_owner": "project", "timeout_seconds": 60, "idempotency": "repo+branch+head", "approval": "authorized-work-record", "audit": "github-readback", "fallback": "blocked"},
+    {"role": "release-engineer", "tool": "deployment.staging", "class": "external-mutation", "auth_owner": "project", "timeout_seconds": 900, "idempotency": "artifact+environment", "approval": "L2-policy", "audit": "deployment-receipt", "fallback": "rollback"},
+    {"role": "release-engineer", "tool": "deployment.production", "class": "external-mutation", "auth_owner": "human-policy-authority", "timeout_seconds": 1800, "idempotency": "issue+approval+head-sha", "approval": "explicit-human", "audit": "signed-release-receipt", "fallback": "fail-closed"},
+    {"role": "sre", "tool": "runtime.observe", "class": "external-read", "auth_owner": "zone", "timeout_seconds": 120, "idempotency": "probe+release", "approval": "none", "audit": "readback-evidence", "fallback": "degraded"},
+    {"role": "sre", "tool": "recovery.execute", "class": "external-mutation", "auth_owner": "human-policy-authority", "timeout_seconds": 1800, "idempotency": "incident+target-release", "approval": "policy", "audit": "recovery-receipt", "fallback": "escalate"},
+    {"role": "atlas", "tool": "composio.discord.read", "class": "external-read", "auth_owner": "zone-account-alias", "timeout_seconds": 20, "idempotency": "n/a", "approval": "none", "audit": "composio-call", "fallback": "hermes-native"},
+    {"role": "atlas", "tool": "composio.discord.write", "class": "external-mutation", "auth_owner": "zone-account-alias", "timeout_seconds": 20, "idempotency": "channel+event+artifact", "approval": "command-policy", "audit": "composio-call-and-readback", "fallback": "queue"}
+  ],
+  "always_forbidden": [
+    "discord.leave-guild",
+    "discord.modify-owner",
+    "database.delete",
+    "secret.export",
+    "cross-zone.default-account-fallback"
+  ]
+}

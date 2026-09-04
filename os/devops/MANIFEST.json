@@ -4,5 +4,8 @@
   "version": "11.12",
   "source": "canonical",
   "runtime_target": "Hermes",
-  "contract": "AGK OS v2"
+  "contract": "AGK OS v2",
+  "semantic_contract": "semantics/CONTRACT.json",
+  "deterministic_entrypoint": "programs/runner.py",
+  "recovery_artifact": "recovery/BASELINE.json"
 }

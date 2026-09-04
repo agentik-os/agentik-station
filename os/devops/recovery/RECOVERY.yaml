@@ -1,3 +1,5 @@
 artifact_required: true
+artifact: recovery/BASELINE.json
+sha256: 44c751c79b81bc7ebe1eeea7733ee1863b555a44b7c8f58b9902785cebd6813b
 restore_rehearsal_required_for_operational: true
 fresh_session_acceptance: true

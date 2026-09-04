@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AGK client operations contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract", "service_catalog", "environments", "pipelines", "reliability", "incidents", "backups", "dependencies", "costs", "access", "offboarding", "knowledge"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "contract": {"const": "agk-client-operations/v1"},
+    "service_catalog": {"$ref": "#/$defs/section"},
+    "environments": {"type": "object", "minProperties": 3},
+    "pipelines": {"$ref": "#/$defs/section"},
+    "reliability": {"$ref": "#/$defs/section"},
+    "incidents": {"type": "object", "required": ["severities", "required_fields", "on_call_required_for_production", "postmortem_required_for"]},
+    "backups": {"type": "object", "required": ["required_fields", "production_restore_rehearsal_required"]},
+    "dependencies": {"type": "object", "required": ["required_fields", "default_update_policy"]},
+    "costs": {"type": "object", "required": ["required_fields"]},
+    "access": {"type": "object", "required": ["required_fields"]},
+    "offboarding": {"type": "object", "required": ["required_fields", "destruction_requires_human_approval"]},
+    "knowledge": {"type": "object", "required": ["required_fields"]}
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "required": ["required_fields"],
+      "properties": {"required_fields": {"type": "array", "minItems": 1, "uniqueItems": true}}
+    }
+  }
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import pwd
@@ -109,6 +110,8 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "VALIDATION.md",
         "FILE_INDEX.md",
         "MANIFEST.json",
+        "RELEASE_PROVENANCE.json",
+        "SBOM.cdx.json",
         "VERSION",
         "station",
         "install",
@@ -119,15 +122,20 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "scripts/station_guided_setup_enable.sh",
         "scripts/station_hermes_update.sh",
         "scripts/station_parakeet_transcribe.sh",
+        "scripts/generate_release_metadata.py",
         "config/versions.lock",
         "config/deps/stack.yaml",
         "config/hermes/voice.default.yaml",
         "config/agent-runtime-policy.json",
+        "config/composio/discord-tool-policy.json",
         "rules/STATION_AGENT_RULES.md",
         "runtime/systemd/station-guided-setup.service",
         "runtime/systemd/station-parakeet.service",
         "docs/dependencies/VOICE_AND_GUIDED_SETUP.md",
         "resources/CATALOG.json",
+        "resources/discord-js-sdk/package-lock.json",
+        "os/devops/semantics/CONTRACT.json",
+        "os/devops/programs/runner.py",
         "src/agentik_station/hermes_platforms.py",
         "installer/install_station.py",
         "src/agentik_station/installer.py",
@@ -196,6 +204,52 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
             "repo:release-manifest",
             str(exc),
             "Regenerate MANIFEST.json and FILE_INDEX.md from the exact release tree before packaging.",
+        )
+
+    provenance_path = repo_root / "RELEASE_PROVENANCE.json"
+    try:
+        if provenance_path.is_symlink() or not provenance_path.is_file():
+            raise ValueError("RELEASE_PROVENANCE.json is missing or unsafe")
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        if provenance.get("schema_version") != "agk-release-provenance/v1":
+            raise ValueError("release provenance schema is invalid")
+        if provenance.get("release") != PRODUCT_VERSION or provenance.get("algorithm") != "sha256":
+            raise ValueError("release provenance identity is invalid")
+        generated = {"FILE_INDEX.md", "MANIFEST.json", "RELEASE_PROVENANCE.json"}
+        if set(provenance.get("excluded_generated_files", [])) != generated:
+            raise ValueError("release provenance exclusions are invalid")
+        subjects = provenance.get("subjects")
+        if not isinstance(subjects, list):
+            raise ValueError("release provenance subjects must be an array")
+        expected_paths = sorted(
+            str(path.relative_to(repo_root))
+            for path in repo_root.rglob("*")
+            if path.is_file()
+            and not path.is_symlink()
+            and ".git" not in path.parts
+            and not any(part.endswith(".egg-info") for part in path.parts)
+            and str(path.relative_to(repo_root)) not in generated
+        )
+        observed_paths = [str(item.get("path")) for item in subjects if isinstance(item, dict)]
+        if observed_paths != expected_paths or provenance.get("subject_count") != len(expected_paths):
+            raise ValueError("release provenance subject inventory drifted")
+        for item in subjects:
+            target = repo_root / str(item["path"])
+            info = os.lstat(target)
+            if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):
+                raise ValueError(f"unsafe provenance subject: {item['path']}")
+            if info.st_size != item.get("size"):
+                raise ValueError(f"provenance size mismatch: {item['path']}")
+            if hashlib.sha256(target.read_bytes()).hexdigest() != item.get("sha256"):
+                raise ValueError(f"provenance hash mismatch: {item['path']}")
+            if bool(info.st_mode & 0o111) != item.get("executable"):
+                raise ValueError(f"provenance mode mismatch: {item['path']}")
+        result.pass_check("repo:release-provenance", f"{len(subjects)} sha256 subjects")
+    except Exception as exc:
+        result.fail(
+            "repo:release-provenance",
+            str(exc),
+            "Run scripts/generate_release_metadata.py after the final source change, then review the provenance.",
         )
 
     for cache_name in ["__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"]:

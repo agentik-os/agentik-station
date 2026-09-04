@@ -15,6 +15,7 @@ Station integrates with external projects rather than relicensing them. Before d
 - [Vercel CLI](https://github.com/vercel/vercel) — Apache-2.0
 - [OpenAI Codex CLI](https://github.com/openai/codex) — Apache-2.0
 - [Composio CLI](https://github.com/ComposioHQ/composio) — MIT
+- [discord.js](https://github.com/discordjs/discord.js) — Apache-2.0
 - [Tailscale](https://github.com/tailscale/tailscale) — BSD-3-Clause
 - Podman and its runtime dependencies
 - Restic

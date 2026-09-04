@@ -77,6 +77,16 @@ def test_reconcile_is_idempotent_for_same_immutable_release(tmp_path: Path) -> N
     assert second.apply() == "READY_FOR_SETUP"
     assert (paths.receipts / "op-idempotent-one.json").is_file()
     assert (paths.receipts / "op-idempotent-two.json").is_file()
+    receipt = json.loads((paths.receipts / "op-idempotent-two.json").read_text())
+    release_evidence = receipt["evidence"]["release_provenance"]
+    assert release_evidence["verified_equal"] is True
+    assert len(
+        {
+            release_evidence["source_manifest_sha256"],
+            release_evidence["installed_manifest_sha256"],
+            release_evidence["loaded_manifest_sha256"],
+        }
+    ) == 1
     assert station_doctor(paths, repo_root=ROOT, full=True).ok
 
 

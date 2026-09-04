@@ -1,6 +1,6 @@
 # AGK Client Organization Standard
 
-Standard version: `1`
+Standard version: `2`
 
 Every client is an isolated product organization inside the `mission` profile.
 The Linux username is a runtime boundary; AGK business objects use the stable
@@ -8,7 +8,12 @@ client id from `.client/manifest.yaml`.
 
 ## Sources of truth
 
-- Linear owns product work, status, scope and decision history.
+- The AGK durable work record owns canonical delivery identity, authorization,
+  context continuity, evidence pointers and state history.
+- Linear is the default work-tracker adapter and owns its projected product
+  issue, comments and configured workflow state. The protocol also permits
+  GitHub Issues or a manual durable tracker adapter when the client contract
+  explicitly selects it; the current automated client controller is Linear-first.
 - GitHub owns code, branches, commits, pull requests and CI evidence.
 - Figma owns product design when the client uses it.
 - Google Drive owns meeting summaries and source documents when enabled.
@@ -20,14 +25,14 @@ client id from `.client/manifest.yaml`.
 ## Mandatory delivery invariant
 
 ```text
-NO LINEAR ISSUE
+NO DURABLE WORK RECORD / TRACKER ISSUE
     -> NO CODING
     -> NO COMMIT
     -> NO PULL REQUEST
     -> NO DEPLOYMENT
 ```
 
-Every work record preserves the same client, Linear issue, repository, branch,
+Every work record preserves the same client, tracker issue, repository, branch,
 mission id and Hermes session throughout revisions. `REQUEST CHANGES` resumes
 that existing context; it must not silently create a fresh agent session.
 
@@ -45,7 +50,8 @@ workspace/clients/<slug>/
 │   ├── integrations.yaml
 │   ├── permissions.yaml
 │   ├── workflow.yaml
-│   └── team.yaml
+│   ├── team.yaml
+│   └── operations.yaml
 ├── repos/
 ├── knowledge/
 ├── projects/
@@ -74,7 +80,13 @@ aliases such as `client-<slug>-linear`.
 
 ## Logical team
 
-The dedicated client Project Manager is the Hermes orchestrator. Product
+Atlas is the Hermes orchestrator and is exposed to clients with the friendly
+alias Project Manager. The executable team contains exactly six stable
+identities: Atlas, Architect, Forge, Sentinel, Release Engineer and SRE. The
+larger product/design/frontend/backend/QA/security/platform/FinOps roster is a
+capability map onto those six identities, not 17 independent bots.
+
+Product
 Management owns product direction while the Project Manager owns intake,
 decomposition, agent routing, delivery status, risks and acceptance
 coordination. The meeting-intake coordinator converts cited Google Drive meeting
@@ -87,6 +99,10 @@ Observability, FinOps and Design. Every runtime session is tagged with `client`,
 `project`, `mission`, role and Linear issue metadata.
 
 ## Workflow and human gates
+
+The same semantic gates can be projected in two views: `compact` for normal
+product delivery and `regulated` when every QA/security/release state must be
+visible. Hiding a state never removes its gate.
 
 The standard flow is:
 
@@ -141,6 +157,23 @@ inter-agent handoff records owner, requested input, expected output, evidence
 and blockers in the shared Linear issue/work record. Discord provides the human
 interface and debug stream but never replaces Linear as source of truth.
 
+Default autonomy is `decide → act → verify → record → continue`. An agent asks
+only when no safe useful path remains. `BLOCKED` is valid only with all five
+fields—`blocked_by`, `already_tried`, `impact`, `need`, `resume`—and resumption
+uses the same work record, branch, PR and Hermes session. Material tracker
+comments use `Status / Result / Evidence / Next` and deduplicate on work,
+material event and artifact version.
+
+## Operational completeness
+
+`.client/operations.yaml` is the machine contract for the parts a code-only
+workflow commonly misses: service ownership, environments and data classes,
+pipelines/artifact identity, SLI/SLO/error budgets, alerts, incidents/on-call,
+postmortems, encrypted off-Host backups with RPO/RTO and restore rehearsal,
+dependency/vulnerability/license policy, costs, access reviews, offboarding,
+ADRs and runbooks. Production cannot be called complete while a required
+section is empty or unverified.
+
 ## Policy levels
 
 - L0: read-only inspection.
@@ -169,7 +202,7 @@ from a meeting cites its Drive source and is deduplicated by file id plus conten
 hash.
 
 Discord supports a shared CTO Command Center or a dedicated client bot. The
-default onboarding path uses a dedicated client Project Manager bot with
+default onboarding path uses a dedicated DevOps Atlas bot with
 client-scoped categories/channels and explicit connection aliases. Provisioning
 is dry-run first, idempotent and must roll back resources created by a failed
 apply.
@@ -184,3 +217,11 @@ window. Webhook secrets are never written to the client workspace.
 `agk client init` performs local, transactional scaffolding only. External
 resources are planned and verified separately; creation requires an explicit
 apply command and human confirmation.
+
+The same controller is available from the Station entry point:
+
+```bash
+station client bootstrap --upgrade
+station client init <client-id> --name "Client Name"
+station client doctor <client-id> --online
+```

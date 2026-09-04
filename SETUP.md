@@ -41,7 +41,7 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 - run `station deps toolchain-check` and compare observed versions with `config/versions.lock`;
 - authenticate GitHub CLI with `gh auth login`, then verify with `gh auth status`;
 - authenticate Vercel only where deployment is required, then verify with `vercel whoami`;
-- authenticate Composio with `composio login`, install its native agent integration with `composio setup --target auto`, and verify only the declared connections;
+- authenticate Composio with `composio login` only for the owning principal, then use the explicit provider plan/link/verify flow and verify only the declared connections;
 - sign in to Codex through its current interactive flow; never copy a personal token into a shared Zone;
 - bind each Project only to its declared repositories;
 - use development/staging credentials by default;
@@ -53,7 +53,12 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 ## Gate 4 — Composio connected capability plane
 
 - map a stable Station principal to the correct organization and Zone;
+- inspect `station provider composio-discord plan --zone <zone-id>`;
+- run `sudo station provider composio-discord link --zone <zone-id>` and complete the hosted OAuth flow;
+- run `sudo station provider composio-discord verify --zone <zone-id>` and one approved read-only tool probe;
 - configure only declared toolkits and connected accounts;
+- enforce `config/composio/discord-tool-policy.json`; unknown execution is denied;
+- keep Hermes as the only messaging Gateway; neither Composio nor discord.js owns sessions or chat ingress;
 - never use a generic production principal;
 - validate `available → authenticated → scoped → verified_ready`;
 - use sessions/MCP/triggers through the Station capability policy;
@@ -129,7 +134,7 @@ Keep tokens in the Zone's dedicated `HERMES_HOME`. Do not claim OPERATIONAL for 
 
 ## Gate — Optional dependency stack
 
-Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC and Parakeet are declared in `config/deps/stack.yaml`.
+Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC, Parakeet and the isolated discord.js SDK are declared in `config/deps/stack.yaml`.
 
 ```bash
 ./scripts/station_deps_install.sh --list

@@ -76,7 +76,8 @@
         "repository_doctor",
         "station_tests",
         "factory_pytest",
-        "builder_librarian_gates"
+        "builder_librarian_gates",
+        "agk_tui_component_tests"
       ],
       "properties": {
         "repository_doctor": {
@@ -92,6 +93,10 @@
         },
         "builder_librarian_gates": {
           "const": "7/7 PASS"
+        },
+        "agk_tui_component_tests": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     },

@@ -1,0 +1,47 @@
+name: disposable-vps-acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "core skips the heavyweight local voice/AI stack; full installs every default"
+        required: true
+        default: core
+        type: choice
+        options: [core, full]
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: disposable-vps-acceptance
+  cancel-in-progress: false
+
+jobs:
+  clean-ubuntu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      AGK_VPS_PROFILE: ${{ inputs.profile || 'core' }}
+      AGK_VPS_EVIDENCE: /tmp/station-vps-acceptance.json
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Bootstrap the clean sudo session
+        run: |
+          if [[ "$AGK_VPS_PROFILE" == full ]]; then
+            sudo ./bootstrap.sh --mode full --with-ai-stack --yes
+          else
+            sudo ./bootstrap.sh --mode full --skip-voice --yes
+          fi
+      - name: Installed-state readback
+        run: sudo --preserve-env=AGK_VPS_PROFILE,AGK_VPS_EVIDENCE ./scripts/ci_vps_acceptance.sh
+      - name: Acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: disposable-vps-${{ env.AGK_VPS_PROFILE }}-evidence
+          path: /tmp/station-vps-acceptance.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -517,6 +517,140 @@ def cmd_provider_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _agk_launcher() -> Path:
+    candidates: list[Path] = []
+    discovered = shutil.which("agk")
+    if discovered:
+        candidates.append(Path(discovered))
+    candidates.extend(
+        [
+            Path.home() / ".local" / "bin" / "agk",
+            Path("/usr/local/bin/agk"),
+            repository_root() / "components" / "agk-tui" / "bin" / "agk",
+        ]
+    )
+    target = next((path for path in candidates if path.is_file() and os.access(path, os.X_OK)), None)
+    if target is None:
+        raise StationError(
+            "AGK-TUI launcher `agk` is missing; install the bundled component before using Station client controls"
+        )
+    return target
+
+
+def cmd_client(args: argparse.Namespace) -> int:
+    """Expose the AGK client organization controller through the Station CLI."""
+    target = _agk_launcher()
+    forwarded = list(args.client_args or [])
+    if forwarded and forwarded[0] == "--":
+        forwarded = forwarded[1:]
+    if not forwarded:
+        forwarded = ["--help"]
+    completed = subprocess.run([str(target), "client", *forwarded], check=False)
+    return int(completed.returncode)
+
+
+def _composio_binary() -> Path:
+    candidates = [
+        Path(shutil.which("composio") or ""),
+        Path("/home/agk-station/.local/bin/composio"),
+        Path("/usr/local/bin/composio"),
+    ]
+    target = next(
+        (path for path in candidates if path.is_absolute() and path.is_file() and os.access(path, os.X_OK)),
+        None,
+    )
+    if target is None:
+        raise StationError("Pinned Composio CLI is missing; run `station deps toolchain-install` first")
+    return target
+
+
+def cmd_composio_discord(args: argparse.Namespace) -> int:
+    """Plan, authorize or read back the Zone-scoped Composio Discord adapter."""
+    from .providers.composio import stable_principal
+
+    zone = _load_zone_record(args.zone)
+    action = args.composio_discord_command
+    organization = str(zone.get("organization") or "") or None
+    principal = stable_principal(args.zone, organization, "atlas")
+    commands = {
+        "link": ["connected-accounts", "link", "discord"],
+        "verify": ["connected-accounts", "list", "--toolkits", "discord"],
+    }
+    payload: dict[str, Any] = {
+        "schema_version": 1,
+        "adapter": "composio-discord",
+        "role": "zone-scoped-tool-adapter",
+        "gateway": "hermes-native",
+        "zone_id": args.zone,
+        "principal": principal,
+        "policy": "config/composio/discord-tool-policy.json",
+        "operational": False,
+    }
+    if action == "plan":
+        payload.update(
+            {
+                "state": "READY_FOR_SETUP",
+                "commands": [
+                    ["composio", *commands["link"]],
+                    ["composio", *commands["verify"]],
+                    ["composio", "tools", "list", "--toolkit", "discord"],
+                ],
+                "next_repair_action": (
+                    "Run the link action as the owning Zone identity, complete OAuth, then run verify and a "
+                    "read-only tool before accepting the adapter."
+                ),
+            }
+        )
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    if os.geteuid() != 0:
+        raise StationError("Composio Discord link/verify requires root for Zone identity switching")
+    binary = _composio_binary()
+    unix_user = validate_identifier(str(zone.get("unix_user", "")), "Zone Unix user")
+    entry = pwd.getpwnam(unix_user)
+    runuser = Path(shutil.which("runuser") or "/usr/sbin/runuser")
+    if not runuser.is_file():
+        raise StationError("runuser is required for Zone-isolated Composio setup")
+    home = Path(entry.pw_dir)
+    argv = [
+        str(runuser),
+        "--user",
+        unix_user,
+        "--",
+        "/usr/bin/env",
+        f"HOME={home}",
+        f"COMPOSIO_USER_ID={principal}",
+        str(binary),
+        *commands[action],
+    ]
+    interactive = action == "link"
+    completed = subprocess.run(
+        argv,
+        check=False,
+        text=True,
+        capture_output=not interactive,
+        timeout=None if interactive else 120,
+    )
+    payload["returncode"] = completed.returncode
+    payload["state"] = (
+        "AUTH_FLOW_COMPLETED_NOT_VERIFIED"
+        if action == "link" and completed.returncode == 0
+        else ("OBSERVED_NOT_ACCEPTED" if completed.returncode == 0 else "DEGRADED")
+    )
+    if not interactive:
+        payload["stdout"] = completed.stdout[-12000:]
+        payload["stderr"] = completed.stderr[-12000:]
+    payload["next_repair_action"] = (
+        f"Run `station provider composio-discord verify --zone {args.zone}`, then execute and read back an "
+        "approved read-only Discord tool."
+        if action == "link" and completed.returncode == 0
+        else "Accept only after account ACTIVE status, policy validation and a read-only Discord tool readback."
+    )
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return int(completed.returncode)
+
+
 def cmd_release_list(_: argparse.Namespace) -> int:
     paths = LayoutPaths.live()
     if not paths.releases.is_dir():
@@ -930,25 +1064,7 @@ def cmd_backup_check(args: argparse.Namespace) -> int:
 def cmd_tui(args: argparse.Namespace) -> int:
     """Open AGK-TUI (Hermes / Codex / Claude Code / terminal sessions via RMUX)."""
     import os
-    import shutil
-    # Prefer installed launcher, then repo-local component wrapper.
-    candidates = []
-    which = shutil.which('agk')
-    if which:
-        candidates.append(which)
-    home = Path.home()
-    candidates.extend([
-        home / '.local' / 'bin' / 'agk',
-        Path('/usr/local/bin/agk'),
-    ])
-    repo = Path(__file__).resolve().parents[2]
-    candidates.append(repo / 'components' / 'agk-tui' / 'bin' / 'agk')
-    target = next((Path(p) for p in candidates if Path(p).exists() and os.access(p, os.X_OK)), None)
-    if target is None:
-        print('ERROR: AGK-TUI launcher `agk` not found. Install via bootstrap or components/agk-tui/install.sh.', file=sys.stderr)
-        print('STATE: DEGRADED', file=sys.stderr)
-        print('NEXT: sudo ./bootstrap.sh (or re-run with AGK-TUI enabled), then station tui.', file=sys.stderr)
-        return 2
+    target = _agk_launcher()
     os.environ.setdefault('AGK_ENVIRONMENT', os.environ.get('USER') or Path.home().name)
     # Forward remaining argv after `tui`
     extra = list(getattr(args, 'tui_args', []) or [])
@@ -1129,6 +1245,15 @@ def build_parser() -> argparse.ArgumentParser:
     discord_validate = provider_sub.add_parser("discord-validate")
     discord_validate.add_argument("--binding", required=True)
     discord_validate.set_defaults(handler=cmd_discord_validate)
+    composio_discord = provider_sub.add_parser(
+        "composio-discord",
+        help="Zone-scoped Composio Discord tools; Hermes remains the messaging gateway",
+    )
+    composio_discord_sub = composio_discord.add_subparsers(dest="composio_discord_command", required=True)
+    for action in ("plan", "link", "verify"):
+        command = composio_discord_sub.add_parser(action)
+        command.add_argument("--zone", required=True)
+        command.set_defaults(handler=cmd_composio_discord)
 
     os_cmd = sub.add_parser("os")
     os_sub = os_cmd.add_subparsers(dest="os_command", required=True)
@@ -1197,6 +1322,10 @@ def build_parser() -> argparse.ArgumentParser:
     tui = sub.add_parser("tui", help="Open AGK-TUI live sessions (Hermes, Codex, Claude Code, terminal)")
     tui.add_argument("tui_args", nargs=argparse.REMAINDER, help="Optional args forwarded to agk")
     tui.set_defaults(handler=cmd_tui)
+
+    client = sub.add_parser("client", help="Manage isolated client organizations through the AGK controller")
+    client.add_argument("client_args", nargs=argparse.REMAINDER, help="Arguments forwarded to `agk client`")
+    client.set_defaults(handler=cmd_client)
 
     hermes = sub.add_parser("hermes")
     hermes_sub = hermes.add_subparsers(dest="hermes_command", required=True)

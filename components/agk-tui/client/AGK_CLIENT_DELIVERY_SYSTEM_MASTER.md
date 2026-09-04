@@ -1,10 +1,10 @@
-# AGK CLIENT DELIVERY SYSTEM — GLOBAL MASTER v2
+# AGK CLIENT DELIVERY SYSTEM — GLOBAL MASTER v3
 
 Status: canonical global operating standard
 Applies to: every professional client managed by MISSION/AGK
 Execution brain: Hermes Agent
-Human control plane: Discord + Linear human state changes
-Operational SSOT: Linear
+Human control plane: Discord + authorized tracker state changes
+Operational SSOT: AGK durable work record; Linear is the default tracker projection
 Code SSOT: GitHub
 
 ## 1. Purpose
@@ -16,7 +16,7 @@ Canonical outcome:
 ```text
 Request
 → Structured Mission
-→ Linear
+→ Durable Work Record + selected tracker (Linear by default)
 → Agentic Build
 → Pull Request
 → Automated Verification
@@ -65,13 +65,16 @@ AGK
     └── reports
 ```
 
-`CLIENT.md` is the client context SSOT: business context, products, stakeholders, repositories, Linear teams/projects, environments, URLs, deployment strategy, security/data classification, allowed/forbidden tools, approvals, active missions and known risks.
+`CLIENT.md` is the client context SSOT: business context, products, stakeholders, repositories, tracker teams/projects, environments, URLs, deployment strategy, security/data classification, allowed/forbidden tools, approvals, active missions and known risks. `.client/operations.yaml` is the machine contract for services, environments, pipelines, reliability, incidents, backup/recovery, dependencies, costs, access, offboarding, ADRs and runbooks.
 
 Secrets never enter prompts, Linear, Discord, logs, git, documentation, screenshots or memory. Use client-scoped OAuth/Composio aliases or the canonical mode-0600 client vault. Tailnet Secure Input is the fallback for non-OAuth manual credentials.
 
 ## 3. Hermes is the agentic brain
 
-Hermes is the required execution brain for every client organization.
+Hermes is the required execution brain for every client organization. Atlas is
+the public Project Manager alias. The six canonical execution identities are
+Atlas, Architect, Forge, Sentinel, Release Engineer and SRE; the specialist
+roster maps capabilities to those identities rather than creating a bot swarm.
 
 - Every client has an isolated Hermes Project Manager profile.
 - Every client has a named Hermes Project visible in AGK TUI.
@@ -88,7 +91,7 @@ AGK TUI must expose client Project, sessions, active tasks, runs, blockers, revi
 
 Each client receives:
 
-- dedicated Project Manager/Client Delivery Manager Discord bot;
+- dedicated DevOps Atlas / Project Manager Discord bot;
 - isolated Hermes PM profile;
 - `dev-requests` owner intake channel;
 - `cto-inbox`, `reviews`, `releases`, `incidents`, `client-status`, `agent-activity`;
@@ -97,7 +100,8 @@ Each client receives:
 
 `dev-requests` is the canonical direct development request surface. The PM responds without requiring a mention, clarifies only necessary ambiguity, proposes a plan, then creates or links the delivery issue. It does not code from raw Discord prose.
 
-Discord is the human interface and decision surface. Linear remains the delivery SSOT.
+Discord is the human interface and decision surface. The durable work record is
+canonical; Linear remains the default tracker projection.
 
 ## 5. Request intake and mission normalization
 
@@ -135,9 +139,10 @@ Never implement directly from raw feedback. Preserve the source feedback issue a
 
 Client developers join the Delivery team, not the noisy raw feedback team, unless explicitly needed.
 
-## 7. Linear issue contract
+## 7. Durable work record and tracker issue contract
 
-Every implementation mission requires a Linear delivery issue containing:
+Every implementation mission requires a stable AGK work record and a selected
+tracker issue containing:
 
 - title;
 - source and requester;
@@ -159,7 +164,12 @@ Every implementation mission requires a Linear delivery issue containing:
 
 Agents must read the full issue, every comment, attachments, screenshots, linked issues, existing PRs/commits and affected project documentation before work.
 
-## 8. Global Linear workflow
+## 8. Global semantic workflow
+
+The default adapter projects these states into Linear. `agk-work-tracker/v1`
+also supports GitHub Issues or a manual durable adapter when configured with
+stable record ids and authoritative state ids. The current automated client
+controller is Linear-first.
 
 Canonical states:
 
@@ -391,6 +401,13 @@ Use least privilege:
 
 Agents autonomously plan, create issues, decompose, code authorized work, test, review, QA, security-check, document, deploy staging, collect evidence, update status and perform SRE checks.
 
+The default loop is `decide → act → verify → record → continue`. Routine test
+failures, review corrections and QA findings stay inside the same mission; they
+are not blockers. `BLOCKED` is used only when no useful next action remains and
+must include `blocked_by`, `already_tried`, `impact`, `need` and `resume`.
+Material comments use `Status / Result / Evidence / Next` and are idempotent by
+work record, material event and artifact version.
+
 Humans retain ambiguous product/architecture decisions, sensitive security, destructive actions, production approval, material budget and contractual decisions.
 
 ## 19. Emergency and incidents
@@ -423,7 +440,7 @@ Daily digest: completed, active, blocked, awaiting client/CTO, PRs/staging ready
 ```text
 DOCUMENT > MANUFACTURE
 PROOF > ADVICE
-LINEAR > CHAT FOR DELIVERY STATE
+DURABLE WORK RECORD > CHAT FOR DELIVERY STATE
 PR > DIRECT PRODUCTION MODIFICATION
 STAGING > BLIND DEPLOYMENT
 VERIFICATION > ASSUMPTION

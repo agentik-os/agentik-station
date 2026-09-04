@@ -1,0 +1,47 @@
+{
+  "schema_version": "agk-composio-tool-policy/v1",
+  "adapter": "composio-discord",
+  "purpose": "Zone-scoped Discord tool access for Atlas; never a replacement gateway for Hermes",
+  "identity": {
+    "principal_template": "station:{organization_or_personal}:{zone_id}:atlas",
+    "connection_scope": "one explicit Discord connected account per Zone",
+    "cross_zone_fallback": "deny"
+  },
+  "defaults": {
+    "discovery": "allow",
+    "execution": "deny",
+    "on_unknown_tool": "deny_and_record"
+  },
+  "allow": [
+    {"tool": "DISCORD_GET_GATEWAY", "class": "read", "approval": "none"},
+    {"tool": "DISCORD_GET_GUILD_TEMPLATE", "class": "read", "approval": "none"},
+    {"tool": "DISCORD_GET_INVITE", "class": "read", "approval": "none"},
+    {"tool": "DISCORD_GET_MY_GUILD_MEMBER", "class": "read", "approval": "none"},
+    {"tool": "DISCORD_GET_MY_OAUTH2_AUTHORIZATION", "class": "read", "approval": "none"},
+    {"tool": "DISCORD_GET_MY_USER", "class": "read", "approval": "none"},
+    {
+      "tool": "DISCORD_EDIT_APPLICATION_COMMAND_PERMISSIONS",
+      "class": "external_mutation",
+      "approval": "exact_guild_and_command_operator_approval",
+      "readback": "required"
+    }
+  ],
+  "deny": [
+    "DISCORD_DELETE_TEST_ENTITLEMENT",
+    "DISCORD_DELETE_USER_APPLICATION_ROLE_CONNECTION",
+    "leave_or_delete_guild",
+    "delete_channel_or_message",
+    "change_guild_owner",
+    "export_or_reveal_credentials",
+    "impersonate_human",
+    "cross_zone_account_selection"
+  ],
+  "audit": {
+    "record_tool_slug": true,
+    "record_connected_account_alias": true,
+    "record_input_hash": true,
+    "record_output_hash": true,
+    "redact_provider_payloads": true,
+    "mutation_readback": true
+  }
+}

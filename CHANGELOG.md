@@ -1,5 +1,26 @@
 # Changelog
 
+## 11.12 — DevOps delivery and supply-chain completion
+
+- made the DevOps OS machine-semantic with six canonical identities, typed
+  tools/provider routes, a closed workflow, deterministic validators, 15
+  source-mapped Librarian inputs, 12 adversarial evals and checksum-bound recovery;
+- added tracker-neutral delivery semantics, soft autonomy, five-field Blocked
+  records, idempotent material comments, exact PR/head approvals and separate
+  signed engineering/production authorization receipts;
+- added authenticated Discord batch-start handling with one issue thread per
+  authorized ready item and preserved correction context;
+- added the client `operations.yaml` contract for services, reliability,
+  incidents, backups, dependencies, costs, access, offboarding, ADRs and runbooks;
+- exposed the AGK client controller through `station client`;
+- integrated Zone-scoped Composio Discord plan/link/readback with default-deny
+  tool execution while keeping Hermes as the only messaging Gateway;
+- pinned and installed discord.js 14.27.0 as an isolated SDK resource;
+- added CODEOWNERS, Dependabot, Python compatibility, Node build tests,
+  disposable Ubuntu acceptance, deterministic CycloneDX SBOM, SHA-256 source
+  provenance and GitHub build attestation;
+- fixed the release-manifest schema/CI omission for the shipped AGK-TUI suite.
+
 ## 11.12 — Station Kernel hardening
 
 ### Security and reconciliation

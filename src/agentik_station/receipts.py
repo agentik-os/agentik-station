@@ -24,6 +24,7 @@ class Receipt:
     steps: list[dict[str, Any]] = field(default_factory=list)
     error: dict[str, str] | None = None
     next_actions: list[str] = field(default_factory=list)
+    evidence: dict[str, Any] = field(default_factory=dict)
 
     def step(self, name: str, status: str, detail: str | None = None) -> None:
         entry: dict[str, Any] = {"name": name, "status": status, "at": utc_now()}
@@ -57,6 +58,7 @@ class Receipt:
             "steps": self.steps,
             "error": self.error,
             "next_actions": self.next_actions,
+            "evidence": self.evidence,
         }
 
     def persist(self, fs: SafeFS, receipts_root: Path) -> Path:

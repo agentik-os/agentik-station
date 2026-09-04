@@ -23,6 +23,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+import unicodedata
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
@@ -73,6 +74,7 @@ REQUIRED_CONFIG = (
     "permissions.yaml",
     "workflow.yaml",
     "team.yaml",
+    "operations.yaml",
 )
 DISCORD_CHANNELS = (
     "dev-requests",
@@ -164,9 +166,51 @@ def hermes_profile_id(slug: str) -> str:
     return f"client{compact}{digest}"
 
 
+def canonical_team_identity(team: dict[str, Any], role: str) -> str:
+    identities = team.get("canonical_identities", {})
+    aliases = team.get("role_aliases", {})
+    if isinstance(identities, dict) and role in identities:
+        return role
+    canonical = aliases.get(role) if isinstance(aliases, dict) else None
+    if not isinstance(canonical, str) or not isinstance(identities, dict) or canonical not in identities:
+        raise ClientError(f"unknown client team role: {role}")
+    return canonical
+
+
 def branch_component(value: str) -> str:
     value = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return (value or "work")[:42].rstrip("-")
+
+
+def normalize_owner_batch_phrase(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value)
+    ascii_value = "".join(char for char in normalized if not unicodedata.combining(char))
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", ascii_value.lower()).split())
+
+
+def is_owner_go_intent(value: str) -> bool:
+    phrase = normalize_owner_batch_phrase(value)
+    negative = {
+        "do not", "dont", "stop", "cancel", "ne pas", "n execute pas",
+        "annule", "arrete", "pas maintenant",
+    }
+    if any(token in phrase for token in negative):
+        return False
+    return phrase in {
+        "start all ready work",
+        "start all eligible work",
+        "start all ready linear work",
+        "lance tout le travail pret",
+        "lance toutes les taches pretes",
+        "demarre tout le travail pret",
+    }
+
+
+def is_owner_linear_batch_intent(value: str) -> bool:
+    phrase = normalize_owner_batch_phrase(value)
+    return is_owner_go_intent(value) and (
+        "linear" in phrase or "travail" in phrase or "taches" in phrase or "work" in phrase
+    )
 
 
 def yaml_document(path: Path) -> dict[str, Any]:
@@ -304,12 +348,15 @@ def migrate_existing_client_configs(layout: Layout, registry: dict[str, Any]) ->
         replacements = {
             "workflow.yaml": default_file(layout, "workflow.yaml"),
             "team.yaml": default_file(layout, "team.yaml"),
+            "operations.yaml": default_file(layout, "operations.yaml"),
         }
         replacements["team.yaml"]["client_id"] = slug
         replacements["team.yaml"]["hermes_profile"] = profile_id
         for filename, replacement in replacements.items():
             path = config / filename
-            current = yaml_document(path)
+            if path.is_symlink():
+                raise ClientError(f"client config upgrade target is unsafe: {slug}/{filename}")
+            current = yaml_document(path) if path.is_file() else {}
             current_schema = int(current.get("schema_version") or 0)
             target_schema = int(replacement.get("schema_version") or 0)
             if current_schema >= target_schema:
@@ -321,7 +368,7 @@ def migrate_existing_client_configs(layout: Layout, registry: dict[str, Any]) ->
                 / slug
                 / f"{filename.removesuffix('.yaml')}.schema-{current_schema}.yaml"
             )
-            if not backup.exists():
+            if current_schema and not backup.exists():
                 atomic_yaml(backup, current, 0o400)
             merged = merge_client_upgrade(replacement, current)
             if not isinstance(merged, dict):
@@ -640,6 +687,7 @@ def create_client(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
         )
         atomic_yaml(config / "workflow.yaml", default_file(layout, "workflow.yaml"))
         atomic_yaml(config / "team.yaml", team)
+        atomic_yaml(config / "operations.yaml", default_file(layout, "operations.yaml"))
 
         secret_stage.mkdir(mode=0o700)
         secret_body = (
@@ -751,6 +799,7 @@ def doctor_one(layout: Layout, slug: str, *, online: bool) -> list[tuple[str, st
     workflow = configs["workflow.yaml"]
     invariants = workflow.get("invariants", {})
     for key in (
+        "durable_work_record_required",
         "linear_issue_required",
         "full_issue_context_required",
         "backlog_is_passive",
@@ -816,16 +865,49 @@ def doctor_one(layout: Layout, slug: str, *, online: bool) -> list[tuple[str, st
     (ok if "security_passed_or_not_required" in cto_requirements else fail)(
         "CTO Review accepts a recorded security disposition"
     )
+    tracker = workflow.get("tracker", {})
+    (ok if isinstance(tracker, dict)
+     and tracker.get("protocol") == "agk-work-tracker/v1"
+     and tracker.get("configured_state_ids_are_authoritative") is True
+     else fail)("workflow uses the tracker-neutral work protocol")
+    autonomy = workflow.get("autonomy", {})
+    (ok if isinstance(autonomy, dict)
+     and autonomy.get("default_behavior") == "decide-act-verify-record-continue"
+     and autonomy.get("questions") == "only-when-no-useful-path-remains"
+     else fail)("workflow applies soft autonomy")
+    blocked = workflow.get("blocked", {})
+    blocked_fields = set(blocked.get("required_fields", [])) if isinstance(blocked, dict) else set()
+    (ok if {"blocked_by", "already_tried", "impact", "need", "resume"} <= blocked_fields else fail)(
+        "Blocked requires a complete unblock contract"
+    )
+    comments = workflow.get("comments", {})
+    (ok if isinstance(comments, dict)
+     and comments.get("dedupe_key") == "work_record+event+artifact_version"
+     and comments.get("debug_stream") == "excluded"
+     else fail)("workflow material comments are idempotent")
     team = configs["team.yaml"]
     orchestrator = team.get("orchestrator", {})
-    (ok if isinstance(orchestrator, dict) and orchestrator == {
-        "role": "project-manager", "provider": "hermes"
-    } else fail)("team project-manager is the Hermes orchestrator")
+    (ok if isinstance(orchestrator, dict)
+     and orchestrator.get("role") == "atlas"
+     and orchestrator.get("provider") == "hermes"
+     and orchestrator.get("public_alias") == "project-manager"
+     else fail)("team Atlas is the Hermes DevOps orchestrator")
+    identities = team.get("canonical_identities", {})
+    expected_identities = {"atlas", "architect", "forge", "sentinel", "release-engineer", "sre"}
+    (ok if isinstance(identities, dict) and set(identities) == expected_identities else fail)(
+        "team has exactly six canonical DevOps identities"
+    )
+    aliases = team.get("role_aliases", {})
+    roles = team.get("roles", {})
+    (ok if isinstance(aliases, dict) and isinstance(roles, dict)
+     and set(roles) <= set(aliases)
+     and set(aliases.values()) <= expected_identities
+     else fail)("specialists map to canonical DevOps identities")
     execution_model = team.get("execution_model", {})
     (ok if isinstance(execution_model, dict) and execution_model.get(
         "discord_identity"
-    ) == "dedicated_client_project_manager_bot" else fail)(
-        "team uses a dedicated client Project Manager Discord bot"
+    ) == "dedicated_devops_atlas_bot" else fail)(
+        "team uses a dedicated DevOps Atlas Discord bot"
     )
     (ok if isinstance(execution_model, dict) and execution_model.get(
         "supervision_surface"
@@ -858,6 +940,15 @@ def doctor_one(layout: Layout, slug: str, *, online: bool) -> list[tuple[str, st
         ok("database deletion is forbidden")
     else:
         fail("database deletion policy is unsafe")
+    operations = configs["operations.yaml"]
+    required_operation_sections = {
+        "service_catalog", "environments", "pipelines", "reliability",
+        "incidents", "backups", "dependencies", "costs", "access",
+        "offboarding", "knowledge",
+    }
+    (ok if operations.get("contract") == "agk-client-operations/v1"
+     and required_operation_sections <= set(operations)
+     else fail)("client operations contract is complete")
     secret = layout.secret_file(slug)
     if secret.is_file() and (secret.stat().st_mode & 0o777) == 0o600:
         ok("secret store exists with mode 0600")
@@ -1517,25 +1608,34 @@ def linear_sync_plan(layout: Layout, slug: str, work_id: str) -> dict[str, Any]:
         raise ClientError(
             f"AGK status {state} requires verified Linear attachments"
         )
+    latest_event = next(
+        (
+            str(item.get("event"))
+            for item in reversed(work.get("events", []))
+            if isinstance(item, dict)
+            and item.get("event")
+            and item.get("event") != "work.linear_synced"
+        ),
+        "work.status",
+    )
+    artifact_version = str(repository.get("commit") or state)
     comment_body = "\n".join(
         (
-            f"## AGK delivery update · {work_id}",
-            "",
-            f"- Status: `{state}`",
-            f"- Session: `{work.get('agent', {}).get('session')}`",
-            f"- Branch: `{repository.get('branch')}`",
-            f"- Pull request: {repository.get('pull_request') or 'pending'}",
-            f"- Commit: `{repository.get('commit') or 'pending'}`",
-            f"- CI / QA / Security: {bool(evidence.get('ci_passed'))} / "
+            f"**Status:** `{state}`",
+            f"**Result:** `{latest_event}` for `{work_id}`",
+            f"**Evidence:** PR {repository.get('pull_request') or 'pending'}; "
+            f"commit `{repository.get('commit') or 'pending'}`; CI/QA/Security "
+            f"{bool(evidence.get('ci_passed'))}/"
             f"{bool(evidence.get('qa_passed'))} / "
-            f"{evidence.get('security_disposition') in {'passed', 'not_required'}}",
-            f"- Preview: {evidence.get('staging_preview') or 'pending'}",
-            f"- Risk: {evidence.get('risk') or 'unrated'}",
-            f"- Linear attachments: {len(linear_attachments)}",
+            f"{evidence.get('security_disposition') in {'passed', 'not_required'}}; "
+            f"preview {evidence.get('staging_preview') or 'pending'}; "
+            f"attachments {len(linear_attachments)}",
+            f"**Next:** synchronize `{state}` and continue with the canonical workflow",
         )
     )
-    digest = hashlib.sha256(comment_body.encode()).hexdigest()[:16]
-    marker = f"<!-- agk:{slug}:{work_id}:{digest} -->"
+    event_key = f"{work_id}:{latest_event}:{artifact_version}"
+    digest = hashlib.sha256(event_key.encode()).hexdigest()[:16]
+    marker = f"<!-- agk:{slug}:{work_id}:{latest_event}:{digest} -->"
     comment = f"{comment_body}\n\n{marker}"
     return {
         "client_id": slug,
@@ -1957,6 +2057,20 @@ def validate_work_start_record(
     discord = integrations.get("discord", {}) if isinstance(integrations, dict) else {}
     linear = integrations.get("linear", {}) if isinstance(integrations, dict) else {}
     non_empty = required - {"constraints"}
+    source = str(authorization.get("source") or "") if isinstance(authorization, dict) else ""
+    expected_authorization_id = (
+        f"discord:{authorization.get('message_id')}"
+        if source == "discord"
+        else f"discord-batch:{authorization.get('message_id')}:{work_id}"
+    )
+    authorization_channel = str(authorization.get("channel_id") or "") if isinstance(authorization, dict) else ""
+    channel_is_valid = (
+        source == "discord"
+        and authorization_channel == str(discord.get("channels", {}).get("dev_requests") or "")
+    ) or (
+        source == "discord_batch"
+        and authorization_channel_is_client_home(integrations, authorization_channel)
+    )
     if (
         not isinstance(authorization, dict)
         or not required <= set(authorization)
@@ -1966,14 +2080,13 @@ def validate_work_start_record(
         or authorization.get("issue") != issue
         or authorization.get("actor") != authorization.get("actor_id")
         or authorization.get("actor_id") != str(discord.get("owner_user_id") or "")
-        or authorization.get("source") != "discord"
+        or source not in {"discord", "discord_batch"}
         or authorization.get("guild_id") != str(discord.get("guild_id") or "")
-        or authorization.get("channel_id")
-        != str(discord.get("channels", {}).get("dev_requests") or "")
+        or not channel_is_valid
         or authorization.get("project")
         != str(linear.get("delivery_project_id") or "")
         or authorization.get("timestamp") != authorization.get("at")
-        or authorization.get("id") != f"discord:{authorization.get('message_id')}"
+        or authorization.get("id") != expected_authorization_id
     ):
         raise ClientError("work start authorization is incomplete or mismatched")
     verify_start_authorization_receipt(
@@ -2134,9 +2247,8 @@ def create_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
     slug = validate_slug(args.slug)
     issue = validate_issue(args.issue)
     configs = client_configs(layout, slug)
-    roles = configs["team.yaml"].get("roles", {})
-    if not isinstance(roles, dict) or args.role not in roles:
-        raise ClientError(f"unknown client team role: {args.role}")
+    team = configs["team.yaml"]
+    canonical_identity = canonical_team_identity(team, args.role)
     providers = configs["manifest.yaml"].get("providers", {})
     allowed_providers = (
         providers.get("allowed", []) if isinstance(providers, dict) else []
@@ -2165,7 +2277,12 @@ def create_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
         "linear": {"issue": issue, "status_sync": "pending"},
         "context": {"complete": False, "fields": {}},
         "authorization": None,
-        "agent": {"role": args.role, "provider": args.provider, "session": session},
+        "agent": {
+            "role": args.role,
+            "canonical_identity": canonical_identity,
+            "provider": args.provider,
+            "session": session,
+        },
         "repository": {
             "repo": args.repo,
             "branch": branch,
@@ -2299,6 +2416,311 @@ def discord_client_get(layout: Layout, slug: str, endpoint: str) -> dict[str, An
     if not isinstance(data, dict):
         raise ClientError("Discord authorization evidence is invalid")
     return data
+
+
+def discord_client_post(
+    layout: Layout,
+    slug: str,
+    endpoint: str,
+    payload: dict[str, Any] | None = None,
+    *,
+    method: str = "POST",
+) -> dict[str, Any]:
+    if method not in {"POST", "DELETE"}:
+        raise ClientError("Discord client mutation method is not allowed")
+    if not endpoint.startswith("/channels/") or ".." in endpoint:
+        raise ClientError("Discord client mutation endpoint is not allowed")
+    secret = layout.secret_file(validate_slug(slug))
+    token = ""
+    for line in secret.read_text().splitlines():
+        match = re.match(r"(?:export\s+)?DISCORD_BOT_TOKEN=(.+)", line)
+        if match:
+            token = match.group(1).strip().strip("'\"")
+            break
+    if not token:
+        raise ClientError("Discord dedicated bot token is unavailable")
+    body = None
+    headers = {
+        "Authorization": f"Bot {token}",
+        "User-Agent": "AGK-client-control/1",
+    }
+    if payload is not None:
+        body = json.dumps(payload, ensure_ascii=False).encode()
+        headers["Content-Type"] = "application/json"
+    request = urllib.request.Request(
+        "https://discord.com/api/v10" + endpoint,
+        data=body,
+        method=method,
+        headers=headers,
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            raw = response.read()
+    except urllib.error.HTTPError as error:
+        raise ClientError(f"Discord mutation failed (HTTP {error.code})") from None
+    except (urllib.error.URLError, TimeoutError) as error:
+        raise ClientError("Discord mutation failed") from error
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw.decode())
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise ClientError("Discord mutation returned invalid JSON") from error
+    if not isinstance(value, dict):
+        raise ClientError("Discord mutation returned an invalid payload")
+    return value
+
+
+def client_home_channel_ids(integrations: dict[str, Any]) -> set[str]:
+    discord = integrations.get("discord", {}) if isinstance(integrations, dict) else {}
+    channels = discord.get("channels", {}) if isinstance(discord, dict) else {}
+    allowed_keys = {"dev_requests", "client_status"}
+    return {
+        str(value)
+        for key, value in channels.items()
+        if key in allowed_keys and str(value or "").isdigit()
+    } if isinstance(channels, dict) else set()
+
+
+def authorization_channel_is_client_home(
+    integrations: dict[str, Any], channel_id: str
+) -> bool:
+    return str(channel_id) in client_home_channel_ids(integrations)
+
+
+def verified_batch_linear_context(
+    layout: Layout,
+    slug: str,
+    work_id: str,
+    record: dict[str, Any],
+    expected_team: str,
+) -> bool:
+    try:
+        issue = str(record.get("linear", {}).get("issue") or "")
+        context = record.get("context", {})
+        snapshot_record = context.get("linear_snapshot", {}) if isinstance(context, dict) else {}
+        if (
+            not issue
+            or not expected_team
+            or not isinstance(snapshot_record, dict)
+            or str(snapshot_record.get("identifier") or "") != issue
+            or str(snapshot_record.get("team_id") or "") != expected_team
+        ):
+            return False
+        snapshot_path = (layout.client(slug) / str(snapshot_record.get("path") or "")).resolve()
+        snapshot_path.relative_to(layout.client(slug).resolve())
+        snapshot = yaml_document(snapshot_path)
+        canonical = json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        digest = hashlib.sha256(canonical.encode()).hexdigest()
+        if not hmac.compare_digest(digest, str(snapshot_record.get("sha256") or "")):
+            return False
+        if str(snapshot.get("identifier") or "") != issue or str(snapshot.get("team_id") or "") != expected_team:
+            return False
+        verify_linear_snapshot_receipt(
+            layout,
+            str(snapshot_record.get("receipt") or ""),
+            {
+                "client": slug,
+                "work_id": work_id,
+                "issue": issue,
+                "team_id": expected_team,
+                "snapshot_sha256": digest,
+                "linear_updated_at": snapshot_record.get("updated_at"),
+            },
+        )
+        return True
+    except (ClientError, ValueError, OSError):
+        return False
+
+
+def _batch_work_contract(layout: Layout, slug: str) -> dict[str, Any]:
+    eligible: list[dict[str, str]] = []
+    skipped: list[dict[str, str]] = []
+    integrations = client_configs(layout, slug)["integrations.yaml"]
+    linear = integrations.get("linear", {}) if isinstance(integrations, dict) else {}
+    expected_team = str(linear.get("team_id") or "") if isinstance(linear, dict) else ""
+    work_root = layout.client(slug) / "state" / "work"
+    for path in sorted(work_root.glob("WORK-*.yaml")):
+        if path.is_symlink() or not path.is_file():
+            raise ClientError("batch work inventory contains an unsafe record")
+        record = yaml_document(path)
+        work_id = str(record.get("id") or "")
+        reason = ""
+        if record.get("status") != "backlog":
+            reason = "not-backlog"
+        elif record.get("environment", {}).get("target") == "production":
+            reason = "production-requires-separate-authorization"
+        elif record.get("authorization"):
+            reason = "already-authorized"
+        else:
+            context = record.get("context", {})
+            snapshot = context.get("linear_snapshot", {}) if isinstance(context, dict) else {}
+            if not isinstance(context, dict) or context.get("complete") is not True:
+                reason = "context-incomplete"
+            elif not isinstance(snapshot, dict) or not snapshot.get("receipt"):
+                reason = "linear-snapshot-unverified"
+            elif not verified_batch_linear_context(layout, slug, work_id, record, expected_team):
+                reason = "linear-snapshot-invalid"
+        if reason:
+            skipped.append({"work_id": work_id, "reason": reason})
+        else:
+            eligible.append(
+                {
+                    "work_id": work_id,
+                    "issue": str(record.get("linear", {}).get("issue") or ""),
+                    "title": str(record.get("title") or "work"),
+                }
+            )
+    return {"client_id": slug, "eligible": eligible, "skipped": skipped}
+
+
+def _ensure_linear_issue_thread(
+    layout: Layout,
+    slug: str,
+    *,
+    channel_id: str,
+    issue: str,
+    work_id: str,
+    title: str,
+) -> dict[str, str]:
+    content = f"🧵 {issue} · {title}"[:1900]
+    starter = discord_client_post(
+        layout,
+        slug,
+        f"/channels/{channel_id}/messages",
+        {"content": content, "allowed_mentions": {"parse": []}},
+    )
+    starter_id = str(starter.get("id") or "")
+    if not starter_id.isdigit():
+        raise ClientError("Discord issue thread starter returned no message id")
+    try:
+        thread = discord_client_post(
+            layout,
+            slug,
+            f"/channels/{channel_id}/messages/{starter_id}/threads",
+            {"name": f"{issue.lower()}-{work_id.lower()}"[:100], "auto_archive_duration": 1440},
+        )
+    except Exception:
+        discord_client_post(
+            layout, slug, f"/channels/{channel_id}/messages/{starter_id}", method="DELETE"
+        )
+        raise
+    thread_id = str(thread.get("id") or "")
+    if not thread_id.isdigit():
+        discord_client_post(
+            layout, slug, f"/channels/{channel_id}/messages/{starter_id}", method="DELETE"
+        )
+        raise ClientError("Discord issue thread returned no thread id")
+    return {"channel_id": channel_id, "starter_message_id": starter_id, "thread_id": thread_id}
+
+
+def rollback_linear_issue_thread(layout: Layout, slug: str, thread: dict[str, str]) -> None:
+    for endpoint in (
+        f"/channels/{thread['thread_id']}",
+        f"/channels/{thread['channel_id']}/messages/{thread['starter_message_id']}",
+    ):
+        try:
+            discord_client_post(layout, slug, endpoint, method="DELETE")
+        except ClientError:
+            pass
+
+
+def authorize_linear_batch(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
+    if not args.yes:
+        raise ClientError("batch authorization requires --yes after reviewing the plan")
+    slug = validate_slug(args.slug)
+    channel_id = str(args.channel_id)
+    message_id = str(args.message_id)
+    if not channel_id.isdigit() or not message_id.isdigit():
+        raise ClientError("batch authorization requires numeric Discord ids")
+    integrations = client_configs(layout, slug)["integrations.yaml"]
+    discord = integrations.get("discord", {})
+    linear = integrations.get("linear", {})
+    if not isinstance(discord, dict) or not isinstance(linear, dict):
+        raise ClientError("batch authorization integrations are invalid")
+    if not authorization_channel_is_client_home(integrations, channel_id):
+        raise ClientError("batch authorization must originate in the client home channel")
+    channel = discord_client_get(layout, slug, f"/channels/{channel_id}")
+    if str(channel.get("guild_id") or "") != str(discord.get("guild_id") or ""):
+        raise ClientError("batch authorization channel belongs to another Discord guild")
+    message = discord_client_get(layout, slug, f"/channels/{channel_id}/messages/{message_id}")
+    author = message.get("author", {})
+    content = str(message.get("content") or "")
+    if (
+        str(message.get("channel_id") or "") != channel_id
+        or not isinstance(author, dict)
+        or str(author.get("id") or "") != str(discord.get("owner_user_id") or "")
+        or author.get("bot") is True
+        or not is_owner_linear_batch_intent(content)
+    ):
+        raise ClientError("Discord batch authorization intent or owner identity is invalid")
+    message_timestamp = validate_start_message_freshness(str(message.get("timestamp") or ""))
+    project = str(linear.get("delivery_project_id") or "")
+    if not project:
+        raise ClientError("batch authorization requires a configured Linear delivery project")
+    contract = _batch_work_contract(layout, slug)
+    authorized: list[dict[str, str]] = []
+    for item in contract["eligible"]:
+        work_id = item["work_id"]
+        with work_lock(layout, slug, work_id):
+            path, record = load_work(layout, slug, work_id)
+            if record.get("status") != "backlog" or record.get("authorization"):
+                continue
+            context = record.get("context", {})
+            fields = context.get("fields", {}) if isinstance(context, dict) else {}
+            fields = fields if isinstance(fields, dict) else {}
+            thread = _ensure_linear_issue_thread(
+                layout,
+                slug,
+                channel_id=channel_id,
+                issue=item["issue"],
+                work_id=work_id,
+                title=item["title"],
+            )
+            timestamp = dt.datetime.now(dt.timezone.utc).isoformat()
+            authorization = {
+                "id": f"discord-batch:{message_id}:{work_id}",
+                "actor": str(author.get("id")),
+                "actor_id": str(author.get("id")),
+                "source": "discord_batch",
+                "timestamp": timestamp,
+                "channel_id": channel_id,
+                "message_id": message_id,
+                "guild_id": str(discord.get("guild_id") or ""),
+                "client": slug,
+                "project": project,
+                "issue": item["issue"],
+                "scope": fields.get("requested_outcome") or record.get("title"),
+                "priority": "configured-batch",
+                "constraints": fields.get("security_and_data_constraints", []),
+                "at": timestamp,
+                "message_sha256": hashlib.sha256(content.encode()).hexdigest(),
+                "message_timestamp": message_timestamp,
+                "batch": True,
+                "discord_thread": thread,
+            }
+            receipt_payload = {"work_id": work_id, **authorization}
+            receipt_payload.pop("client", None)
+            try:
+                authorization["receipt"] = write_start_authorization_receipt(
+                    layout, slug, work_id, receipt_payload
+                )
+                record["authorization"] = authorization
+                record["status"] = "todo"
+                work_event(record, "work.batch_start_authorized", **authorization)
+                atomic_yaml(path, record)
+            except Exception:
+                rollback_linear_issue_thread(layout, slug, thread)
+                raise
+            authorized.append(
+                {"work_id": work_id, "issue": item["issue"], "thread_id": thread["thread_id"]}
+            )
+    return {
+        "client_id": slug,
+        "root_message_id": message_id,
+        "authorized": authorized,
+        "skipped": contract["skipped"],
+    }
 
 
 def validate_start_message_freshness(
@@ -2678,6 +3100,65 @@ def transition_work_locked(
     )
     atomic_yaml(path, record)
     return record
+
+
+def block_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
+    slug = validate_slug(args.slug)
+    with work_lock(layout, slug, args.work_id):
+        path, record = load_work(layout, slug, args.work_id)
+        if not args.no_useful_next_action:
+            raise ClientError("Blocked requires confirmation that no useful next action remains")
+        payload = {
+            "blocked_by": validate_name(args.blocked_by),
+            "already_tried": validate_name(args.already_tried),
+            "impact": validate_name(args.impact),
+            "need": validate_name(args.need),
+            "resume": validate_name(args.resume),
+            "actor": validate_name(args.actor),
+        }
+        fingerprint = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        existing = record.get("blocker", {})
+        if record.get("status") == "blocked":
+            if isinstance(existing, dict) and existing.get("fingerprint") == fingerprint:
+                return record
+            raise ClientError("work is already blocked by a different dependency")
+        payload.update(
+            {
+                "previous_status": str(record.get("status") or "todo"),
+                "at": dt.datetime.now(dt.timezone.utc).isoformat(),
+                "fingerprint": fingerprint,
+            }
+        )
+        record["status"] = "blocked"
+        record["blocker"] = payload
+        work_event(record, "work.blocked", **payload)
+        atomic_yaml(path, record)
+        return record
+
+
+def unblock_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
+    slug = validate_slug(args.slug)
+    with work_lock(layout, slug, args.work_id):
+        path, record = load_work(layout, slug, args.work_id)
+        blocker = record.get("blocker", {})
+        if record.get("status") != "blocked" or not isinstance(blocker, dict):
+            raise ClientError("only blocked work can be unblocked")
+        previous = str(blocker.get("previous_status") or "todo")
+        target = previous if previous not in {"blocked", "done"} else "todo"
+        record["status"] = target
+        record["blocker"] = None
+        work_event(
+            record,
+            "work.unblocked",
+            actor=validate_name(args.actor),
+            result=validate_name(args.result),
+            resumed_status=target,
+            preserved_session=record.get("agent", {}).get("session"),
+        )
+        atomic_yaml(path, record)
+        return record
 
 
 def client_evidence_artifact(
@@ -3414,21 +3895,133 @@ def require_release_controller_enabled(layout: Layout, slug: str) -> dict[str, A
         )
     if controller.get("fail_closed") is not True:
         raise ClientError("release controller configuration is not fail-closed")
-    raise ClientError(
-        "authenticated production approval receipts are not implemented; production remains blocked"
+    if controller.get("merge_method") not in {"github_api", "merge_queue", "github_api_or_merge_queue"}:
+        raise ClientError("release controller merge method is not governed")
+    return controller
+
+
+def write_production_authorization_receipt(
+    layout: Layout,
+    slug: str,
+    work_id: str,
+    *,
+    kind: str,
+    payload: dict[str, Any],
+) -> str:
+    if kind not in {"engineering", "production"}:
+        raise ClientError("release authorization receipt kind is invalid")
+    signed_payload = {
+        "schema_version": 1,
+        "client": validate_slug(slug),
+        "work_id": work_id,
+        "kind": kind,
+        **payload,
+    }
+    canonical = json.dumps(
+        signed_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    receipt = {
+        **signed_payload,
+        "signature": hmac.new(
+            control_plane_audit_key(layout), canonical.encode(), hashlib.sha256
+        ).hexdigest(),
+    }
+    approval_id = str(payload.get("id") or "")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,99}", approval_id):
+        raise ClientError("release authorization id is invalid")
+    relative = (
+        Path("audit") / "release-authorizations" / validate_slug(slug)
+        / f"{work_id}.{kind}.{hashlib.sha256(approval_id.encode()).hexdigest()[:16]}.json"
+    )
+    path = layout.system / relative
+    if path.exists():
+        existing = yaml_document(path)
+        if existing != receipt:
+            raise ClientError("immutable release authorization receipt already exists")
+        return str(relative)
+    atomic_text(
+        path,
+        json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+        0o400,
+    )
+    return str(relative)
+
+
+def verify_production_authorization_receipt(
+    layout: Layout,
+    slug: str,
+    work_id: str,
+    *,
+    kind: str,
+    approval: dict[str, Any],
+) -> None:
+    if kind not in {"engineering", "production"} or not isinstance(approval, dict):
+        raise ClientError("release authorization is invalid")
+    relative = Path(str(approval.get("receipt") or ""))
+    path = (layout.system / relative).resolve()
+    try:
+        path.relative_to(layout.system.resolve())
+    except ValueError as error:
+        raise ClientError("release authorization receipt must stay inside the control plane") from error
+    if not path.is_file() or path.is_symlink() or path.stat().st_mode & 0o777 != 0o400:
+        raise ClientError("immutable release authorization receipt is unavailable")
+    observed = yaml_document(path)
+    signature = str(observed.pop("signature", ""))
+    expected = {
+        "schema_version": 1,
+        "client": validate_slug(slug),
+        "work_id": work_id,
+        "kind": kind,
+        **{key: value for key, value in approval.items() if key != "receipt"},
+    }
+    if observed != expected:
+        raise ClientError("release authorization receipt does not match the work record")
+    canonical = json.dumps(observed, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    calculated = hmac.new(control_plane_audit_key(layout), canonical.encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, calculated):
+        raise ClientError("release authorization receipt signature is invalid")
+
+
+def approval_matches_current_head(record: dict[str, Any], approval: dict[str, Any]) -> bool:
+    repository = record.get("repository", {})
+    return (
+        isinstance(repository, dict)
+        and approval.get("issue") == record.get("linear", {}).get("issue")
+        and approval.get("pull_request") == repository.get("pull_request")
+        and approval.get("head_sha") == repository.get("commit")
+        and bool(approval.get("pull_request"))
+        and bool(approval.get("head_sha"))
     )
 
 
 def approve_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
     require_release_controller_enabled(layout, args.slug)
     path, record = load_work(layout, args.slug, args.work_id)
+    existing = record.get("approvals", {}).get("engineering", {})
+    if record.get("status") == "cto_approved" and isinstance(existing, dict):
+        if existing.get("id") == args.approval_id:
+            if not approval_matches_current_head(record, existing):
+                raise ClientError("approved engineering head no longer matches the current PR head")
+            verify_production_authorization_receipt(
+                layout, args.slug, args.work_id, kind="engineering", approval=existing
+            )
+            return record
+        raise ClientError("a different engineering approval is already recorded")
     if record.get("status") != "ready_for_cto":
         raise ClientError("engineering approval requires READY_FOR_CTO")
     approval = {
         "id": args.approval_id,
-        "actor": args.actor,
+        "actor": validate_name(args.actor),
         "at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "issue": record.get("linear", {}).get("issue"),
+        "pull_request": record.get("repository", {}).get("pull_request"),
+        "head_sha": record.get("repository", {}).get("commit"),
     }
+    if not approval["pull_request"] or not approval["head_sha"]:
+        raise ClientError("engineering approval requires an exact PR and head SHA")
+    approval["receipt"] = write_production_authorization_receipt(
+        layout, args.slug, args.work_id, kind="engineering", payload=approval
+    )
     record.setdefault("approvals", {})["engineering"] = approval
     record["status"] = "cto_approved"
     work_event(record, "work.engineering_approved", **approval)
@@ -3439,18 +4032,42 @@ def approve_work(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
 def authorize_deploy(layout: Layout, args: argparse.Namespace) -> dict[str, Any]:
     require_release_controller_enabled(layout, args.slug)
     path, record = load_work(layout, args.slug, args.work_id)
+    existing_production = record.get("approvals", {}).get("production", {})
+    if record.get("status") == "ready_to_deploy" and isinstance(existing_production, dict):
+        if existing_production.get("id") == args.approval_id:
+            if not approval_matches_current_head(record, existing_production):
+                raise ClientError("approved production head no longer matches the current PR head")
+            verify_production_authorization_receipt(
+                layout, args.slug, args.work_id, kind="production", approval=existing_production
+            )
+            return record
+        raise ClientError("a different production authorization is already recorded")
     if record.get("status") != "cto_approved":
         raise ClientError("deployment authorization requires CTO_APPROVED")
     engineering = record.get("approvals", {}).get("engineering", {})
+    if not isinstance(engineering, dict) or not engineering.get("id"):
+        raise ClientError("deployment authorization requires an engineering approval")
+    if not approval_matches_current_head(record, engineering):
+        raise ClientError("engineering approval does not match the current PR head")
+    verify_production_authorization_receipt(
+        layout, args.slug, args.work_id, kind="engineering", approval=engineering
+    )
     if args.approval_id == engineering.get("id"):
         raise ClientError(
             "deployment authorization must be separate from engineering approval"
         )
     approval = {
         "id": args.approval_id,
-        "actor": args.actor,
+        "actor": validate_name(args.actor),
         "at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "issue": record.get("linear", {}).get("issue"),
+        "pull_request": record.get("repository", {}).get("pull_request"),
+        "head_sha": record.get("repository", {}).get("commit"),
+        "engineering_approval_id": engineering.get("id"),
     }
+    approval["receipt"] = write_production_authorization_receipt(
+        layout, args.slug, args.work_id, kind="production", payload=approval
+    )
     record.setdefault("approvals", {})["production"] = approval
     record["status"] = "ready_to_deploy"
     work_event(record, "work.production_authorized", **approval)
@@ -3796,6 +4413,23 @@ def start_run_locked(
             raise ClientError(
                 "production deploy requires its recorded deployment authorization"
             )
+        expected_commit = str(work.get("repository", {}).get("commit") or "")
+        if not expected_commit or args.commit != expected_commit:
+            raise ClientError("production deploy commit differs from the approved PR head")
+        engineering = work.get("approvals", {}).get("engineering", {})
+        if (
+            not isinstance(engineering, dict)
+            or not isinstance(production, dict)
+            or not approval_matches_current_head(work, engineering)
+            or not approval_matches_current_head(work, production)
+        ):
+            raise ClientError("production deploy approvals do not match the current PR head")
+        verify_production_authorization_receipt(
+            layout, slug, args.work_id, kind="engineering", approval=engineering
+        )
+        verify_production_authorization_receipt(
+            layout, slug, args.work_id, kind="production", approval=production
+        )
         run_dir = layout.client(slug) / "state" / "runs"
         for candidate in run_dir.glob("RUN-*.yaml"):
             existing = yaml_document(candidate)
@@ -4010,6 +4644,11 @@ def command_parser() -> argparse.ArgumentParser:
     authorize_start.add_argument("work_id")
     authorize_start.add_argument("--channel-id", required=True)
     authorize_start.add_argument("--message-id", required=True)
+    authorize_batch = work_sub.add_parser("authorize-batch")
+    authorize_batch.add_argument("slug")
+    authorize_batch.add_argument("--channel-id", required=True)
+    authorize_batch.add_argument("--message-id", required=True)
+    authorize_batch.add_argument("--yes", action="store_true")
     quarantine = work_sub.add_parser("quarantine-legacy")
     quarantine.add_argument("slug")
     quarantine.add_argument("work_id")
@@ -4020,6 +4659,21 @@ def command_parser() -> argparse.ArgumentParser:
     transition.add_argument("work_id")
     transition.add_argument("target")
     transition.add_argument("--actor", required=True)
+    block = work_sub.add_parser("block")
+    block.add_argument("slug")
+    block.add_argument("work_id")
+    block.add_argument("--actor", required=True)
+    block.add_argument("--blocked-by", required=True)
+    block.add_argument("--already-tried", required=True)
+    block.add_argument("--impact", required=True)
+    block.add_argument("--need", required=True)
+    block.add_argument("--resume", required=True)
+    block.add_argument("--no-useful-next-action", action="store_true")
+    unblock = work_sub.add_parser("unblock")
+    unblock.add_argument("slug")
+    unblock.add_argument("work_id")
+    unblock.add_argument("--actor", required=True)
+    unblock.add_argument("--result", required=True)
     changes = work_sub.add_parser("request-changes")
     changes.add_argument("slug")
     changes.add_argument("work_id")
@@ -4195,6 +4849,8 @@ def main(argv: list[str] | None = None) -> int:
                 print_json(update_work_context(layout, args))
             elif args.work_command == "authorize-start":
                 print_json(authorize_work_start(layout, args))
+            elif args.work_command == "authorize-batch":
+                print_json(authorize_linear_batch(layout, args))
             elif args.work_command == "quarantine-legacy":
                 print_json(
                     quarantine_legacy_work(
@@ -4211,6 +4867,10 @@ def main(argv: list[str] | None = None) -> int:
                         layout, args.slug, args.work_id, args.target, actor=args.actor
                     )
                 )
+            elif args.work_command == "block":
+                print_json(block_work(layout, args))
+            elif args.work_command == "unblock":
+                print_json(unblock_work(layout, args))
             elif args.work_command == "request-changes":
                 print_json(request_changes(layout, args))
             elif args.work_command == "evidence":
