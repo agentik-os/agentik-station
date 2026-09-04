@@ -31,7 +31,7 @@
     "factory_pytest": 7,
     "builder_librarian_gates": "7/7 PASS"
   },
-  "file_count": 982,
+  "file_count": 980,
   "files": [
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/ci.yml",
@@ -128,8 +128,6 @@
     "components/agk-tui/hermes/plugins/agentik_os/__init__.py",
     "components/agk-tui/hermes/plugins/agentik_os/agent_registry.py",
     "components/agk-tui/hermes/plugins/agentik_os/commands.py",
-    "components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js",
-    "components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css",
     "components/agk-tui/hermes/plugins/agentik_os/dashboard/manifest.json",
     "components/agk-tui/hermes/plugins/agentik_os/dashboard/plugin_api.py",
     "components/agk-tui/hermes/plugins/agentik_os/domain.py",

@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 982
+Total files: 980
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/workflows/ci.yml`
@@ -97,8 +97,6 @@ Total files: 982
 - `components/agk-tui/hermes/plugins/agentik_os/__init__.py`
 - `components/agk-tui/hermes/plugins/agentik_os/agent_registry.py`
 - `components/agk-tui/hermes/plugins/agentik_os/commands.py`
-- `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js`
-- `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/manifest.json`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/plugin_api.py`
 - `components/agk-tui/hermes/plugins/agentik_os/domain.py`
