@@ -1,7 +1,8 @@
 ## 11.12 — Dependency stack + Hermes platforms
 
 - Pin Hermes `v2026.8.31` and its reviewed commit; install shared executable code with a dedicated `HERMES_HOME` per Zone.
-- Add the pinned operator toolchain: Python 3.14.7, Python 3.13.15 for isolated AI packages, Node.js LTS, npm, GitHub CLI, Vercel CLI, Codex CLI and Composio CLI.
+- Add the pinned operator toolchain: Python 3.14.7, Python 3.13.15 for isolated AI packages, Node.js LTS, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI.
+- Add the end-to-end Station Atlas, universal Hermes/LLM executor rules, Project rule installer, and open resource catalog for the preferred Next.js/Convex/Clerk/Stripe/shadcn/Lucide stack.
 - Verify Node/uv/GitHub release checksums and npm registry integrity; keep external login operator-owned.
 - Install Ponytail through Hermes native plugins; isolate Honcho/Hindsight Python clients; pin Langfuse and Crawl4AI.
 - Add backup + Doctor + receipt to Hermes updates and a bootstrap-enabled weekly verified timer with an explicit opt-out.

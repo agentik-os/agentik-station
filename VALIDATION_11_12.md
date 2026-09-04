@@ -4,7 +4,7 @@ Release claim: **READY_FOR_SETUP**. This is not a production OPERATIONAL claim.
 
 Locally verified release gates:
 
-- 104 Station tests PASS;
+- 109 Station tests PASS;
 - 7/7 Builder/Librarian deterministic gates PASS;
 
 - repository Doctor;
@@ -13,6 +13,7 @@ Locally verified release gates:
 - Bash syntax for `station.sh` and `bootstrap.sh`;
 - dedicated `agk-station` account bootstrap contract;
 - pinned operator-toolchain and checksum/integrity contract;
+- queryable pinned resource catalog and idempotent multi-executor Station rules;
 - Hermes release-commit pin, backup/Doctor update wrapper and receipt contract;
 - Zone-isolated Hermes gateway argv/alias contract;
 - case-insensitive repository path portability;

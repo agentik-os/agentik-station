@@ -1,5 +1,7 @@
 # Repository Map
 
+The full human-readable map is [`atlas.md`](atlas.md). Canonical reusable resources are under `resources/`, universal executor rules under `rules/`, OS sources under `os/`, and the Station kernel under `src/agentik_station/`.
+
 ```text
 agentik-station/
 ├── src/agentik_station/        v11 typed safe-kernel implementation

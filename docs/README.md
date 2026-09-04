@@ -19,4 +19,4 @@ Current documentation is organized by responsibility:
 - `diagrams/` — Mermaid architecture diagrams.
 - `history/` — historical, non-canonical snapshots only.
 
-Start with [`../ARCHITECTURE.md`](../ARCHITECTURE.md), not with history.
+Start with [`../atlas.md`](../atlas.md) for the end-to-end operator map, then [`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the normative architecture. Do not start with history.

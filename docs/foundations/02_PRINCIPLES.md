@@ -260,7 +260,7 @@ Organization + installed OS manifests
 
 ## P22 — Bootstrap privilege is temporary
 
-The Discord bootstrap identity may receive Administrator during initial provisioning when required, but runtime operation must downgrade to least privilege immediately after successful reconciliation and verification.
+The Discord bootstrap identity may receive Administrator during an approved initial provisioning window when narrower permissions are insufficient. The human server owner must remove that elevation after reconciliation; Station reads back the change and verifies least-privilege runtime permissions before acceptance.
 
 ## P23 — Provisioning is idempotent and non-destructive by default
 

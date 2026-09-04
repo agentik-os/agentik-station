@@ -1,6 +1,6 @@
 # Claude Code Contract
 
-Read and obey `AGENTS.md` before any work.
+Read and obey `AGENTS.md` and `rules/STATION_AGENT_RULES.md` before any work.
 
 For installation or hardening, read in this order:
 

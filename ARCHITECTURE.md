@@ -209,9 +209,12 @@ projects/<project-id>/
 ├── PROJECT.json
 ├── PROJECT.yaml
 ├── README.md
+├── .station/STATION_AGENT_RULES.md
+├── AGENTS.md / CLAUDE.md / GEMINI.md
 ├── repos/
 ├── docs/
 ├── knowledge/
+├── resources/
 ├── integrations/
 ├── credentials/
 ├── workspaces/

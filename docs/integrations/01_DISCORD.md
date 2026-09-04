@@ -20,6 +20,8 @@ OS package
 
 Internal NanoTeam specialists stay behind Hermes unless an OS contract explicitly exposes another durable identity.
 
+The human server owner creates/authorizes every Discord application, controls its token and removes any temporary bootstrap elevation. Station/Hermes store the token only in the owning Zone, compile guild desired state and require permission/message readback before acceptance.
+
 ## Provisioning layers
 
 1. Organization topology.

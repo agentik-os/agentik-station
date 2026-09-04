@@ -35,7 +35,7 @@ Options:
   --skip-hermes
   --skip-hermes-auto-update
   --skip-codex
-  --skip-toolchain         skip Python/Node/GitHub/Vercel/Composio/Codex toolchain
+  --skip-toolchain         skip Python/Node/GitHub/Vercel/Composio/Codex/shadcn toolchain
   --skip-agk-tui
   --with-ai-stack        install all optional pinned AI services/clients/plugins
   --yes

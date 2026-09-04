@@ -44,8 +44,10 @@ The Discord Bootstrap Director may receive temporary Administrator permission to
 6. create how-to pin;
 7. perform command readback;
 8. verify mention -> correct profile -> correct OS route;
-9. remove temporary Administrator;
-10. refuse `OPERATIONAL` if least-privilege demotion fails.
+9. pause for the human server owner to remove temporary Administrator/elevation;
+10. read back runtime permissions and refuse `OPERATIONAL` if least-privilege verification fails.
+
+The server owner creates and authorizes each Discord application and controls its token. A bot token cannot mint the independent applications/tokens required for other public OS identities.
 
 ## Virtual specialists
 

@@ -16,8 +16,9 @@ discord_bootstrap:
   privilege:
     bootstrap_permission: administrator-temporary
     maintenance_window_minutes: 30
-    auto_demote_after_verify: true
-    fail_if_demote_fails: true
+    owner_confirmed_removal_required: true
+    auto_demote_after_verify: false
+    fail_if_owner_does_not_confirm_removal: true
 
   hierarchy:
     verify_bot_role_position: true
@@ -27,7 +28,7 @@ discord_bootstrap:
     require_binding_for_exposed_channel: true
     test_message_route: true
     test_mission_thread: true
-    test_runtime_permissions_after_demote: true
+    test_runtime_permissions_after_owner_removes_elevation: true
 
   evidence:
     capture_plan: true

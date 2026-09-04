@@ -12,7 +12,7 @@ flowchart TB
     PLAN --> APPLY[Apply Safe Changes]
     APPLY --> BIND[Persist Team Bindings]
     BIND --> VER[Verify Routes + Permissions]
-    VER --> DEM[Remove Administrator]
+    VER --> DEM[Owner removes temporary Administrator]
     DEM --> SEC[RUNTIME_SECURED]
     SEC --> DOC[Doctor]
     DOC --> E2E[E2E Mission]

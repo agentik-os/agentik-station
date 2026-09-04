@@ -212,6 +212,7 @@ GitHub CLI
 Vercel CLI
 Codex CLI
 Composio CLI
+shadcn CLI
 ```
 
 Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there: each Zone uses its own `/var/lib/station/zones/<zone-id>/hermes`.

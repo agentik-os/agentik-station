@@ -1,8 +1,20 @@
 director: atlas
 members:
-  - architect
-  - forge
-  - sentinel
-  - release-engineer
-  - sre
+  - id: architect
+    owns: architecture-and-contracts
+    hands_off_to: [forge, sentinel]
+  - id: forge
+    owns: implementation-and-local-tests
+    hands_off_to: [sentinel, release-engineer]
+  - id: sentinel
+    owns: independent-security-and-quality-gate
+    may_block: true
+  - id: release-engineer
+    owns: release-ci-staging-and-approved-promotion
+    hands_off_to: [sre]
+  - id: sre
+    owns: runtime-readback-incidents-and-recovery
 parallelism: bounded
+coordination: hermes-mission-graph
+public_surface: atlas-discord-bot
+production_authority: explicit-human-approval

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "lucide",
+  "package": "lucide-react",
+  "version": "1.41.0",
+  "role": "Default React icon library",
+  "install_scope": "project"
+}

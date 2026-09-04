@@ -15,7 +15,7 @@ usage() {
 usage: station_toolchain_install.sh [--plan|--install|--check] [--without-codex] [--without-hermes]
 
 Installs pinned, user-local Python, Node.js, GitHub CLI, Vercel CLI,
-Codex CLI and Composio CLI. Hermes is installed separately by bootstrap.sh.
+Codex CLI, Composio CLI and shadcn CLI. Hermes is installed separately by bootstrap.sh.
 Account login and external connections are never performed automatically.
 USAGE
 }
@@ -60,6 +60,7 @@ Station pinned operator toolchain
   Vercel CLI:           ${VERCEL_CLI_VERSION}
   Codex CLI:            $([[ "$INSTALL_CODEX" -eq 1 ]] && printf '%s' "$CODEX_CLI_VERSION" || printf 'skipped')
   Composio CLI:         ${COMPOSIO_CLI_VERSION}
+  shadcn CLI:           ${SHADCN_CLI_VERSION}
 
 Install root: ${STATION_HOME}/.local
 Authentication: NOT PERFORMED
@@ -116,6 +117,7 @@ check_toolchain() {
     check_pinned_tool codex "$tool_path/codex" "$CODEX_CLI_VERSION" --version || failures=$((failures + 1))
   fi
   check_pinned_tool composio "$tool_path/composio" "$COMPOSIO_CLI_VERSION" --version || failures=$((failures + 1))
+  check_pinned_tool shadcn "$tool_path/shadcn" "$SHADCN_CLI_VERSION" --version || failures=$((failures + 1))
   if [[ "$CHECK_HERMES" -eq 1 ]]; then
     if command -v hermes >/dev/null 2>&1 || [[ -x "$tool_path/hermes" ]]; then
       check_tool hermes "$(command -v hermes 2>/dev/null || printf '%s' "$tool_path/hermes")" version \
@@ -246,8 +248,10 @@ verify_npm_integrity() {
 
 install_node_clis() {
   verify_npm_integrity vercel "$VERCEL_CLI_VERSION" "$VERCEL_CLI_INTEGRITY"
+  verify_npm_integrity shadcn "$SHADCN_CLI_VERSION" "$SHADCN_CLI_INTEGRITY"
   as_station "$tool_path/npm" install --global "npm@${NPM_VERSION}"
   as_station "$tool_path/npm" install --global "vercel@${VERCEL_CLI_VERSION}"
+  as_station "$tool_path/npm" install --global "shadcn@${SHADCN_CLI_VERSION}"
   if [[ "$INSTALL_CODEX" -eq 1 ]]; then
     verify_npm_integrity @openai/codex "$CODEX_CLI_VERSION" "$CODEX_CLI_INTEGRITY"
     as_station "$tool_path/npm" install --global "@openai/codex@${CODEX_CLI_VERSION}"

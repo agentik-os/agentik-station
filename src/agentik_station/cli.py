@@ -402,6 +402,62 @@ def cmd_module_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _resource_catalog() -> dict[str, Any]:
+    from .resources import load_resource_catalog
+
+    return load_resource_catalog(repository_root() / "resources" / "CATALOG.json")
+
+
+def cmd_resource_list(args: argparse.Namespace) -> int:
+    catalog = _resource_catalog()
+    if args.json:
+        print(json.dumps(catalog, indent=2, sort_keys=True))
+    else:
+        for item in catalog["resources"]:
+            print(f"resource {item['id']}: {item['kind']} {item.get('package', '')}@{item.get('version', '')}")
+        for item in catalog["stacks"]:
+            marker = " (default)" if item["id"] == catalog["default_stack"] else ""
+            print(f"stack {item['id']}{marker}: {item['purpose']}")
+        print("POLICY: preferred recipes are open to reviewed alternative stacks")
+    return 0
+
+
+def cmd_resource_show(args: argparse.Namespace) -> int:
+    from .resources import find_resource
+
+    print(json.dumps(find_resource(_resource_catalog(), args.id), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_resource_stack_plan(args: argparse.Namespace) -> int:
+    from .resources import build_stack_plan
+
+    print(json.dumps(build_stack_plan(_resource_catalog(), args.id), indent=2, sort_keys=True))
+    return 0
+
+
+def _canonical_agent_rules() -> str:
+    path = repository_root() / "rules" / "STATION_AGENT_RULES.md"
+    if path.is_symlink() or not path.is_file():
+        raise StationError(f"Canonical Station rules are missing or unsafe: {path}")
+    return path.read_text(encoding="utf-8")
+
+
+def cmd_rules_show(_: argparse.Namespace) -> int:
+    print(_canonical_agent_rules(), end="")
+    return 0
+
+
+def cmd_rules_install(args: argparse.Namespace) -> int:
+    from .agent_rules import install_agent_rules
+
+    if not args.plan and os.geteuid() == 0:
+        raise StationError("Install repository rules as the owning Project user, not root; use --plan for root inspection")
+    payload = install_agent_rules(Path(args.repo), _canonical_agent_rules(), plan_only=args.plan)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_provider_status(args: argparse.Namespace) -> int:
     payload = {
         "Hermes": {"binary": shutil.which("hermes"), "readiness": "UNKNOWN_UNTIL_DOCTOR_AND_PROFILE_READBACK"},
@@ -972,6 +1028,27 @@ def build_parser() -> argparse.ArgumentParser:
     module_status = module_sub.add_parser("status")
     module_status.add_argument("--json", action="store_true")
     module_status.set_defaults(handler=cmd_module_status)
+
+    resource = sub.add_parser("resource", help="Inspect versioned Station resources and stack recipes")
+    resource_sub = resource.add_subparsers(dest="resource_command", required=True)
+    resource_list = resource_sub.add_parser("list")
+    resource_list.add_argument("--json", action="store_true")
+    resource_list.set_defaults(handler=cmd_resource_list)
+    resource_show = resource_sub.add_parser("show")
+    resource_show.add_argument("--id", required=True)
+    resource_show.set_defaults(handler=cmd_resource_show)
+    resource_plan = resource_sub.add_parser("stack-plan")
+    resource_plan.add_argument("--id", default="web-product")
+    resource_plan.set_defaults(handler=cmd_resource_stack_plan)
+
+    rules = sub.add_parser("rules", help="Inspect or install Station rules for LLM coding executors")
+    rules_sub = rules.add_subparsers(dest="rules_command", required=True)
+    rules_show = rules_sub.add_parser("show")
+    rules_show.set_defaults(handler=cmd_rules_show)
+    rules_install = rules_sub.add_parser("install")
+    rules_install.add_argument("--repo", required=True)
+    rules_install.add_argument("--plan", action="store_true")
+    rules_install.set_defaults(handler=cmd_rules_install)
 
     provider = sub.add_parser("provider")
     provider_sub = provider.add_subparsers(dest="provider_command", required=True)

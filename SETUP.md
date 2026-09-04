@@ -52,14 +52,17 @@ Until this exists, desired OS packages remain `NOT_INSTALLED`.
 
 For every OS instance that is actually installed:
 
-- enroll one dedicated Nano Director Discord bot identity and token;
+- have a human server owner create one dedicated Nano Director Discord application/bot, authorize it to the guild, and retain control of token rotation;
+- enter the token only through `station platform setup --zone <zone-id> --platform discord` (the Zone-isolated Hermes wizard), never a CLI argument or Git file;
 - provision the dedicated channel, roles, permissions, commands, pins, and bindings;
-- grant temporary bootstrap administration only for the provisioning transaction;
-- remove administration and verify least-privilege runtime permissions;
+- grant temporary bootstrap administration only for an approved maintenance window and only when narrower permissions are insufficient;
+- require the human server owner to remove the elevation, then read back and verify least-privilege runtime permissions;
 - configure semantic Mission Progress Cards instead of raw tool noise;
 - use Components V2-compatible layouts, short action labels, select menus/modals for complex input, and linked details/evidence/graphs;
 - verify command registration, message creation/edit, interactions, authorization, rate-limit recovery, and external readback in a test guild;
 - keep Bot-to-Bot collaboration inside Hermes/AGK rather than recursive Discord auto-replies.
+
+The bot token cannot create other Discord applications or mint their tokens. Release 11.12 does not yet claim the full guild topology provisioner is externally accepted; use a test guild and keep the module `INSTALLABLE` until its create/edit/permission/command/readback gate passes.
 
 ## Gate 6 — Backup and recovery
 

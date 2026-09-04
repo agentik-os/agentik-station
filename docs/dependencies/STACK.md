@@ -17,6 +17,7 @@
 | Vercel CLI | 59.11.2 | pinned npm package + locked registry integrity |
 | Codex CLI | 0.153.2 | pinned npm package + locked registry integrity |
 | Composio CLI | 0.4.0 | checksum-locked official installer + verified bundle, pinned release, no automatic login/plugin setup |
+| shadcn CLI | 4.21.0 | pinned npm package + locked registry integrity; components remain Project-owned source |
 | Hermes Agent | v2026.8.31 / reviewed commit | checksum-locked upstream installer executed as `agk-station`, shared launcher, isolated Zone homes |
 
 ```bash
@@ -26,6 +27,17 @@ station deps toolchain-check
 ```
 
 Installation is not authentication. Complete `gh auth login`, `vercel login`, `composio login` plus `composio setup --target auto`, Codex sign-in and `hermes setup` only for the principals that need them.
+
+## Project resource recipe
+
+`resources/CATALOG.json` records the preferred, open `web-product` baseline: Next.js, React, Convex, Clerk, Stripe, Tailwind CSS, shadcn/ui and Lucide. Inspect the exact pinned plan before changing an owning Project repository:
+
+```bash
+station resource list
+station resource stack-plan --id web-product
+```
+
+The recipe does not create provider accounts, write secrets or force this stack on Projects with a different declared contract.
 
 ## Optional components
 

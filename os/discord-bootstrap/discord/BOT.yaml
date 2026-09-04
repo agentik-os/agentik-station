@@ -2,3 +2,5 @@ identity: dedicated
 profile: discord-bootstrap-director
 admin_bootstrap: temporary-only
 runtime_privilege: least-privilege
+application_and_token_enrollment: human-owned
+elevation_removal: human-owner-confirmed

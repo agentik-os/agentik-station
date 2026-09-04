@@ -39,9 +39,16 @@
     {
       "id": "operator-toolchain",
       "maturity": "INSTALLABLE",
-      "claim": "The bootstrap can install pinned user-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI and Composio CLI with checksum or registry-integrity verification. External account authentication is never inferred.",
-      "binary_probes": ["python-latest", "python-ai", "node", "gh", "vercel", "codex", "composio"],
+      "claim": "The bootstrap can install pinned user-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI with checksum or registry-integrity verification. External account authentication is never inferred.",
+      "binary_probes": ["python-latest", "python-ai", "node", "gh", "vercel", "codex", "composio", "shadcn"],
       "next_repair_action": "Run station deps toolchain-install, then toolchain-check and complete least-privilege login/readback for each provider actually needed."
+    },
+    {
+      "id": "resource-catalog",
+      "maturity": "INSTALLABLE",
+      "claim": "A versioned resource catalog and exact preferred web-product stack plan are queryable by Hermes and coding executors; no Project dependency or external provider is claimed configured by catalog presence.",
+      "binary_probes": ["shadcn"],
+      "next_repair_action": "Run station resource stack-plan in an owning Project repository, review/apply its pins, then complete provider setup and tests."
     },
     {
       "id": "discord-experience",

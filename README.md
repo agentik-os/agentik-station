@@ -6,6 +6,8 @@ Agentik Station is the Linux control plane and isolated execution foundation for
 **Posture:** final repository candidate  
 **Current verified claim:** the repository can compile a typed plan and reconcile the Station Linux foundation, immutable release, Zones, Projects, desired OS declarations, receipts, and Doctor state to `READY_FOR_SETUP` on the supported Ubuntu/Debian provider. It does **not** claim that Hermes, Discord, Composio, remote Fleet reconciliation, encrypted off-Host backup, or any OS package is already operational.
 
+**Start with [`atlas.md`](atlas.md)** for the full map: Hermes central brain, filesystem, Zones/Projects, OS Factory, resources, Discord bootstrap, DevOps team, installation, updates and acceptance.
+
 ## One-repository direction
 
 The target workflow is intentionally simple:
@@ -39,7 +41,7 @@ The repository is therefore both:
 1. the canonical architecture and policy source;
 2. the executable desired state for the supported Station Kernel;
 3. the source used to build immutable Station releases;
-4. the future compiler for Hermes profiles, OS packages, Discord surfaces, Composio bindings, and Fleet operations.
+4. the implemented OS→Hermes Profile Distribution compiler and the governed source for maturing Discord, Composio and Fleet reconcilers.
 
 
 ## One-command host bootstrap
@@ -58,7 +60,7 @@ sudo ./bootstrap.sh --mode team --organization organization-alpha --project plat
 
 The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs the pinned operator toolchain, installs the reviewed Hermes release in `/opt/station/tools/hermes/current`, and invokes the same typed Station plan/apply workflow. The shared Hermes launcher can execute for every Zone, but configuration, credentials, sessions and bot state remain isolated in that Zone's `HERMES_HOME`. Source and user tooling stay out of `/root`; external authentication remains an explicit setup gate.
 
-The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI and Composio CLI. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock).
+The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock).
 
 To stage every optional AI component as well:
 
@@ -126,7 +128,7 @@ Human navigation stays small:
 │   ├── 5_PROJECTS/
 │   ├── 6_FACTORY/
 │   └── 7_LAB/
-├── 3_SHARED/              non-secret, read-only distributions/assets
+├── 3_SHARED/              non-secret, read-only distributions/assets/resources
 └── 4_ARCHIVE/
 ```
 
@@ -214,10 +216,10 @@ Read [`INSTALL.md`](INSTALL.md) before applying and [`SETUP.md`](SETUP.md) befor
 | Zone runtime | VERIFIED | rootless negative-isolation runtime gate pending |
 | Hermes runtime/compiler | INSTALLABLE | profile/gateway/plugin/fresh-session gate pending |
 | Operator toolchain | INSTALLABLE | GitHub/Vercel/Composio/Codex login and scoped readback pending |
+| Resource catalog | INSTALLABLE | Project dependency/provider setup and tests pending |
 | Hermes platforms | INSTALLABLE | per-Zone platform enrollment and live message readback pending |
 | Discord Experience | INSTALLABLE | dedicated test-guild create/edit/interactions/readback pending |
 | Composio plane | INSTALLABLE | OAuth/session/MCP/trigger/revocation gate pending |
-| Rootless runtime | INSTALLABLE | live Podman negative-isolation gate pending |
 | OS Factory | INSTALLABLE | real Librarian→Builder→Hermes→recovery acceptance pending |
 | Fleet Control | INSTALLABLE | remote disposable-Host drift/rollback gate pending |
 | Backup/recovery | INSTALLABLE | off-Host backup + destructive restore rehearsal pending |
@@ -227,6 +229,7 @@ See [`modules/catalog.json`](modules/catalog.json) for machine-readable claims a
 
 ## Documentation map
 
+- [`atlas.md`](atlas.md): complete end-to-end operator atlas and setup sequence.
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete final architecture.
 - [`INSTALL.md`](INSTALL.md): typed plan/apply and Host-role workflows.
 - [`SETUP.md`](SETUP.md): external enrollment and acceptance gates.
@@ -268,6 +271,7 @@ Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATI
 ## Hermes platforms + optional deps
 
 - Verify the pinned toolchain: `station deps toolchain-check`
+- Inspect reviewed resources/default stack: `station resource list` and `station resource stack-plan`
 - Update Hermes with backup, Doctor and receipt: `station hermes update`
 - The weekly backup/Doctor/receipt-gated updater is enabled by bootstrap; opt out with `--skip-hermes-auto-update`, or enable it later with `sudo station deps enable-auto-update`.
 - Configure a Zone bot on any supported surface: `sudo station platform setup --zone <zone-id> --platform <name>`

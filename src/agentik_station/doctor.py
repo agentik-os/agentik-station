@@ -103,6 +103,8 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "SETUP.md",
         "SECURITY.md",
         "AGENTS.md",
+        "GEMINI.md",
+        "atlas.md",
         "CHANGELOG_V11.md",
         "VALIDATION.md",
         "FILE_INDEX.md",
@@ -117,6 +119,9 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "scripts/station_hermes_update.sh",
         "config/versions.lock",
         "config/deps/stack.yaml",
+        "config/agent-runtime-policy.json",
+        "rules/STATION_AGENT_RULES.md",
+        "resources/CATALOG.json",
         "src/agentik_station/hermes_platforms.py",
         "installer/install_station.py",
         "src/agentik_station/installer.py",
@@ -245,6 +250,22 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
             "CODEX_CLI_VERSION",
             "COMPOSIO_CLI_VERSION",
             "COMPOSIO_INSTALL_SHA256",
+            "SHADCN_CLI_VERSION",
+            "SHADCN_CLI_INTEGRITY",
+            "NEXTJS_VERSION",
+            "REACT_VERSION",
+            "CONVEX_VERSION",
+            "CLERK_NEXTJS_VERSION",
+            "STRIPE_NODE_VERSION",
+            "STRIPE_JS_VERSION",
+            "LUCIDE_REACT_VERSION",
+            "TAILWINDCSS_VERSION",
+            "TYPESCRIPT_VERSION",
+            "ESLINT_VERSION",
+            "ESLINT_CONFIG_NEXT_VERSION",
+            "TYPES_NODE_VERSION",
+            "TYPES_REACT_VERSION",
+            "TYPES_REACT_DOM_VERSION",
         }
         missing_pins = sorted(required_pins - pins.keys())
         if missing_pins or any(not pins[key] for key in required_pins & pins.keys()):
@@ -957,6 +978,13 @@ def station_doctor(
                     )
                     continue
                 _check_directory(result, project / "credentials", f"project:{zone_id}:{project_id}:credentials")
+                _check_directory(result, project / "resources", f"project:{zone_id}:{project_id}:resources")
+                _check_regular(
+                    result,
+                    project / ".station" / "STATION_AGENT_RULES.md",
+                    f"project:{zone_id}:{project_id}:agent-rules",
+                )
+                _check_regular(result, project / "AGENTS.md", f"project:{zone_id}:{project_id}:agents-entrypoint")
                 _check_directory(result, project_state, f"project:{zone_id}:{project_id}:state")
                 if (project / "credentials").exists():
                     _check_mode(

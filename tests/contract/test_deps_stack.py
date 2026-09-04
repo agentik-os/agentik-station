@@ -21,6 +21,13 @@ def test_versions_lock_pins_hermes_and_deps():
         "CODEX_CLI_VERSION=0.153.2",
         "COMPOSIO_CLI_VERSION=0.4.0",
         "COMPOSIO_INSTALL_SHA256=7a63922b75d206d16c790cdf683edac23f536903a28e13e94bfe3e55690b7a63",
+        "SHADCN_CLI_VERSION=4.21.0",
+        "SHADCN_CLI_INTEGRITY=sha512-UU2mFNusW8C5rvadKdH69vERYZqUlOOlXBcf0MYhYLdTGP6DPti7X4qovCu+RTfCqsAgq/T+YfE0Vnttxh9aiw==",
+        "NEXTJS_VERSION=16.3.4",
+        "CONVEX_VERSION=1.45.0",
+        "CLERK_NEXTJS_VERSION=7.9.1",
+        "STRIPE_NODE_VERSION=22.6.1",
+        "LUCIDE_REACT_VERSION=1.41.0",
         "LANGFUSE_RELEASE=v4.28.1",
         "CRAWL4AI_PYTHON_VERSION=0.9.3",
         "PONYTAIL_RELEASE=v4.9.0",
@@ -55,7 +62,7 @@ def test_catalog_includes_new_modules():
     import json
     catalog = json.loads((ROOT / "modules" / "catalog.json").read_text())
     ids = {m["id"] for m in catalog["modules"]}
-    for mid in ("hermes-platforms", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "tigervnc"):
+    for mid in ("hermes-platforms", "resource-catalog", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "tigervnc"):
         assert mid in ids
 
 
@@ -67,3 +74,6 @@ def test_cli_registers_deps_and_hermes_update():
     parser.parse_args(["deps", "toolchain-plan"])
     parser.parse_args(["deps", "toolchain-check"])
     parser.parse_args(["platform", "setup", "--zone", "organization-alpha-dev", "--platform", "slack", "--plan"])
+    parser.parse_args(["resource", "list"])
+    parser.parse_args(["resource", "stack-plan", "--id", "web-product"])
+    parser.parse_args(["rules", "install", "--repo", "/tmp/example", "--plan"])

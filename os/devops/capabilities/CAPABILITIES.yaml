@@ -11,5 +11,13 @@ capabilities:
     default: deny-unless-granted
   - id: deployment.production.approval
     default: deny-unless-granted
+  - id: deployment.production.apply
+    default: deny-unless-granted
+  - id: security.review
+    default: deny-unless-granted
+  - id: runtime.observe
+    default: deny-unless-granted
+  - id: recovery.execute
+    default: deny-unless-granted
   - id: evidence.write
     default: deny-unless-granted
