@@ -1,6 +1,6 @@
 project:
   id: example-project
-  organization_id: gareth
+  organization_id: operator
   trust_zone: personal-projects
   sensitivity: private
   environment: development
@@ -9,7 +9,7 @@ project:
   profile_id: project-example-director
   board_id: project-example
   os_bindings: [devops-os]
-  secret_namespace: gareth/projects/example-project
-  memory_namespace: gareth/projects/example-project
+  secret_namespace: operator/projects/example-project
+  memory_namespace: operator/projects/example-project
   allowed_roots:
     - /srv/station/zones/personal-projects/projects/example-project

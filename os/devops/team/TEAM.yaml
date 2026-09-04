@@ -1,0 +1,8 @@
+director: atlas
+members:
+  - architect
+  - forge
+  - sentinel
+  - release-engineer
+  - sre
+parallelism: bounded

@@ -1,11 +1,11 @@
 # Fleet Model
 
 ```text
-Gareth Station / Fleet Controller
+Operator Station / Fleet Controller
 ├── local trust zones
 └── client registry (metadata only)
-    ├── client-a: stable @ station-release-X
-    ├── client-b: stable @ station-release-Y
+    ├── organization-alpha: stable @ station-release-X
+    ├── organization-beta: stable @ station-release-Y
     └── client-n: maintenance-window / health / evidence refs
 ```
 
@@ -32,4 +32,4 @@ Gareth Station / Fleet Controller
 
 ## Cross-node operations
 
-Use explicit authenticated control APIs/events or client-approved remote execution. Never rely on shared home directories or shared `.env` files.
+Use explicit authenticated control APIs/events or organization-alphapproved remote execution. Never rely on shared home directories or shared `.env` files.

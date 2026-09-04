@@ -1,0 +1,3 @@
+scope: zone-and-project-bounded
+provenance_required: true
+freshness_policy: source-dependent

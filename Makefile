@@ -1,7 +1,7 @@
 .PHONY: plan doctor test factory validate
 
 plan:
-	./station plan --host-id gareth-core-01 --role core
+	./station plan --host-id station-core-01 --role core
 
 doctor:
 	PYTHONDONTWRITEBYTECODE=1 ./station doctor --repo

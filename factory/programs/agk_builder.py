@@ -122,7 +122,7 @@ def package(root,out,recovery=False):
 
 def doctor_pack():
     here=Path(__file__).resolve().parents[1]
-    required=['00_CANONICAL/AGK_OS_CONTRACT.md','../packages/os/builder-os/README.md','../packages/os/librarian-os/README.md','programs/librarian.py','05_OS_TEMPLATE/MANIFEST.example.json']
+    required=['00_CANONICAL/AGK_OS_CONTRACT.md','../os/builder/README.md','../os/librarian/README.md','programs/librarian.py','../os/_template/MANIFEST.example.json']
     missing=[x for x in required if not (here/x).exists()]
     print('PACK DOCTOR')
     if missing:

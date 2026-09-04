@@ -18,7 +18,7 @@ An OS doctor must check at minimum:
 - hooks/verification policy
 - secret references without printing secret values
 - rollback target availability
-- recovery artifact checksum
+- recovery artifact integrity record
 
 Builder invokes Hermes-native diagnostics where available (`hermes doctor`, hooks doctor, profile/gateway checks) and adds OS-specific checks.
 

@@ -1,6 +1,6 @@
 # Tenancy and Boundaries — v6
 
-## Gareth-owned workloads
+## Operator-owned workloads
 
 May share one physical VPS only when separated into explicit trust zones with separate Unix users/HERMES_HOME/storage/secret namespaces. Prompt/profile separation alone is insufficient for hard boundaries.
 

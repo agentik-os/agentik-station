@@ -32,16 +32,16 @@ def test_canonical_architecture_uses_zone_and_simple_numbering() -> None:
     text = "\n".join((ROOT / path).read_text() for path in ["README.md", "ARCHITECTURE.md", "AGENTS.md"])
     assert re.search(r"\bZone\b", text)
     assert not re.search(r"\bCells?\b", text, re.IGNORECASE)
-    for name in ["1_SYSTEM", "2_PRIVATE", "3_AGENTIK", "4_CLIENTS", "5_PROJECTS", "6_FACTORY", "7_LAB"]:
+    for name in ["1_SYSTEM", "2_PRIVATE", "3_AGENTIK", "4_ORGANIZATIONS", "5_PROJECTS", "6_FACTORY", "7_LAB"]:
         assert name in text
     assert "10_CELLS" not in text and "20_SHARED" not in text
 
 
 def test_os_and_module_catalogs_do_not_claim_scaffolds_operational() -> None:
     modules = json.loads((ROOT / "modules" / "catalog.json").read_text())
-    packages = json.loads((ROOT / "packages" / "os" / "CATALOG.json").read_text())
+    packages = json.loads((ROOT / "os" / "CATALOG.json").read_text())
     assert all(item["maturity"] != "OPERATIONAL" for item in modules["modules"] if item["id"] != "station-kernel")
-    assert all(item["maturity"] == "SCAFFOLDED" for item in packages["packages"])
+    assert all(item["maturity"] == "INSTALLABLE" for item in packages["packages"])
     assert all(item["runtime_state"] == "NOT_INSTALLED" for item in packages["packages"])
 
 

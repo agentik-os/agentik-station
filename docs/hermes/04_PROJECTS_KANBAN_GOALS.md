@@ -31,7 +31,7 @@ Good:
 
 ```text
 agentik-platform
-moonbase-platform
+organization-alpha-platform
 personal-life-system
 ```
 

@@ -21,4 +21,4 @@ Station v6 also activates normalized copies:
 3. Station context envelope and trust-zone requirement added;
 4. Builder code capability inherits Engineering Constitution;
 5. Hermes update compatibility is owned by Station Maintainer;
-6. source pack remains unchanged so its original checksums/provenance remain inspectable.
+6. source pack remains unchanged so its original provenance remains inspectable in the preserved audit/history materials.

@@ -1,0 +1,7 @@
+bot:
+  dedicated: true
+  nano_director: atlas
+commands:
+  - /status
+  - /plan
+  - /doctor

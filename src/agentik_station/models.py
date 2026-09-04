@@ -19,7 +19,7 @@ from .identifiers import (
     validate_version,
 )
 
-ROLES = {"core", "client", "project", "lab", "worker"}
+ROLES = {"core", "team", "project", "lab", "worker"}
 
 
 def new_operation_id() -> str:
@@ -51,8 +51,8 @@ class SeedSpec:
 
     def __post_init__(self) -> None:
         category = self.category.upper()
-        if category not in {"CLIENTS", "PROJECTS"}:
-            raise ValidationError("Seed category must be CLIENTS or PROJECTS")
+        if category not in {"ORGANIZATIONS", "PROJECTS"}:
+            raise ValidationError("Seed category must be ORGANIZATIONS or PROJECTS")
         object.__setattr__(self, "category", category)
         object.__setattr__(self, "name", validate_identifier(self.name, "seed name"))
         object.__setattr__(self, "environment", normalize_deploy_environment(self.environment))
@@ -79,7 +79,7 @@ class InstallSpec:
     schema_version: int = SPEC_SCHEMA_VERSION
     release_version: str = PRODUCT_VERSION
     operation_id: str = ""
-    host_id: str = "gareth-core-01"
+    host_id: str = "station-core-01"
     role: str = "core"
     install_system_packages: bool = True
     configure_fail2ban: bool = True
@@ -102,8 +102,8 @@ class InstallSpec:
             for value in (self.install_system_packages, self.configure_fail2ban, self.enable_doctor_timer)
         ):
             raise ValidationError("InstallSpec feature switches must be booleans")
-        if self.role == "client" and self.seed and self.seed.category != "CLIENTS":
-            raise ValidationError("A client Host may only seed a CLIENTS Zone")
+        if self.role == "team" and self.seed and self.seed.category != "ORGANIZATIONS":
+            raise ValidationError("A team Host may only seed a ORGANIZATIONS Zone")
         if self.role == "project" and self.seed and self.seed.category != "PROJECTS":
             raise ValidationError("A project Host may only seed a PROJECTS Zone")
 
@@ -140,7 +140,7 @@ class InstallSpec:
             schema_version=schema_version,
             release_version=str(value.get("release_version", PRODUCT_VERSION)),
             operation_id=str(value.get("operation_id") or ""),
-            host_id=str(value.get("host_id", "gareth-core-01")),
+            host_id=str(value.get("host_id", "station-core-01")),
             role=str(value.get("role", "core")),
             install_system_packages=_strict_bool(value.get("install_system_packages"), "install_system_packages", True),
             configure_fail2ban=_strict_bool(value.get("configure_fail2ban"), "configure_fail2ban", True),
@@ -204,7 +204,7 @@ class ZoneSpec:
             "SYSTEM": {"system"},
             "PRIVATE": {"private"},
             "AGENTIK": {"development", "staging", "production"},
-            "CLIENTS": {"development", "staging", "production"},
+            "ORGANIZATIONS": {"development", "staging", "production"},
             "PROJECTS": {"development", "staging", "production"},
             "FACTORY": {"factory"},
             "LAB": {"lab"},
@@ -218,4 +218,4 @@ class ZoneSpec:
     def zone_id(self) -> str:
         from .identifiers import environment_slug
 
-        return f"{self.name}-{environment_slug(self.environment)}" if self.category in {"CLIENTS", "PROJECTS"} else self.name
+        return f"{self.name}-{environment_slug(self.environment)}" if self.category in {"ORGANIZATIONS", "PROJECTS"} else self.name

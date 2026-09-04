@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "source_maturity": "INSTALLABLE",
+  "runtime_state": "NOT_INSTALLED",
+  "claim": "Canonical source passes Station OS Contract Doctor and can compile to a Hermes distribution; live runtime acceptance remains separate."
+}

@@ -1,0 +1,8 @@
+checks:
+  - contract
+  - hermes-profile
+  - tools
+  - credentials-references
+  - discord-binding
+  - evidence
+  - recovery-readiness

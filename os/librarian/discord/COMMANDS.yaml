@@ -1,0 +1,31 @@
+bot:
+  dedicated: true
+  nano_director: oracle
+commands:
+  - /research
+  - /book
+  - /librarian
+  - /bestseller
+  - /web-deep
+  - /experts
+  - /contrarian
+  - /sources
+  - /verify-source
+  - /principles
+  - /contradictions
+  - /best-inputs
+  - /handoff
+  - /prior
+  - /prior-verify
+  - /discover
+  - /canonical
+  - /latest
+  - /papers
+  - /docs
+  - /github
+  - /community
+  - /triangulate
+  - /factcheck
+  - /knowledge-gap
+  - /refresh-knowledge
+  - /research-to-os

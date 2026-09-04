@@ -1,4 +1,0 @@
-id: fleet-operator-os
-version: 1.0.0
-director: fleet-operator
-remote_transport: tailscale-ssh

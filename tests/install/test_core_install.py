@@ -15,7 +15,7 @@ def test_core_host_reconciles_all_seven_categories_without_false_os_install_clai
     paths = LayoutPaths.under(tmp_path / "root")
     spec = InstallSpec(
         operation_id="op-core-temp-install",
-        host_id="gareth-core-01",
+        host_id="station-core-01",
         role="core",
         install_system_packages=False,
         configure_fail2ban=False,
@@ -28,7 +28,7 @@ def test_core_host_reconciles_all_seven_categories_without_false_os_install_clai
         "1_SYSTEM",
         "2_PRIVATE",
         "3_AGENTIK",
-        "4_CLIENTS",
+        "4_ORGANIZATIONS",
         "5_PROJECTS",
         "6_FACTORY",
         "7_LAB",
@@ -39,7 +39,7 @@ def test_core_host_reconciles_all_seven_categories_without_false_os_install_clai
         "1_SYSTEM/station-maintainer",
         "1_SYSTEM/discord-bootstrap",
         "1_SYSTEM/fleet-operator",
-        "2_PRIVATE/gareth",
+        "2_PRIVATE/operator",
         "3_AGENTIK/dev",
         "6_FACTORY/os",
         "7_LAB/hermes-edge",

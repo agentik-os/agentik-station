@@ -1,0 +1,7 @@
+bot:
+  dedicated: true
+  nano_director: fleet-operator
+commands:
+  - /status
+  - /plan
+  - /doctor

@@ -1,0 +1,3 @@
+install: compile-to-hermes
+upgrade: candidate-before-stable
+uninstall: preserve-evidence-and-recovery

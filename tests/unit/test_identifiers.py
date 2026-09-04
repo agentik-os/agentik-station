@@ -12,7 +12,7 @@ from agentik_station.identifiers import (
 
 @pytest.mark.parametrize(
     "value",
-    ["moonbase", "gareth-core-01", "project9", "a"],
+    ["organization-alpha", "station-core-01", "project9", "a"],
 )
 def test_identifier_accepts_canonical_values(value: str) -> None:
     assert validate_identifier(value) == value
@@ -23,12 +23,12 @@ def test_identifier_accepts_canonical_values(value: str) -> None:
     [
         "../escape",
         "../../escape",
-        "moonbase/prod",
-        "Moonbase",
-        "-moonbase",
-        "moonbase-",
+        "organization-alpha/prod",
+        "Example Client",
+        "-organization-alpha",
+        "organization-alpha-",
         "moon base",
-        "moonbase;touch-pwn",
+        "organization-alpha;touch-pwn",
         "ｍoonbase",
         "équipe",
         "a" * 49,
@@ -40,8 +40,8 @@ def test_identifier_rejects_traversal_shell_unicode_and_ambiguous_values(value: 
 
 
 def test_remote_target_defaults_to_strict_valid_destination() -> None:
-    target = validate_remote_target("operator@moonbase-prod-01", 2222)
-    assert target.destination == "operator@moonbase-prod-01"
+    target = validate_remote_target("operator@organization-alpha-prod-01", 2222)
+    assert target.destination == "operator@organization-alpha-prod-01"
     assert target.port == 2222
 
 

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "rootless-runtime",
+  "maturity": "INSTALLABLE",
+  "claim": "Per-Zone Podman storage/config/policy roots and subordinate-ID collision checks are reconciled; negative runtime isolation acceptance is pending.",
+  "binary_probes": [],
+  "next_repair_action": "Run per-Zone Podman workloads and negative cross-Zone filesystem/network/mount tests."
+}

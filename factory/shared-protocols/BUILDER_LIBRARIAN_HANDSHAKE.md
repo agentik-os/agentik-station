@@ -19,4 +19,4 @@ sequenceDiagram
   L-->>B: delta handoff
 ```
 
-The handoff is versioned. Builder records the handoff checksum in release evidence so later research refreshes do not silently change an already-released OS.
+The handoff is versioned. Builder records the handoff version/provenance record in release evidence so later research refreshes do not silently change an already-released OS.

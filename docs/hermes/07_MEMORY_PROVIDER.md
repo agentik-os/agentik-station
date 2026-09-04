@@ -77,7 +77,7 @@ Notion:
 
 ## Isolation
 
-Gareth private Life memory should not automatically be visible to Business or clients.
+Operator private Life memory should not automatically be visible to Business or clients.
 
 Client memory never crosses organizations except through explicit contracts / sanitized summaries.
 

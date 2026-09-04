@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "member_id": "member-alpha",
+  "organization": "organization-alpha",
+  "principal_id": "organization-alpha:member:member-alpha",
+  "discord_user_id": null,
+  "composio_user_id": null,
+  "memory_namespace": "organization-alpha/member/member-alpha",
+  "credential_namespace": "organization-alpha/member/member-alpha",
+  "privacy": "member-scoped"
+}

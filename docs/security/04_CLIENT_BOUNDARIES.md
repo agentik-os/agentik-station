@@ -4,9 +4,9 @@
 
 ```text
 Agentik Fleet
-├── Gareth Node
-├── Moonbase Node
-├── Dentistry Node
+├── Operator Node
+├── Example Client Node
+├── Example Client B Node
 └── Client Nodes
 ```
 

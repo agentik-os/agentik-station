@@ -1,0 +1,3 @@
+workflows:
+  - id: default-mission
+    graph: clarify -> plan -> execute -> verify -> readback -> accept

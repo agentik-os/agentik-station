@@ -1,0 +1,6 @@
+views:
+  - discord
+  - mission-progress
+  - evidence
+  - graph
+schema_backed: true

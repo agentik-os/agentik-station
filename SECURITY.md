@@ -66,7 +66,7 @@ A Hermes Profile is not treated as a filesystem sandbox. Linux/Zone isolation re
 - use narrow credential delivery such as systemd credentials or provider-managed authentication;
 - production credentials do not enter development by default;
 - Control stores metadata and references, not a mirrored secret vault;
-- remote Host secrets do not return to Gareth Control automatically;
+- remote Host secrets do not return to Operator Control automatically;
 - resolve principal, organization, account, environment, capability, and approval before use.
 
 ## Evidence and authorization
@@ -81,7 +81,7 @@ A Hermes Profile is not treated as a filesystem sandbox. Linux/Zone isolation re
 
 ## Release posture
 
-Keep the repository and deployments private during alpha. Do not use a client production Host until:
+Keep the repository and deployments private during alpha. Do not use a organization production Host until:
 
 1. fresh Ubuntu/Debian install is observed;
 2. repository and installed Station Doctor pass;

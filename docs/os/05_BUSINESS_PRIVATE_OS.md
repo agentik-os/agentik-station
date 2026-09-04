@@ -1,6 +1,6 @@
 # Business and Private OS Composition
 
-Station separates **private-self** from business/product execution even though Gareth owns both.
+Station separates **private-self** from business/product execution even though Operator owns both.
 
 Private OSs can emit deliberately sanitized signals to other scopes through typed capabilities. Business/Product OSs cannot browse private memory by default.
 

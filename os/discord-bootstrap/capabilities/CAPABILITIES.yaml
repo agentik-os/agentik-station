@@ -1,0 +1,11 @@
+capabilities:
+  - id: discord.inventory
+    default: deny-unless-granted
+  - id: discord.plan
+    default: deny-unless-granted
+  - id: discord.apply
+    default: deny-unless-granted
+  - id: discord.readback
+    default: deny-unless-granted
+  - id: bindings.write
+    default: deny-unless-granted

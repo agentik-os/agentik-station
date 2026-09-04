@@ -1,7 +1,7 @@
 # Agentik Station v11
 
-**Product release:** `0.2.0-alpha.11`  
-**Release posture:** safe-kernel alpha  
+**Product release:** `11.12`  
+**Release posture:** final repository candidate  
 **Maximum verified base-install claim:** `READY_FOR_SETUP`
 
 v11 is the professional audit-response release. It keeps the complete Station, Hermes, Operative System, Builder, Librarian, Discord, Composio, engineering, orchestration, and Fleet design knowledge, while replacing the unsafe prototype installer with a typed and evidence-driven Station Kernel.
@@ -16,7 +16,7 @@ Station
 │   ├── 1_SYSTEM
 │   ├── 2_PRIVATE
 │   ├── 3_AGENTIK
-│   ├── 4_CLIENTS
+│   ├── 4_ORGANIZATIONS
 │   ├── 5_PROJECTS
 │   ├── 6_FACTORY
 │   └── 7_LAB
@@ -107,7 +107,7 @@ The repository keeps the complete design work for:
 - Plan First, Loop-Graph, Gauntlet, Verification Engineering, parallel agents, subagent contracts, and model-agnostic execution;
 - Discord Mission Progress Cards and polished interaction design;
 - Composio as a bounded connected-capability adapter;
-- local client/project development and remote production Hosts;
+- local organization/project development and remote production Hosts;
 - Station update rings and Hermes compatibility tracking;
 - recovery, Doctor, evidence, and fresh-session acceptance contracts.
 
@@ -133,3 +133,13 @@ fresh supported VPS
 → restore
 → fresh-session acceptance
 ```
+
+## 11.12 — global/team bootstrap
+
+- added dedicated `agk-station` sudo account bootstrap;
+- added clean per-user Hermes/Codex installation and root-home refusal;
+- renamed CLIENTS category to ORGANIZATIONS;
+- added `full` and `team` bootstrap modes;
+- added Organization member-scope contract and CLI;
+- added `4_ORGANIZATIONS` filesystem category;
+- kept local/remote placement host-independent.

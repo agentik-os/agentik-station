@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "backup-recovery",
+  "maturity": "INSTALLABLE",
+  "claim": "Restic-based encrypted off-Host backup/check provider and recovery contracts are implemented; configured repository and destructive restore rehearsal are pending.",
+  "binary_probes": [],
+  "next_repair_action": "Configure off-Host restic repository, backup a Zone, destroy it, restore it, rebind and pass acceptance."
+}

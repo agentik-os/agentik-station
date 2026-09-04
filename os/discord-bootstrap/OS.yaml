@@ -1,0 +1,6 @@
+id: discord-bootstrap-os
+name: "Discord Bootstrap OS"
+version: "11.12"
+contract: AGK OS v2
+nano_director: discord-bootstrap-director
+purpose: "Provision and reconcile dedicated OS bot surfaces, roles, channels, commands, permissions, bindings, readback, and least-privilege demotion."

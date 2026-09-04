@@ -39,7 +39,7 @@ OSs can contain OSs.
 ## D007 — Client organizational structure is custom
 Status: accepted
 
-Do not force Gareth's Business/Life taxonomy onto clients.
+Do not force Operator's Business/Life taxonomy onto clients.
 
 ## D008 — Discord is a cockpit
 Status: accepted

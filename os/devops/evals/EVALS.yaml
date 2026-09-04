@@ -1,0 +1,5 @@
+evals:
+  - contract
+  - mission-acceptance
+  - boundary-negative
+  - recovery-readiness

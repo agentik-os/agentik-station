@@ -42,7 +42,7 @@ The repository can install software and policies, but it must not embed:
 - Discord bot tokens;
 - OAuth consent;
 - Composio connected accounts;
-- client production credentials;
+- organization production credentials;
 - GitHub private credentials;
 - Tailscale enrollment credentials.
 
@@ -64,37 +64,37 @@ Historical documents never override these files.
 ## Core Host
 
 ```bash
-sudo ./install --host-id gareth-core-01 --role core
+sudo ./install --host-id station-core-01 --role core
 ```
 
 This creates System, Private, Agentik, Factory and Lab base Zones.
 
-## Remote client Host
+## Remote team Host
 
 ```bash
 sudo ./install \
-  --host-id moonbase-prod-01 \
-  --role client \
-  --seed-category CLIENTS \
-  --seed-name moonbase \
+  --host-id organization-alpha-prod-01 \
+  --role team \
+  --seed-category ORGANIZATIONS \
+  --seed-name organization-alpha \
   --seed-env production \
-  --seed-organization moonbase \
+  --seed-organization organization-alpha \
   --seed-project platform
 ```
 
-This does not install Gareth Private, Agentik Development or OS Factory Zones.
+This does not install Operator Private, Agentik Development or OS Factory Zones.
 
 ## Remote personal project Host
 
 ```bash
 sudo ./install \
-  --host-id verba-prod-01 \
+  --host-id example-project-prod-01 \
   --role project \
   --seed-category PROJECTS \
-  --seed-name verba \
+  --seed-name example-project \
   --seed-env production \
-  --seed-organization gareth \
-  --seed-project verba
+  --seed-organization operator \
+  --seed-project example-project
 ```
 
 ## Desired state and idempotence

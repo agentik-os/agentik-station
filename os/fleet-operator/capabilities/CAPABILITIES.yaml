@@ -1,0 +1,11 @@
+capabilities:
+  - id: fleet.read
+    default: deny-unless-granted
+  - id: fleet.plan
+    default: deny-unless-granted
+  - id: fleet.reconcile
+    default: deny-unless-granted
+  - id: fleet.doctor
+    default: deny-unless-granted
+  - id: fleet.rollback
+    default: deny-unless-granted

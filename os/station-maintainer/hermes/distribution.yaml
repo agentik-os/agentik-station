@@ -1,0 +1,5 @@
+name: station-maintainer-os
+version: "11.12"
+description: "Maintain Station, track Hermes upstream, reconcile safe upgrades, run compatibility gates, and preserve recoverability."
+profile_id: station-maintainer
+skills_dir: ../skills

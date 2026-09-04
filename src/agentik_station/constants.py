@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-PRODUCT_VERSION = "0.2.0-alpha.11"
+PRODUCT_VERSION = "11.12"
 BLUEPRINT_VERSION = 11
 SPEC_SCHEMA_VERSION = 1
 
@@ -10,13 +10,13 @@ CATEGORIES = {
     "SYSTEM": "1_SYSTEM",
     "PRIVATE": "2_PRIVATE",
     "AGENTIK": "3_AGENTIK",
-    "CLIENTS": "4_CLIENTS",
+    "ORGANIZATIONS": "4_ORGANIZATIONS",
     "PROJECTS": "5_PROJECTS",
     "FACTORY": "6_FACTORY",
     "LAB": "7_LAB",
 }
 
-ZONE_SUBDIRS = ["projects", "os", "integrations", "credentials", "evidence", "ops"]
+ZONE_SUBDIRS = ["projects", "os", "members", "integrations", "credentials", "evidence", "ops"]
 PROJECT_SUBDIRS = [
     "repos",
     "docs",
@@ -69,11 +69,6 @@ REPO_EXCLUDES = {
     ".mypy_cache",
     ".ruff_cache",
     ".DS_Store",
-    ".venv",
-    "venv",
-    ".eggs",
-    "build",
-    "dist",
 }
 
 TEXT_EXTENSIONS = {".md", ".yaml", ".yml", ".json", ".py", ".sh", ".toml", ".txt", ""}

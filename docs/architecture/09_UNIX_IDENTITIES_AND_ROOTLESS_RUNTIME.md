@@ -9,8 +9,8 @@ z-private
 z-agentik
 z-factory
 z-lab
-z-c-moonbase-dev
-z-p-verba-dev
+z-o-organization-alpha-dev
+z-p-example-project-dev
 ```
 
 Zone users receive private homes under `/var/lib/station/users/` and subordinate UID/GID ranges for rootless Podman. Human/operator cross-Zone access is explicit via sudo/approved ACLs, not implicit group membership.

@@ -1,0 +1,44 @@
+{
+  "name": "Librarian OS",
+  "version": "3.0.0",
+  "release": "UNIVERSAL KNOWLEDGE",
+  "repackaged_on": "2026-09-04",
+  "base_recovered_version": "2.1.0 FULL VNext",
+  "compatibility_commands": [
+    "/book",
+    "/librarian",
+    "/bestseller",
+    "/web-deep",
+    "/experts",
+    "/contrarian",
+    "/sources",
+    "/verify-source",
+    "/principles",
+    "/contradictions",
+    "/best-inputs",
+    "/handoff"
+  ],
+  "principles": [
+    "claim-level provenance",
+    "popularity is not validity",
+    "explicit uncertainty",
+    "contradictions are preserved",
+    "coverage by saturation",
+    "no invented source access",
+    "copyright-safe synthesis",
+    "verified handoffs"
+  ],
+  "new_capabilities": [
+    "universal multi-source research",
+    "web-deep recursive research",
+    "model prior hypothesis protocol",
+    "primary/official source prioritization",
+    "scholarly adapters",
+    "community evidence",
+    "source independence analysis",
+    "triangulation",
+    "knowledge-gap detection",
+    "freshness refresh",
+    "research-to-os handoff"
+  ]
+}

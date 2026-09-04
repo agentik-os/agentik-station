@@ -6,7 +6,7 @@
 .env
 ├── client A secrets
 ├── client B secrets
-├── Gareth secrets
+├── Operator secrets
 └── production everything
 ```
 
@@ -25,8 +25,8 @@ capability
 ## Example
 
 ```text
-organization = moonbase
-profile = moonbase-devops
+organization = organization-alpha
+profile = organization-alpha-devops
 project = platform
 environment = staging
 capability = deployment.staging
@@ -47,4 +47,4 @@ Production credentials should ideally be:
 On a dedicated client Node:
 - credentials belong to client
 - Agentik distribution contains references only
-- offboarding does not require extracting Gareth's mixed secret store
+- offboarding does not require extracting Operator's mixed secret store

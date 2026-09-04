@@ -1,0 +1,4 @@
+learning: allowed
+promotion: reviewed-and-versioned
+security_policy_mutation: deny
+auto_weaken_gates: deny

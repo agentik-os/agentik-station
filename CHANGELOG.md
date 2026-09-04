@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0-alpha.11 — Station Kernel hardening
+## 11.12 — Station Kernel hardening
 
 ### Security and reconciliation
 
@@ -35,11 +35,16 @@
 - added the v11 Python package, typed configuration compiler, schema contracts, hardening documentation, professional audit, and adversarial test suites;
 - preserved v9 architecture/history as non-canonical provenance.
 
-### Release packaging fix (pre-publish)
-
-- freeze immutable release trees **after** the atomic `os.replace` into `/opt/station/releases/<version>` so staging rename and failure cleanup work on Linux kernels that deny renaming mode-`0555` directories;
-- ignore local packaging junk (`*.egg-info/`, `.venv/`) and exclude it from release tree copies.
-
 ### Current scope
 
 The release installs and verifies the safe Station Linux foundation only. Hermes compilation, Discord transport, Composio runtime, per-Zone rootless services, complete OS Factory acceptance, Node Agent Fleet reconciliation, and encrypted off-Host recovery remain explicit subsequent releases/gates.
+
+## 11.12
+
+- made the canonical repository fully generic: real organization/project/operator names removed from active docs, tests, examples and historical text;
+- removed the opaque v9 snapshot archive that still contained organization-specific historical identities;
+- integrated Librarian OS v3.0.0 Universal Knowledge as the canonical Librarian source;
+- expanded deterministic Librarian factory helpers to expose the v3 research surface while keeping actual research inside the Librarian OS/Hermes runtime;
+- added `station spec` for validated InstallSpec generation;
+- added `station.sh`, a thin one-command Bash orchestration wrapper for repo Doctor → InstallSpec → plan → apply → full Doctor → status → setup gates;
+- preserved Evidence Before Claims: external Hermes/Discord/Composio/Fleet/restore acceptance remains explicitly pending until observed.

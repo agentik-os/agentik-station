@@ -1,0 +1,3 @@
+automations:
+  default_enabled: false
+  fresh_session_acceptance_required: true

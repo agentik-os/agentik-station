@@ -1,6 +1,6 @@
 {
-  "station_id": "gareth-station-01",
-  "organization_id": "gareth",
+  "station_id": "agentik-station-01",
+  "organization_id": "operator",
   "trust_zone": "os-factory",
   "project_id": "station-os-factory",
   "os_id": "builder-os",
@@ -11,14 +11,14 @@
     "github.write",
     "web.search"
   ],
-  "credential_namespace": "gareth/os-factory/builder-os",
-  "memory_namespace": "gareth/os-factory/builder-os",
+  "credential_namespace": "operator/os-factory/builder-os",
+  "memory_namespace": "operator/os-factory/builder-os",
   "allowed_roots": [
     "/srv/station/zones/os-factory"
   ],
   "deny_roots": [
     "/srv/station/zones/private-self",
-    "/srv/station/fleet/client-state"
+    "/srv/station/fleet/organization-state"
   ],
   "orchestration": {
     "mission_id": "example-mission",

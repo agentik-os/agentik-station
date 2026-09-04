@@ -10,7 +10,7 @@ from agentik_station.models import InstallSpec, SeedSpec, ZoneSpec
 
 def test_install_spec_rejects_unknown_fields() -> None:
     with pytest.raises(ValidationError, match="Unknown InstallSpec"):
-        InstallSpec.from_dict({"host_id": "gareth-core-01", "mystery": True})
+        InstallSpec.from_dict({"host_id": "station-core-01", "mystery": True})
 
 
 def test_install_spec_requires_real_json_booleans() -> None:
@@ -19,32 +19,32 @@ def test_install_spec_requires_real_json_booleans() -> None:
 
 
 def test_client_host_may_only_seed_client_zone() -> None:
-    seed = SeedSpec("PROJECTS", "verba", "production", "gareth", "app")
-    with pytest.raises(ValidationError, match="client Host"):
-        InstallSpec(role="client", seed=seed)
+    seed = SeedSpec("PROJECTS", "example-project", "production", "operator", "app")
+    with pytest.raises(ValidationError, match="team Host"):
+        InstallSpec(role="team", seed=seed)
 
 
 def test_seed_rejects_non_deployment_environment() -> None:
     with pytest.raises(ValidationError):
-        SeedSpec("CLIENTS", "moonbase", "lab", "moonbase", "platform")
+        SeedSpec("ORGANIZATIONS", "organization-alpha", "lab", "organization-alpha", "platform")
 
 
 def test_zone_category_environment_contract() -> None:
-    zone = ZoneSpec("CLIENTS", "moonbase", "production", "moonbase-prod-01", "moonbase")
-    assert zone.zone_id == "moonbase-prod"
+    zone = ZoneSpec("ORGANIZATIONS", "organization-alpha", "production", "organization-alpha-prod-01", "organization-alpha")
+    assert zone.zone_id == "organization-alpha-prod"
     with pytest.raises(ValidationError):
-        ZoneSpec("PRIVATE", "gareth", "production", "gareth-core-01", "gareth")
+        ZoneSpec("PRIVATE", "operator", "production", "station-core-01", "operator")
 
 
 def test_install_spec_roundtrip(tmp_path) -> None:
     spec = InstallSpec(
         operation_id="op-test-roundtrip",
-        host_id="moonbase-prod-01",
-        role="client",
+        host_id="organization-alpha-prod-01",
+        role="team",
         install_system_packages=False,
         configure_fail2ban=False,
         enable_doctor_timer=False,
-        seed=SeedSpec("CLIENTS", "moonbase", "production", "moonbase", "platform"),
+        seed=SeedSpec("ORGANIZATIONS", "organization-alpha", "production", "organization-alpha", "platform"),
     )
     path = tmp_path / "install-spec.json"
     spec.write(path)

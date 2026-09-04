@@ -1,6 +1,17 @@
+# Bootstrap entrypoint
+
+The preferred first install on a fresh Host is now `bootstrap.sh`. It creates the dedicated `agk-station` sudo account, keeps the repository and user tools outside `/root`, installs dependencies, Hermes and Codex, and then delegates to the typed Station kernel.
+
+```bash
+sudo ./bootstrap.sh --mode full
+sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
+```
+
+Use the lower-level `station` / `install` commands below when you need explicit release engineering control.
+
 # Installation Contract
 
-## Supported base for v11
+## Supported base for Station 11.12
 
 The current safe-kernel provider supports:
 
@@ -17,7 +28,7 @@ Other distributions and init systems are not silently approximated.
 ```bash
 cd agentik-station
 ./station doctor --repo
-./station plan --host-id gareth-core-01 --role core
+./station plan --host-id station-core-01 --role core
 ```
 
 `plan` must be reviewed before mutation. It compiles the same typed `InstallSpec` and canonical `config/station.default.json` used by `apply`.
@@ -26,7 +37,7 @@ cd agentik-station
 
 ```bash
 sudo ./install \
-  --host-id gareth-core-01 \
+  --host-id station-core-01 \
   --role core
 ```
 
@@ -38,40 +49,40 @@ READY_FOR_SETUP
 
 It creates the Station safe kernel and desired Zone declarations. It does not enroll external accounts or declare OS packages operational.
 
-## Client production Host
+## Team / organization Host
 
 ```bash
 ./station plan \
-  --host-id moonbase-prod-01 \
-  --role client \
-  --seed-category CLIENTS \
-  --seed-name moonbase \
+  --host-id organization-alpha-prod-01 \
+  --role team \
+  --seed-category ORGANIZATIONS \
+  --seed-name organization-alpha \
   --seed-env production \
-  --seed-organization moonbase \
+  --seed-organization organization-alpha \
   --seed-project platform
 
 sudo ./install \
-  --host-id moonbase-prod-01 \
-  --role client \
-  --seed-category CLIENTS \
-  --seed-name moonbase \
+  --host-id organization-alpha-prod-01 \
+  --role team \
+  --seed-category ORGANIZATIONS \
+  --seed-name organization-alpha \
   --seed-env production \
-  --seed-organization moonbase \
+  --seed-organization organization-alpha \
   --seed-project platform
 ```
 
-This Host receives System Zones plus `moonbase/prod`. It does not receive Gareth Private, Agentik Development, Factory, LAB, or unrelated client Projects.
+This Host receives System Zones plus `organization-alpha/prod`. It does not receive Operator Private, Agentik Development, Factory, LAB, or unrelated organization Projects.
 
 ## Personal project Host
 
 ```bash
 sudo ./install \
-  --host-id verba-prod-01 \
+  --host-id example-project-prod-01 \
   --role project \
   --seed-category PROJECTS \
-  --seed-name verba \
+  --seed-name example-project \
   --seed-env production \
-  --seed-organization gareth \
+  --seed-organization operator \
   --seed-project app
 ```
 
@@ -82,18 +93,18 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "0.2.0-alpha.11",
-  "operation_id": "op-moonbase-prod-001",
-  "host_id": "moonbase-prod-01",
-  "role": "client",
+  "release_version": "11.12",
+  "operation_id": "op-organization-alpha-prod-001",
+  "host_id": "organization-alpha-prod-01",
+  "role": "team",
   "install_system_packages": true,
   "configure_fail2ban": true,
   "enable_doctor_timer": true,
   "seed": {
-    "category": "CLIENTS",
-    "name": "moonbase",
+    "category": "ORGANIZATIONS",
+    "name": "organization-alpha",
     "environment": "production",
-    "organization": "moonbase",
+    "organization": "organization-alpha",
     "project": "platform"
   }
 }
@@ -164,13 +175,13 @@ Runtime migrations and external-module compatibility still require their own ver
 
 ```bash
 station host bootstrap \
-  --target operator@moonbase-prod-01 \
-  --id moonbase-prod-01 \
-  --role client \
-  --zone-category CLIENTS \
-  --zone-name moonbase \
+  --target operator@organization-alpha-prod-01 \
+  --id organization-alpha-prod-01 \
+  --role team \
+  --zone-category ORGANIZATIONS \
+  --zone-name organization-alpha \
   --env production \
-  --organization moonbase \
+  --organization organization-alpha \
   --project platform \
   --plan
 ```
@@ -183,8 +194,31 @@ The transport sends:
 - a separate validated JSON `InstallSpec`;
 - fixed remote executable paths and arguments.
 
-It never concatenates user values into a remote shell command. In v11 it remains a bootstrap transport; it reports execution but does not claim Fleet verification or acceptance.
+It never concatenates user values into a remote shell command. In 11.12 the bootstrap performs remote status + full Doctor readback and may report `REMOTE_READBACK_VERIFIED`; continuous drift/rollback and external integration acceptance remain separate Fleet gates.
 
 ## External installers
 
 The safe kernel does not execute unattended network scripts as root. Tailscale, Hermes, Composio, and other external modules are enrolled in the separate setup phase with explicit provenance, policy, and readback gates.
+
+## Recommended Bash entry point
+
+The simplest supported workflow is:
+
+```bash
+./station.sh bootstrap --host-id station-core-01 --role core
+```
+
+For a generic team Host:
+
+```bash
+./station.sh bootstrap \
+  --host-id organization-alpha-prod-01 \
+  --role team \
+  --seed-category ORGANIZATIONS \
+  --seed-name organization-alpha \
+  --seed-env production \
+  --seed-organization organization-alpha \
+  --seed-project platform
+```
+
+`station.sh` always creates one versioned `InstallSpec` first and uses that exact spec for both plan and apply. It never reconstructs remote commands from unvalidated values and never bypasses the Station kernel. Use `--yes` only after the plan is already trusted in non-interactive automation.

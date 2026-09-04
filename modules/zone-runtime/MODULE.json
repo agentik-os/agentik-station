@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "zone-runtime",
+  "maturity": "VERIFIED",
+  "claim": "Placement-independent Zone/Project layouts plus isolated runtime, credentials and rootless configuration are implemented and locally verified.",
+  "binary_probes": []
+}

@@ -1,0 +1,7 @@
+bot:
+  dedicated: true
+  nano_director: discord-bootstrap-director
+commands:
+  - /status
+  - /plan
+  - /doctor

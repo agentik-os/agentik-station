@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "release": "11.12",
+  "contract": "AGK OS v2",
+  "source_root": "os",
+  "packages": [
+    {
+      "id": "station-maintainer-os",
+      "path": "os/station-maintainer",
+      "version": "11.12",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "discord-bootstrap-os",
+      "path": "os/discord-bootstrap",
+      "version": "11.12",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "fleet-operator-os",
+      "path": "os/fleet-operator",
+      "version": "11.12",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "builder-os",
+      "path": "os/builder",
+      "version": "11.12",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "librarian-os",
+      "path": "os/librarian",
+      "version": "3.0.0",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "devops-os",
+      "path": "os/devops",
+      "version": "11.12",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
+      "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    }
+  ]
+}

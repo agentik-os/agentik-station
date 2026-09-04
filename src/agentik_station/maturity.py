@@ -10,7 +10,7 @@ from .identifiers import validate_identifier, validate_version
 
 ORDER = {state: index for index, state in enumerate(MATURITY_STATES)}
 MODULE_FIELDS = {"id", "maturity", "claim", "next_repair_action", "binary_probes"}
-OS_FIELDS = {"id", "path", "maturity", "runtime_state", "claim", "next_repair_action"}
+OS_FIELDS = {"id", "path", "version", "maturity", "runtime_state", "claim", "next_repair_action"}
 OS_RUNTIME_STATES = {
     "NOT_INSTALLED",
     "INSTALLING",
@@ -93,12 +93,12 @@ def load_catalog(path: Path) -> dict[str, Any]:
 
 def load_os_catalog(path: Path) -> dict[str, Any]:
     payload = _load_object(path, "OS catalog")
-    allowed_top = {"schema_version", "release", "contract", "packages"}
+    allowed_top = {"schema_version", "release", "contract", "source_root", "packages"}
     unknown_top = sorted(set(payload) - allowed_top)
     if unknown_top:
         raise ValidationError(f"Unknown OS catalog fields: {', '.join(unknown_top)}")
-    if payload.get("schema_version") != 1:
-        raise ValidationError("OS catalog schema_version must be 1")
+    if payload.get("schema_version") not in {1, 2}:
+        raise ValidationError("OS catalog schema_version must be 1 or 2")
     validate_version(str(payload.get("release", "")))
     if payload.get("contract") != "AGK OS v2":
         raise ValidationError("OS catalog must declare the AGK OS v2 contract")
@@ -116,9 +116,10 @@ def load_os_catalog(path: Path) -> dict[str, Any]:
         if package_id in seen:
             raise ValidationError(f"Duplicate OS package id: {package_id}")
         seen.add(package_id)
-        expected_path = f"packages/os/{package_id}"
-        if package.get("path") != expected_path:
-            raise ValidationError(f"OS package {package_id} path must be {expected_path!r}")
+        package_path = package.get("path")
+        if not isinstance(package_path, str) or not package_path.startswith("os/") or ".." in Path(package_path).parts:
+            raise ValidationError(f"OS package {package_id} path must be a canonical relative path under os/")
+        validate_version(str(package.get("version", "0")))
         state = validate_state(str(package.get("maturity", "")))
         runtime_state = package.get("runtime_state")
         if runtime_state not in OS_RUNTIME_STATES:

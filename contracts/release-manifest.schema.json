@@ -19,38 +19,93 @@
     "files"
   ],
   "properties": {
-    "schema_version": {"const": 2},
-    "name": {"const": "agentik-station"},
-    "release": {"const": "0.2.0-alpha.11"},
-    "blueprint_version": {"const": 11},
-    "posture": {"const": "safe-kernel-alpha"},
-    "archive_root": {"const": "agentik-station"},
-    "verified_claim": {"const": "READY_FOR_SETUP"},
+    "schema_version": {
+      "const": 2
+    },
+    "name": {
+      "const": "agentik-station"
+    },
+    "release": {
+      "const": "11.12"
+    },
+    "blueprint_version": {
+      "const": 11
+    },
+    "posture": {
+      "const": "final-repository-candidate"
+    },
+    "archive_root": {
+      "const": "agentik-station"
+    },
+    "verified_claim": {
+      "const": "READY_FOR_SETUP"
+    },
     "architecture": {
       "type": "array",
       "uniqueItems": true,
-      "items": {"enum": ["Station", "Host", "Control Plane", "Zone", "Project", "Operative System", "Workspace", "Fleet"]}
+      "items": {
+        "enum": [
+          "Station",
+          "Host",
+          "Control Plane",
+          "Zone",
+          "Project",
+          "Operative System",
+          "Workspace",
+          "Fleet"
+        ]
+      }
     },
     "evidence_model": {
-      "const": ["PREPARED", "OBSERVED", "REPORTED", "VERIFIED", "READ_BACK", "ACCEPTED"]
+      "const": [
+        "PREPARED",
+        "OBSERVED",
+        "REPORTED",
+        "VERIFIED",
+        "READ_BACK",
+        "ACCEPTED"
+      ]
     },
-    "history_is_non_canonical": {"const": true},
+    "history_is_non_canonical": {
+      "const": true
+    },
     "validation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository_doctor", "station_tests", "factory_pytest", "builder_librarian_gates"],
+      "required": [
+        "repository_doctor",
+        "station_tests",
+        "factory_pytest",
+        "builder_librarian_gates"
+      ],
       "properties": {
-        "repository_doctor": {"const": "PASS"},
-        "station_tests": {"type": "integer", "minimum": 1},
-        "factory_pytest": {"type": "integer", "minimum": 1},
-        "builder_librarian_gates": {"const": "7/7 PASS"}
+        "repository_doctor": {
+          "const": "PASS"
+        },
+        "station_tests": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "factory_pytest": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "builder_librarian_gates": {
+          "const": "7/7 PASS"
+        }
       }
     },
-    "file_count": {"type": "integer", "minimum": 1},
+    "file_count": {
+      "type": "integer",
+      "minimum": 1
+    },
     "files": {
       "type": "array",
       "uniqueItems": true,
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     }
   }
 }

@@ -1,0 +1,7 @@
+programs:
+  - id: doctor
+    deterministic: true
+  - id: package-validation
+    deterministic: true
+  - id: evidence-ledger-validation
+    deterministic: true

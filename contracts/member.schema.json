@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentik.dev/contracts/member.schema.json",
+  "title": "Station Organization Member",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "member_id",
+    "organization",
+    "principal_id",
+    "memory_namespace",
+    "credential_namespace"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "member_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "organization": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "principal_id": {
+      "type": "string"
+    },
+    "discord_user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "composio_user_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "memory_namespace": {
+      "type": "string"
+    },
+    "credential_namespace": {
+      "type": "string"
+    },
+    "privacy": {
+      "enum": [
+        "member-scoped",
+        "organization-shared"
+      ]
+    }
+  }
+}

@@ -17,7 +17,7 @@ station module status
 station provider status
 ```
 
-For a seeded client/project Host, use the exact command pattern in `INSTALL.md` or a reviewed JSON `InstallSpec`.
+For a seeded organization/project Host, use the exact command pattern in `INSTALL.md` or a reviewed JSON `InstallSpec`.
 
 The installation report must separate:
 
@@ -27,3 +27,13 @@ The installation report must separate:
 - Doctor-verified foundation;
 - modules still awaiting configuration/readback;
 - final state and next repair/setup action.
+
+## Preferred installation command
+
+After reading the repository contracts, an AI operator should prefer:
+
+```bash
+./station.sh bootstrap --host-id station-core-01 --role core
+```
+
+Do not use `--yes` until the generated `Plan • not run` has been inspected. The Bash wrapper is an orchestrator only; all validation and mutation remain inside the typed Station kernel.

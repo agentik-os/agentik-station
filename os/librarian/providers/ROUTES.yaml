@@ -1,0 +1,5 @@
+routes:
+  director: reasoning-high
+  worker: task-fit
+  reviewer: independent-review
+model_agnostic: true

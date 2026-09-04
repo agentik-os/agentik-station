@@ -1,0 +1,6 @@
+id: fleet-operator-os
+name: "Fleet Operator OS"
+version: "11.12"
+contract: AGK OS v2
+nano_director: fleet-operator
+purpose: "Control desired state across Station Hosts with explicit operations, receipts, drift detection, health, and rollback boundaries."

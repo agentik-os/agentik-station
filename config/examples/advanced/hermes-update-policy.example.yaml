@@ -7,16 +7,16 @@ hermes_updates:
       auto_apply_candidate_update: true
       require_full_backup: true
       production_credentials: false
-    gareth_candidate:
+    operator_candidate:
       auto_promote_when_all_gates_pass: true
       minimum_burn_in: 6h
       breaking_change_requires_human: true
     stable:
       auto_apply: false
       require_signed_station_release: true
-    client_stable:
+    organization_stable:
       auto_apply: false
-      require_client_policy_and_maintenance_window: true
+      require_organization_policy_and_maintenance_window: true
   gates:
     - hermes_doctor
     - hooks_doctor

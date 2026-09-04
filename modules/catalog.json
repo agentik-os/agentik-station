@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "0.2.0-alpha.11",
+  "release": "11.12",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -13,77 +13,77 @@
   "modules": [
     {
       "id": "station-kernel",
-      "maturity": "INSTALLABLE",
-      "claim": "Typed plan/apply, safe filesystem reconciliation, immutable releases, receipts, and deterministic Doctor are implemented.",
-      "binary_probes": ["station"]
+      "maturity": "VERIFIED",
+      "claim": "Typed plan/apply, SafeFS, immutable releases, receipts, Doctor and adversarial safety tests are implemented and locally verified.",
+      "binary_probes": []
     },
     {
       "id": "host-foundation",
-      "maturity": "INSTALLABLE",
-      "claim": "Ubuntu/Debian systemd Host layout, Unix identities, exact permissions, and Zone/Project ownership are implemented.",
+      "maturity": "VERIFIED",
+      "claim": "Ubuntu/Debian systemd host foundation, Unix identities, subordinate-ID collision audit, exact ownership and permissions are implemented and locally verified.",
       "binary_probes": []
     },
     {
       "id": "zone-runtime",
-      "maturity": "INSTALLABLE",
-      "claim": "Placement-independent Zone and Project layouts are reconciled across /srv, /var/lib, /var/log, /run, and backup staging.",
+      "maturity": "VERIFIED",
+      "claim": "Placement-independent Zone/Project layouts plus isolated runtime, credentials and rootless configuration are implemented and locally verified.",
       "binary_probes": []
     },
     {
       "id": "hermes-runtime",
-      "maturity": "SCAFFOLDED",
-      "claim": "Hermes architecture, managed policy, plugin scaffolds, and update-check receipts exist; profile/distribution compilation is not yet implemented.",
-      "binary_probes": ["hermes"],
-      "next_repair_action": "Implement Zone-local Profile Distribution compilation, profiles, plugins, boards, gateways, and Hermes/plugin Doctor evidence."
+      "maturity": "INSTALLABLE",
+      "claim": "AGK OS sources compile deterministically into Hermes Profile Distributions for Director and worker profiles; live profile installation and Hermes Doctor require an enrolled Hermes runtime.",
+      "binary_probes": [],
+      "next_repair_action": "Enroll Hermes on a disposable Zone, install compiled profiles, then pass Hermes/plugin Doctor and fresh-session acceptance."
     },
     {
       "id": "discord-experience",
-      "maturity": "SCAFFOLDED",
-      "claim": "Mission state, renderer, hook contract, and UX specifications exist; production Discord transport and interactions are not implemented.",
+      "maturity": "INSTALLABLE",
+      "claim": "Hermes plan-first plugin plus host-owned Discord Components V2 create/edit transport are implemented; external test-guild readback is pending.",
       "binary_probes": [],
-      "next_repair_action": "Implement host-owned Discord transport, Components V2, authorization, idempotency, rate limits, and test-guild readback."
+      "next_repair_action": "Enroll a dedicated OS bot in a synthetic/test guild and pass create/edit/interactions/readback/rate-limit acceptance."
     },
     {
       "id": "composio-plane",
-      "maturity": "SPECIFIED",
-      "claim": "Identity, session, MCP, trigger, and boundary contracts exist; no connected-account runtime is claimed.",
-      "binary_probes": ["composio"],
-      "next_repair_action": "Implement Station principal mapping, restricted sessions, MCP bindings, triggers, revocation, and cross-Zone negative tests."
+      "maturity": "INSTALLABLE",
+      "claim": "Station principal/binding/session adapter is implemented with explicit toolkit/account allowlists; live OAuth/session/MCP readback is pending.",
+      "binary_probes": [],
+      "next_repair_action": "Enroll test accounts, create scoped sessions/MCP, validate triggers/revocation and cross-Zone negative tests."
     },
     {
       "id": "rootless-runtime",
-      "maturity": "SPECIFIED",
-      "claim": "Rootless isolation policy is specified; per-Zone storage, networks, services, resource limits, and negative tests are not yet implemented.",
-      "binary_probes": ["podman"],
-      "next_repair_action": "Build and verify a per-Zone rootless runtime provider before marking it installable."
+      "maturity": "INSTALLABLE",
+      "claim": "Per-Zone Podman storage/config/policy roots and subordinate-ID collision checks are reconciled; negative runtime isolation acceptance is pending.",
+      "binary_probes": [],
+      "next_repair_action": "Run per-Zone Podman workloads and negative cross-Zone filesystem/network/mount tests."
     },
     {
       "id": "os-factory",
-      "maturity": "SCAFFOLDED",
-      "claim": "Builder/Librarian source, contracts, and deterministic scaffold tooling exist; complete install-to-Hermes acceptance is not yet implemented.",
+      "maturity": "INSTALLABLE",
+      "claim": "Canonical Builder/Librarian/DevOps sources pass AGK OS v2 source Doctor and compile to Hermes distributions; live end-to-end Factory acceptance is pending.",
       "binary_probes": [],
-      "next_repair_action": "Complete canonical OS packages and prove build, Doctor, install, fresh-session acceptance, rollback, and recovery."
+      "next_repair_action": "Build a new OS from the real Librarian v3 handoff, compile/install it into Hermes, then recovery/fresh-session acceptance."
     },
     {
       "id": "fleet-control",
-      "maturity": "SCAFFOLDED",
-      "claim": "Safe JSON-spec bootstrap transport exists; reconciled Node Agent, drift, remote receipts, and rollback are not yet implemented.",
-      "binary_probes": ["ssh", "rsync"],
-      "next_repair_action": "Implement the Station Node Agent and desired-state reconciliation before calling Fleet operational."
+      "maturity": "INSTALLABLE",
+      "claim": "Safe typed remote bootstrap with strict SSH checking, immutable release archive, operation IDs and receipts is implemented; persistent drift/reconcile agent and remote rollback acceptance are pending.",
+      "binary_probes": [],
+      "next_repair_action": "Pass a remote disposable Host rollout, drift detection and rollback gate over Tailscale."
     },
     {
       "id": "backup-recovery",
-      "maturity": "SPECIFIED",
-      "claim": "Recovery contracts and staging roots exist; no off-Host encrypted backup or restore rehearsal is claimed.",
+      "maturity": "INSTALLABLE",
+      "claim": "Restic-based encrypted off-Host backup/check provider and recovery contracts are implemented; configured repository and destructive restore rehearsal are pending.",
       "binary_probes": [],
-      "next_repair_action": "Choose a backup provider, implement per-Zone snapshots, and pass destructive restore acceptance."
+      "next_repair_action": "Configure off-Host restic repository, backup a Zone, destroy it, restore it, rebind and pass acceptance."
     },
     {
       "id": "observability",
-      "maturity": "SCAFFOLDED",
-      "claim": "Receipts, Doctor evidence, logs, and evidence semantics exist; complete metrics/alerts are not yet implemented.",
+      "maturity": "INSTALLABLE",
+      "claim": "Receipts, Doctor evidence, logs, evidence semantics and module status are implemented; production alert delivery/retention is pending.",
       "binary_probes": [],
-      "next_repair_action": "Add alerting, retention, disk/log health, and Fleet health ingestion."
+      "next_repair_action": "Configure production alerting and retention, then verify alert readback."
     }
   ]
 }

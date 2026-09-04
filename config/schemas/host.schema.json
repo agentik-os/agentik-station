@@ -27,7 +27,7 @@
     "role": {
       "enum": [
         "core",
-        "client",
+        "team",
         "project",
         "lab",
         "worker"

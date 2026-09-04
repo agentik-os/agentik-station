@@ -26,6 +26,7 @@ from .identifiers import (
 )
 from .identity import zone_unix_user
 from .maturity import load_catalog, load_os_catalog
+from .os_contract import doctor_os_source
 from .models import ROLES, ZoneSpec
 from .paths import LayoutPaths
 
@@ -109,6 +110,8 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "VERSION",
         "station",
         "install",
+        "station.sh",
+        "bootstrap.sh",
         "installer/install_station.py",
         "src/agentik_station/installer.py",
         "src/agentik_station/filesystem.py",
@@ -117,7 +120,7 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "contracts/release-manifest.schema.json",
         "docs/hardening/README.md",
         "modules/catalog.json",
-        "packages/os/CATALOG.json",
+        "os/CATALOG.json",
     ]
     for relative in required:
         _check_regular(result, repo_root / relative, f"repo:{relative}")
@@ -146,7 +149,7 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
             "name": "agentik-station",
             "release": PRODUCT_VERSION,
             "blueprint_version": 11,
-            "posture": "safe-kernel-alpha",
+            "posture": "final-repository-candidate",
             "archive_root": "agentik-station",
             "verified_claim": "READY_FOR_SETUP",
             "history_is_non_canonical": True,
@@ -243,14 +246,18 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         result.fail("repo:module-catalog", str(exc), "Repair modules/catalog.json and its maturity claims.")
 
     try:
-        os_catalog = load_os_catalog(repo_root / "packages" / "os" / "CATALOG.json")
+        os_catalog = load_os_catalog(repo_root / "os" / "CATALOG.json")
         if os_catalog.get("release") != PRODUCT_VERSION:
             raise ValueError("OS catalog release does not match VERSION")
         packages = os_catalog["packages"]
         for package in packages:
             if package.get("runtime_state") != "NOT_INSTALLED":
                 raise ValueError(f"Repository package {package.get('id')} makes an unsupported runtime claim")
-        result.pass_check("repo:os-catalog")
+            source = repo_root / str(package["path"])
+            source_result = doctor_os_source(source, expected_id=str(package["id"]))
+            if not source_result.ok:
+                raise ValueError(f"OS source Doctor failed for {package['id']}: {source_result.issues[:2]}")
+        result.pass_check("repo:os-catalog", f"{len(packages)} canonical OS sources pass AGK OS v2 Doctor")
     except Exception as exc:
         result.fail("repo:os-catalog", str(exc), "Correct package maturity and runtime claims.")
 
@@ -296,7 +303,7 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         else:
             result.pass_check(f"repo:unsafe-pattern:{label}")
 
-    for executable in [repo_root / "station", repo_root / "install", repo_root / "installer" / "install_station.py"]:
+    for executable in [repo_root / "station", repo_root / "install", repo_root / "station.sh", repo_root / "bootstrap.sh", repo_root / "installer" / "install_station.py"]:
         if executable.is_file() and (os.stat(executable).st_mode & 0o111):
             result.pass_check(f"repo:executable:{executable.relative_to(repo_root)}")
         else:
@@ -322,7 +329,7 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
     for path in repo_root.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in TEXT_EXTENSIONS:
             continue
-        if "docs/history" in str(path) or "source-packs" in str(path):
+        if "docs/history" in str(path) :
             continue
         try:
             if forbidden in path.read_text(encoding="utf-8", errors="ignore").lower():
@@ -476,7 +483,7 @@ def _exact_fields(payload: dict[str, Any], expected: set[str], label: str) -> No
 
 def _expected_zone_human_path(paths: LayoutPaths, zone: ZoneSpec) -> Path:
     base = paths.runtime / "2_ZONES" / CATEGORIES[zone.category]
-    if zone.category in {"CLIENTS", "PROJECTS"}:
+    if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
         return base / zone.name / environment_slug(zone.environment)
     return base / zone.name
 
@@ -549,8 +556,8 @@ def _validate_remote_zone_record(payload: dict[str, Any], *, record_path: Path) 
     if not isinstance(next_action, str) or not next_action.strip():
         raise ValueError("remote Zone desired record requires next_repair_action")
     category = str(payload.get("category", "")).upper()
-    if category not in {"CLIENTS", "PROJECTS"}:
-        raise ValueError("remote desired Zones are limited to CLIENTS or PROJECTS")
+    if category not in {"ORGANIZATIONS", "PROJECTS"}:
+        raise ValueError("remote desired Zones are limited to ORGANIZATIONS or PROJECTS")
     name_and_env = str(payload.get("id", ""))
     validate_identifier(name_and_env, "remote Zone id")
     host_id = validate_identifier(str(payload.get("host_id", "")), "remote Zone host_id")
@@ -728,7 +735,7 @@ def station_doctor(
     catalog_by_id: dict[str, dict[str, Any]] = {}
     if repo_root is not None:
         try:
-            os_catalog = load_os_catalog(Path(repo_root) / "packages" / "os" / "CATALOG.json")
+            os_catalog = load_os_catalog(Path(repo_root) / "os" / "CATALOG.json")
             catalog_by_id = {str(item["id"]): item for item in os_catalog["packages"]}
             result.pass_check("runtime:os-catalog")
         except Exception as exc:
@@ -783,6 +790,9 @@ def station_doctor(
         _check_directory(result, state_root, f"zone:{zone_id}:state")
         _check_directory(result, human / "credentials", f"zone:{zone_id}:credentials")
         _check_directory(result, state_root / "hermes", f"zone:{zone_id}:hermes-home")
+        _check_regular(result, state_root / "home" / ".config" / "containers" / "storage.conf", f"zone:{zone_id}:rootless-storage-config")
+        _check_regular(result, state_root / "home" / ".config" / "containers" / "containers.conf", f"zone:{zone_id}:rootless-container-config")
+        _check_regular(result, state_root / "rootless" / "POLICY.json", f"zone:{zone_id}:rootless-policy")
         if (human / "credentials").exists():
             _check_mode(result, human / "credentials", {0o700}, f"zone:{zone_id}:credentials-mode")
 

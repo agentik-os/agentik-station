@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "librarian-os",
+  "version": "3.0.0",
+  "source": "canonical",
+  "runtime_target": "Hermes",
+  "contract": "AGK OS v2"
+}

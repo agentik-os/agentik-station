@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "discord-experience",
+  "maturity": "INSTALLABLE",
+  "claim": "Hermes plan-first plugin plus host-owned Discord Components V2 create/edit transport are implemented; external test-guild readback is pending.",
+  "binary_probes": [],
+  "next_repair_action": "Enroll a dedicated OS bot in a synthetic/test guild and pass create/edit/interactions/readback/rate-limit acceptance."
+}

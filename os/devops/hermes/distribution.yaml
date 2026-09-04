@@ -1,0 +1,5 @@
+name: devops-os
+version: "11.12"
+description: "Plan, build, review, test, ship, observe, and recover software through evidence-driven engineering with minimal unnecessary code."
+profile_id: atlas
+skills_dir: ../skills

@@ -13,12 +13,12 @@ from agentik_station.remote import build_remote_plan, create_release_tar
 def remote_spec() -> InstallSpec:
     return InstallSpec(
         operation_id="op-remote-test",
-        host_id="moonbase-prod-01",
-        role="client",
+        host_id="organization-alpha-prod-01",
+        role="team",
         install_system_packages=False,
         configure_fail2ban=False,
         enable_doctor_timer=False,
-        seed=SeedSpec("CLIENTS", "moonbase", "production", "moonbase", "platform"),
+        seed=SeedSpec("ORGANIZATIONS", "organization-alpha", "production", "organization-alpha", "platform"),
     )
 
 
@@ -26,16 +26,16 @@ def test_remote_plan_keeps_desired_values_in_json_not_shell_arguments() -> None:
     plan = build_remote_plan("operator@remote.example.com", 22, remote_spec())
     command_text = "\n".join(" ".join(command) for command in plan["commands"])
     assert "StrictHostKeyChecking=yes" in command_text
-    assert "moonbase" not in command_text
+    assert "organization-alpha" not in command_text
     assert "platform" not in command_text
-    assert plan["spec"]["seed"]["name"] == "moonbase"
+    assert plan["spec"]["seed"]["name"] == "organization-alpha"
     assert plan["claim"] == "BOOTSTRAP_TRANSPORT_ONLY"
 
 
 def test_remote_plan_requires_explicit_host_key_relaxation() -> None:
-    strict = build_remote_plan("operator@moonbase-prod-01", 22, remote_spec())
+    strict = build_remote_plan("operator@organization-alpha-prod-01", 22, remote_spec())
     first_use = build_remote_plan(
-        "operator@moonbase-prod-01", 22, remote_spec(), accept_new_host_key=True
+        "operator@organization-alpha-prod-01", 22, remote_spec(), accept_new_host_key=True
     )
     assert strict["strict_host_key_checking"] == "yes"
     assert first_use["strict_host_key_checking"] == "accept-new"

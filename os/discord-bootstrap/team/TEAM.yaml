@@ -1,0 +1,8 @@
+director: discord-bootstrap-director
+members:
+  - discord-inventory
+  - discord-planner
+  - permission-reviewer
+  - binding-engineer
+  - readback-verifier
+parallelism: bounded

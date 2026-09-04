@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "states": [
+    "PREPARED",
+    "OBSERVED",
+    "REPORTED",
+    "VERIFIED",
+    "READ_BACK",
+    "ACCEPTED"
+  ],
+  "claim_requires_evidence": true
+}

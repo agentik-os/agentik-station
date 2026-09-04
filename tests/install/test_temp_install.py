@@ -19,12 +19,12 @@ ROOT = Path(__file__).resolve().parents[2]
 def _spec(operation_id: str = "op-temp-install") -> InstallSpec:
     return InstallSpec(
         operation_id=operation_id,
-        host_id="moonbase-prod-01",
-        role="client",
+        host_id="organization-alpha-prod-01",
+        role="team",
         install_system_packages=False,
         configure_fail2ban=False,
         enable_doctor_timer=False,
-        seed=SeedSpec("CLIENTS", "moonbase", "production", "moonbase", "platform"),
+        seed=SeedSpec("ORGANIZATIONS", "organization-alpha", "production", "organization-alpha", "platform"),
     )
 
 
@@ -32,10 +32,10 @@ def test_client_install_isolated_layout_ownership_and_honest_state(tmp_path: Pat
     paths = LayoutPaths.under(tmp_path / "root")
     assert StationInstaller(ROOT, _spec(), paths=paths).apply() == "READY_FOR_SETUP"
 
-    zone = paths.runtime / "2_ZONES" / "4_CLIENTS" / "moonbase" / "prod"
+    zone = paths.runtime / "2_ZONES" / "4_ORGANIZATIONS" / "organization-alpha" / "prod"
     project = zone / "projects" / "platform"
     assert zone.is_dir() and project.is_dir()
-    assert not (paths.runtime / "2_ZONES" / "2_PRIVATE" / "gareth").exists()
+    assert not (paths.runtime / "2_ZONES" / "2_PRIVATE" / "operator").exists()
     assert not (paths.runtime / "2_ZONES" / "3_AGENTIK" / "dev").exists()
     assert (os.lstat(zone / "credentials").st_mode & 0o777) == 0o700
     assert (os.lstat(project / "credentials").st_mode & 0o777) == 0o700
@@ -79,9 +79,9 @@ def test_preexisting_symlink_in_managed_zone_blocks_apply_without_touching_targe
     victim = outside / "victim.txt"
     victim.write_text("safe")
 
-    category = paths.runtime / "2_ZONES" / "4_CLIENTS"
+    category = paths.runtime / "2_ZONES" / "4_ORGANIZATIONS"
     category.mkdir(parents=True)
-    (category / "moonbase").symlink_to(outside, target_is_directory=True)
+    (category / "organization-alpha").symlink_to(outside, target_is_directory=True)
 
     with pytest.raises(SecurityError):
         StationInstaller(ROOT, _spec("op-symlink-block"), paths=paths).apply()

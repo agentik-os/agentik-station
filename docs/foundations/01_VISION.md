@@ -45,13 +45,13 @@ AGK should avoid duplicating Hermes execution primitives.
 Agentik Node is the deployable runtime distribution and the primary organization isolation boundary.
 
 A Node can be installed for:
-- Gareth
+- Operator
 - a company
 - a client
 - a lab
 - an enterprise
 
-Client development may run in an isolated local Zone on Gareth Station. Production placement is policy-driven and normally uses a dedicated client Host/Node when stronger isolation or ownership is required.
+Client development may run in an isolated local Zone on Operator Station. Production placement is policy-driven and normally uses a dedicated team Host/Node when stronger isolation or ownership is required.
 
 ## Hermes
 
@@ -128,10 +128,10 @@ Organization
 → profiles / subagents
 ```
 
-## Example: Gareth
+## Example: Operator
 
 ```text
-Gareth
+Operator
 ├── Business
 │   ├── Strategy
 │   ├── Product
@@ -156,10 +156,10 @@ Gareth
     └── OS Factory
 ```
 
-## Example: Moonbase
+## Example: Example Client
 
 ```text
-Moonbase Capital
+Example Client Capital
 ├── Investment Operations
 │   ├── Searchers
 │   ├── Dealflow
@@ -180,4 +180,4 @@ Moonbase Capital
     └── Backoffice
 ```
 
-These structures are intentionally different; Discord is generated from each organization rather than copied from Gareth.
+These structures are intentionally different; Discord is generated from each organization rather than copied from Operator.

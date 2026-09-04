@@ -9,7 +9,7 @@
 
 ## 1. Executive verdict
 
-Agentik Station has a strong product and systems vision. The vocabulary — **Host, Control Plane, Zone, Project, OS, Workspace, Fleet** — is coherent. The placement-independent Zone model is particularly good: the same contract can represent a client development Zone on Gareth's core VPS and a production Zone on a remote client VPS.
+Agentik Station has a strong product and systems vision. The vocabulary — **Host, Control Plane, Zone, Project, OS, Workspace, Fleet** — is coherent. The placement-independent Zone model is particularly good: the same contract can represent a organization development Zone on Operator's core VPS and a production Zone on a remote client VPS.
 
 However, the current repository is not yet the installable Station described by its documentation. It is best classified as:
 
@@ -61,11 +61,11 @@ STATION
 ### 2.2 Placement-independent Zones
 
 ```text
-moonbase-dev
-  host: gareth-core-01
+organization-alpha-dev
+  host: station-core-01
 
-moonbase-prod
-  host: moonbase-prod-01
+organization-alpha-prod
+  host: organization-alpha-prod-01
 ```
 
 The identity of the Zone does not change when its placement changes.
@@ -144,7 +144,7 @@ remote_cmd = 'cd ' + remote_dir + ' && sudo ./install ' + ' '.join(install_args)
 A dry-run with:
 
 ```text
---zone-name 'acme;touch /tmp/STATION_PWN'
+--zone-name 'organization-alpha;touch /tmp/STATION_PWN'
 ```
 
 produced a remote command containing the injected shell command.
@@ -250,7 +250,7 @@ This does not require publishing archive hashes in user-facing output. It requir
 install_station.py --plan
 ```
 
-It cannot receive Host role, Host ID or seed Zone parameters. Documentation presents it as the installation dry-run, but client/project planning requires bypassing the Station CLI and calling the installer directly.
+It cannot receive Host role, Host ID or seed Zone parameters. Documentation presents it as the installation dry-run, but organization/project planning requires bypassing the Station CLI and calling the installer directly.
 
 **Required correction:** one shared typed `InstallSpec` must drive `plan`, `apply`, remote bootstrap and tests.
 
@@ -581,7 +581,7 @@ recovery rehearsal
 The Zone's human-operational directory remains under `/srv`, while high-churn service state belongs under `/var/lib`.
 
 ```text
-/srv/station/2_ZONES/4_CLIENTS/moonbase/dev/
+/srv/station/2_ZONES/4_ORGANIZATIONS/organization-alpha/dev/
 ├── ZONE.yaml
 ├── README.md
 ├── projects/
@@ -591,7 +591,7 @@ The Zone's human-operational directory remains under `/srv`, while high-churn se
 ├── evidence/            # human index/exports
 └── ops/
 
-/var/lib/station/zones/moonbase-dev/
+/var/lib/station/zones/organization-alpha-dev/
 ├── hermes/
 ├── mission-state/
 ├── databases/
@@ -885,8 +885,8 @@ The crucial change is **one canonical implementation per concern**. Factory copi
 
 ### What should not happen now
 
-- do not run the current `sudo ./install` on Gareth's real VPS;
-- do not bootstrap a remote client Host with the current CLI;
+- do not run the current `sudo ./install` on Operator's real VPS;
+- do not bootstrap a remote team Host with the current CLI;
 - do not call the Discord/Composio/Fleet modules operational;
 - do not store real client credentials in this version;
 - do not publish it as a production-ready installer.

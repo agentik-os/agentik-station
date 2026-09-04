@@ -1,0 +1,5 @@
+plan_first: required
+progress_surface: single-editable-mission-card
+components: v2-preferred
+tool_noise: logs-only
+final_report: required

@@ -1,0 +1,6 @@
+id: devops-os
+name: "DevOps OS"
+version: "11.12"
+contract: AGK OS v2
+nano_director: atlas
+purpose: "Plan, build, review, test, ship, observe, and recover software through evidence-driven engineering with minimal unnecessary code."

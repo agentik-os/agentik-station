@@ -10,13 +10,13 @@ If a required security field is absent or ambiguous: **block or ask**.
 
 ## 2. Never cross trust zones implicitly
 
-No agent may infer that because two workloads are owned by Gareth they may share raw memory, secrets, sessions or filesystem access.
+No agent may infer that because two workloads are owned by Operator they may share raw memory, secrets, sessions or filesystem access.
 
 Cross-zone exchange requires an explicit typed capability and a sanitized artifact/event.
 
 ## 3. Client isolation is physical/VM-level by default
 
-A serious production client gets a separate Agentik Station/Node/VPS. The Gareth Station may hold fleet metadata, but no client raw production state by default.
+A serious production client gets a separate Agentik Station/Node/VPS. The Operator Station may hold fleet metadata, but no client raw production state by default.
 
 ## 4. Hermes-native first
 

@@ -1,0 +1,18 @@
+organization_station:
+  station_id: organization-alphorganization-alpha-01
+  organization_id: organization-alpha
+  deployment: dedicated_vps
+  ring: organization_stable
+  central_fleet_visibility:
+    - station_version
+    - hermes_version
+    - os_versions
+    - health
+    - doctor_receipt
+    - backup_age
+  centrally_forbidden_by_default:
+    - raw_memory
+    - sessions
+    - plaintext_secrets
+    - private_documents
+    - production_database_copy

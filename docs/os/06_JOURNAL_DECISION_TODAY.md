@@ -1,6 +1,6 @@
 # Journal OS, Decision OS and Today OS
 
-These are important parts of Gareth's Life / Business system.
+These are important parts of Operator's Life / Business system.
 
 ## Journal OS
 

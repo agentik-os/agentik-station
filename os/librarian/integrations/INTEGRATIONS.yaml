@@ -1,0 +1,6 @@
+adapters:
+  hermes_native: preferred
+  mcp: allowed-by-contract
+  composio: allowed-by-contract
+  direct_api: explicit-only
+secrets: references-only

@@ -1,0 +1,4 @@
+default_capability: deny
+cross_zone: deny
+production_write: approval
+secrets_export: deny

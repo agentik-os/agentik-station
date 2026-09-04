@@ -1,0 +1,4 @@
+contract: station-orchestration/v1
+plan_first: true
+ownership_visible: true
+evidence_before_claims: true

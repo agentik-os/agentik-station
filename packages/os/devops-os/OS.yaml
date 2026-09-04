@@ -1,7 +1,0 @@
-id: devops-os
-version: 1.0.0
-director: devops-director
-hermes_native: true
-ponytail: required
-dedicated_discord_bot: true
-engineering_constitution: docs/engineering/01_ENGINEERING_CONSTITUTION.md

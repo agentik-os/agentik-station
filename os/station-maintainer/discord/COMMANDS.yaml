@@ -1,0 +1,7 @@
+bot:
+  dedicated: true
+  nano_director: station-maintainer
+commands:
+  - /status
+  - /plan
+  - /doctor

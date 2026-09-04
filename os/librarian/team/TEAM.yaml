@@ -1,0 +1,17 @@
+director: oracle
+members:
+  - intake-architect
+  - research-planner
+  - source-scout
+  - book-analyst
+  - scholar
+  - evidence-curator
+  - synthesist
+  - adversarial-critic
+  - graph-engineer
+  - learning-designer
+  - application-architect
+  - knowledge-steward
+  - verification-engineer
+  - release-librarian
+parallelism: bounded

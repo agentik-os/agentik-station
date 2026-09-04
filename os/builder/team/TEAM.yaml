@@ -1,0 +1,13 @@
+director: master-os-builder
+members:
+  - domain-scout
+  - os-architect
+  - program-engineer
+  - integration-engineer
+  - evaluation-engineer
+  - specification-reviewer
+  - test-engineer
+  - security-tenancy-reviewer
+  - recovery-auditor
+  - discord-experience-engineer
+parallelism: bounded

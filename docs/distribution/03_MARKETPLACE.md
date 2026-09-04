@@ -20,8 +20,8 @@ Industry OS
 └── ...
 
 Private Organization OS
-├── Moonbase private
-├── Dentistry private
+├── Example Client private
+├── Example Client B private
 └── Client-specific
 ```
 

@@ -15,15 +15,15 @@ ROOT = Path(__file__).resolve().parents[2]
 def _minimal_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "repo"
     (repo / "config").mkdir(parents=True)
-    (repo / "packages" / "os").mkdir(parents=True)
+    (repo / "os").mkdir(parents=True)
     shutil.copy2(ROOT / "config" / "station.default.json", repo / "config" / "station.default.json")
-    shutil.copy2(ROOT / "packages" / "os" / "CATALOG.json", repo / "packages" / "os" / "CATALOG.json")
+    shutil.copy2(ROOT / "os" / "CATALOG.json", repo / "os" / "CATALOG.json")
     return repo
 
 
 def test_canonical_config_loads_and_contains_every_host_role() -> None:
     config = load_station_config(ROOT)
-    assert set(config.roles) == {"core", "client", "project", "lab", "worker"}
+    assert set(config.roles) == {"core", "team", "project", "lab", "worker"}
     assert config.policy["unresolved_context"] == "block"
 
 

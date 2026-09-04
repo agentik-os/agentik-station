@@ -86,6 +86,8 @@ class IdentityManager:
             return
         subuid = Path("/etc/subuid")
         subgid = Path("/etc/subgid")
+        self._audit_subid_file(subuid)
+        self._audit_subid_file(subgid)
         existing_uid = self._read_subid(subuid, name)
         existing_gid = self._read_subid(subgid, name)
         if existing_uid and existing_gid:
@@ -97,6 +99,29 @@ class IdentityManager:
         start = self._next_free_subid((subuid, subgid))
         self._append_subid(subuid, name, start)
         self._append_subid(subgid, name, start)
+
+    @staticmethod
+    def _audit_subid_file(path: Path) -> None:
+        if not path.exists():
+            return
+        ranges: list[tuple[int, int, str]] = []
+        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            parts = line.split(":")
+            if len(parts) != 3:
+                continue
+            try:
+                start, count = int(parts[1]), int(parts[2])
+            except ValueError:
+                raise ReconcileError(f"Invalid subordinate ID record at {path}:{line_no}")
+            if count <= 0:
+                raise ReconcileError(f"Invalid subordinate ID count at {path}:{line_no}")
+            ranges.append((start, start + count, parts[0]))
+        for previous, current in zip(sorted(ranges), sorted(ranges)[1:]):
+            if current[0] < previous[1]:
+                raise ReconcileError(
+                    f"Overlapping subordinate ID ranges in {path}: {previous[2]} and {current[2]}. "
+                    "Repair the host identity map before Station reconciliation."
+                )
 
     @staticmethod
     def _read_subid(path: Path, name: str) -> tuple[int, int] | None:
@@ -164,7 +189,7 @@ def zone_unix_user(category: str, name: str, environment: str) -> str:
         return "z-factory"
     if category == "LAB":
         return "z-lab"
-    prefix = "z-c-" if category == "CLIENTS" else "z-p-"
+    prefix = "z-o-" if category == "ORGANIZATIONS" else "z-p-"
     suffix = {"development": "dev", "staging": "stg", "production": "prod"}[environment]
     value = f"{prefix}{name}-{suffix}"
     if len(value) > 31:

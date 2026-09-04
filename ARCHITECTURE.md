@@ -2,7 +2,7 @@
 
 ## 1. Architectural objective
 
-Station must host and control private work, Agentik development, OS creation, personal projects, local client development, and remote client/project production without mixing filesystem access, identities, credentials, memory, connected accounts, or runtime evidence.
+Station must host and control private work, Agentik development, OS creation, personal projects, local organization development, and remote organization/project production without mixing filesystem access, identities, credentials, memory, connected accounts, or runtime evidence.
 
 The architecture combines:
 
@@ -32,8 +32,8 @@ Station Control Plane
                 │
                 ▼
 Hosts
-├── Gareth core Host
-├── client production Hosts
+├── Operator core Host
+├── organization production Hosts
 ├── personal project Hosts
 └── laboratory/worker Hosts
                 │
@@ -65,30 +65,30 @@ Zones
 Placement does not alter identity or structure.
 
 ```text
-Organization: Moonbase
-├── moonbase-dev
-│   ├── category: CLIENTS
+Organization: Example Client
+├── organization-alpha-dev
+│   ├── category: ORGANIZATIONS
 │   ├── environment: development
-│   └── host: gareth-core-01
-├── moonbase-staging
-│   └── host: moonbase-staging-01 (optional)
-└── moonbase-prod
-    ├── category: CLIENTS
+│   └── host: station-core-01
+├── organization-alpha-staging
+│   └── host: organization-alpha-staging-01 (optional)
+└── organization-alpha-prod
+    ├── category: ORGANIZATIONS
     ├── environment: production
-    └── host: moonbase-prod-01
+    └── host: organization-alpha-prod-01
 ```
 
-A local client is not stored under a special `LOCAL_CLIENTS` tree. A remote project is not stored under a special `REMOTE_PROJECTS` tree. Host placement belongs in desired state.
+A local client is not stored under a special `LOCAL_ORGANIZATIONS` tree. A remote project is not stored under a special `REMOTE_PROJECTS` tree. Host placement belongs in desired state.
 
 ## 5. Host roles
 
 ### Core Host
 
-Runs the base System Zones plus Gareth private, Agentik development, OS Factory, LAB, and selected local client/project Zones.
+Runs the base System Zones plus Operator private, Agentik development, OS Factory, LAB, and selected local organization/project Zones.
 
-### Client Host
+### Organization Host
 
-Runs only the base System Zones and explicitly requested client Zones. It does not install Gareth Private, Agentik Development, Factory, or unrelated clients.
+Runs only the base System Zones and explicitly requested client Zones. It does not install Operator Private, Agentik Development, Factory, or unrelated clients.
 
 ### Project Host
 
@@ -125,7 +125,7 @@ Runs the minimum system control/worker Zones required for future Fleet execution
 │   ├── 1_SYSTEM/
 │   ├── 2_PRIVATE/
 │   ├── 3_AGENTIK/
-│   ├── 4_CLIENTS/
+│   ├── 4_ORGANIZATIONS/
 │   ├── 5_PROJECTS/
 │   ├── 6_FACTORY/
 │   └── 7_LAB/
@@ -268,7 +268,7 @@ Logs                              Hermes logs/events
 Learning                          Hermes learning + AGK promotion governance
 ```
 
-The v11 Kernel declares desired OS packages but does not falsely install them. A future Hermes compiler must create profiles/distributions, boards, plugins, gateways, capability bindings, and acceptance evidence before changing runtime state.
+Station 11.12 declares desired OS packages as `NOT_INSTALLED` and includes a deterministic AGK OS → Hermes Profile Distribution compiler for the Nano Director and persistent worker profiles. `station os install` installs compiled profiles into the target Zone-local `HERMES_HOME`; `station os verify` runs Hermes profile Doctor. Boards, dedicated Discord enrollment, connector readback and fresh-session acceptance remain separate gates before `OPERATIONAL`.
 
 ## 11. Credentials and connected accounts
 
@@ -291,7 +291,7 @@ Mission-scoped delivery
 
 ## 12. Remote Fleet direction
 
-v11 includes a hardened **bootstrap transport**, not a completed Fleet Control Plane:
+Station 11.12 includes a hardened typed **remote bootstrap + readback transport**; it is intentionally not an unauthenticated general-purpose daemon:
 
 ```text
 local trusted repo
@@ -302,10 +302,12 @@ remote private staging directory
     ↓
 remote Station reconciler
     ↓
-reported status
+remote status + full Doctor readback
+    ↓
+verified bootstrap evidence
 ```
 
-It does not yet claim drift reconciliation, Node Agent attestation, remote rollback, or accepted readback. Those require the future Station Node Agent and operation receipts ingested by Control.
+A bootstrap may reach `REMOTE_READBACK_VERIFIED` only when Host identity, observed state and Doctor agree. Continuous drift reconciliation, Tailscale identity attestation and remote rollback rehearsal remain Fleet acceptance gates. Station deliberately avoids adding an inbound Node Agent API until that additional attack surface is justified.
 
 ## 13. Release and update model
 
@@ -322,7 +324,7 @@ repository candidate
 → controlled Fleet rollout
 ```
 
-Hermes upstream changes are checked and planned, never blindly applied to stable/client Hosts. Station Maintainer must classify each change as native replacement, native extension, schema change, behavior change, security change, or no action.
+Hermes upstream changes are checked and planned, never blindly applied to stable/team Hosts. Station Maintainer must classify each change as native replacement, native extension, schema change, behavior change, security change, or no action.
 
 ## 14. Mission orchestration
 
@@ -359,3 +361,14 @@ Discord projects this semantic state through one editable Mission Progress Card.
 - failed reconciliation records `DEGRADED` and a next repair action;
 - present binary/config file never raises a module to operational readiness;
 - backup is not trusted until a destructive restore rehearsal passes.
+
+## Dedicated bootstrap account
+
+The Host bootstrap creates the human/automation account `agk-station`. Coding agents, Hermes user state, Codex user state and the canonical working checkout live under `/home/agk-station`; root is reserved for privileged Host reconciliation only. The Station runtime itself remains FHS-aligned under `/etc/station`, `/opt/station`, `/srv/station`, `/var/lib/station`, `/var/log/station`, `/var/backups/station` and `/run/station`.
+
+Station supports two top-level bootstrap modes without forking the architecture:
+
+- `full`: operator/Agentik mode, backed by Host role `core`;
+- `team`: company/team mode, backed by Host role `team` and an `ORGANIZATIONS` Zone.
+
+In team mode, personal context is represented by member principals inside the Organization, not by one shared `PRIVATE` Zone.

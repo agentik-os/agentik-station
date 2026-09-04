@@ -20,7 +20,7 @@ stable
 
 Suggested:
 - lab = edge
-- Gareth = candidate
+- Operator = candidate
 - clients = stable
 
 ## Pipeline

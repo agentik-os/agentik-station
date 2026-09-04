@@ -1,0 +1,15 @@
+capabilities:
+  - id: librarian.request
+    default: deny-unless-granted
+  - id: os.scaffold
+    default: deny-unless-granted
+  - id: os.validate
+    default: deny-unless-granted
+  - id: os.compile.hermes
+    default: deny-unless-granted
+  - id: os.package
+    default: deny-unless-granted
+  - id: os.doctor
+    default: deny-unless-granted
+  - id: os.recovery.plan
+    default: deny-unless-granted

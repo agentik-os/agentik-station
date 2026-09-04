@@ -1,0 +1,15 @@
+capabilities:
+  - id: repo.read
+    default: deny-unless-granted
+  - id: repo.write
+    default: deny-unless-granted
+  - id: tests.run
+    default: deny-unless-granted
+  - id: ci.read
+    default: deny-unless-granted
+  - id: deployment.staging
+    default: deny-unless-granted
+  - id: deployment.production.approval
+    default: deny-unless-granted
+  - id: evidence.write
+    default: deny-unless-granted

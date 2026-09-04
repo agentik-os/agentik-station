@@ -1,0 +1,6 @@
+id: station-maintainer-os
+name: "Station Maintainer OS"
+version: "11.12"
+contract: AGK OS v2
+nano_director: station-maintainer
+purpose: "Maintain Station, track Hermes upstream, reconcile safe upgrades, run compatibility gates, and preserve recoverability."

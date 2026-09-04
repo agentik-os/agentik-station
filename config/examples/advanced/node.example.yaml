@@ -1,12 +1,12 @@
 schema_version: 2
 
 station:
-  id: gareth-station-01
+  id: agentik-station-01
   mode: owner
   release_channel: candidate
 
 node:
-  organization_id: gareth
+  organization_id: operator
   environment: production
 
 runtime:
@@ -19,7 +19,7 @@ security:
   verify_on_stop: true
   require_context_for_sensitive_actions: true
   trust_zone_isolation: unix_user_and_hermes_home
-  production_clients_on_separate_nodes: true
+  production_organizations_on_separate_nodes: true
 
 integrations:
   discord: true

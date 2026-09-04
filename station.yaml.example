@@ -1,9 +1,9 @@
 schema_version: station.desired/v2
 station:
-  id: gareth-station
-  host_id: gareth-core-01
+  id: agentik-station
+  host_id: station-core-01
   role: core
-  release_version: 0.2.0-alpha.11
+  release_version: 11.11
 
 paths:
   desired_state: /etc/station

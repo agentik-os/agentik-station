@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "composio-plane",
+  "maturity": "INSTALLABLE",
+  "claim": "Station principal/binding/session adapter is implemented with explicit toolkit/account allowlists; live OAuth/session/MCP readback is pending.",
+  "binary_probes": [],
+  "next_repair_action": "Enroll test accounts, create scoped sessions/MCP, validate triggers/revocation and cross-Zone negative tests."
+}

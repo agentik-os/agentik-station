@@ -8,8 +8,14 @@ __pycache__/
 *.token
 runtime-state/
 dist/
-*.egg-info/
-.venv/
-venv/
-.eggs/
-build/
+
+# Local desired-state / operator artifacts
+station.install.json
+*.install.local.json
+.station/
+
+# Local credential material
+*.cred
+*.credentials
+*.key
+*.pem

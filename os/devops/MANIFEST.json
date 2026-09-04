@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "devops-os",
+  "version": "11.12",
+  "source": "canonical",
+  "runtime_target": "Hermes",
+  "contract": "AGK OS v2"
+}

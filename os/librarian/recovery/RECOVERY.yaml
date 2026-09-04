@@ -1,0 +1,3 @@
+artifact_required: true
+restore_rehearsal_required_for_operational: true
+fresh_session_acceptance: true

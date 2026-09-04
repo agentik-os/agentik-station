@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "station-kernel",
+  "maturity": "VERIFIED",
+  "claim": "Typed plan/apply, SafeFS, immutable releases, receipts, Doctor and adversarial safety tests are implemented and locally verified.",
+  "binary_probes": []
+}

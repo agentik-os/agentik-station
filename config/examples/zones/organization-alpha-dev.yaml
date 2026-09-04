@@ -1,0 +1,9 @@
+id: organization-alpha-dev
+category: ORGANIZATIONS
+organization: organization-alpha
+environment: development
+host: station-core-01
+unix_user: z-organization-alpha-dev
+hermes_home: /srv/station/2_ZONES/4_ORGANIZATIONS/organization-alpha/dev/runtime/hermes
+projects:
+  - platform

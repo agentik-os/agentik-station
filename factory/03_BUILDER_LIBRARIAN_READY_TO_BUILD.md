@@ -2,11 +2,11 @@
 
 Canonical active source:
 
-- `packages/os/builder-os/`
-- `packages/os/librarian-os/`
+- `os/builder/`
+- `os/librarian/`
 - `factory/programs/`
 - `factory/workflows/`
-- `factory/05_OS_TEMPLATE/`
-- `factory/06_SCHEMAS/`
+- `os/_template/`
+- `factory/schemas/`
 
-The original input pack is preserved as one archive under `source-packs/`; it is not another editable source tree.
+The original input pack is preserved as one archive under `docs/history/`; it is not another editable source tree.

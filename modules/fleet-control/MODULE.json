@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "fleet-control",
+  "maturity": "INSTALLABLE",
+  "claim": "Safe typed remote bootstrap with strict SSH checking, immutable release archive, operation IDs and receipts is implemented; persistent drift/reconcile agent and remote rollback acceptance are pending.",
+  "binary_probes": [],
+  "next_repair_action": "Pass a remote disposable Host rollout, drift detection and rollback gate over Tailscale."
+}

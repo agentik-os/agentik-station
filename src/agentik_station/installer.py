@@ -68,7 +68,7 @@ def validate_supported_host(paths: LayoutPaths) -> None:
     if paths.test_mode:
         return
     if platform.system() != "Linux":
-        raise ReconcileError("Station v11 supports Linux only")
+        raise ReconcileError("Station 11.12 supports Linux only")
     os_release = Path("/etc/os-release")
     if not os_release.is_file():
         raise ReconcileError("Cannot identify Linux distribution: /etc/os-release is missing")
@@ -81,7 +81,7 @@ def validate_supported_host(paths: LayoutPaths) -> None:
     like = values.get("ID_LIKE", "")
     if distro not in {"ubuntu", "debian"} and "debian" not in like.split():
         raise ReconcileError(
-            f"Unsupported distribution {distro!r}. v11 is intentionally scoped to Ubuntu/Debian with systemd."
+            f"Unsupported distribution {distro!r}. 11.12 is intentionally scoped to Ubuntu/Debian with systemd."
         )
     if not shutil.which("apt-get"):
         raise ReconcileError("apt-get is required by the current Ubuntu/Debian provider")
@@ -144,7 +144,7 @@ class StationInstaller:
         if as_json:
             print(json.dumps(payload, indent=2, sort_keys=True))
             return
-        print(f"Agentik Station v11 plan · {self.spec.operation_id}")
+        print(f"Agentik Station 11.12 plan · {self.spec.operation_id}")
         print(f"Host: {self.spec.host_id} · role: {self.spec.role} · release: {self.spec.release_version}")
         for index, step in enumerate(build_plan(self.spec, self.config), 1):
             print(f"{index}. {step.id}: {step.description}")
@@ -352,10 +352,10 @@ class StationInstaller:
                     )
                 self.fs.remove_tree_strict(stage)
             else:
-                # Freeze after the atomic move. Freezing the staging tree first
-                # (mode 0555) makes os.replace fail with EACCES on Linux kernels
-                # that require write permission on the directory being renamed,
-                # and also blocks exception-path cleanup of the stage tree.
+                # Move the writable staged tree atomically first, then freeze the
+                # final immutable release in place. Freezing the staging directory
+                # itself removes write permission from its parent entry and can
+                # make rename fail for non-root sandbox reconciliation.
                 os.replace(stage, release)
                 self.fs.freeze_tree(release)
                 if release not in self.fs.journal.created_dirs:
@@ -435,7 +435,7 @@ class StationInstaller:
 
     def _zone_human_path(self, zone: ZoneSpec) -> Path:
         base = self.paths.runtime / "2_ZONES" / CATEGORIES[zone.category]
-        if zone.category in {"CLIENTS", "PROJECTS"}:
+        if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
             path = base / zone.name / environment_slug(zone.environment)
         else:
             path = base / zone.name
@@ -477,6 +477,7 @@ class StationInstaller:
         self.fs.mkdir(self.paths.log / "zones" / zone.zone_id, 0o700, owner)
         self.fs.mkdir(self.paths.run / "zones" / zone.zone_id, 0o700, owner)
         self.fs.mkdir(self.paths.backups / "zones" / zone.zone_id, 0o700, root_owner)
+        self._configure_zone_rootless(zone, identity, state_root)
 
         payload = {
             "schema_version": 2,
@@ -501,6 +502,16 @@ class StationInstaller:
                 "cross_zone_mounts": "deny",
             },
         }
+        if zone.category == "ORGANIZATIONS":
+            self.fs.write_text(
+                human / "members" / "README.md",
+                "# Organization member scopes\n\n"
+                "Member scopes hold bindings and namespaces for individual humans inside the Organization. "
+                "They are not a substitute for a separate Zone when hard filesystem isolation is required.\n",
+                0o640,
+                owner,
+            )
+
         self.fs.write_text(human / "ZONE.json", json.dumps(payload, indent=2, sort_keys=True) + "\n", 0o640, owner)
         self.fs.write_text(
             human / "ZONE.yaml",
@@ -558,6 +569,75 @@ class StationInstaller:
         self._zone_identities[zone.zone_id] = identity
         self._zone_paths[zone.zone_id] = human
 
+    def _configure_zone_rootless(self, zone: ZoneSpec, identity: Identity, state_root: Path) -> None:
+        """Provision deterministic per-Zone rootless container configuration.
+
+        This does not start containers or claim runtime verification. It creates
+        isolated storage/config roots that a Zone-owned Podman service can use
+        after the external runtime gate is enrolled.
+        """
+        owner = (identity.uid, identity.gid) if identity.uid >= 0 else (os.getuid(), os.getgid())
+        home = state_root / "home"
+        config = home / ".config" / "containers"
+        data = home / ".local" / "share" / "containers"
+        runtime = state_root / "rootless"
+        self.fs.mkdir(config, 0o700, owner)
+        self.fs.mkdir(data, 0o700, owner)
+        self.fs.mkdir(runtime, 0o700, owner)
+        self.fs.mkdir(runtime / "networks", 0o700, owner)
+        self.fs.write_text(
+            config / "storage.conf",
+            (
+                "[storage]\n"
+                'driver = "overlay"\n'
+                f'graphroot = "{data / "storage"}"\n'
+                f'runroot = "{self.paths.run / "zones" / zone.zone_id / "containers"}"\n'
+                "\n[storage.options]\n"
+                'mount_program = "/usr/bin/fuse-overlayfs"\n'
+            ),
+            0o600,
+            owner,
+        )
+        self.fs.write_text(
+            config / "containers.conf",
+            (
+                "[containers]\n"
+                "pids_limit = 2048\n"
+                "default_capabilities = []\n"
+                "no_hosts = false\n"
+                "\n[engine]\n"
+                'events_logger = "file"\n'
+                f'events_logfile_path = "{self.paths.log / "zones" / zone.zone_id / "podman-events.log"}"\n'
+            ),
+            0o600,
+            owner,
+        )
+        self.fs.write_text(
+            runtime / "POLICY.json",
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "zone_id": zone.zone_id,
+                    "unix_user": identity.name,
+                    "storage_root": str(data / "storage"),
+                    "run_root": str(self.paths.run / "zones" / zone.zone_id / "containers"),
+                    "network_policy": "zone-private-by-default",
+                    "cross_zone_mounts": "deny",
+                    "resource_policy": {
+                        "pids_limit": 2048,
+                        "cpu": "explicit-per-workload",
+                        "memory": "explicit-per-workload",
+                    },
+                    "claim": "ROOTLESS_CONFIGURED_NOT_RUNTIME_VERIFIED",
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            0o600,
+            owner,
+        )
+
     def _create_project(self, zone: ZoneSpec, project_id: str) -> None:
         project_id = validate_identifier(project_id, "project_id")
         identity = self._zone_identities.get(zone.zone_id)
@@ -599,7 +679,7 @@ class StationInstaller:
         )
 
     def _os_catalog(self) -> dict[str, Any]:
-        return load_os_catalog(self.repo_root / "packages" / "os" / "CATALOG.json")
+        return load_os_catalog(self.repo_root / "os" / "CATALOG.json")
 
     def _install_systemd(self) -> None:
         source = self.repo_root / "runtime" / "systemd"

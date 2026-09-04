@@ -18,7 +18,7 @@ INTERACTION PLANE
 Dedicated OS Discord bots/channels · Agentik UI/API · approvals · notifications
 ```
 
-A Station can host one organization or, for Gareth-owned workloads only, several explicit trust zones. A production client receives its own Station/Node/VPS.
+A Station can host one organization or, for Operator-owned workloads only, several explicit trust zones. A production client receives its own Station/Node/VPS.
 
 ## Station invariants
 

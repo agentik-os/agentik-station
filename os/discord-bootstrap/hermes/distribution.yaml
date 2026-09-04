@@ -1,0 +1,5 @@
+name: discord-bootstrap-os
+version: "11.12"
+description: "Provision and reconcile dedicated OS bot surfaces, roles, channels, commands, permissions, bindings, readback, and least-privilege demotion."
+profile_id: discord-bootstrap-director
+skills_dir: ../skills

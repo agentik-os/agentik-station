@@ -22,7 +22,7 @@ def main():
         text = (
             "STATION CONTEXT (authoritative desired-state envelope):\n"
             + json.dumps(compact, ensure_ascii=False, separators=(",", ":"))
-            + "\nINVARIANTS: never guess a different trust zone/client/project; secrets are references only; "
+            + "\nINVARIANTS: never guess a different trust zone/organization/project; secrets are references only; "
               "cross-zone access requires explicit capability; durable work uses Mission/Kanban; "
               "code/deploy work follows the Engineering Constitution; unresolved security context blocks execution."
         )

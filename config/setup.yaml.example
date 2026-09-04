@@ -1,6 +1,6 @@
 schema_version: station.setup/v2
 host:
-  host_id: gareth-core-01
+  host_id: station-core-01
   kernel_state: READY_FOR_SETUP
 
 gates:

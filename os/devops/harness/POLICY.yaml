@@ -1,0 +1,5 @@
+plan_first: true
+evidence_before_claims: true
+loop_graph: true
+bounded_retries: true
+independent_verification: true

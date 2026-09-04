@@ -24,9 +24,9 @@ Example not automatically allowed:
 full raw private journal
 ```
 
-## Client to Gareth
+## Client to Operator
 
-Gareth Business OS may receive:
+Operator Business OS may receive:
 - status
 - invoice state
 - next action

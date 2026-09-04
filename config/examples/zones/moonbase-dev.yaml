@@ -1,9 +1,0 @@
-id: moonbase-dev
-category: CLIENTS
-organization: moonbase
-environment: development
-host: gareth-core-01
-unix_user: z-moonbase-dev
-hermes_home: /srv/station/2_ZONES/4_CLIENTS/moonbase/dev/runtime/hermes
-projects:
-  - platform

@@ -313,11 +313,7 @@ class SafeFS:
             raise SecurityError(f"Source tree must be a real directory: {source}")
         self.mkdir(destination, 0o755)
         for entry in sorted(os.scandir(source), key=lambda item: item.name):
-            if (
-                entry.name in excludes
-                or entry.name.endswith(".pyc")
-                or entry.name.endswith(".egg-info")
-            ):
+            if entry.name in excludes or entry.name.endswith(".pyc"):
                 continue
             src = source / entry.name
             dst = destination / entry.name
@@ -330,6 +326,24 @@ class SafeFS:
             else:
                 raise SecurityError(f"Special files are not accepted in a release: {src}")
 
+    @staticmethod
+    def _make_owner_writable(path: Path, st: os.stat_result) -> None:
+        """Allow the current privileged reconciler to remove a frozen immutable release tree.
+
+        In production Station apply runs as root. In sandbox tests it runs as the
+        invoking user, so frozen 0444/0555 staging trees must temporarily regain
+        owner write/search permission before cleanup. This never follows symlinks.
+        """
+        mode = stat.S_IMODE(st.st_mode)
+        desired = mode | stat.S_IWUSR
+        if stat.S_ISDIR(st.st_mode):
+            desired |= stat.S_IXUSR
+        if desired != mode:
+            try:
+                os.chmod(path, desired, follow_symlinks=False)
+            except (PermissionError, NotImplementedError):
+                pass
+
     def remove_tree_strict(self, path: Path | str) -> None:
         target = _absolute(path)
         self.anchor_for(target)
@@ -339,6 +353,7 @@ class SafeFS:
             return
         if stat.S_ISLNK(st.st_mode):
             raise SecurityError(f"Refusing to recursively remove symlink: {target}")
+        self._make_owner_writable(target, st)
         if not stat.S_ISDIR(st.st_mode):
             if stat.S_ISREG(st.st_mode):
                 target.unlink()
@@ -351,6 +366,8 @@ class SafeFS:
             if entry.is_dir(follow_symlinks=False):
                 self.remove_tree_strict(child)
             elif entry.is_file(follow_symlinks=False):
+                child_st = os.lstat(child)
+                self._make_owner_writable(child, child_st)
                 child.unlink()
             else:
                 raise SecurityError(f"Special file found in managed removal tree: {child}")

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "host-foundation",
+  "maturity": "VERIFIED",
+  "claim": "Ubuntu/Debian systemd host foundation, Unix identities, subordinate-ID collision audit, exact ownership and permissions are implemented and locally verified.",
+  "binary_probes": []
+}

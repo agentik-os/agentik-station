@@ -1,0 +1,9 @@
+director: station-maintainer
+members:
+  - hermes-upstream-scout
+  - compatibility-engineer
+  - regression-engineer
+  - security-reviewer
+  - release-manager
+  - recovery-auditor
+parallelism: bounded

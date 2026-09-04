@@ -15,4 +15,4 @@ health:
 
 update:
   ring: lab_then_candidate
-  auto_client_rollout: false
+  auto_organization_rollout: false

@@ -1,0 +1,8 @@
+director: fleet-operator
+members:
+  - host-inventory
+  - release-planner
+  - drift-reviewer
+  - remote-doctor
+  - rollback-operator
+parallelism: bounded

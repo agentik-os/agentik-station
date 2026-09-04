@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+export PYTHONDONTWRITEBYTECODE=1
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATION="$ROOT/station"
+
+usage() {
+  cat <<'USAGE'
+Agentik Station 11.12 orchestration wrapper
+
+Primary workflows:
+  ./station.sh bootstrap --mode full [--host-id station-core-01] [--yes]
+  ./station.sh bootstrap --mode team --organization ORG --project PROJECT [--env development] [--yes]
+  ./station.sh plan ...
+  ./station.sh doctor
+  ./station.sh status
+  ./station.sh setup
+
+Modes:
+  full  Full operator/Agentik Station (Host role core).
+  team  Organization/team Station (Host role team, no Station-wide Private Zone).
+
+The wrapper always creates one typed InstallSpec, shows the exact plan, then applies that same spec.
+USAGE
+}
+
+require_station(){ [[ -x "$STATION" ]] || { echo "ERROR: missing $STATION" >&2; exit 2; }; }
+
+build_desired(){
+  local mode="full" host="" org="" project="" env="development"
+  local -a passthrough=()
+  while (($#)); do
+    case "$1" in
+      --mode) mode="$2"; shift 2;;
+      --host-id) host="$2"; shift 2;;
+      --organization) org="$2"; shift 2;;
+      --project) project="$2"; shift 2;;
+      --env) env="$2"; shift 2;;
+      *) passthrough+=("$1"); shift;;
+    esac
+  done
+  case "$mode" in
+    full)
+      printf '%s\0' --host-id "${host:-station-core-01}" --role core
+      ((${#passthrough[@]} == 0)) || printf '%s\0' "${passthrough[@]}"
+      ;;
+    team)
+      [[ -n "$org" ]] || { echo "ERROR: --organization is required for --mode team" >&2; return 2; }
+      printf '%s\0' --host-id "${host:-${org}-station-01}" --role team --seed-category ORGANIZATIONS --seed-name "$org" --seed-env "$env" --seed-organization "$org"
+      [[ -n "$project" ]] && printf '%s\0' --seed-project "$project"
+      ((${#passthrough[@]} == 0)) || printf '%s\0' "${passthrough[@]}"
+      ;;
+    *) echo "ERROR: --mode must be full or team" >&2; return 2;;
+  esac
+}
+
+bootstrap(){
+  local yes=0; local -a raw=()
+  while (($#)); do case "$1" in --yes) yes=1; shift;; -h|--help) usage; return 0;; *) raw+=("$1"); shift;; esac; done
+  require_station
+  local -a desired=(); while IFS= read -r -d '' item; do desired+=("$item"); done < <(build_desired "${raw[@]}")
+  "$STATION" doctor --repo --full
+  local tmpdir spec; tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/agentik-station-bootstrap.XXXXXX")"; trap 'rm -rf "$tmpdir"' RETURN; spec="$tmpdir/install-spec.json"
+  "$STATION" spec "${desired[@]}" --output "$spec" >/dev/null
+  echo '==> Plan • not run'; "$STATION" plan --spec "$spec"
+  if [[ "$yes" -ne 1 ]]; then
+    [[ -t 0 ]] || { echo 'ERROR: non-interactive bootstrap requires --yes.' >&2; return 2; }
+    read -r -p 'Apply this exact plan with sudo? [y/N] ' answer
+    [[ "$answer" =~ ^([yY]|yes|YES)$ ]] || { echo 'Cancelled. Nothing applied.'; return 0; }
+  fi
+  sudo "$STATION" apply --spec "$spec"
+  sudo "$STATION" doctor --full --record
+  "$STATION" status || true
+  "$STATION" setup
+}
+
+main(){
+  require_station
+  local cmd="${1:-help}"; shift || true
+  case "$cmd" in
+    bootstrap) bootstrap "$@";;
+    plan) local -a desired=(); while IFS= read -r -d '' item; do desired+=("$item"); done < <(build_desired "$@"); "$STATION" doctor --repo --full && "$STATION" plan "${desired[@]}";;
+    doctor) "$STATION" doctor --repo --full; [[ ! -e /etc/station/station.json ]] || sudo "$STATION" doctor --full;;
+    status) "$STATION" status "$@";;
+    setup) "$STATION" setup "$@";;
+    help|-h|--help) usage;;
+    *) exec "$STATION" "$cmd" "$@";;
+  esac
+}
+main "$@"

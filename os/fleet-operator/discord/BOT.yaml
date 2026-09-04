@@ -1,0 +1,4 @@
+identity: dedicated
+profile: fleet-operator
+admin_bootstrap: temporary-only
+runtime_privilege: least-privilege

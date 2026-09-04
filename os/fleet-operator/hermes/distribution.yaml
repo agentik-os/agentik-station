@@ -1,0 +1,5 @@
+name: fleet-operator-os
+version: "11.12"
+description: "Control desired state across Station Hosts with explicit operations, receipts, drift detection, health, and rollback boundaries."
+profile_id: fleet-operator
+skills_dir: ../skills

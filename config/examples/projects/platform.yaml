@@ -1,6 +1,6 @@
 id: platform
-zone_id: moonbase-dev
-organization: moonbase
+zone_id: organization-alpha-dev
+organization: organization-alpha
 repos:
   - name: app
     url: null

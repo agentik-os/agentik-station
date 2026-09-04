@@ -20,7 +20,7 @@ factory/
 specs/
 docs/
 tests/
-source-packs/
+docs/history/
 .github/
 ```
 

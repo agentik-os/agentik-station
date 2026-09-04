@@ -1,9 +1,0 @@
-id: moonbase-prod
-category: CLIENTS
-organization: moonbase
-environment: production
-host: moonbase-prod-01
-unix_user: z-moonbase-prod
-hermes_home: /srv/station/2_ZONES/4_CLIENTS/moonbase/prod/runtime/hermes
-projects:
-  - platform

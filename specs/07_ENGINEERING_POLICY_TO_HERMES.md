@@ -1,6 +1,6 @@
 # Engineering Policy → Hermes Compilation
 
-`06_CONFIG/engineering.policy.example.yaml` is AGK desired state, not a verbatim Hermes config file.
+`06_CONFIG/engineering.policy.example.yaml` is AGK desired state, not a example-projecttim Hermes config file.
 
 The Node Controller compiles supported fields into the pinned Hermes runtime configuration.
 

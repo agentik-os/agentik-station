@@ -1,0 +1,13 @@
+capabilities:
+  - id: station.read
+    default: deny-unless-granted
+  - id: station.reconcile
+    default: deny-unless-granted
+  - id: hermes.update.plan
+    default: deny-unless-granted
+  - id: hermes.doctor
+    default: deny-unless-granted
+  - id: evidence.write
+    default: deny-unless-granted
+  - id: fleet.release.plan
+    default: deny-unless-granted

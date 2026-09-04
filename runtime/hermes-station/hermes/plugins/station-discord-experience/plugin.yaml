@@ -1,6 +1,6 @@
 id: station-discord-experience
 name: Station Discord Experience
-version: 0.2.0-alpha.11
+version: 11.12
 description: Plan-first mission state and semantic Discord progress projection for AGK OS bots.
 entrypoint: __init__:register
 provides_tools:

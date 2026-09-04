@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "observability",
+  "maturity": "INSTALLABLE",
+  "claim": "Receipts, Doctor evidence, logs, evidence semantics and module status are implemented; production alert delivery/retention is pending.",
+  "binary_probes": [],
+  "next_repair_action": "Configure production alerting and retention, then verify alert readback."
+}

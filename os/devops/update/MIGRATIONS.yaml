@@ -1,0 +1,2 @@
+strategy: versioned-forward-migrations
+rollback_required: true

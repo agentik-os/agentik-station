@@ -3,8 +3,8 @@
 Before any sensitive tool or connected-account action, Station resolves an explicit envelope:
 
 ```yaml
-station_id: gareth-main
-organization_id: gareth
+station_id: operator-main
+organization_id: operator
 trust_zone: agentik-dev
 project_id: agentik-platform
 os_id: devops-os
@@ -17,9 +17,9 @@ capability_set:
   - github.read
   - github.write
 credential_namespace:
-  - gareth/agentik/staging
+  - operator/agentik/staging
 memory_namespace:
-  - gareth/agentik/platform
+  - operator/agentik/platform
 allowed_roots:
   - /srv/agentik-dev/agentik-platform
 integration_bindings:

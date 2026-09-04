@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "os_id": "station-maintainer-os",
+  "entities": [
+    "mission",
+    "evidence",
+    "decision",
+    "artifact"
+  ]
+}

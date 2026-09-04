@@ -24,9 +24,9 @@ knowledge-director
 ## Example client profiles
 
 ```text
-moonbase-executive
-moonbase-devops
-moonbase-knowledge
+organization-alpha-executive
+organization-alpha-devops
+organization-alpha-knowledge
 ```
 
 Only create more when needed.
@@ -70,9 +70,9 @@ agentik-os/director-devops
 Installed locally as:
 
 ```text
-gareth-devops
-moonbase-devops
-dentistry-devops
+operator-devops
+organization-alpha-devops
+organization-alphaanization-beta-devops
 ```
 
 Shared:

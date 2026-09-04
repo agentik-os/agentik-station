@@ -2,7 +2,7 @@
 
 ## Goal
 
-Installing a new client means applying a reproducible organization package, not cloning Gareth's mutable VPS.
+Installing a new client means applying a reproducible organization package, not cloning Operator's mutable VPS.
 
 ## Flow
 
@@ -53,4 +53,4 @@ Client can receive:
 - Discord binding export
 - recovery instructions
 
-without receiving Gareth credentials, other client data or Gareth memory.
+without receiving Operator credentials, other client data or Operator memory.

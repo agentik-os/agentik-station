@@ -1,0 +1,23 @@
+capabilities:
+  - id: research.plan
+    default: deny-unless-granted
+  - id: web.search
+    default: deny-unless-granted
+  - id: web.read
+    default: deny-unless-granted
+  - id: books.research
+    default: deny-unless-granted
+  - id: papers.research
+    default: deny-unless-granted
+  - id: docs.research
+    default: deny-unless-granted
+  - id: github.research
+    default: deny-unless-granted
+  - id: sources.verify
+    default: deny-unless-granted
+  - id: claims.triangulate
+    default: deny-unless-granted
+  - id: knowledge.refresh
+    default: deny-unless-granted
+  - id: builder.handoff
+    default: deny-unless-granted

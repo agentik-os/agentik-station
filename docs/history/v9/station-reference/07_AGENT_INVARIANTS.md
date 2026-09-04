@@ -13,7 +13,7 @@ These invariants are injected into every Station-managed profile and checked by 
 9. New/changed OS → Builder + Librarian + Doctor + recovery + fresh-session acceptance.
 10. Canonical OS → dedicated Nano Director Discord bot/channel.
 11. No stable Hermes upgrade until LAB evidence exists.
-12. Client production data never lands on Gareth Station by convenience.
+12. Client production data never lands on Operator Station by convenience.
 13. A failed/blocked/recovery-pending mission is not completion.
 14. When context conflicts, stop and surface the conflict rather than silently recabling the system.
 

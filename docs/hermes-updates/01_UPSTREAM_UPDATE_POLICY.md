@@ -20,7 +20,7 @@ UPSTREAM main
     ↓ check every 6h
 LAB / edge
     ↓ full regression
-GARETH candidate
+OPERATOR candidate
     ↓ burn-in + acceptance
 STABLE Station release
     ↓ explicit policy/maintenance window
@@ -29,4 +29,4 @@ CLIENT stable Nodes
 
 ## Rule
 
-**Never run blind `/update` on a client production bot as the normal fleet strategy.** `/update` is useful operationally, but Station promotion must preserve reproducibility and evidence.
+**Never run blind `/update` on a organization production bot as the normal fleet strategy.** `/update` is useful operationally, but Station promotion must preserve reproducibility and evidence.

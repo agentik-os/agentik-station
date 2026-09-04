@@ -41,7 +41,7 @@ def _iter_release_paths(repo: Path) -> Iterable[Path]:
         current_path = Path(current)
         filtered_dirs: list[str] = []
         for name in sorted(dirs):
-            if name in REPO_EXCLUDES or name.endswith(".egg-info"):
+            if name in REPO_EXCLUDES:
                 continue
             path = current_path / name
             st = os.lstat(path)
@@ -130,6 +130,7 @@ def build_remote_plan(
             "--non-interactive",
         ],
         [*ssh, "/usr/bin/sudo", "/usr/local/bin/station", "status", "--json"],
+        [*ssh, "/usr/bin/sudo", "/usr/local/bin/station", "doctor", "--full", "--json"],
     ]
     return {
         "schema_version": 1,
@@ -197,6 +198,7 @@ def remote_bootstrap(
                 "--non-interactive",
             ],
             [*ssh, "/usr/bin/sudo", "/usr/local/bin/station", "status", "--json"],
+            [*ssh, "/usr/bin/sudo", "/usr/local/bin/station", "doctor", "--full", "--json"],
         ]
         for argv in commands:
             completed = subprocess.run(argv, check=True, capture_output=True, text=True)
@@ -209,13 +211,37 @@ def remote_bootstrap(
                 }
             )
 
+    verified = False
+    verification: dict[str, Any] = {}
+    try:
+        status_payload = json.loads(outputs[-2]["stdout"])
+        doctor_payload = json.loads(outputs[-1]["stdout"])
+        host_match = status_payload.get("host_id") == spec.host_id
+        doctor_ok = bool(doctor_payload.get("ok"))
+        state_ok = status_payload.get("state") not in {"NOT_INSTALLED", "DEGRADED"}
+        verified = bool(host_match and doctor_ok and state_ok)
+        verification = {
+            "host_match": host_match,
+            "doctor_ok": doctor_ok,
+            "state": status_payload.get("state"),
+            "host_id": status_payload.get("host_id"),
+        }
+    except Exception as exc:
+        verification = {"error": f"remote readback parse failed: {exc}"}
+
     result = dict(plan)
     result.update(
         {
-            "state": "REMOTE_APPLY_REPORTED",
+            "state": "REMOTE_READBACK_VERIFIED" if verified else "REMOTE_APPLY_REPORTED",
             "outputs": outputs,
-            "verified": False,
+            "verification": verification,
+            "verified": verified,
             "accepted": False,
+            "next_repair_action": (
+                "Run remote external integration and recovery gates before acceptance."
+                if verified
+                else "Inspect remote status/Doctor readback, repair the explicit failure, and rerun reconciliation."
+            ),
         }
     )
     return result

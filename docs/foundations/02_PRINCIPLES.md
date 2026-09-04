@@ -191,14 +191,14 @@ external secret source
 
 ## P15 — Production clients should move to dedicated Nodes
 
-Gareth can prototype multi-org on one Node.
+Operator can prototype multi-org on one Node.
 
 Enterprise target:
 
 ```text
-Gareth Node
-Moonbase Node
-Dentistry Node
+Operator Node
+Example Client Node
+Example Client B Node
 Client A Node
 ...
 ```

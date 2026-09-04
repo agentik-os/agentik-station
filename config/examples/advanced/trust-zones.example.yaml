@@ -4,12 +4,12 @@ trust_zones:
     hermes_home: /home/station-system/.hermes
     allowed_roots: [/etc/station, /opt/station, /var/lib/station, /var/log/station]
   private-self:
-    linux_user: gareth-private
-    hermes_home: /home/gareth-private/.hermes
+    linux_user: operator-private
+    hermes_home: /home/operator-private/.hermes
     allowed_roots: [/srv/station/zones/private-self]
   personal-projects:
-    linux_user: gareth-projects
-    hermes_home: /home/gareth-projects/.hermes
+    linux_user: operator-projects
+    hermes_home: /home/operator-projects/.hermes
     allowed_roots: [/srv/station/zones/personal-projects]
   agentik-dev:
     linux_user: agentik-dev

@@ -1,0 +1,4 @@
+hot_memory: hermes-profile
+long_term: provider-or-station-store
+promotion: review-first
+cross_zone: deny

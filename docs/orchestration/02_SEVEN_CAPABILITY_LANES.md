@@ -14,7 +14,7 @@ Outputs:
 - Loop-Graph plan;
 - owners and verification owners.
 
-Rule: reversible low-risk ambiguity may proceed with explicit assumptions. Irreversible, security-sensitive, financial, client-boundary or externally visible ambiguity requires an approval/clarification gate.
+Rule: reversible low-risk ambiguity may proceed with explicit assumptions. Irreversible, security-sensitive, financial, organization-betaoundary or externally visible ambiguity requires an approval/clarification gate.
 
 ## 2. Build with Leverage
 

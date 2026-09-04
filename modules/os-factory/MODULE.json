@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "os-factory",
+  "maturity": "INSTALLABLE",
+  "claim": "Canonical Builder/Librarian/DevOps sources pass AGK OS v2 source Doctor and compile to Hermes distributions; live end-to-end Factory acceptance is pending.",
+  "binary_probes": [],
+  "next_repair_action": "Build a new OS from the real Librarian v3 handoff, compile/install it into Hermes, then recovery/fresh-session acceptance."
+}
