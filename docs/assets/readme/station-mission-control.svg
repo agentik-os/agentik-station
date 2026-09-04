@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-labelledby="title description">
+  <title id="title">Agentik Station — your AI teams, your infrastructure</title>
+  <desc id="description">A mission circuit: human intent enters Station policy; Hermes orchestrates OS teams and tools; evidence returns to Station for readback, review and acceptance. This is an illustrated architecture, not live telemetry. Motion is decorative and hidden for reduced-motion preferences.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1c2730" stroke-width="1"/>
+    </pattern>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .paper { fill: #edf3f7; }
+      .accent { fill: #c5f277; }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+  </defs>
+
+  <path fill="#0b1117" d="M0 0h1280v700H0z"/>
+  <path fill="url(#grid)" opacity=".45" d="M800 0h480v368H800z"/>
+  <path d="M0 .5h1280M.5 0v700M1279.5 0v700M0 699.5h1280" fill="none" stroke="#2c3943"/>
+  <path d="M48 48h16m-8-8v16M1216 48h16m-8-8v16M48 652h16m-8-8v16M1216 652h16m-8-8v16" stroke="#6b7d89" fill="none"/>
+
+  <text x="84" y="55" class="mono accent" font-size="18" letter-spacing="4">AGENTIK / OS</text>
+  <text x="1196" y="55" text-anchor="end" class="mono muted" font-size="14" letter-spacing="1.6">CHIEF AI OFFICER · VPS SYSTEM</text>
+
+  <text x="60" y="224" class="paper" font-size="150" font-weight="800" letter-spacing="-7">STATION</text>
+  <text x="64" y="282" class="paper" font-size="29" letter-spacing="-.4">Your AI teams. Your infrastructure.</text>
+  <text x="64" y="323" class="mono muted" font-size="17">HERMES AT THE CORE. EVIDENCE AT EVERY GATE.</text>
+
+  <!-- An orbital station mark. Fixed geometry remains legible without animation. -->
+  <g transform="translate(1050 210)">
+    <circle r="112" fill="none" stroke="#34434d"/>
+    <circle r="89" fill="none" stroke="#34434d" stroke-dasharray="2 10"/>
+    <path d="M-133 0h31M102 0h31M0-133v31M0 102v31" stroke="#6b7d89"/>
+    <path d="M-112 0a112 112 0 0 1 112-112M112 0A112 112 0 0 1 0 112" stroke="#c5f277" stroke-width="2" fill="none"/>
+    <path d="M-55 48 0-64 55 48H31L0-16-31 48z" fill="#c5f277"/>
+    <path d="M-45 61H45" stroke="#c5f277"/>
+    <circle cx="0" cy="-112" r="5" fill="#c5f277"/>
+    <circle cx="0" cy="112" r="5" fill="#c5f277"/>
+  </g>
+
+  <path d="M64 368h1152" stroke="#34434d"/>
+  <text x="64" y="405" class="mono accent" font-size="16" letter-spacing="2">01 / THE MISSION CIRCUIT</text>
+  <text x="1216" y="405" text-anchor="end" class="mono muted" font-size="13" letter-spacing=".5">ILLUSTRATED FLOW · NOT LIVE TELEMETRY</text>
+
+  <!-- Request to evidence. Labels describe roles, not claimed live status. -->
+  <path d="M88 447H1192" stroke="#34434d" fill="none"/>
+  <g fill="#0b1117" stroke="#80919e">
+    <circle cx="88" cy="447" r="5"/>
+    <circle cx="364" cy="447" r="5"/>
+    <circle cx="640" cy="447" r="5"/>
+    <circle cx="916" cy="447" r="5"/>
+    <circle cx="1192" cy="447" r="5"/>
+  </g>
+  <path d="m219 443 6 4-6 4m276-8 6 4-6 4m276-8 6 4-6 4m276-8 6 4-6 4" stroke="#80919e" fill="none"/>
+  <circle cx="640" cy="447" r="6" fill="#c5f277"/>
+
+  <text x="64" y="491" class="paper" font-size="27" font-weight="700">Human intent</text>
+  <text x="64" y="523" class="mono muted" font-size="16">Chat / CLI / UI</text>
+  <text x="314" y="491" class="paper" font-size="27" font-weight="700">Station</text>
+  <text x="314" y="523" class="mono muted" font-size="16">Policy + scope</text>
+  <text x="570" y="491" class="accent" font-size="31" font-weight="700">Hermes</text>
+  <text x="553" y="523" class="mono muted" font-size="16">Execution brain</text>
+  <text x="818" y="491" class="paper" font-size="27" font-weight="700">Teams + tools</text>
+  <text x="818" y="523" class="mono muted" font-size="16">Project-owned work</text>
+  <text x="1085" y="491" class="paper" font-size="27" font-weight="700">Evidence</text>
+  <text x="1085" y="523" class="mono muted" font-size="16">Tests + Doctor</text>
+
+  <!-- Observations inform the next Station decision. -->
+  <path d="M1192 549v39H364v-39" fill="none" stroke="#637b4e"/>
+  <path d="m360 556 4-7 4 7" stroke="#c5f277" fill="none"/>
+  <text x="778" y="620" text-anchor="middle" class="mono accent" font-size="16" letter-spacing="2">READBACK → REVIEW → ACCEPTANCE</text>
+
+  <!-- Decorative signals; the diagram works statically if SMIL is unavailable. -->
+  <g class="motion" fill="#c5f277">
+    <g transform="translate(88 447)">
+      <circle r="4">
+        <animateMotion dur="8s" repeatCount="indefinite" path="M0 0H1104"/>
+      </circle>
+    </g>
+    <g transform="translate(1192 549)">
+      <circle r="4">
+        <animateMotion dur="8s" repeatCount="indefinite" path="M0 0V39H-828V0"/>
+      </circle>
+    </g>
+  </g>
+  <text x="84" y="657" class="mono muted" font-size="13" letter-spacing="1">HOSTS / ZONES / PROJECTS / OPERATIVE SYSTEMS</text>
+  <text x="1196" y="657" text-anchor="end" class="mono paper" font-size="13" letter-spacing="1">INTENT IN. EVIDENCE OUT.</text>
+</svg>

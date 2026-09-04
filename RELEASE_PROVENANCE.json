@@ -9,7 +9,7 @@
   "generated_by": "scripts/generate_release_metadata.py",
   "release": "11.12",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1082,
+  "subject_count": 1085,
   "subjects": [
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "bb52d9f3d911f45f8a6c77c268e237be2bb4c6844c20c43e0d25fc3b03611a1a",
-      "size": 22819
+      "sha256": "bac02496b5fb98e83a4c2c1b25f8f416aad31762501118d9c53de7d567873d42",
+      "size": 23714
     },
     {
       "executable": false,
@@ -1408,6 +1408,18 @@
       "path": "docs/architecture/15_AGK_STATION_USER_BOOTSTRAP.md",
       "sha256": "8e55b74a0830493d8fbc44563a21c3e2bcda5f58d64eff269aad85a3f9cb48e6",
       "size": 996
+    },
+    {
+      "executable": false,
+      "path": "docs/assets/readme/DESIGN.md",
+      "sha256": "a8d244d1381a03f58a5c01ddede696a28bd5e7eae1fe1d517feb2b3ff40f3b82",
+      "size": 2588
+    },
+    {
+      "executable": false,
+      "path": "docs/assets/readme/station-mission-control.svg",
+      "sha256": "51bacc8bfa8cd9d358eab1e0b54b70ed9ca770bcb06faefa9c41a048ee8b9b27",
+      "size": 5326
     },
     {
       "executable": false,
@@ -6376,6 +6388,12 @@
       "path": "tests/contract/test_plan.py",
       "sha256": "fd28d32c8408a9c7060de45875cc4b55fb04311d87775524d06ca700368f2054",
       "size": 1554
+    },
+    {
+      "executable": false,
+      "path": "tests/contract/test_readme_presentation.py",
+      "sha256": "7bcffb518fe81c55e44af42236da765fe2126ebd95c810a54f03ef4afd7b01e9",
+      "size": 2917
     },
     {
       "executable": false,

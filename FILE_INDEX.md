@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1085
+Total files: 1088
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -238,6 +238,8 @@ Total files: 1085
 - `docs/architecture/13_TEAM_AND_FULL_MODES.md`
 - `docs/architecture/14_GITHUB_PUBLISHING.md`
 - `docs/architecture/15_AGK_STATION_USER_BOOTSTRAP.md`
+- `docs/assets/readme/DESIGN.md`
+- `docs/assets/readme/station-mission-control.svg`
 - `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
 - `docs/audit/V10_PROFESSIONAL_AUDIT.md`
@@ -1066,6 +1068,7 @@ Total files: 1085
 - `tests/contract/test_discord_plugin.py`
 - `tests/contract/test_orchestration_state.py`
 - `tests/contract/test_plan.py`
+- `tests/contract/test_readme_presentation.py`
 - `tests/contract/test_release_manifest.py`
 - `tests/contract/test_repo_architecture.py`
 - `tests/contract/test_station_bash.py`
