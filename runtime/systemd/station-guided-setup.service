@@ -1,0 +1,34 @@
+[Unit]
+Description=Agentik Station Tailnet guided-setup broker
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/station/zones.d/discord-bootstrap.json
+ConditionPathExists=/usr/local/bin/station
+
+[Service]
+Type=simple
+User=z-system-discord
+Group=z-system-discord
+Environment=HOME=/var/lib/station/zones/discord-bootstrap/home
+ExecStart=/usr/local/bin/station setup-link serve --state-root /var/lib/station/zones/discord-bootstrap/connector-state/setup-links --host 127.0.0.1 --port 8787
+Restart=on-failure
+RestartSec=3s
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+TasksMax=128
+MemoryMax=256M
+CPUQuota=50%
+ReadOnlyPaths=/etc/station /opt/station /srv/station
+ReadWritePaths=/var/lib/station/zones/discord-bootstrap/connector-state /var/lib/station/zones/discord-bootstrap/hermes
+
+[Install]
+WantedBy=multi-user.target

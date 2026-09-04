@@ -9,12 +9,13 @@ Station integrates with external projects rather than relicensing them. Before d
 - [Vectorize Hindsight](https://github.com/vectorize-io/hindsight) — review repository/component licenses for the selected deployment
 - [TigerVNC](https://github.com/TigerVNC/tigervnc) — GPL-2.0
 - [Crawl4AI](https://github.com/unclecode/crawl4ai) — Apache-2.0
+- [achetronic Parakeet](https://github.com/achetronic/parakeet) — MIT
 - [Python](https://www.python.org/), [uv](https://github.com/astral-sh/uv), [Node.js](https://nodejs.org/) and npm
 - [GitHub CLI](https://github.com/cli/cli) — MIT
 - [Vercel CLI](https://github.com/vercel/vercel) — Apache-2.0
 - [OpenAI Codex CLI](https://github.com/openai/codex) — Apache-2.0
 - [Composio CLI](https://github.com/ComposioHQ/composio) — MIT
-- Tailscale
+- [Tailscale](https://github.com/tailscale/tailscale) — BSD-3-Clause
 - Podman and its runtime dependencies
 - Restic
 

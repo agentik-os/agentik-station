@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "hermes-runtime",
   "maturity": "INSTALLABLE",
-  "claim": "Bootstrap installs the reviewed Hermes release commit in a shared executable runtime while each Zone keeps its own HERMES_HOME; automatic updates are backup and Doctor gated and can be disabled explicitly.",
+  "claim": "Bootstrap installs the reviewed Hermes release commit with explicit voice and messaging extras in a shared executable runtime while each Zone keeps its own HERMES_HOME; OpenAI audio defaults and the local Parakeet failover are seeded without credentials, and automatic updates are backup and Doctor gated.",
   "binary_probes": ["hermes"],
   "next_repair_action": "Enroll Hermes, run station hermes check, install compiled profiles, and pass Hermes/plugin Doctor plus fresh-session acceptance."
 }

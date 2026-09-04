@@ -485,6 +485,7 @@ class StationInstaller:
         self.fs.mkdir(state_root, 0o700, owner)
         for name in ZONE_STATE_SUBDIRS:
             self.fs.mkdir(state_root / name, 0o700, owner)
+        self._seed_zone_hermes_voice(state_root, owner)
         self.fs.mkdir(self.paths.log / "zones" / zone.zone_id, 0o700, owner)
         self.fs.mkdir(self.paths.run / "zones" / zone.zone_id, 0o700, owner)
         self.fs.mkdir(self.paths.backups / "zones" / zone.zone_id, 0o700, root_owner)
@@ -579,6 +580,20 @@ class StationInstaller:
         )
         self._zone_identities[zone.zone_id] = identity
         self._zone_paths[zone.zone_id] = human
+
+    def _seed_zone_hermes_voice(self, state_root: Path, owner: tuple[int, int]) -> None:
+        """Seed the reviewed voice defaults without overwriting operator state."""
+        source = self.repo_root / "config" / "hermes" / "voice.default.yaml"
+        if source.is_symlink() or not source.is_file():
+            raise ReconcileError(f"Hermes voice defaults are missing or unsafe: {source}")
+        target = state_root / "hermes" / "config.yaml"
+        if target.is_symlink():
+            raise SecurityError(f"Hermes config may not be a symlink: {target}")
+        if target.exists():
+            if not target.is_file():
+                raise SecurityError(f"Hermes config must be a regular file: {target}")
+            return
+        self.fs.write_text(target, source.read_text(encoding="utf-8"), 0o600, owner)
 
     def _configure_zone_rootless(self, zone: ZoneSpec, identity: Identity, state_root: Path) -> None:
         """Provision deterministic per-Zone rootless container configuration.

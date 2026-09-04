@@ -17,6 +17,7 @@ INSTALL_CODEX=1
 INSTALL_AGK_TUI=1
 INSTALL_TOOLCHAIN=1
 INSTALL_AI_STACK=0
+INSTALL_VOICE=1
 
 usage(){ cat <<'USAGE'
 Agentik Station host bootstrap
@@ -37,6 +38,7 @@ Options:
   --skip-codex
   --skip-toolchain         skip Python/Node/GitHub/Vercel/Composio/Codex/shadcn toolchain
   --skip-agk-tui
+  --skip-voice           skip Hermes voice extras and local Parakeet service
   --with-ai-stack        install all optional pinned AI services/clients/plugins
   --yes
 
@@ -54,11 +56,12 @@ while (($#)); do
     --project) PROJECT="$2"; shift 2;;
     --env) ENVIRONMENT="$2"; shift 2;;
     --sudo-mode) SUDO_MODE="$2"; shift 2;;
-    --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; shift;;
+    --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; INSTALL_VOICE=0; shift;;
     --skip-hermes-auto-update) INSTALL_HERMES_AUTO_UPDATE=0; shift;;
     --skip-codex) INSTALL_CODEX=0; shift;;
     --skip-toolchain) INSTALL_TOOLCHAIN=0; INSTALL_CODEX=0; shift;;
     --skip-agk-tui) INSTALL_AGK_TUI=0; shift;;
+    --skip-voice) INSTALL_VOICE=0; shift;;
     --with-ai-stack) INSTALL_AI_STACK=1; shift;;
     --yes) YES=1; shift;;
     -h|--help) usage; exit 0;;
@@ -71,6 +74,10 @@ done
 [[ "$SUDO_MODE" == passwordless || "$SUDO_MODE" == password ]] || { echo 'ERROR: invalid --sudo-mode.' >&2; exit 2; }
 [[ "$INSTALL_AI_STACK" -eq 0 || "$INSTALL_TOOLCHAIN" -eq 1 ]] || {
   echo 'ERROR: --with-ai-stack requires the Station toolchain; remove --skip-toolchain.' >&2
+  exit 2
+}
+[[ "$INSTALL_AI_STACK" -eq 0 || ( "$INSTALL_HERMES" -eq 1 && "$INSTALL_VOICE" -eq 1 ) ]] || {
+  echo 'ERROR: --with-ai-stack requires Hermes and the default voice stack.' >&2
   exit 2
 }
 if [[ "$MODE" == team && -z "$ORGANIZATION" ]]; then echo 'ERROR: --organization is required in team mode.' >&2; exit 2; fi
@@ -94,6 +101,7 @@ Bootstrap plan
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
   Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
+  Voice:        $([[ $INSTALL_VOICE -eq 1 ]] && echo 'OpenAI audio + local Parakeet' || echo skip)
   AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
   sudo policy:  ${SUDO_MODE}
 EOF
@@ -104,7 +112,40 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y git curl ca-certificates xz-utils sudo rsync jq unzip build-essential \
-  python3 python3-venv python3-dev pkg-config libssl-dev libffi-dev
+  python3 python3-venv python3-dev pkg-config libssl-dev libffi-dev \
+  podman ffmpeg libopus0 portaudio19-dev
+
+# Install at least the reviewed Tailscale stable version through its signed
+# distro repository. Enrollment remains a human-owned external setup gate.
+source "$source_root/config/versions.lock"
+distro_id=$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+distro_codename=$(awk -F= '$1 == "VERSION_CODENAME" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+[[ "$distro_id" =~ ^(ubuntu|debian)$ && "$distro_codename" =~ ^[a-z][a-z0-9-]+$ ]] || {
+  echo 'ERROR: Tailscale package repository requires a supported Ubuntu/Debian codename.' >&2
+  exit 2
+}
+tailscale_key=$(mktemp)
+curl --fail --silent --show-error --location \
+  "https://pkgs.tailscale.com/${TAILSCALE_TRACK}/${distro_id}/${distro_codename}.noarmor.gpg" \
+  --output "$tailscale_key"
+printf '%s  %s\n' "$TAILSCALE_APT_KEY_SHA256" "$tailscale_key" | sha256sum --check --status || {
+  echo 'ERROR: Tailscale apt signing key checksum drifted; review upstream before continuing.' >&2
+  rm -f "$tailscale_key"
+  exit 2
+}
+install -d -m 0755 /usr/share/keyrings
+install -m 0644 "$tailscale_key" /usr/share/keyrings/tailscale-archive-keyring.gpg
+rm -f "$tailscale_key"
+printf 'deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/%s/%s %s main\n' \
+  "$TAILSCALE_TRACK" "$distro_id" "$distro_codename" \
+  > /etc/apt/sources.list.d/tailscale.list
+apt-get update
+installed_tailscale=$(dpkg-query -W -f='${Version}' tailscale 2>/dev/null || true)
+if [[ -z "$installed_tailscale" ]] || dpkg --compare-versions "$installed_tailscale" lt "$TAILSCALE_MIN_VERSION"; then
+  apt-get install -y --no-install-recommends "tailscale=${TAILSCALE_MIN_VERSION}"
+fi
+systemctl enable --now tailscaled
+tailscale version | head -1
 
 if ! id "$STATION_USER" >/dev/null 2>&1; then
   useradd --create-home --home-dir "$STATION_HOME" --shell /bin/bash --groups sudo --comment "Agk-Station" "$STATION_USER"
@@ -165,14 +206,21 @@ if [[ "$INSTALL_TOOLCHAIN" -eq 1 ]]; then
     "$REPO_DIR/scripts/station_toolchain_install.sh" "${toolchain_args[@]}"
 fi
 
+if [[ "$INSTALL_VOICE" -eq 1 ]]; then
+  hermes_uv="$STATION_HOME/.local/bin/uv"
+  [[ -x "$hermes_uv" ]] || hermes_uv="$STATION_HOME/.hermes/bin/uv"
+  [[ -x "$hermes_uv" ]] || { echo 'ERROR: uv is required to install Hermes voice dependencies.' >&2; exit 2; }
+  [[ -x "$hermes_install_dir/venv/bin/python" ]] || { echo 'ERROR: Hermes virtual environment is missing.' >&2; exit 2; }
+  sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" HERMES_HOME="$STATION_HOME/.hermes" \
+    "$hermes_uv" pip install --python "$hermes_install_dir/venv/bin/python" \
+    --editable "${hermes_install_dir}[voice,messaging]"
+  sudo -u "$STATION_USER" -H "$hermes_install_dir/venv/bin/python" -c \
+    'import discord, numpy, sounddevice; print("Hermes voice and messaging dependencies OK")'
+fi
+
 if [[ "$INSTALL_HERMES_AUTO_UPDATE" -eq 1 ]]; then
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
     "$REPO_DIR/scripts/station_deps_install.sh" --enable-hermes-auto-update
-fi
-
-if [[ "$INSTALL_AI_STACK" -eq 1 ]]; then
-  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
-    "$REPO_DIR/scripts/station_deps_install.sh" --all
 fi
 
 # AGK-TUI (RMUX session control plane) — vendored under components/agk-tui
@@ -207,6 +255,21 @@ if [[ "$MODE" == team ]]; then
   [[ -n "$PROJECT" ]] && args+=(--project "$PROJECT")
 fi
 sudo -u "$STATION_USER" -H -- "$REPO_DIR/station.sh" "${args[@]}"
+
+# Runtime services are installed only after Station has reconciled the
+# canonical Zones and systemd units. Parakeet is default voice infrastructure;
+# the rest of the larger AI stack remains explicit.
+if [[ "$INSTALL_AI_STACK" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --all
+elif [[ "$INSTALL_VOICE" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --component parakeet
+fi
+
+if [[ "$INSTALL_HERMES" -eq 1 ]]; then
+  "$REPO_DIR/scripts/station_guided_setup_enable.sh" --if-enrolled
+fi
 
 mkdir -p /etc/station
 hermes_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$HOME/.local/share/npm/bin:$PATH"; hermes --version 2>/dev/null || true' | head -1)"
@@ -243,6 +306,7 @@ Next login (Agk-Station session — dedicated sudo account, not root):
 
 Verify tools:
   hermes doctor
+  systemctl status station-parakeet.service --no-pager
   ./scripts/station_toolchain_install.sh --check
   python-ai --version
   codex --version
@@ -267,4 +331,5 @@ Authentication remains operator-controlled:
   ./scripts/station_hermes_update.sh update
   ./scripts/station_deps_install.sh --list
   hermes gateway setup   # multi-platform bots
+  # After Tailscale enrollment: sudo ./scripts/station_guided_setup_enable.sh
 EOF

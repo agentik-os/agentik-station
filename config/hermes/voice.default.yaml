@@ -1,0 +1,30 @@
+# Seeded only when a Zone has no Hermes config yet. Credentials stay in the
+# Zone's mode-0600 hermes/.env or Hermes credential pool, never in this file.
+voice:
+  max_recording_seconds: 120
+  auto_tts: true
+  client_direct: true
+
+stt:
+  enabled: true
+  echo_transcripts: true
+  provider: openai
+  language: ""
+  cloud_trim_silence: true
+  openai:
+    model: gpt-transcribe
+    language: ""
+  providers:
+    parakeet:
+      type: command
+      command: /usr/local/libexec/station-parakeet-transcribe {input_path} {output_path} {language}
+      format: txt
+      language: en
+      model: parakeet-tdt-0.6b-v3
+      timeout: 300
+
+tts:
+  provider: openai
+  openai:
+    model: gpt-4o-mini-tts
+    voice: alloy

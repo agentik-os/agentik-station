@@ -32,14 +32,34 @@ def test_versions_lock_pins_hermes_and_deps():
         "CRAWL4AI_PYTHON_VERSION=0.9.3",
         "PONYTAIL_RELEASE=v4.9.0",
         "PONYTAIL_COMMIT=0a4dd63ad4541f4f655c4108a295916f3c1d8fda",
+        "PARAKEET_RELEASE=v0.8.0",
+        "PARAKEET_COMMIT=436daa8a75fa8c6d115a3188e18ef046444edccf",
+        "PARAKEET_IMAGE=ghcr.io/achetronic/parakeet@sha256:00f8a02ec0ca6a7d6d5ee9f959060d8498b14f741a25e914941d22547a3f37f4",
+        "OPENAI_STT_MODEL=gpt-transcribe",
+        "OPENAI_TTS_MODEL=gpt-4o-mini-tts",
+        "TAILSCALE_MIN_VERSION=1.102.3",
+        "TAILSCALE_APT_KEY_SHA256=3e03dacf222698c60b8e2f990b809ca1b3e104de127767864284e6c228f1fb39",
     ):
         assert pin in lock
 
 
 def test_deps_stack_yaml_exists():
     stack = (ROOT / "config" / "deps" / "stack.yaml").read_text()
-    for name in ("ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai"):
+    for name in ("ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai", "parakeet"):
         assert name in stack
+
+
+def test_voice_defaults_and_parakeet_service_are_fail_closed():
+    voice = (ROOT / "config" / "hermes" / "voice.default.yaml").read_text()
+    unit = (ROOT / "runtime" / "systemd" / "station-parakeet.service").read_text()
+    assert "provider: openai" in voice
+    assert "model: gpt-transcribe" in voice
+    assert "model: gpt-4o-mini-tts" in voice
+    assert "station-parakeet-transcribe" in voice
+    assert "--publish=127.0.0.1:5092:5092" in unit
+    assert "--pull=never" in unit
+    assert "--cap-drop=all" in unit
+    assert "sha256:00f8a02ec0ca6a7d6d5ee9f959060d8498b14f741a25e914941d22547a3f37f4" in unit
 
 
 def test_hermes_update_and_deps_scripts_executable():
@@ -47,6 +67,8 @@ def test_hermes_update_and_deps_scripts_executable():
         "scripts/station_hermes_update.sh",
         "scripts/station_deps_install.sh",
         "scripts/station_toolchain_install.sh",
+        "scripts/station_parakeet_transcribe.sh",
+        "scripts/station_guided_setup_enable.sh",
     ):
         path = ROOT / rel
         assert path.is_file()
@@ -62,7 +84,7 @@ def test_catalog_includes_new_modules():
     import json
     catalog = json.loads((ROOT / "modules" / "catalog.json").read_text())
     ids = {m["id"] for m in catalog["modules"]}
-    for mid in ("hermes-platforms", "resource-catalog", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "tigervnc"):
+    for mid in ("hermes-platforms", "resource-catalog", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "parakeet", "tigervnc"):
         assert mid in ids
 
 
@@ -77,3 +99,12 @@ def test_cli_registers_deps_and_hermes_update():
     parser.parse_args(["resource", "list"])
     parser.parse_args(["resource", "stack-plan", "--id", "web-product"])
     parser.parse_args(["rules", "install", "--repo", "/tmp/example", "--plan"])
+    parser.parse_args([
+        "setup-link", "create",
+        "--state-root", "/var/lib/station/zones/discord-bootstrap/connector-state/setup-links",
+        "--base-url", "https://station.example.ts.net/station-setup",
+        "--zone", "discord-bootstrap",
+        "--principal", "discord-123456789",
+        "--provider", "openai",
+        "--purpose", "station-secret",
+    ])

@@ -22,7 +22,7 @@ The current safe-kernel provider supports:
 - the distribution Python 3.11 or newer for the repository CLI;
 - root only for `station apply` / `./install`.
 
-Bootstrap also installs Python 3.14.7 user-locally as `python-latest`, plus Python 3.13.15 as `python-ai` for isolated AI packages that do not yet guarantee 3.14 wheels. It does not replace the distribution Python. Hermes owns a separate Python 3.11 environment because `v2026.8.31` currently requires Python `>=3.11,<3.14`.
+Bootstrap also installs Python 3.14.7 user-locally as `python-latest`, plus Python 3.13.15 as `python-ai` for isolated AI packages that do not yet guarantee 3.14 wheels. It does not replace the distribution Python. Hermes owns a separate Python 3.11 environment because `v2026.8.31` currently requires Python `>=3.11,<3.14`. The default install adds Hermes' `voice,messaging` extras, OpenAI audio defaults, and the digest-pinned loopback Parakeet service; `--skip-voice` deliberately omits that layer.
 
 Other distributions and init systems are not silently approximated.
 
@@ -215,7 +215,17 @@ Composio CLI
 shadcn CLI
 ```
 
+Bootstrap also installs at least the reviewed Tailscale stable version from its signed Ubuntu/Debian repository after verifying the archive-key checksum. It starts `tailscaled` but never invents a tailnet identity or authentication; the human owner completes `sudo tailscale up`, checks the device in the admin console, and then enables Station's private Serve path.
+
 Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there: each Zone uses its own `/var/lib/station/zones/<zone-id>/hermes`.
+
+Once the Host is enrolled in Tailscale, enable the private guided-setup path:
+
+```bash
+sudo ./scripts/station_guided_setup_enable.sh
+```
+
+Bootstrap already calls it in non-failing `--if-enrolled` mode. Without Tailscale it keeps the broker on loopback and reports the missing enrollment; it never opens a public substitute. See [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md).
 
 ## Recommended Bash entry point
 

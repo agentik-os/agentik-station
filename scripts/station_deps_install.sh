@@ -18,7 +18,7 @@ usage: station_deps_install.sh [--all] [--list]
        station_deps_install.sh --enable-hermes-auto-update
        station_deps_install.sh --platforms-guide
 
-Components: ponytail langfuse honcho hindsight tigervnc crawl4ai
+Components: ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
 USAGE
 }
 
@@ -153,6 +153,37 @@ install_langfuse() {
   echo "Langfuse $LANGFUSE_RELEASE staged at $dest; compose services and secrets are not auto-started."
 }
 
+install_parakeet() {
+  [[ "$(id -u)" -eq 0 ]] || { echo "Parakeet service install needs root" >&2; return 2; }
+  command -v podman >/dev/null 2>&1 || { echo "ERROR: podman is required for Parakeet" >&2; return 2; }
+  command -v systemctl >/dev/null 2>&1 || { echo "ERROR: systemd is required for Parakeet" >&2; return 2; }
+  grep -Fq "$PARAKEET_IMAGE" "$ROOT/runtime/systemd/station-parakeet.service" || {
+    echo "ERROR: Parakeet unit does not match the immutable image lock" >&2
+    return 2
+  }
+  podman pull "$PARAKEET_IMAGE"
+  podman image exists "$PARAKEET_IMAGE"
+  install -d -m 0755 /usr/local/libexec /etc/systemd/system
+  install -m 0755 "$ROOT/scripts/station_parakeet_transcribe.sh" \
+    /usr/local/libexec/station-parakeet-transcribe
+  install -m 0644 "$ROOT/runtime/systemd/station-parakeet.service" \
+    /etc/systemd/system/station-parakeet.service
+  systemctl daemon-reload
+  systemctl enable --now station-parakeet.service
+  for _attempt in $(seq 1 30); do
+    if curl --fail --silent --show-error --max-time 2 \
+      http://127.0.0.1:"$PARAKEET_PORT"/health >/dev/null; then
+      systemctl is-active --quiet station-parakeet.service
+      echo "Parakeet $PARAKEET_RELEASE is healthy on loopback port $PARAKEET_PORT."
+      return 0
+    fi
+    sleep 2
+  done
+  systemctl status station-parakeet.service --no-pager >&2 || true
+  echo "ERROR: Parakeet did not pass its loopback health check" >&2
+  return 1
+}
+
 enable_hermes_auto_update() {
   [[ "$(id -u)" -eq 0 ]] || { echo "enabling timer needs root" >&2; return 2; }
   unit_dir=/etc/systemd/system
@@ -171,7 +202,7 @@ if [[ "$ENABLE_AUTO" -eq 1 ]]; then
 fi
 
 if [[ "$ALL" -eq 1 ]]; then
-  COMPONENTS=(ponytail langfuse honcho hindsight tigervnc crawl4ai)
+  COMPONENTS=(ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
 fi
 
 for id in "${COMPONENTS[@]}"; do
@@ -182,6 +213,7 @@ for id in "${COMPONENTS[@]}"; do
     hindsight) install_hindsight;;
     tigervnc) install_tigervnc;;
     crawl4ai) install_crawl4ai;;
+    parakeet) install_parakeet;;
     *) echo "unknown component: $id" >&2; exit 2;;
   esac
 done

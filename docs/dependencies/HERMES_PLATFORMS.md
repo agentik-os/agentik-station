@@ -44,6 +44,8 @@ DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/<zone-uid>/bus
 
 The launcher is shared code installed at `/opt/station/tools/hermes/current`; tokens, sessions, pairing data, memory and bot configuration are not shared. Never put platform secrets in `/etc/station`, the Git repository, the shared Hermes code directory or another Zone.
 
+After the first platform bot and Tailscale enrollment, Station can render short-lived private setup links instead of asking for secrets in chat. Discord's ephemeral SDK button path is implemented; the `station.guided_setup` card is deliberately provider-neutral for Slack, Telegram and other Hermes adapters. See [`VOICE_AND_GUIDED_SETUP.md`](VOICE_AND_GUIDED_SETUP.md). The first bot token remains human-created because a bot cannot mint its own platform identity.
+
 ## Done-when
 
 A successful `gateway status` is only observed process state. Acceptance also requires:

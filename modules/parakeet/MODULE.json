@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "parakeet",
+  "maturity": "INSTALLABLE",
+  "claim": "The reviewed Parakeet int8 image is digest-pinned, loopback-only and wired as a Hermes command-STT provider plus Discord audio failover; live transcription acceptance remains pending on each Host.",
+  "binary_probes": ["podman", "ffmpeg"],
+  "next_repair_action": "Run station deps install --component parakeet, verify /health, then transcribe a synthetic Discord voice note and inspect the owning Zone evidence."
+}

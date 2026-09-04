@@ -51,6 +51,9 @@ SYSTEM_PACKAGES = [
     "uidmap",
     "slirp4netns",
     "fuse-overlayfs",
+    "ffmpeg",
+    "libopus0",
+    "portaudio19-dev",
 ]
 
 MATURITY_STATES = [

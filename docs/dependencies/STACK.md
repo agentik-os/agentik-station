@@ -19,6 +19,8 @@
 | Composio CLI | 0.4.0 | checksum-locked official installer + verified bundle, pinned release, no automatic login/plugin setup |
 | shadcn CLI | 4.21.0 | pinned npm package + locked registry integrity; components remain Project-owned source |
 | Hermes Agent | v2026.8.31 / reviewed commit | checksum-locked upstream installer executed as `agk-station`, shared launcher, isolated Zone homes |
+| Hermes voice | explicit `voice,messaging` extras | OpenAI `gpt-transcribe` primary STT; OpenAI `gpt-4o-mini-tts` / `alloy`; Zone-local credential |
+| Tailscale | minimum reviewed 1.102.3, stable track | signed Ubuntu/Debian repository with checksum-locked archive key; normal stable apt upgrade path |
 
 ```bash
 station deps toolchain-plan
@@ -51,6 +53,7 @@ These projects are not interchangeable Python dependencies:
 | Hindsight | client 0.9.2 | isolated Python 3.13 client; Hermes uses native `hermes memory setup` | provider enrollment + Zone-isolation/recall test |
 | TigerVNC | distro package; upstream v1.16.2 reviewed | `apt` package install | private-network binding, auth, firewall and viewer readback |
 | Crawl4AI | 0.9.3 | isolated Python 3.13 `uv tool`, browser setup and upstream Doctor | Hermes tool allowlist and egress policy |
+| Parakeet | v0.8.0 / immutable image digest | loopback-only, read-only int8 container and Hermes command-STT adapter | health + synthetic/Discord fallback transcription readback |
 
 ```bash
 station deps list
@@ -79,3 +82,5 @@ sudo station deps enable-auto-update
 The update wrapper requests a pre-update backup, runs Hermes Doctor, observes the gateway, stores a receipt in `$HERMES_HOME/station-update-receipts`, and exits non-zero on failed validation. Bootstrap enables the weekly timer by default; `--skip-hermes-auto-update` opts out. If Doctor fails, Station asks Hermes to restore the `pre-update` state and reports that code compatibility still needs review.
 
 Upstream references: [Hermes updating](https://hermes-agent.nousresearch.com/docs/getting-started/updating), [Codex CLI](https://developers.openai.com/codex/cli), [Composio CLI](https://docs.composio.dev/docs/cli), [Vercel CLI](https://vercel.com/docs/cli), [GitHub CLI](https://cli.github.com/manual/).
+
+Voice and bot-guided setup: [`VOICE_AND_GUIDED_SETUP.md`](VOICE_AND_GUIDED_SETUP.md).

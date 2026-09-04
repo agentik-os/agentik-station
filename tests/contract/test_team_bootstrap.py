@@ -33,6 +33,11 @@ def test_bootstrap_uses_dedicated_account_and_no_piped_installers() -> None:
     assert "HERMES_INSTALL_SHA256" in text
     assert 'HERMES_COMMIT' in text
     assert '--dir "$hermes_install_dir"' in text
+    assert '"${hermes_install_dir}[voice,messaging]"' in text
+    assert "--component parakeet" in text
+    assert "station_guided_setup_enable.sh" in text
+    assert "TAILSCALE_APT_KEY_SHA256" in text
+    assert '"tailscale=${TAILSCALE_MIN_VERSION}"' in text
     assert 'curl --fail --silent --show-error --location "$HERMES_INSTALL_URL"' in text
     assert "curl -fsSL" not in text
     assert "| bash" not in text

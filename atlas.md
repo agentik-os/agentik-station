@@ -468,6 +468,31 @@ Tokens are entered only through Hermes' interactive setup, never as a command ar
 
 Important limitation: a guild bot token cannot safely mint all the separate Discord applications and secret tokens required by a strict “one public bot per OS” topology. Humans create and authorize those applications/tokens unless a separately governed control plane is introduced. Internal specialist profiles normally stay behind the OS Nano Director, so they do not each need public bots.
 
+### Bot-guided secure setup after bootstrap
+
+The first bot token and Tailscale enrollment are necessarily human-owned. Once both exist, the `discord-bootstrap` SYSTEM Zone runs a loopback-only setup broker and Tailscale Serve exposes only its `/station-setup` path to the tailnet:
+
+```text
+authorized Discord interaction
+  → ephemeral “Open secure setup” SDK button
+  → HTTPS MagicDNS .ts.net URL, maximum 15-minute TTL
+  → one-time token (only SHA-256 stored)
+  → allowlisted key form, Hermes configuration, Composio Connect Link,
+    or GitHub/Vercel/OpenAI/Discord device authorization
+  → credential written only to the owning Zone's mode-0600 Hermes state
+  → gateway/provider Doctor and external readback
+```
+
+Enable it after Tailnet enrollment:
+
+```bash
+sudo ./scripts/station_guided_setup_enable.sh
+```
+
+The broker never accepts a secret through Discord content, never places a key in argv or the session record, suppresses URL logs, rejects symlinks, restricts redirects, and consumes each link once. Tailscale ACLs plus the ephemeral response restrict delivery; the URL itself remains a bearer capability and must not be forwarded. Composio Connect Links enter through an owned mode-0600 file or in-process adapter, not a process argument.
+
+The `station.guided_setup` card schema is platform-neutral. Discord has the implemented SDK-button renderer; Slack/Telegram/other Hermes surfaces can render the same action while keeping their own authorization and readback gate. Until those live renderers are accepted, use the native Zone-isolated Hermes gateway wizard on those platforms. Full protocol and threat model: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md).
+
 ### Base desired server structure
 
 ```text
@@ -518,6 +543,18 @@ sudo station platform doctor --zone <zone-id>
 ```
 
 Each connector still needs its own human/account enrollment, allowed users/channels and bidirectional message readback. Hermes makes platforms easy to attach; it does not erase each platform's security model.
+
+### Voice is part of the same Hermes session
+
+Voice is an input/output transport, not a second agent brain. Station installs Hermes' explicit voice and messaging dependencies and seeds each new Zone with:
+
+```text
+STT primary: OpenAI gpt-transcribe
+STT Discord failover: local Parakeet v0.8.0 on 127.0.0.1:5092
+TTS: OpenAI gpt-4o-mini-tts, voice alloy
+```
+
+The OpenAI key stays in the owning Zone. Parakeet is local ASR/STT, not TTS; its reviewed int8 image is pinned by digest, read-only, capability-dropped and resource-limited. A Discord audio message is first transcribed through the selected OpenAI path; if that request fails, only that Discord path retries through local Parakeet. The transcript then enters the same Hermes session, OS Director and mission graph as text. Voice becomes `OPERATIONAL` only after paid OpenAI STT/TTS, forced Parakeet fallback, Discord voice-note/channel and restart readback all pass.
 
 ## 14. DevOps OS team map
 
@@ -612,7 +649,7 @@ Organization/team Host:
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 ```
 
-Bootstrap creates the dedicated `agk-station` operator, relocates source outside `/root`, installs pinned Python runtimes, Node/npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI, installs the reviewed Hermes version, reconciles the Station FHS layout and creates declared Zones/Projects.
+Bootstrap creates the dedicated `agk-station` operator, relocates source outside `/root`, installs pinned Python runtimes, Node/npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI plus the signed stable Tailscale package, installs the reviewed Hermes version with voice/messaging dependencies, reconciles the Station FHS layout, creates declared Zones/Projects, starts local Parakeet, and starts the loopback setup broker. It publishes the broker through Tailscale Serve only when the Host is already enrolled; it never falls back to public exposure.
 
 ### C. Verify base state
 
@@ -639,13 +676,16 @@ Review and apply the stack plan inside that repository if the Project chose it.
 
 ### E. Enroll external systems
 
-1. authenticate only required GitHub/Vercel/Composio/model principals;
-2. create and separate development/staging/production provider projects;
-3. configure scoped credential references in the owning Zone/Project;
-4. install selected OS packages into the correct Zone and Project;
-5. configure the Hermes platform gateway, including Discord if used;
-6. run provider-specific Doctor and safe read/write probes;
-7. verify live message/deployment/connector readback.
+1. enroll the Host in Tailscale and run `sudo ./scripts/station_guided_setup_enable.sh`;
+2. have the human owner create and authorize the first Discord application/token;
+3. start the `discord-bootstrap` Hermes gateway and verify bidirectional messages;
+4. authenticate only required GitHub/Vercel/Composio/model principals, preferably through the bot's short Tailnet setup buttons after that point;
+5. create and separate development/staging/production provider projects;
+6. configure scoped credential references in the owning Zone/Project;
+7. install selected OS packages into the correct Zone and Project;
+8. configure any additional Hermes platform gateways;
+9. run provider-specific Doctor and safe read/write probes;
+10. verify live voice/message/deployment/connector readback.
 
 ### F. Enable persistent automation last
 
@@ -758,6 +798,7 @@ External acceptance still required:
 - full Discord topology provisioning and interaction/permission readback in a test guild;
 - each dedicated OS Discord application/token human enrollment;
 - Langfuse/Honcho/Hindsight/Crawl4AI/TigerVNC runtime setup as selected;
+- live OpenAI voice, Parakeet fallback and Tailnet guided-setup acceptance;
 - rootless cross-Zone negative tests;
 - remote Fleet drift/rollback acceptance;
 - encrypted off-Host destructive restore rehearsal.
@@ -778,6 +819,9 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - [ ] Discord applications/tokens were created and authorized by the owner.
 - [ ] Temporary Discord elevation was removed by the owner and read back.
 - [ ] Messaging passes inbound, outbound, unauthorized-user and restart tests.
+- [ ] Tailscale setup links are private, expire/consume once, and leave no credential in chat, argv, logs, session state or evidence.
+- [ ] OpenAI `gpt-transcribe` and `gpt-4o-mini-tts` pass a real Zone-scoped round-trip.
+- [ ] A forced OpenAI STT failure proves Discord audio falls back to local Parakeet.
 - [ ] DevOps work passes Architect → Forge → Sentinel → Release → SRE gates as applicable.
 - [ ] Production actions have named human approval.
 - [ ] Logs/evidence contain no secrets.

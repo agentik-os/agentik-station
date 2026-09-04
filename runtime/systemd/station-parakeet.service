@@ -1,0 +1,18 @@
+[Unit]
+Description=Agentik Station local Parakeet speech-to-text service
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/usr/bin/podman
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/podman rm -f station-parakeet
+ExecStart=/usr/bin/podman run --rm --name station-parakeet --pull=never --read-only --user=65532:65532 --cap-drop=all --security-opt=no-new-privileges --pids-limit=256 --memory=3g --cpus=2 --tmpfs=/tmp:rw,noexec,nosuid,nodev,size=256m --publish=127.0.0.1:5092:5092 --log-driver=journald ghcr.io/achetronic/parakeet@sha256:00f8a02ec0ca6a7d6d5ee9f959060d8498b14f741a25e914941d22547a3f37f4
+ExecStop=-/usr/bin/podman stop --time=10 station-parakeet
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=180s
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target

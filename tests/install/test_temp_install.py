@@ -41,6 +41,14 @@ def test_client_install_isolated_layout_ownership_and_honest_state(tmp_path: Pat
     assert (os.lstat(project / "credentials").st_mode & 0o777) == 0o700
     assert (os.lstat(project).st_uid, os.lstat(project).st_gid) == (os.getuid(), os.getgid())
 
+    discord_hermes = paths.zones_state / "discord-bootstrap" / "hermes" / "config.yaml"
+    voice_config = discord_hermes.read_text()
+    assert "provider: openai" in voice_config
+    assert "model: gpt-transcribe" in voice_config
+    assert "model: gpt-4o-mini-tts" in voice_config
+    assert "station-parakeet-transcribe" in voice_config
+    assert os.lstat(discord_hermes).st_mode & 0o777 == 0o600
+
     desired_os = json.loads((zone / "os" / "DESIRED.json").read_text())
     assert all(package["runtime_state"] == "NOT_INSTALLED" for package in desired_os["packages"])
 
@@ -70,6 +78,17 @@ def test_reconcile_is_idempotent_for_same_immutable_release(tmp_path: Path) -> N
     assert (paths.receipts / "op-idempotent-one.json").is_file()
     assert (paths.receipts / "op-idempotent-two.json").is_file()
     assert station_doctor(paths, repo_root=ROOT, full=True).ok
+
+
+def test_reconcile_preserves_existing_zone_hermes_config(tmp_path: Path) -> None:
+    paths = LayoutPaths.under(tmp_path / "root")
+    StationInstaller(ROOT, _spec("op-voice-seed-one"), paths=paths).apply()
+    config = paths.zones_state / "discord-bootstrap" / "hermes" / "config.yaml"
+    config.write_text("operator_owned: true\n", encoding="utf-8")
+
+    StationInstaller(ROOT, _spec("op-voice-seed-two"), paths=paths).apply()
+
+    assert config.read_text(encoding="utf-8") == "operator_owned: true\n"
 
 
 def test_preexisting_symlink_in_managed_zone_blocks_apply_without_touching_target(tmp_path: Path) -> None:

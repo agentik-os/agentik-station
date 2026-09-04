@@ -24,6 +24,18 @@ A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 
 Until this exists, desired OS packages remain `NOT_INSTALLED`.
 
+## Gate 2a — Hermes voice and local Discord audio failover
+
+- verify Hermes was installed with the explicit `voice` and `messaging` extras;
+- keep OpenAI `gpt-transcribe` as primary STT and `gpt-4o-mini-tts`/`alloy` as TTS unless the owning Zone declares another reviewed route;
+- store `OPENAI_API_KEY` or `VOICE_TOOLS_OPENAI_KEY` only in the owning Zone's Hermes credential store/environment;
+- verify `station-parakeet.service` binds only to `127.0.0.1:5092` and passes `/health`;
+- force the primary STT to fail and verify a Discord voice note transcribes through Parakeet;
+- verify a real OpenAI STT/TTS round-trip and billing/account scope before claiming the paid path ready;
+- verify Discord `/voice` reply mode and voice-channel permissions with external readback.
+
+Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md).
+
 ## Gate 3 — GitHub and coding executors
 
 - run `station deps toolchain-check` and compare observed versions with `config/versions.lock`;
@@ -63,6 +75,8 @@ For every OS instance that is actually installed:
 - keep Bot-to-Bot collaboration inside Hermes/AGK rather than recursive Discord auto-replies.
 
 The bot token cannot create other Discord applications or mint their tokens. Release 11.12 does not yet claim the full guild topology provisioner is externally accepted; use a test guild and keep the module `INSTALLABLE` until its create/edit/permission/command/readback gate passes.
+
+After the first bot and Tailscale enrollment, run `sudo ./scripts/station_guided_setup_enable.sh`. The Discord account picker can then return an ephemeral one-time Tailnet button. The bearer token is stored only as a hash, expires in at most 15 minutes and is consumed once. Secret forms write directly to the owning Zone's mode-0600 Hermes environment; Composio/OAuth/device flows redirect only to an allowlisted host. Never paste the credential into Discord. Slack/Telegram can reuse the provider-neutral card contract, but their live renderers remain an acceptance gate.
 
 ## Gate 6 — Backup and recovery
 
@@ -115,7 +129,7 @@ Keep tokens in the Zone's dedicated `HERMES_HOME`. Do not claim OPERATIONAL for 
 
 ## Gate — Optional dependency stack
 
-Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC are declared in `config/deps/stack.yaml`.
+Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC and Parakeet are declared in `config/deps/stack.yaml`.
 
 ```bash
 ./scripts/station_deps_install.sh --list

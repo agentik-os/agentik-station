@@ -16,7 +16,7 @@ Agentik Station turns a clean Ubuntu/Debian VPS into a governed **Chief AI Offic
 
 Minimum starting conditions are a supported Ubuntu/Debian systemd VPS, network/DNS access, the new user able to run `sudo`, and an authenticated Codex session. Codex can install `git` and CA certificates first if the base image does not include them.
 
-**External accounts still need you at their secure gate.** Codex cannot invent or safely receive Discord bot tokens, GitHub/Vercel/Convex/Clerk/Stripe/Composio credentials, model-provider authentication or OAuth consent. It must pause and guide you through each provider's native login/setup flow without putting secrets in chat, shell arguments, Git or evidence.
+**External accounts still need you at their secure gate.** Codex cannot invent Discord applications/tokens, GitHub/Vercel/Convex/Clerk/Stripe/Composio credentials, model-provider authentication or OAuth consent. The first Discord/Tailscale enrollment is therefore human-owned. After it, the Station bot can issue short one-time `.ts.net` setup buttons so later keys and OAuth/device flows stay out of chat, shell arguments, Git, logs and evidence.
 
 Give Codex this exact prompt on the clean VPS:
 
@@ -75,12 +75,14 @@ flowchart TB
     UX[Discord / Agentik UI / API / other Hermes platforms] -->|Zone and OS binding| HERMES
     HERMES -->|semantic progress and result| UX
     HERMES -->|allowlisted capabilities| TOOLS
-    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC]
+    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC · Parakeet · OpenAI Audio]
     TOOLS -->|observations and external readback| PROOF
     OWNER -->|production/destructive approval only| STATION
 ```
 
 The standalone diagram source is [`docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`](docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd).
+
+The secure bot setup + voice routing diagram is [`docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd`](docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd).
 
 ## What the one-command bootstrap does
 
@@ -88,14 +90,15 @@ With `--mode full --with-ai-stack`, bootstrap:
 
 1. audits the current VPS and repository;
 2. creates the dedicated `agk-station` sudo account and moves managed source out of `/root`;
-3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain;
-4. installs the reviewed Hermes release and backup/Doctor-gated update timer;
-5. stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
+3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain plus the signed stable Tailscale package;
+4. installs the reviewed Hermes release, explicit voice/messaging extras and backup/Doctor-gated update timer;
+5. installs loopback-only Parakeet for Discord STT failover and stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
 6. installs AGK-TUI;
 7. reconciles `/etc/station`, `/opt/station`, `/srv/station`, `/var/lib/station`, logs, backups and runtime paths;
 8. creates isolated Zones and Projects with independent Unix identities and `HERMES_HOME` roots;
 9. installs the immutable Station release, desired OS declarations, systemd units and receipts;
-10. runs Station Doctor and stops at the truthful state `READY_FOR_SETUP`.
+10. starts the local one-time setup broker and publishes it through private Tailscale Serve only when the Host is already enrolled;
+11. runs Station Doctor and stops at the truthful state `READY_FOR_SETUP`.
 
 After that, Codex can guide the setup gates, but you must complete the secure provider/OAuth/token interactions and approvals. `OPERATIONAL` is reached only after real readback.
 
@@ -169,7 +172,7 @@ For a company/team installation:
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 ```
 
-The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs the pinned operator toolchain, installs the reviewed Hermes release in `/opt/station/tools/hermes/current`, and invokes the same typed Station plan/apply workflow. The shared Hermes launcher can execute for every Zone, but configuration, credentials, sessions and bot state remain isolated in that Zone's `HERMES_HOME`. Source and user tooling stay out of `/root`; external authentication remains an explicit setup gate.
+The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs the pinned operator toolchain, installs the reviewed Hermes release with voice/messaging support in `/opt/station/tools/hermes/current`, installs local Parakeet, and invokes the same typed Station plan/apply workflow. The shared Hermes launcher can execute for every Zone, but configuration, credentials, sessions and bot state remain isolated in that Zone's `HERMES_HOME`. Source and user tooling stay out of `/root`; external authentication remains an explicit setup gate.
 
 The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock).
 
@@ -179,7 +182,7 @@ To stage every optional AI component as well:
 sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
-This installs or stages Ponytail, Langfuse, Honcho, Hindsight, TigerVNC and Crawl4AI, but does not create accounts, inject secrets, expose ports or claim those services operational.
+This installs or stages Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet, but does not create accounts, inject secrets, expose public ports or claim those services operational. Parakeet is also part of the default voice install; use `--skip-voice` only when deliberately omitting Hermes voice support.
 
 `full` maps to the complete Agentik Station (operator Host). `team` is the company install: shared System foundation + one Organization Zone; Discord/Composio/memory/credentials are member-scoped principals so several people share the Host without a single global Private Zone. There is no separate client-branded mode — pass your organization/project ids at bootstrap time.
 
@@ -329,6 +332,7 @@ Read [`INSTALL.md`](INSTALL.md) before applying and [`SETUP.md`](SETUP.md) befor
 | Operator toolchain | INSTALLABLE | GitHub/Vercel/Composio/Codex login and scoped readback pending |
 | Resource catalog | INSTALLABLE | Project dependency/provider setup and tests pending |
 | Hermes platforms | INSTALLABLE | per-Zone platform enrollment and live message readback pending |
+| Voice + guided setup | INSTALLABLE | OpenAI/Parakeet/Tailnet/bot live round-trip pending |
 | Discord Experience | INSTALLABLE | dedicated test-guild create/edit/interactions/readback pending |
 | Composio plane | INSTALLABLE | OAuth/session/MCP/trigger/revocation gate pending |
 | OS Factory | INSTALLABLE | real Librarian→Builder→Hermes→recovery acceptance pending |
@@ -390,5 +394,7 @@ Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATI
 - Install/start its user service: `sudo station platform install --zone <zone-id>`
 - Observe it: `sudo station platform status --zone <zone-id>` and then perform live message readback
 - Install the optional stack: `sudo station deps install --all`
+- Enable/read back private bot-guided setup after Tailscale enrollment: `sudo ./scripts/station_guided_setup_enable.sh`
+- Voice architecture and acceptance: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md)
 
 Supported Hermes gateway surfaces include Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles/iMessage, QQ, Yuanbao, Microsoft Teams, LINE, ntfy and browser chat. See [`docs/dependencies/HERMES_PLATFORMS.md`](docs/dependencies/HERMES_PLATFORMS.md) and [`docs/dependencies/STACK.md`](docs/dependencies/STACK.md).

@@ -18,6 +18,7 @@ import logging
 import math
 import os
 import re
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -27,7 +28,7 @@ import traceback
 from collections import defaultdict
 from contextlib import suppress
 from typing import Callable, Dict, List, Optional, Any, Tuple
-from urllib.parse import quote, urljoin
+from urllib.parse import quote, urljoin, urlsplit
 
 from agent.async_utils import (
     consume_detached_task_result as _consume_background_task_result,
@@ -55,6 +56,149 @@ def _format_discord_markdown_link(label: str, url: str) -> str:
     escaped_label = _DISCORD_MARKDOWN_LINK_LABEL_RE.sub(r"\\\1", label)
     escaped_url = quote(url, safe=":/?#[]@!$&'*+,;=%")
     return f"[{escaped_label}](<{escaped_url}>)"
+
+
+def _trusted_tailnet_https_url(value: str) -> Optional[str]:
+    """Return a bounded Tailnet HTTPS URL or fail closed.
+
+    Guided setup buttons must never turn a gateway environment variable into
+    an arbitrary redirect or a URL containing embedded credentials.
+    """
+    if not isinstance(value, str) or not value or len(value) > 4096:
+        return None
+    try:
+        parsed = urlsplit(value)
+        port = parsed.port
+    except ValueError:
+        return None
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or not parsed.hostname.lower().endswith(".ts.net")
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in {None, 443}
+        or parsed.fragment
+    ):
+        return None
+    return value.rstrip("/")
+
+
+def _create_station_guided_setup_link(provider: str, discord_user_id: str) -> Optional[str]:
+    """Ask the local Station broker for a scoped one-time setup link.
+
+    This function passes only non-secret Tailnet URLs and identifiers as argv.
+    Composio bearer-like Connect Links use Station's file/in-process route and
+    are intentionally not handled by this account-picker path.
+    """
+    base_url = _trusted_tailnet_https_url(os.getenv("STATION_SETUP_BASE_URL", ""))
+    target_url = _trusted_tailnet_https_url(os.getenv("STATION_HERMES_SETUP_URL", ""))
+    zone_root_value = os.getenv("STATION_ZONE_STATE_ROOT", "").strip()
+    zone_id = os.getenv("STATION_ZONE_ID", "").strip()
+    if not base_url or not zone_root_value or not zone_id:
+        return None
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,79}", provider or ""):
+        return None
+    if not re.fullmatch(r"[0-9]{5,24}", discord_user_id or ""):
+        return None
+    zone_root = _Path(zone_root_value)
+    if not zone_root.is_absolute():
+        return None
+    state_root = zone_root / "connector-state" / "setup-links"
+    station = shutil.which("station")
+    if not station:
+        return None
+    try:
+        argv = [
+            station,
+            "setup-link",
+            "create",
+            "--state-root",
+            str(state_root),
+            "--base-url",
+            base_url,
+            "--zone",
+            zone_id,
+            "--principal",
+            f"discord-{discord_user_id}",
+            "--provider",
+            provider,
+            "--purpose",
+            "hermes-credentials" if target_url else "station-secret",
+            "--ttl",
+            "600",
+        ]
+        if target_url:
+            argv.extend(["--target-url", target_url])
+        result = subprocess.run(
+            argv,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=8,
+            stdin=subprocess.DEVNULL,
+        )
+        if result.returncode:
+            return None
+        payload = json.loads(result.stdout)
+        link = _trusted_tailnet_https_url(str(payload.get("url") or ""))
+        if not link or not link.startswith(base_url + "/s/"):
+            return None
+        return link
+    except (OSError, subprocess.SubprocessError, json.JSONDecodeError, TypeError, ValueError):
+        return None
+
+
+def _transcribe_with_station_parakeet(input_path: str) -> Dict[str, Any]:
+    """Use Station's loopback Parakeet service as Discord-only STT failover."""
+    executable = "/usr/local/libexec/station-parakeet-transcribe"
+    if os.path.islink(executable) or not os.path.isfile(executable) or not os.access(executable, os.X_OK):
+        return {
+            "success": False,
+            "transcript": "",
+            "provider": "parakeet",
+            "error": "Station Parakeet adapter is unavailable",
+        }
+    try:
+        with tempfile.TemporaryDirectory(prefix="station-discord-stt-") as output_dir:
+            output_path = os.path.join(output_dir, "transcript.txt")
+            completed = subprocess.run(
+                [executable, input_path, output_path, "auto"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=305,
+                stdin=subprocess.DEVNULL,
+            )
+            if completed.returncode or not os.path.isfile(output_path):
+                return {
+                    "success": False,
+                    "transcript": "",
+                    "provider": "parakeet",
+                    "error": "Station Parakeet transcription failed",
+                }
+            with open(output_path, "r", encoding="utf-8") as handle:
+                transcript = handle.read(1024 * 1024 + 1).strip()
+            if not transcript or len(transcript) > 1024 * 1024:
+                return {
+                    "success": False,
+                    "transcript": "",
+                    "provider": "parakeet",
+                    "error": "Station Parakeet returned an invalid transcript",
+                }
+            return {
+                "success": True,
+                "transcript": transcript,
+                "provider": "parakeet",
+                "error": None,
+            }
+    except (OSError, subprocess.SubprocessError, UnicodeError):
+        return {
+            "success": False,
+            "transcript": "",
+            "provider": "parakeet",
+            "error": "Station Parakeet transcription failed",
+        }
 
 
 class _Snowflake:
@@ -5112,7 +5256,14 @@ class DiscordAdapter(BasePlatformAdapter):
             await asyncio.to_thread(VoiceReceiver.pcm_to_wav, pcm_data, wav_path)
 
             from tools.transcription_tools import transcribe_audio
-            result = await asyncio.to_thread(transcribe_audio, wav_path)
+            result = await asyncio.to_thread(transcribe_audio, wav_path, source="discord")
+
+            # OpenAI gpt-transcribe is the reviewed primary path. If it is
+            # unavailable, Discord voice remains usable through Station's
+            # local, loopback-only Parakeet service without changing the
+            # selected Hermes provider for other surfaces.
+            if not result.get("success"):
+                result = await asyncio.to_thread(_transcribe_with_station_parakeet, wav_path)
 
             if not result.get("success"):
                 return
@@ -8774,9 +8925,28 @@ class DiscordAdapter(BasePlatformAdapter):
             async def _on_add(self, component_interaction, provider):
                 if not await adapter._check_slash_authorization(component_interaction, "/account"):
                     return
+                command = f"hermes auth add {provider}"
+                user = getattr(component_interaction, "user", None)
+                user_id = str(getattr(user, "id", "") or "")
+                setup_url = await asyncio.to_thread(
+                    _create_station_guided_setup_link, provider, user_id
+                )
+                if setup_url:
+                    setup_view = discord.ui.View(timeout=900)
+                    setup_view.add_item(discord.ui.Button(
+                        label="Open secure setup",
+                        style=discord.ButtonStyle.link,
+                        url=setup_url,
+                    ))
+                    await component_interaction.response.send_message(
+                        "Open the one-time Tailnet link below. It expires in 10 minutes. "
+                        "No secret is accepted in Discord messages.",
+                        view=setup_view,
+                        ephemeral=True,
+                    )
+                    return
                 # OAuth/device flows are interactive and may open a browser on the
                 # gateway host. Never collect provider secrets in channel content.
-                command = f"hermes auth add {provider}"
                 await component_interaction.response.send_message(
                     f"For secure setup, run `{command}` locally or use the local Hermes Dashboard credential setup. No secret is accepted in Discord messages.",
                     ephemeral=True,

@@ -5,6 +5,7 @@ import json
 import os
 import pwd
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -249,6 +250,49 @@ def cmd_setup(_: argparse.Namespace) -> int:
         "8. Fresh session: run the OS from deployed context/tools/state only.\n"
         "9. Raise a module to OPERATIONAL only after external readback and acceptance evidence.\n"
     )
+    return 0
+
+
+def cmd_setup_link(args: argparse.Namespace) -> int:
+    """Create or serve one-time, Tailnet-only setup redirects."""
+    from .guided_setup import SetupLinkStore, serve_setup_links, setup_link_card
+
+    store = SetupLinkStore(Path(args.state_root))
+    if args.setup_link_command == "serve":
+        serve_setup_links(store, host=args.host, port=args.port)
+        return 0
+    if args.target_url_file:
+        target_file = Path(args.target_url_file)
+        nofollow = getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(target_file, os.O_RDONLY | nofollow)
+        except OSError as exc:
+            raise ValidationError("setup target URL file must be an owned regular non-symlink file") from exc
+        try:
+            info = os.fstat(descriptor)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > 4096:
+                raise ValidationError("setup target URL file must be an owned regular file of at most 4096 bytes")
+            target_url = os.read(descriptor, 4097).decode("utf-8").strip()
+        except UnicodeDecodeError as exc:
+            raise ValidationError("setup target URL file must contain UTF-8 text") from exc
+        finally:
+            os.close(descriptor)
+    else:
+        target_url = str(args.target_url or "")
+        if args.purpose == "composio-oauth":
+            raise ValidationError("Composio Connect Links must use --target-url-file, never a process argument")
+    link = store.create(
+        base_url=args.base_url,
+        target_url=target_url,
+        zone_id=args.zone,
+        principal_id=args.principal,
+        provider=args.provider,
+        purpose=args.purpose,
+        ttl_seconds=args.ttl,
+    )
+    payload = link.to_dict()
+    payload["card"] = setup_link_card(link)
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
 
 
@@ -960,6 +1004,30 @@ def build_parser() -> argparse.ArgumentParser:
 
     setup = sub.add_parser("setup")
     setup.set_defaults(handler=cmd_setup)
+
+    setup_link = sub.add_parser("setup-link", help="Tailnet-only one-time redirects for bot-guided provider setup")
+    setup_link_sub = setup_link.add_subparsers(dest="setup_link_command", required=True)
+    setup_link_create = setup_link_sub.add_parser("create")
+    setup_link_create.add_argument("--state-root", required=True)
+    setup_link_create.add_argument("--base-url", required=True)
+    setup_link_create.add_argument("--zone", required=True)
+    setup_link_create.add_argument("--principal", required=True)
+    setup_link_create.add_argument("--provider", required=True)
+    setup_link_create.add_argument(
+        "--purpose",
+        required=True,
+        choices=["station-secret", "hermes-credentials", "composio-oauth", "cli-device-auth"],
+    )
+    target_group = setup_link_create.add_mutually_exclusive_group()
+    target_group.add_argument("--target-url")
+    target_group.add_argument("--target-url-file")
+    setup_link_create.add_argument("--ttl", type=int, default=600)
+    setup_link_create.set_defaults(handler=cmd_setup_link)
+    setup_link_serve = setup_link_sub.add_parser("serve")
+    setup_link_serve.add_argument("--state-root", required=True)
+    setup_link_serve.add_argument("--host", default="127.0.0.1")
+    setup_link_serve.add_argument("--port", type=int, default=8787)
+    setup_link_serve.set_defaults(handler=cmd_setup_link)
 
     zone = sub.add_parser("zone")
     zone_sub = zone.add_subparsers(dest="zone_command", required=True)

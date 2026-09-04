@@ -14,6 +14,20 @@ hermes:
     unit: station-hermes-update.timer
     schedule: weekly
     note: Enabled by bootstrap unless --skip-hermes-auto-update; updates run as agk-station, with backup, Doctor and receipt.
+voice:
+  policy: OpenAI audio is the reviewed primary path; local Parakeet is installed as the Discord failover and a selectable Hermes command provider.
+  hermes_extras: [voice, messaging]
+  system_packages: [ffmpeg, libopus0, portaudio19-dev]
+  stt:
+    primary_provider: openai
+    primary_model: gpt-transcribe
+    local_provider: parakeet
+    local_endpoint: http://127.0.0.1:5092/v1/audio/transcriptions
+  tts:
+    provider: openai
+    model: gpt-4o-mini-tts
+    voice: alloy
+  credentials: Zone-local VOICE_TOOLS_OPENAI_KEY; never Discord content, argv, Git, Control, logs or evidence.
 toolchain:
   policy: User-local pinned tools; authentication remains operator-owned.
   python:
@@ -30,6 +44,11 @@ toolchain:
     composio_cli: 0.4.0
     shadcn_cli: 4.21.0
     note: Remote installer scripts are checksum-locked; package/archive integrity is verified before install.
+  tailscale:
+    minimum_reviewed: 1.102.3
+    track: stable
+    install: signed distro repository with checksum-locked archive key
+    update: normal stable apt upgrades; enrollment remains operator-owned
 resources:
   catalog: resources/CATALOG.json
   default_stack: web-product
@@ -72,6 +91,15 @@ components:
     role: LLM-friendly web crawler / scraper tool for agents
     version: 0.9.3
     install: isolated-python-tool
+    maturity: INSTALLABLE
+  - id: parakeet
+    repository: https://github.com/achetronic/parakeet
+    role: Local OpenAI-compatible multilingual ASR/STT fallback for Discord audio and Hermes voice input
+    version: v0.8.0
+    commit_pin: 436daa8a75fa8c6d115a3188e18ef046444edccf
+    image: ghcr.io/achetronic/parakeet@sha256:00f8a02ec0ca6a7d6d5ee9f959060d8498b14f741a25e914941d22547a3f37f4
+    endpoint: http://127.0.0.1:5092/v1/audio/transcriptions
+    install: digest-pinned-loopback-container
     maturity: INSTALLABLE
 platforms:
   note: Hermes Messaging Gateway is the single process for multi-platform bots.

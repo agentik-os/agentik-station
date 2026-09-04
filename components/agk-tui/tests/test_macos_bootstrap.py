@@ -1,6 +1,8 @@
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -50,7 +52,10 @@ def test_launchers_derive_their_install_root_from_the_prefix():
 
 
 def test_incompatible_current_user_rmux_daemon_is_replaced_safely(tmp_path):
-    endpoint = tmp_path / "default"
+    # macOS caps AF_UNIX paths at 104 bytes; pytest's nested temp root can be
+    # longer than that before the socket filename is appended.
+    socket_root = Path(tempfile.mkdtemp(prefix="agk-rmux-", dir="/tmp"))
+    endpoint = socket_root / "default"
     ready = tmp_path / "ready"
     daemon_script = tmp_path / "rmux-old-daemon.py"
     daemon_script.write_text(
@@ -106,11 +111,12 @@ exit 0
         assert "replacing incompatible current-user RMUX daemon" in result.stdout
         assert "protocol is compatible" in result.stdout
         assert not endpoint.exists()
-        assert list(tmp_path.glob("default.agk-incompatible.*"))
+        assert list(socket_root.glob("default.agk-incompatible.*"))
     finally:
         if daemon.poll() is None:
             daemon.terminate()
         daemon.wait(timeout=5)
+        shutil.rmtree(socket_root, ignore_errors=True)
 
 
 def test_rmux_repair_does_not_mask_unrelated_failures(tmp_path):

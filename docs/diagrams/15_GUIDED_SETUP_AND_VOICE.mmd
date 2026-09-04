@@ -1,0 +1,24 @@
+flowchart LR
+    HUMAN[Human owner] -->|first Tailscale + bot enrollment| GATEWAY
+    SURFACE[Discord / Slack / Telegram / other Hermes surface] --> GATEWAY
+
+    subgraph ZONE[Owning Station Zone]
+        GATEWAY[Hermes Messaging Gateway]
+        BRAIN[Hermes central brain<br/>session + OS Director + team]
+        CREDS[Zone Hermes credentials<br/>mode 0600]
+        GATEWAY --> BRAIN
+        BRAIN --> GATEWAY
+    end
+
+    GATEWAY -->|ephemeral setup action| LINK[One-time station.guided_setup link]
+    LINK -->|HTTPS .ts.net only| BROKER[Loopback Station setup broker]
+    BROKER -->|allowlisted secret| CREDS
+    BROKER -->|allowlisted redirect| AUTH[Hermes / Composio / device auth]
+
+    AUDIO[Voice input / Discord audio] --> GATEWAY
+    GATEWAY -->|primary STT| OPENAI_STT[OpenAI gpt-transcribe]
+    GATEWAY -->|Discord failure only| PARAKEET[Local Parakeet<br/>127.0.0.1:5092]
+    OPENAI_STT --> BRAIN
+    PARAKEET --> BRAIN
+    BRAIN -->|TTS| OPENAI_TTS[OpenAI gpt-4o-mini-tts]
+    OPENAI_TTS --> GATEWAY

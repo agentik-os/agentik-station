@@ -142,6 +142,13 @@
       "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
     },
     {
+      "id": "parakeet",
+      "maturity": "INSTALLABLE",
+      "claim": "The reviewed Parakeet int8 image is digest-pinned, loopback-only and wired as a Hermes command-STT provider plus Discord audio failover; live transcription acceptance remains pending on each Host.",
+      "binary_probes": ["podman", "ffmpeg"],
+      "next_repair_action": "Install with station deps install --component parakeet, verify /health, then transcribe a synthetic Discord voice note in the owning Zone."
+    },
+    {
       "id": "tigervnc",
       "maturity": "INSTALLABLE",
       "claim": "TigerVNC packages are declared for optional apt install; display auth and firewall policy pending.",

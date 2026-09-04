@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1026
+Total files: 1040
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/copilot-instructions.md`
@@ -100,6 +100,8 @@ Total files: 1026
 - `components/agk-tui/hermes/plugins/agentik_os/__init__.py`
 - `components/agk-tui/hermes/plugins/agentik_os/agent_registry.py`
 - `components/agk-tui/hermes/plugins/agentik_os/commands.py`
+- `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js`
+- `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/manifest.json`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/plugin_api.py`
 - `components/agk-tui/hermes/plugins/agentik_os/domain.py`
@@ -157,6 +159,7 @@ Total files: 1026
 - `components/agk-tui/tests/test_online_install.py`
 - `components/agk-tui/tests/test_provider.py`
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
+- `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
 - `components/agk-tui/tests/test_topology.py`
 - `config/agent-runtime-policy.json`
 - `config/deps/stack.yaml`
@@ -191,6 +194,7 @@ Total files: 1026
 - `config/examples/projects/platform.yaml`
 - `config/examples/zones/organization-alpha-dev.yaml`
 - `config/examples/zones/organization-alpha-prod.yaml`
+- `config/hermes/voice.default.yaml`
 - `config/module-maturity.json`
 - `config/schemas/host.schema.json`
 - `config/schemas/project.schema.json`
@@ -239,6 +243,7 @@ Total files: 1026
 - `docs/builder/16_OS_V2_COMPLETENESS_MATRIX.md`
 - `docs/dependencies/HERMES_PLATFORMS.md`
 - `docs/dependencies/STACK.md`
+- `docs/dependencies/VOICE_AND_GUIDED_SETUP.md`
 - `docs/diagrams/01_GLOBAL_ARCHITECTURE.mmd`
 - `docs/diagrams/02_MISSION_FLOW.mmd`
 - `docs/diagrams/03_DEPLOYMENT.mmd`
@@ -254,6 +259,7 @@ Total files: 1026
 - `docs/diagrams/13_OS_CONTRACT_TO_HERMES.mmd`
 - `docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`
 - `docs/diagrams/14_STATION_VPS_TRUST_ZONES.mmd`
+- `docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd`
 - `docs/diagrams/15_HERMES_UPDATE_RINGS.mmd`
 - `docs/diagrams/16_STATION_ORCHESTRATION_EVIDENCE.mmd`
 - `docs/discord/01_DISCORD_EXPERIENCE_CONTRACT.md`
@@ -459,6 +465,8 @@ Total files: 1026
 - `modules/operator-toolchain/README.md`
 - `modules/os-factory/MODULE.json`
 - `modules/os-factory/README.md`
+- `modules/parakeet/MODULE.json`
+- `modules/parakeet/README.md`
 - `modules/ponytail/MODULE.json`
 - `modules/ponytail/README.md`
 - `modules/resource-catalog/MODULE.json`
@@ -945,11 +953,15 @@ Total files: 1026
 - `runtime/programs/orchestration_state.py`
 - `runtime/systemd/station-doctor.service`
 - `runtime/systemd/station-doctor.timer`
+- `runtime/systemd/station-guided-setup.service`
 - `runtime/systemd/station-hermes-watch.service`
 - `runtime/systemd/station-hermes-watch.timer`
+- `runtime/systemd/station-parakeet.service`
 - `scripts/station_agk_sync.py`
 - `scripts/station_deps_install.sh`
+- `scripts/station_guided_setup_enable.sh`
 - `scripts/station_hermes_update.sh`
+- `scripts/station_parakeet_transcribe.sh`
 - `scripts/station_toolchain_install.sh`
 - `scripts/systemd/station-hermes-update.service`
 - `scripts/systemd/station-hermes-update.timer`
@@ -977,6 +989,7 @@ Total files: 1026
 - `src/agentik_station/doctor.py`
 - `src/agentik_station/errors.py`
 - `src/agentik_station/filesystem.py`
+- `src/agentik_station/guided_setup.py`
 - `src/agentik_station/hermes_platforms.py`
 - `src/agentik_station/hermes_updates.py`
 - `src/agentik_station/identifiers.py`
@@ -1025,6 +1038,7 @@ Total files: 1026
 - `tests/security/test_safe_filesystem.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
+- `tests/unit/test_guided_setup.py`
 - `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_identifiers.py`
 - `tests/unit/test_models.py`

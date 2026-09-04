@@ -38,10 +38,14 @@ run() {
 }
 
 phase "Validate a supported fresh Linux host"
-case "$(uname -s)-$(uname -m)" in
-  Linux-x86_64|Linux-aarch64) ;;
-  *) echo "AGK fresh bootstrap supports Linux x86_64 and aarch64" >&2; exit 1 ;;
-esac
+if [ "$dry_run" = true ]; then
+  echo "  + require Linux x86_64 or aarch64 at apply time"
+else
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64|Linux-aarch64) ;;
+    *) echo "AGK fresh bootstrap supports Linux x86_64 and aarch64" >&2; exit 1 ;;
+  esac
+fi
 if [ "$skip_packages" = false ]; then
   command -v apt-get >/dev/null || {
     echo "automatic package provisioning currently supports Debian/Ubuntu (apt-get)" >&2

@@ -8,6 +8,12 @@ __pycache__/
 *.token
 runtime-state/
 dist/
+# Hermes dashboard plugins are distributed as build-free IIFEs. These two
+# authored runtime assets are required by dashboard/manifest.json and are not
+# generated build output.
+!components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/
+!components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js
+!components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css
 
 # Local desired-state / operator artifacts
 station.install.json
