@@ -22,6 +22,7 @@ STATION_USER=agk-station STATION_HOME="$STATION_HOME" \
   "$REPO/scripts/station_toolchain_install.sh" --check
 systemctl is-enabled --quiet station-hermes-update.timer
 systemctl is-active --quiet station-hermes-update.timer
+STATION_USER=agk-station STATION_HOME="$STATION_HOME" "$REPO/station" deps web-check
 
 if [[ "$PROFILE" == full ]]; then
   systemctl is-enabled --quiet station-parakeet.service
@@ -50,6 +51,7 @@ payload = {
         'agk-entrypoint',
         'pinned-toolchain-including-discord-js',
         'hermes-update-timer',
+        'scrapegraphai-crawl4ai-imports-and-chromium-launch',
         *(['parakeet-loopback-health'] if profile == 'full' else []),
     ],
     'devops_doctor_sha256': hashlib.sha256(doctor).hexdigest(),

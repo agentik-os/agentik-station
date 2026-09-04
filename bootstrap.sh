@@ -19,6 +19,7 @@ INSTALL_TOOLCHAIN=1
 INSTALL_AI_STACK=0
 INSTALL_VOICE=1
 INSTALL_SCRAPEGRAPHAI=1
+INSTALL_CRAWL4AI=1
 
 usage(){ cat <<'USAGE'
 Agentik Station host bootstrap
@@ -42,6 +43,7 @@ Options:
   --skip-voice           skip Hermes voice extras and local Parakeet service
   --with-ai-stack        install all optional pinned AI services/clients/plugins
   --skip-scrapegraphai   skip the default Hermes web-extraction tool and Chromium browser
+  --skip-crawl4ai        skip the default Hermes Markdown extraction tool
   --yes
 
 Creates the dedicated sudo account `agk-station`. Source and user tools live under
@@ -61,11 +63,12 @@ while (($#)); do
     --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; INSTALL_VOICE=0; shift;;
     --skip-hermes-auto-update) INSTALL_HERMES_AUTO_UPDATE=0; shift;;
     --skip-codex) INSTALL_CODEX=0; shift;;
-    --skip-toolchain) INSTALL_TOOLCHAIN=0; INSTALL_CODEX=0; shift;;
+    --skip-toolchain) INSTALL_TOOLCHAIN=0; INSTALL_CODEX=0; INSTALL_SCRAPEGRAPHAI=0; INSTALL_CRAWL4AI=0; shift;;
     --skip-agk-tui) INSTALL_AGK_TUI=0; shift;;
     --skip-voice) INSTALL_VOICE=0; shift;;
     --with-ai-stack) INSTALL_AI_STACK=1; shift;;
     --skip-scrapegraphai) INSTALL_SCRAPEGRAPHAI=0; shift;;
+    --skip-crawl4ai) INSTALL_CRAWL4AI=0; shift;;
     --yes) YES=1; shift;;
     -h|--help) usage; exit 0;;
     *) echo "Unknown option: $1" >&2; usage; exit 2;;
@@ -81,6 +84,10 @@ done
 }
 [[ "$INSTALL_AI_STACK" -eq 0 || ( "$INSTALL_HERMES" -eq 1 && "$INSTALL_VOICE" -eq 1 ) ]] || {
   echo 'ERROR: --with-ai-stack requires Hermes and the default voice stack.' >&2
+  exit 2
+}
+[[ "$INSTALL_AI_STACK" -eq 0 || ( "$INSTALL_SCRAPEGRAPHAI" -eq 1 && "$INSTALL_CRAWL4AI" -eq 1 ) ]] || {
+  echo 'ERROR: --with-ai-stack conflicts with --skip-scrapegraphai or --skip-crawl4ai.' >&2
   exit 2
 }
 if [[ "$MODE" == team && -z "$ORGANIZATION" ]]; then echo 'ERROR: --organization is required in team mode.' >&2; exit 2; fi
@@ -106,6 +113,7 @@ Bootstrap plan
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
   Voice:        $([[ $INSTALL_VOICE -eq 1 ]] && echo 'OpenAI audio + local Parakeet' || echo skip)
   ScrapeGraphAI:$([[ $INSTALL_SCRAPEGRAPHAI -eq 1 ]] && echo 'install + Playwright Chromium' || echo skip)
+  Crawl4AI:     $([[ $INSTALL_CRAWL4AI -eq 1 ]] && echo 'install + Markdown tool' || echo skip)
   AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
   sudo policy:  ${SUDO_MODE}
 EOF
@@ -213,6 +221,11 @@ fi
 if [[ "$INSTALL_SCRAPEGRAPHAI" -eq 1 ]]; then
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
     "$REPO_DIR/scripts/station_deps_install.sh" --component scrapegraphai
+fi
+
+if [[ "$INSTALL_CRAWL4AI" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --component crawl4ai
 fi
 
 if [[ "$INSTALL_VOICE" -eq 1 ]]; then

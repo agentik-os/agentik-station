@@ -87,17 +87,40 @@ def test_scrapegraphai_is_default_hermes_tool_and_fail_closed():
     plugin = (ROOT / "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py").read_text()
     assert "INSTALL_SCRAPEGRAPHAI=1" in bootstrap
     assert "--component scrapegraphai" in bootstrap
-    assert "scrapegraphai==$SCRAPEGRAPHAI_VERSION" in deps
-    assert '"$venv/bin/playwright" install chromium' in deps
-    assert 'name="station_scrapegraph"' in (ROOT / "components/agk-tui/hermes/plugins/agentik_os/__init__.py").read_text()
-    assert "private or reserved source addresses are not allowed" in plugin
-    assert "embedded credentials" in plugin
+    assert 'install_web_runtime scrapegraphai "$SCRAPEGRAPHAI_VERSION"' in deps
+    assert 'install_web_runtime crawl4ai "$CRAWL4AI_PYTHON_VERSION"' in deps
+    assert '"$component==$version" "playwright==$PLAYWRIGHT_VERSION"' in deps
+    assert '"$venv/bin/python" -m playwright install chromium' in deps
+    assert "INSTALL_CRAWL4AI=1" in bootstrap
+    assert "--component crawl4ai" in bootstrap
+    registration = (ROOT / "components/agk-tui/hermes/plugins/agentik_os/web_plugin.py").read_text()
+    assert 'name="station_scrapegraph"' in registration
+    assert 'name="station_crawl4ai"' in registration
+    fetch = (ROOT / "components/agk-tui/hermes/plugins/agentik_os/web_fetch.py").read_text()
+    assert "private or reserved source addresses are not allowed" in fetch
+    assert "embedded credentials" in fetch
+    assert "public_target" in plugin
     assert "SCRAPEGRAPHAI_OPENAI_API_KEY" in (ROOT / "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py").read_text()
 
 
 def test_ponytail_install_uses_immutable_hermes_plugin_ref():
     script = (ROOT / "scripts" / "station_deps_install.sh").read_text()
     assert 'plugins install "$PONYTAIL_REPOSITORY" --ref "$PONYTAIL_COMMIT" --enable' in script
+
+
+def test_web_runtime_paths_and_pins_agree_with_installer_resources():
+    import json
+    import runpy
+    lock = dict(line.split("=", 1) for line in (ROOT / "config/versions.lock").read_text().splitlines() if line and not line.startswith("#"))
+    runtime = runpy.run_path(str(ROOT / "components/agk-tui/hermes/plugins/agentik_os/web_runtime.py"))
+    assert runtime["PYTHON_VERSION"] == lock["AI_PYTHON_VERSION"]
+    assert runtime["PLAYWRIGHT_VERSION"] == lock["PLAYWRIGHT_VERSION"]
+    for component, key in (("scrapegraphai", "SCRAPEGRAPHAI_VERSION"), ("crawl4ai", "CRAWL4AI_PYTHON_VERSION")):
+        resource = json.loads((ROOT / f"resources/{component}/RESOURCE.json").read_text())
+        assert runtime["VERSIONS"][component] == lock[key] == resource["version"]
+        assert str(runtime["runtime_root"](component)) == resource["code_root"]
+        assert resource["security"]["javascript"] is False
+    cli.build_parser().parse_args(["deps", "web-check"])
 
 
 def test_catalog_includes_new_modules():

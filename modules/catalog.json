@@ -137,14 +137,14 @@
     {
       "id": "crawl4ai",
       "maturity": "INSTALLABLE",
-      "claim": "Crawl4AI LLM crawler is declared for optional user install; tool allowlist and network egress policy pending.",
+      "claim": "Default installer provisions a versioned read-only Crawl4AI 0.9.3 runtime and station_crawl4ai HTML-to-Markdown adapter; no LLM key or JavaScript, with public-IP/redirect checks. Live Zone acceptance remains pending.",
       "binary_probes": [],
-      "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
+      "next_repair_action": "Install crawl4ai for agk-station, run a public test URL through station_crawl4ai and record evidence readback."
     },
     {
       "id": "scrapegraphai",
       "maturity": "INSTALLABLE",
-      "claim": "ScrapeGraphAI 2.2.2 and Playwright Chromium 1.62.0 are installed in an isolated AI venv by default and exposed through the bounded Hermes station_scrapegraph tool; live credentialed extraction readback remains pending.",
+      "claim": "Default installer provisions a versioned read-only ScrapeGraphAI 2.2.2/Playwright 1.62.0 runtime and station_scrapegraph public-HTML adapter; Zone OpenAI key and live extraction acceptance remain required.",
       "binary_probes": [],
       "next_repair_action": "Run station deps install --component scrapegraphai, provide a Zone-local model credential and pass a public test URL extraction with evidence readback."
     },

@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1069
+Total files: 1075
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -121,6 +121,9 @@ Total files: 1069
 - `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py`
 - `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py`
 - `components/agk-tui/hermes/plugins/agentik_os/store.py`
+- `components/agk-tui/hermes/plugins/agentik_os/web_fetch.py`
+- `components/agk-tui/hermes/plugins/agentik_os/web_plugin.py`
+- `components/agk-tui/hermes/plugins/agentik_os/web_runtime.py`
 - `components/agk-tui/hermes/plugins/platforms/discord/AGK_PATCHSET.md`
 - `components/agk-tui/hermes/plugins/platforms/discord/__init__.py`
 - `components/agk-tui/hermes/plugins/platforms/discord/adapter.py`
@@ -170,6 +173,7 @@ Total files: 1069
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
 - `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
 - `components/agk-tui/tests/test_topology.py`
+- `components/agk-tui/tests/test_web_extraction.py`
 - `config/agent-runtime-policy.json`
 - `config/composio/discord-tool-policy.json`
 - `config/deps/stack.yaml`
@@ -953,6 +957,8 @@ Total files: 1069
 - `pyproject.toml`
 - `resources/CATALOG.json`
 - `resources/README.md`
+- `resources/crawl4ai/README.md`
+- `resources/crawl4ai/RESOURCE.json`
 - `resources/discord-js-sdk/README.md`
 - `resources/discord-js-sdk/package-lock.json`
 - `resources/discord-js-sdk/package.json`

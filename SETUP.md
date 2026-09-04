@@ -134,7 +134,7 @@ Keep tokens in the Zone's dedicated `HERMES_HOME`. Do not claim OPERATIONAL for 
 
 ## Gate — Optional dependency stack
 
-ScrapeGraphAI/Playwright, Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC, Parakeet and the isolated discord.js SDK are declared in `config/deps/stack.yaml`. ScrapeGraphAI is installed by default; use `--skip-scrapegraphai` only when the Host must omit browser tooling.
+ScrapeGraphAI/Playwright, Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC, Parakeet and the isolated discord.js SDK are declared in `config/deps/stack.yaml`. ScrapeGraphAI and Crawl4AI install by default; `--skip-scrapegraphai` / `--skip-crawl4ai` deliberately omit the selected runtime. Run `sudo station deps web-check`, then a fresh-session extraction in the owning Zone. The automatic adapters process public HTML without JavaScript; see [web limits and profile activation](resources/scrapegraphai/README.md).
 
 ```bash
 ./scripts/station_deps_install.sh --list

@@ -18,7 +18,8 @@
 | Codex CLI | 0.153.2 | pinned npm package + locked registry integrity |
 | Composio CLI | 0.4.0 | checksum-locked official installer + verified bundle, pinned release, no automatic login/plugin setup |
 | discord.js SDK | 14.27.0 | npm lock + registry integrity, isolated under `.local/share/station-sdk/discord-js`; never starts a Gateway |
-| ScrapeGraphAI | 2.2.2 + Playwright Chromium 1.62.0 | default isolated Python 3.13 venv and Hermes `station_scrapegraph` tool | Zone model credential, public URL extraction and evidence readback |
+| ScrapeGraphAI | 2.2.2 + Playwright Chromium 1.62.0 | default versioned read-only Python 3.13 runtime; `station_scrapegraph` uses a Zone OpenAI key |
+| Crawl4AI | 0.9.3 + Playwright Chromium 1.62.0 | default versioned read-only Python 3.13 runtime; `station_crawl4ai` requires no LLM key |
 | shadcn CLI | 4.21.0 | pinned npm package + locked registry integrity; components remain Project-owned source |
 | Hermes Agent | v2026.8.31 / reviewed commit | checksum-locked upstream installer executed as `agk-station`, shared launcher, isolated Zone homes |
 | Hermes voice | explicit `voice,messaging` extras | OpenAI `gpt-transcribe` primary STT; OpenAI `gpt-4o-mini-tts` / `alloy`; Zone-local credential |
@@ -28,6 +29,7 @@
 station deps toolchain-plan
 sudo station deps toolchain-install
 station deps toolchain-check
+sudo station deps web-check
 ```
 
 Installation is not authentication. Complete `gh auth login`, `vercel login`, `composio login`, Codex sign-in and `hermes setup` only for the principals that need them. For Discord tools, use `station provider composio-discord plan|link|verify --zone <zone-id>`; the selected Composio account is an adapter behind Hermes, not another bot Gateway.
@@ -43,6 +45,8 @@ station resource stack-plan --id web-product
 
 The recipe does not create provider accounts, write secrets or force this stack on Projects with a different declared contract.
 
+Both web runtimes live under `/opt/station/tools/web/<component>-<version>-py<version>-pw<version>/`; state and secrets stay under the calling Zone identity. Their automatic adapters process guarded public HTML, without JavaScript/browser subrequests. Chromium launch is checked separately. OS compilation includes the small native `station-web` plugin; existing profiles require reinstall/config activation and fresh-session acceptance. See [limits and verification](../../resources/scrapegraphai/README.md).
+
 ## Optional components
 
 These projects are not interchangeable Python dependencies:
@@ -54,7 +58,6 @@ These projects are not interchangeable Python dependencies:
 | Honcho | SDK 2.4.0 | isolated Python 3.13 venv | API/self-host, Zone credentials, memory round-trip |
 | Hindsight | client 0.9.2 | isolated Python 3.13 client; Hermes uses native `hermes memory setup` | provider enrollment + Zone-isolation/recall test |
 | TigerVNC | distro package; upstream v1.16.2 reviewed | `apt` package install | private-network binding, auth, firewall and viewer readback |
-| Crawl4AI | 0.9.3 | isolated Python 3.13 `uv tool`, browser setup and upstream Doctor | Hermes tool allowlist and egress policy |
 | Parakeet | v0.8.0 / immutable image digest | loopback-only, read-only int8 container and Hermes command-STT adapter | health + synthetic/Discord fallback transcription readback |
 
 ```bash

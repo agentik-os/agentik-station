@@ -27,12 +27,12 @@
   "history_is_non_canonical": true,
   "validation": {
     "repository_doctor": "PASS",
-    "station_tests": 124,
+    "station_tests": 125,
     "factory_pytest": 4,
     "builder_librarian_gates": "7/7 PASS",
-    "agk_tui_component_tests": 181
+    "agk_tui_component_tests": 214
   },
-  "file_count": 1069,
+  "file_count": 1075,
   "files": [
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -153,6 +153,9 @@
     "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py",
     "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py",
     "components/agk-tui/hermes/plugins/agentik_os/store.py",
+    "components/agk-tui/hermes/plugins/agentik_os/web_fetch.py",
+    "components/agk-tui/hermes/plugins/agentik_os/web_plugin.py",
+    "components/agk-tui/hermes/plugins/agentik_os/web_runtime.py",
     "components/agk-tui/hermes/plugins/platforms/discord/AGK_PATCHSET.md",
     "components/agk-tui/hermes/plugins/platforms/discord/__init__.py",
     "components/agk-tui/hermes/plugins/platforms/discord/adapter.py",
@@ -202,6 +205,7 @@
     "components/agk-tui/tests/test_runtime_integrity_contract.py",
     "components/agk-tui/tests/test_station_voice_and_setup_contract.py",
     "components/agk-tui/tests/test_topology.py",
+    "components/agk-tui/tests/test_web_extraction.py",
     "config/agent-runtime-policy.json",
     "config/composio/discord-tool-policy.json",
     "config/deps/stack.yaml",
@@ -985,6 +989,8 @@
     "pyproject.toml",
     "resources/CATALOG.json",
     "resources/README.md",
+    "resources/crawl4ai/README.md",
+    "resources/crawl4ai/RESOURCE.json",
     "resources/discord-js-sdk/README.md",
     "resources/discord-js-sdk/package-lock.json",
     "resources/discord-js-sdk/package.json",

@@ -17,6 +17,7 @@ usage: station_deps_install.sh [--all] [--list]
        station_deps_install.sh --component ID [--component ID ...]
        station_deps_install.sh --enable-hermes-auto-update
        station_deps_install.sh --platforms-guide
+       station_deps_install.sh --check-web
 
 Components: scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
 USAGE
@@ -27,10 +28,12 @@ ENABLE_AUTO=0
 LIST_ONLY=0
 PLATFORMS=0
 ALL=0
+CHECK_WEB=0
 
 while (($#)); do
   case "$1" in
     --all) ALL=1; shift;;
+    --check-web) CHECK_WEB=1; shift;;
     --list) LIST_ONLY=1; shift;;
     --component) COMPONENTS+=("$2"); shift 2;;
     --enable-hermes-auto-update) ENABLE_AUTO=1; shift;;
@@ -100,18 +103,61 @@ install_python_sdk() {
 }
 
 install_scrapegraphai() {
+  install_web_runtime scrapegraphai "$SCRAPEGRAPHAI_VERSION"
+}
+
+install_web_runtime() {
   require_uv
-  local venv="$STATION_HOME/.local/share/agentik-station/venvs/scrapegraphai-py${AI_PYTHON_VERSION}"
-  as_station mkdir -p "$STATION_HOME/.local/share/agentik-station/venvs"
-  if [[ ! -x "$venv/bin/python" ]]; then
-    as_station "$STATION_HOME/.local/bin/uv" venv --python "$AI_PYTHON_VERSION" "$venv"
+  [[ "$(id -u)" -eq 0 ]] || { echo 'Shared web runtimes require sudo' >&2; return 2; }
+  local component="$1" version="$2" base=/opt/station/tools/web
+  local runtime="$base/${component}-${version}-py${AI_PYTHON_VERSION}-pw${PLAYWRIGHT_VERSION}"
+  local venv="$runtime/venv" runner="$ROOT/components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py"
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" python3 - "$runtime" "$STATION_USER" <<'PY'
+import pathlib, pwd, sys
+from agentik_station.filesystem import SafeFS
+base = pathlib.Path('/opt/station/tools/web')
+runtime = pathlib.Path(sys.argv[1])
+account = pwd.getpwnam(sys.argv[2])
+fs = SafeFS([base])
+fs.mkdir(base)
+if runtime.exists() or runtime.is_symlink():
+    fs.mkdir(runtime)
+    marker = runtime / 'BUILT'
+    if marker.is_symlink() or not marker.is_file() or marker.stat().st_uid != 0:
+        raise SystemExit('Incomplete/unsafe web runtime: inspect and archive that version directory before retrying: ' + str(runtime))
+else:
+    fs.mkdir(runtime, owner=(account.pw_uid, account.pw_gid))
+    fs.mkdir(runtime / 'python', owner=(account.pw_uid, account.pw_gid))
+PY
+  if [[ ! -f "$runtime/BUILT" ]]; then
+    # Download/build as the dedicated account; published code is then root-owned.
+    as_station env UV_PYTHON_INSTALL_DIR="$runtime/python" "$STATION_HOME/.local/bin/uv" python install "$AI_PYTHON_VERSION"
+    as_station env UV_PYTHON_INSTALL_DIR="$runtime/python" "$STATION_HOME/.local/bin/uv" venv --python "$AI_PYTHON_VERSION" "$venv"
+    as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" \
+      "$component==$version" "playwright==$PLAYWRIGHT_VERSION"
+    # Browser system libraries are the only root package-manager operation here.
+    "$venv/bin/python" -m playwright install-deps chromium
+    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" "$venv/bin/python" -m playwright install chromium
+    chown -R root:root "$runtime"
+    chmod -R a+rX,go-w "$runtime"
+    PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" python3 - "$runtime" <<'PY'
+import pathlib, sys
+from agentik_station.filesystem import SafeFS
+runtime = pathlib.Path(sys.argv[1])
+SafeFS([runtime]).write_text(runtime / 'BUILT', 'INSTALLED_NOT_VERIFIED\n', mode=0o644)
+PY
   fi
-  as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" \
-    "scrapegraphai==$SCRAPEGRAPHAI_VERSION" "playwright==$PLAYWRIGHT_VERSION"
-  as_station "$venv/bin/python" -c 'import scrapegraphai; print("scrapegraphai import OK")'
-  as_station "$venv/bin/playwright" install chromium
-  as_station "$venv/bin/playwright" install --dry-run chromium >/dev/null
-  echo "ScrapeGraphAI $SCRAPEGRAPHAI_VERSION + Playwright Chromium $PLAYWRIGHT_VERSION installed for Hermes (tool: station_scrapegraph)."
+  check_web_runtime "$component" "$version"
+  echo "$component $version is installed; Zone credentials and live extraction remain separate."
+}
+
+check_web_runtime() {
+  local component="$1" version="$2"
+  local runtime="/opt/station/tools/web/${component}-${version}-py${AI_PYTHON_VERSION}-pw${PLAYWRIGHT_VERSION}"
+  local venv="$runtime/venv" runner="$ROOT/components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py"
+  printf '{"component":"%s","health":true}\n' "$component" | \
+    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" PYTHONDONTWRITEBYTECODE=1 \
+      "$venv/bin/python" "$runner"
 }
 
 install_tigervnc() {
@@ -124,12 +170,7 @@ install_tigervnc() {
 }
 
 install_crawl4ai() {
-  require_uv
-  as_station "$STATION_HOME/.local/bin/uv" tool install --force --python "$AI_PYTHON_VERSION" \
-    "crawl4ai==$CRAWL4AI_PYTHON_VERSION"
-  as_station "$STATION_HOME/.local/bin/crawl4ai-setup"
-  as_station "$STATION_HOME/.local/bin/crawl4ai-doctor"
-  echo "Crawl4AI $CRAWL4AI_PYTHON_VERSION installed and Doctor passed."
+  install_web_runtime crawl4ai "$CRAWL4AI_PYTHON_VERSION"
 }
 
 install_honcho() {
@@ -211,6 +252,12 @@ enable_hermes_auto_update() {
   systemctl list-timers station-hermes-update.timer --no-pager || true
   echo "Hermes weekly auto-update timer enabled."
 }
+
+if [[ "$CHECK_WEB" -eq 1 ]]; then
+  check_web_runtime scrapegraphai "$SCRAPEGRAPHAI_VERSION"
+  check_web_runtime crawl4ai "$CRAWL4AI_PYTHON_VERSION"
+  exit 0
+fi
 
 if [[ "$ENABLE_AUTO" -eq 1 ]]; then
   enable_hermes_auto_update

@@ -62,7 +62,7 @@ components:
     version: 2.2.2
     browser: playwright chromium 1.62.0
     python: 3.13.15
-    install: isolated-python-venv-with-browser
+    install: default-shared-read-only-python-venv-with-browser
     hermes_tool: station_scrapegraph
     maturity: INSTALLABLE
   - id: discord-js-sdk
@@ -108,7 +108,10 @@ components:
     repository: https://github.com/unclecode/crawl4ai
     role: LLM-friendly web crawler / scraper tool for agents
     version: 0.9.3
-    install: isolated-python-tool
+    python: 3.13.15
+    browser: playwright chromium 1.62.0
+    install: default-shared-read-only-python-venv-with-browser
+    hermes_tool: station_crawl4ai
     maturity: INSTALLABLE
   - id: parakeet
     repository: https://github.com/achetronic/parakeet

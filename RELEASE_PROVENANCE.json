@@ -9,7 +9,7 @@
   "generated_by": "scripts/generate_release_metadata.py",
   "release": "11.12",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1066,
+  "subject_count": 1072,
   "subjects": [
     {
       "executable": false,
@@ -38,8 +38,8 @@
     {
       "executable": false,
       "path": ".github/workflows/ci.yml",
-      "sha256": "2ad0cafc4c5036b2bc69a80a6d50bb87b4ee858e6157afd68cf15f689543f200",
-      "size": 7479
+      "sha256": "df4b8ea14635ce13da4a5183e854f0093e6bcdf23caf522070eb8aad12e20add",
+      "size": 8795
     },
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "99d1b63bb299d3fae9383f36873f0e28047cdd4b11eba3d4ff10a8b21c8e28c2",
-      "size": 21521
+      "sha256": "d51ef35cdd4fbbf6eace2aef5c83178dcbdf33f2ebd0b81d336df1b59983938a",
+      "size": 22070
     },
     {
       "executable": false,
@@ -158,8 +158,8 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "d3e53459861594c08c0ab5dffa68011be0f6fbeb68dad5ee49fd950e4b4ec7bf",
-      "size": 9164
+      "sha256": "a90e294f4e1902fb6c7659a1dd4dc4d7c5e91dc9a140ee1996eff078a33e57e2",
+      "size": 9408
     },
     {
       "executable": false,
@@ -182,8 +182,8 @@
     {
       "executable": false,
       "path": "VALIDATION_11_12.md",
-      "sha256": "f398e220cbaac4a6f2a711cf6e00df006bca73721b3d2524e08a449080298edd",
-      "size": 1860
+      "sha256": "140ff7dccdc3bd52a5cefcbcb81262e2eea11e9301b482d3c9727c6e0a3d0e81",
+      "size": 2846
     },
     {
       "executable": false,
@@ -194,8 +194,8 @@
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "713e97aea3621b043fa5258134c81c1be086a39f176e57dbe219d4aaf00a854c",
-      "size": 47758
+      "sha256": "b8e8bcae92419d7400201ad298f2a5671b4608cf64034f70a901f218d08ffeea",
+      "size": 48378
     },
     {
       "executable": true,
@@ -206,8 +206,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "d4323f015913b1960ab46e4f32e4b16a8fa7655c41b6588bb83622e2c2bba4b2",
-      "size": 16338
+      "sha256": "4004470655d7d82224dd862a989db1b4097de704718f8415f405e3eb4e5514da",
+      "size": 17004
     },
     {
       "executable": false,
@@ -608,8 +608,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/__init__.py",
-      "sha256": "a234666f41e507026b7319fe6f8965b587b0e661a4315c25183817a35b484371",
-      "size": 2420
+      "sha256": "8bd77403535c7653abfb47b73dfb0356d8cc61e98ec00c2d8f838b531cb02f89",
+      "size": 2128
     },
     {
       "executable": false,
@@ -674,8 +674,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/plugin.yaml",
-      "sha256": "c09c8c95d7634b075ceb5df1eb8f4f541ee930dd96ccfac4abdc57f901e90ef9",
-      "size": 286
+      "sha256": "ac1207f0fcc98eec77b657156de9dc2de3c36fce822af28c8015e57eec5b9fee",
+      "size": 307
     },
     {
       "executable": false,
@@ -692,20 +692,38 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py",
-      "sha256": "5b433108024f461717de977fb05ac68bbe7751e6f0fd0b4649d7f69e2e350e70",
-      "size": 1047
+      "sha256": "b347c77236d608e7c846536d94be9a72a6a712d74265ac9ae4041fe7ff37e527",
+      "size": 3627
     },
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py",
-      "sha256": "e583c35d30e9925c6e707ce0153f6ade388dc7847bb2423e7f3d003f94f7643b",
-      "size": 4368
+      "sha256": "5ce0a5d3e52aefe52465481f800148e4c9ee948d1d45b749085358d85eb82045",
+      "size": 5842
     },
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/store.py",
       "sha256": "8528563545f676506fee15db0cf26bb1a41f02884606ee40ad0f976649dee71f",
       "size": 10527
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/web_fetch.py",
+      "sha256": "24432ef9e711aab83162b06b5f0f730e5533e9e32178cc1303c9229aefdae4df",
+      "size": 4042
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/web_plugin.py",
+      "sha256": "4703fe6ae6ab1dda2f47cb93260574b54b81a5b3358ff021da64cf6cf002fe8c",
+      "size": 794
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/web_runtime.py",
+      "sha256": "d77f016942ab317a130d638fe530e0de133dc95a45b169c7b0e60ef313b79c30",
+      "size": 401
     },
     {
       "executable": false,
@@ -770,8 +788,8 @@
     {
       "executable": true,
       "path": "components/agk-tui/install.sh",
-      "sha256": "b0d683f7e97b4fe209117549e9be71c85c780c3a3b0706a743ca69c40ad1b470",
-      "size": 14754
+      "sha256": "098a9f726409dad29fcd999370694bf30fd3b82571b1dda12593768b1b39f92d",
+      "size": 14874
     },
     {
       "executable": false,
@@ -1003,6 +1021,12 @@
     },
     {
       "executable": false,
+      "path": "components/agk-tui/tests/test_web_extraction.py",
+      "sha256": "c5060b541dd4371c16b521b3ac2cc39bdf39432220ee4b7b8b6a35b5a26c929d",
+      "size": 12002
+    },
+    {
+      "executable": false,
       "path": "config/agent-runtime-policy.json",
       "sha256": "5c67257dab5fa8206e70f09b87c3d5f2f7d39bcca2311b351d07b34dfb735908",
       "size": 1355
@@ -1016,8 +1040,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "23c1bca18f64d559471aa9a3d51c18906a1cef4599242d7f493cc2a01b2ce857",
-      "size": 5377
+      "sha256": "071d53e6f6cc927ea5372b31dfdaccb4bbcaada368976a3c1637d2c9f11bbe19",
+      "size": 5516
     },
     {
       "executable": false,
@@ -1496,8 +1520,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "38dcd1df9985d4eff8e0df459a939b2d8f2bae18b45f76b646433e1f56de65ab",
-      "size": 5527
+      "sha256": "c0c5b10e2fd0d072ae25bda2ba9c127e13264962865c104f0cd4ee5f5862357e",
+      "size": 6028
     },
     {
       "executable": false,
@@ -1586,8 +1610,8 @@
     {
       "executable": false,
       "path": "docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd",
-      "sha256": "602cdcabda74afbf1384c342593e449654d8550076787d8b7477d7b049bb3405",
-      "size": 1339
+      "sha256": "6cf77572a436358456d3236456ec0b1b8ec7e1eec6cbff5996626db2b55002d8",
+      "size": 1356
     },
     {
       "executable": false,
@@ -2678,8 +2702,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "c202c125565d477fbd2eb64e95d77a16412c8b7372a4ebf2f75bbb61a112bf8b",
-      "size": 9486
+      "sha256": "b0b4e0bc4f32260eb9bb650a0beb7b2c9e5c19874863d5312b968c9028dc2850",
+      "size": 9593
     },
     {
       "executable": false,
@@ -2696,14 +2720,14 @@
     {
       "executable": false,
       "path": "modules/crawl4ai/MODULE.json",
-      "sha256": "c2dd959992b3f52c67c9956f26aba56eaf3baad69ad79152067c0a224a2d0ac4",
-      "size": 361
+      "sha256": "3d33c2cbeb82e70b82f73e948f201f349b55ee53d3923a0ae9f09382cf9e167f",
+      "size": 493
     },
     {
       "executable": false,
       "path": "modules/crawl4ai/README.md",
-      "sha256": "638ffe73b8adf60748d2d1ae27c5c4ed7cae476eb05a342df54554193cde2b6c",
-      "size": 266
+      "sha256": "d6153640087cec907661542780e9ab0098c55f2ef52e237f97d6526e4933efcb",
+      "size": 465
     },
     {
       "executable": false,
@@ -3686,8 +3710,8 @@
     {
       "executable": false,
       "path": "os/devops/README.md",
-      "sha256": "a604f179126bf229b2b584104921fa7541a930dbc85bea3a4baaf2481118a30a",
-      "size": 2196
+      "sha256": "6c2b4c3a7337e70cadb1d102aede850d015a59c829b17d18f4b26efcb620a565",
+      "size": 2248
     },
     {
       "executable": false,
@@ -3890,8 +3914,8 @@
     {
       "executable": false,
       "path": "os/devops/providers/ROUTES.json",
-      "sha256": "2a04f7f47bd70ab5937989545e6fe14d54b422392f9b857e6bdf2b40ebef79a5",
-      "size": 1561
+      "sha256": "7ebb7c5822dc05dac5868805fc93033b650ef1a927cae0b9c8712372d42448f0",
+      "size": 1610
     },
     {
       "executable": false,
@@ -3944,8 +3968,8 @@
     {
       "executable": false,
       "path": "os/devops/tools/CONTRACTS.json",
-      "sha256": "9fd3d45c4dca0fa3d1c8e0c4bd994932ab8616a2c4fda8cbdbece4621e801e4d",
-      "size": 4351
+      "sha256": "fdf0d61b891fd7997f9af76de1e002996285618cb2d5606ded3092080f82feda",
+      "size": 4371
     },
     {
       "executable": false,
@@ -5690,14 +5714,26 @@
     {
       "executable": false,
       "path": "resources/CATALOG.json",
-      "sha256": "903232e517d155f7e6fb538d95e9538af9db1e9e8dd51bfaea03d38c509f62bf",
-      "size": 2473
+      "sha256": "85f01aeda2c3bb5b417c1fd42481dfce966f24a03655be2a91621838174bb241",
+      "size": 2937
     },
     {
       "executable": false,
       "path": "resources/README.md",
       "sha256": "a039751064a4f7452fe00129274005eeb18f5fc2ccda29107062c41069c64f0b",
       "size": 1154
+    },
+    {
+      "executable": false,
+      "path": "resources/crawl4ai/README.md",
+      "sha256": "6bf072d8f43d6d46fbcb0f6de7ab430748107ecb1d206baa4950c4b7682ed468",
+      "size": 1156
+    },
+    {
+      "executable": false,
+      "path": "resources/crawl4ai/RESOURCE.json",
+      "sha256": "de53097f6b627daaf9771f07654093cae78dc5c4174cd44c0dda5938d98da11c",
+      "size": 703
     },
     {
       "executable": false,
@@ -5744,14 +5780,14 @@
     {
       "executable": false,
       "path": "resources/scrapegraphai/README.md",
-      "sha256": "53a8b5cc3bf5d251a4572937cacb7e4061e8e5ff821a22a2bc61758dd00f725d",
-      "size": 768
+      "sha256": "030b06b5d37eb9d865c8d5465bb71c891879240e416415d2fbf0846c7e452a4a",
+      "size": 2270
     },
     {
       "executable": false,
       "path": "resources/scrapegraphai/RESOURCE.json",
-      "sha256": "7708e36fe2ee5fa0b9a7921bab7d9b307cfa025cbdea1fe482c2733b90832a03",
-      "size": 527
+      "sha256": "59501feaf703ab1f2d6c74754a13785fbae2ac52be9aeb6a3308fb870d3091ba",
+      "size": 715
     },
     {
       "executable": false,
@@ -5882,8 +5918,8 @@
     {
       "executable": true,
       "path": "scripts/ci_vps_acceptance.sh",
-      "sha256": "5ead7969760970e1f9b799f1b88bcd2d2fc52b3aa46f92b445d2d1b15ad0b23e",
-      "size": 2265
+      "sha256": "6bafa45dad47e0839fe33c75b47ad5e49e32717e9ff39a00aeccbfaea05b199f",
+      "size": 2412
     },
     {
       "executable": true,
@@ -5900,8 +5936,8 @@
     {
       "executable": true,
       "path": "scripts/station_deps_install.sh",
-      "sha256": "89fbbacb868c1680e8aaf8bb5bc55d97e0401d93a2d83ef34bf69be3c208cf58",
-      "size": 9133
+      "sha256": "28094c4d8758616a80cf28ee9de285307cdac7076640664dfc4a5b8442dd6130",
+      "size": 11251
     },
     {
       "executable": true,
@@ -6050,8 +6086,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/cli.py",
-      "sha256": "b0696db0bec3322248757fa76bca83f7806439db762aad3cea8d40a5815f375e",
-      "size": 59955
+      "sha256": "4b6d0fb83748fa840627870dd2b3c5fbd2f41ce97c8ed40e16290034872f9829",
+      "size": 60136
     },
     {
       "executable": false,
@@ -6068,8 +6104,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/doctor.py",
-      "sha256": "f9002208d30fc30e0df3d3d9f412240d1531bb8cec7a9071f3ae9571856408bd",
-      "size": 52149
+      "sha256": "bb2037fc5650bed7f117a00a3c70a8fa5d5b4a11a7d153fa12ab4f52c2581dad",
+      "size": 52403
     },
     {
       "executable": false,
@@ -6140,8 +6176,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/os_runtime.py",
-      "sha256": "2414479a563a633c5cbbfde177efa1863e2aef1030e59fbc9de7a107a3100265",
-      "size": 8523
+      "sha256": "4088e5baa0b4310244a857070b2d2f7e88303442fe5d1f32b501a2ecb3f4e422",
+      "size": 9969
     },
     {
       "executable": false,
@@ -6278,8 +6314,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_deps_stack.py",
-      "sha256": "e9e0c4d313ffb66245e0ef5f11630358b0fd3d09c8f87b3e1e1361b317b9033e",
-      "size": 6141
+      "sha256": "e47abff3eb818ed81feb1734168a19fee821713bc154f5336cceba74b1c1b0dd",
+      "size": 7604
     },
     {
       "executable": false,
@@ -6332,8 +6368,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_v11_11_final.py",
-      "sha256": "db07207e8f52a9dfa1434caecd34e97317ec29c410413e8aaccc283b562159e3",
-      "size": 6112
+      "sha256": "fee5d2b64d4d3555cac6fa681b6a5cd389dd1180edd7d1bb4923f34dcfe8bcdc",
+      "size": 6601
     },
     {
       "executable": false,

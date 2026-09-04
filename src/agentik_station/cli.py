@@ -712,6 +712,8 @@ def cmd_deps(args: argparse.Namespace) -> int:
         cmd.append("--platforms-guide")
     elif args.deps_command == "enable-auto-update":
         cmd.append("--enable-hermes-auto-update")
+    elif args.deps_command == "web-check":
+        cmd.append("--check-web")
     elif args.deps_command == "install":
         if args.all:
             cmd.append("--all")
@@ -1344,6 +1346,8 @@ def build_parser() -> argparse.ArgumentParser:
     deps_platforms.set_defaults(handler=cmd_deps)
     deps_auto = deps_sub.add_parser("enable-auto-update")
     deps_auto.set_defaults(handler=cmd_deps)
+    deps_web_check = deps_sub.add_parser("web-check")
+    deps_web_check.set_defaults(handler=cmd_deps)
     deps_install = deps_sub.add_parser("install")
     deps_install.add_argument("--all", action="store_true")
     deps_install.add_argument("--component", action="append", default=[])

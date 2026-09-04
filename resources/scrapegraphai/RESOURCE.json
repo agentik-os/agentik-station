@@ -9,10 +9,14 @@
   "hermes_tool": "station_scrapegraph",
   "install_command": "station deps install --component scrapegraphai",
   "runtime_claim": "NOT_INSTALLED",
+  "code_root": "/opt/station/tools/web/scrapegraphai-2.2.2-py3.13.15-pw1.62.0",
+  "scope": "shared-read-only-code-zone-local-data",
   "security": {
     "url_policy": "public-http-https-only",
     "credential_policy": "zone-local-environment-only",
     "max_timeout_seconds": 180,
+    "max_html_bytes": 2097152,
+    "javascript": false,
     "max_prompt_characters": 2000
   }
 }

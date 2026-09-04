@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "crawl4ai",
   "maturity": "INSTALLABLE",
-  "claim": "Crawl4AI 0.9.3 installs as an isolated uv tool and must pass crawl4ai-doctor; tool allowlist and egress policy are pending.",
+  "claim": "Default installer provisions a versioned read-only Crawl4AI 0.9.3 runtime and the Hermes station_crawl4ai HTML-to-Markdown adapter; no LLM key or JavaScript, with public-IP/redirect checks. Live Zone acceptance remains pending.",
   "binary_probes": [],
-  "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
+  "next_repair_action": "Install crawl4ai for agk-station, run a public test URL through station_crawl4ai and record the extraction evidence readback."
 }

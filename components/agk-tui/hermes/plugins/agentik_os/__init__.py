@@ -10,7 +10,7 @@ from .commands import AgentikCommandService
 from .runtime_tool import RUNTIME_TOOL_SCHEMA, handle_runtime, runtime_available
 from .agent_registry import AGENT_TOOL_SCHEMA, AgentCommandService, agent_router_prompt, handle_agent
 from .rules import rules_prompt
-from .scrapegraph_tool import SCRAPEGRAPH_TOOL_SCHEMA, handle_scrapegraph
+from .web_plugin import register as register_web_tools
 
 
 def register(ctx) -> None:
@@ -47,14 +47,7 @@ def register(ctx) -> None:
         description="Specialized Hermes agents backed by persistent AGK/RMUX runtimes.",
         emoji="🤖",
     )
-    ctx.register_tool(
-        name="station_scrapegraph",
-        toolset="web-research",
-        schema=SCRAPEGRAPH_TOOL_SCHEMA,
-        handler=handle_scrapegraph,
-        description="Zone-local, bounded HTTP(S) extraction through the pinned ScrapeGraphAI worker.",
-        emoji="🕷️",
-    )
+    register_web_tools(ctx)
     ctx.register_system_prompt_section(
         "agentik.agent-router",
         agent_router_prompt,

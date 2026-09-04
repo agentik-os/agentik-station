@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -48,6 +49,7 @@ def _profile_distribution(
         '  - STATION_RULES.md\n'
         '  - config.yaml\n'
         '  - skills/\n'
+        '  - plugins/station-web/\n'
         '  - distribution.yaml\n'
     )
     config_template = (source / "hermes/config.template.yaml").read_text(encoding="utf-8")
@@ -57,6 +59,28 @@ def _profile_distribution(
         config += "\nterminal:\n  home_mode: profile\n"
     elif "home_mode: profile" not in config:
         config = config.replace("terminal:\n", "terminal:\n  home_mode: profile\n", 1)
+
+    # Ship only the governed web tools, not the operator's runtime/router/Discord plugin.
+    plugin_source = source.parents[1] / "components/agk-tui/hermes/plugins/agentik_os"
+    plugin_target = destination / "plugins/station-web"
+    plugin_target.mkdir(parents=True)
+    for filename in ("web_plugin.py", "web_fetch.py", "web_runtime.py", "scrapegraph_tool.py", "scrapegraph_runner.py"):
+        original = plugin_source / filename
+        if original.is_symlink() or not original.is_file():
+            raise ValidationError(f"Missing or unsafe canonical web plugin source: {original}")
+        shutil.copyfile(original, plugin_target / ("__init__.py" if filename == "web_plugin.py" else filename))
+    (plugin_target / "plugin.yaml").write_text(
+        'name: station-web\nversion: 1.0.0\nkind: standalone\n'
+        'description: Governed public HTML extraction through Station runtimes\n'
+        'provides_tools: [station_scrapegraph, station_crawl4ai]\n', encoding="utf-8",
+    )
+    # The compiler owns this section. Reject collisions rather than emit duplicate YAML keys.
+    if re.search(r"^plugins\s*:", config, re.MULTILINE):
+        raise ValidationError("OS config template plugins section is reserved for the distribution compiler")
+    config += (
+        "\nplugins:\n  enabled: [station-web]\n  entries:\n"
+        "    station-web:\n      allow_tool_override: false\n"
+    )
 
     (destination / "distribution.yaml").write_text(distribution, encoding="utf-8")
     (destination / "config.yaml").write_text(config, encoding="utf-8")

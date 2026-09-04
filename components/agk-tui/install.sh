@@ -171,8 +171,10 @@ command -v python3 >/dev/null || { echo "Python 3 is required for AGK session co
 if [ "$(id -un)" = "$target_user" ]; then
   cargo_bin=$(command -v cargo || true)
   [ -n "$cargo_bin" ] || { echo "Rust/Cargo is required to build the AGK TUI" >&2; exit 1; }
-  "$cargo_bin" build --locked --release --manifest-path "$repo_root/apps/agk-tui/Cargo.toml"
-  agk_tui_binary=$repo_root/apps/agk-tui/target/release/agk-tui
+  cargo_target_dir=$target_home/.cache/agk-terminal/cargo-target
+  mkdir -p "$cargo_target_dir"
+  CARGO_TARGET_DIR="$cargo_target_dir" "$cargo_bin" build --locked --release --manifest-path "$repo_root/apps/agk-tui/Cargo.toml"
+  agk_tui_binary=$cargo_target_dir/release/agk-tui
 else
   cargo_bin=$target_home/.cargo/bin/cargo
   [ -x "$cargo_bin" ] || { echo "Rust/Cargo is required for $target_user" >&2; exit 1; }

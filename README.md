@@ -92,7 +92,7 @@ With `--mode full --with-ai-stack`, bootstrap:
 2. creates the dedicated `agk-station` sudo account and moves managed source out of `/root`;
 3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain, plus the isolated integrity-locked discord.js SDK and signed stable Tailscale package;
 4. installs the reviewed Hermes release, explicit voice/messaging extras and backup/Doctor-gated update timer;
-5. installs the default Zone-local ScrapeGraphAI + Playwright Chromium Hermes tool, loopback-only Parakeet for Discord STT failover, and stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
+5. installs default ScrapeGraphAI and Crawl4AI Hermes tools in versioned read-only runtimes (Zone-local data/credentials), Playwright Chromium, loopback-only Parakeet for Discord STT failover, and stages Ponytail, Langfuse, Honcho, Hindsight and TigerVNC;
 6. installs AGK-TUI;
 7. reconciles `/etc/station`, `/opt/station`, `/srv/station`, `/var/lib/station`, logs, backups and runtime paths;
 8. creates isolated Zones and Projects with independent Unix identities and `HERMES_HOME` roots;
@@ -182,7 +182,9 @@ To stage every optional AI component as well:
 sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
-This installs or stages ScrapeGraphAI/Playwright, Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet, but does not create accounts, inject secrets, expose public ports or claim those services operational. ScrapeGraphAI is the default Hermes web-extraction tool; use `--skip-scrapegraphai` only when deliberately omitting browser tooling. Parakeet is also part of the default voice install; use `--skip-voice` only when deliberately omitting Hermes voice support.
+This installs or stages ScrapeGraphAI/Playwright, Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet, but does not create accounts, inject secrets, expose public ports or claim those services operational. ScrapeGraphAI and Crawl4AI are both default Hermes web tools; `--skip-scrapegraphai` / `--skip-crawl4ai` deliberately omit them and cannot be combined with `--with-ai-stack`. Parakeet is also part of the default voice install; use `--skip-voice` only when deliberately omitting Hermes voice support.
+
+Web tools use guarded public HTML fetching: no JavaScript, private-network URLs or inherited chat credentials. `station_scrapegraph` produces structured data using a Zone OpenAI key; `station_crawl4ai` produces Markdown without an LLM key. Run `sudo station deps web-check` after installation, then accept a real extraction in each owning Zone. See the [web resource contract](resources/scrapegraphai/README.md) for limits and existing-profile activation.
 
 `full` maps to the complete Agentik Station (operator Host). `team` is the company install: shared System foundation + one Organization Zone; Discord/Composio/memory/credentials are member-scoped principals so several people share the Host without a single global Private Zone. There is no separate client-branded mode — pass your organization/project ids at bootstrap time.
 

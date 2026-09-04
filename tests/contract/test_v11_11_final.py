@@ -50,6 +50,11 @@ def test_every_canonical_os_compiles_to_hermes(tmp_path: Path) -> None:
             assert (profile_root / "STATION_RULES.md").is_file()
             assert "Station universal agent rules" in (profile_root / "SOUL.md").read_text()
             assert "home_mode: profile" in (profile_root / "config.yaml").read_text()
+            assert "station-web:" in (profile_root / "config.yaml").read_text()
+            assert "enabled: [station-web]" in (profile_root / "config.yaml").read_text()
+            assert "plugins/station-web/" in (profile_root / "distribution.yaml").read_text()
+            for filename in ("__init__.py", "plugin.yaml", "scrapegraph_tool.py", "scrapegraph_runner.py", "web_runtime.py", "web_fetch.py"):
+                assert (profile_root / "plugins/station-web" / filename).is_file()
 
 
 def test_module_catalog_truthful_and_parses() -> None:

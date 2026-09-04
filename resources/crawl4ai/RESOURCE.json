@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "crawl4ai",
+  "package": "crawl4ai",
+  "version": "0.9.3",
+  "browser": "playwright chromium",
+  "browser_version": "1.62.0",
+  "python": "3.13.15",
+  "hermes_tool": "station_crawl4ai",
+  "install_command": "station deps install --component crawl4ai",
+  "runtime_claim": "NOT_INSTALLED",
+  "code_root": "/opt/station/tools/web/crawl4ai-0.9.3-py3.13.15-pw1.62.0",
+  "scope": "shared-read-only-code-zone-local-data",
+  "security": {
+    "url_policy": "public-http-https-dns-pinned-each-redirect",
+    "credential_policy": "none-forwarded",
+    "max_timeout_seconds": 180,
+    "max_html_bytes": 2097152,
+    "max_markdown_characters": 100000,
+    "javascript": false
+  }
+}

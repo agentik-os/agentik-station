@@ -392,8 +392,8 @@ Optional AI components have distinct jobs:
 | Langfuse | LLM traces, observability and evaluations | self-host/cloud enrollment, keys, retention and trace readback required |
 | Honcho | stateful agent memory SDK | isolated Python environment and Zone-scoped store/account |
 | Hindsight | learning/recall memory provider | bind per Zone/profile; verify recall and cross-Zone denial |
-| ScrapeGraphAI | structured AI web extraction | default isolated Hermes tool, public HTTP(S) URL policy and evidence |
-| Crawl4AI | agent-friendly crawling/scraping | isolated tool, allowlisted domains/egress and evidence |
+| ScrapeGraphAI | structured AI web extraction | default Hermes HTML tool, Zone OpenAI key, public-IP and redirect policy |
+| Crawl4AI | HTML-to-Markdown extraction | default explicit fallback, no LLM key, same public-IP/redirect policy |
 | TigerVNC | private remote graphical session when needed | private network, authentication, firewall and viewer readback |
 | Composio | scoped connected-account capability plane | stable principal plus explicit toolkit/account allowlist |
 
@@ -857,7 +857,9 @@ Repository-verified or implemented:
 - Hermes multi-platform gateway lifecycle wrapper;
 - Composio binding plus default-deny Discord tool policy and guided link/readback commands;
 - isolated, integrity-pinned discord.js SDK resource with no second Gateway;
-- default Zone-local ScrapeGraphAI 2.2.2 + Playwright Chromium resource exposed as the bounded Hermes `station_scrapegraph` tool;
+- default read-only shared ScrapeGraphAI 2.2.2 and Crawl4AI 0.9.3 Python runtimes with Zone-local HOME/cache/credentials;
+- `station_scrapegraph` extracts structured data via the Zone OpenAI key; `station_crawl4ai` is the explicit no-LLM Markdown fallback. Both consume guarded public HTML, with DNS-pinned connections, redirect checks and JavaScript disabled;
+- the operator plugin and newly compiled OS profile distributions register these tools in Hermes's native `web` toolset; `sudo station deps web-check` verifies imports/pins and Chromium launch. Existing profile configuration must be re-enabled when preserved by Hermes updates. [Full web contract](resources/scrapegraphai/README.md);
 - DevOps six-identity team, tracker-neutral workflow contract, typed tools/routes,
   deterministic programs, 15-source Librarian ledger, 12 adversarial evals,
   exact recovery checksum and client operations schema;
@@ -871,7 +873,7 @@ External acceptance still required:
 - GitHub/Vercel/Composio/model-provider account/scoping probes;
 - full Discord topology provisioning and interaction/permission readback in a test guild;
 - each dedicated OS Discord application/token human enrollment;
-- Langfuse/Honcho/Hindsight/Crawl4AI/TigerVNC runtime setup as selected;
+- Langfuse/Honcho/Hindsight/TigerVNC runtime setup as selected and live Zone-scoped acceptance of both web tools;
 - live OpenAI voice, Parakeet fallback and Tailnet guided-setup acceptance;
 - rootless cross-Zone negative tests;
 - remote Fleet drift/rollback acceptance;
