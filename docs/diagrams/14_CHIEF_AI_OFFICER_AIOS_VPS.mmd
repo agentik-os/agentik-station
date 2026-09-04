@@ -1,0 +1,26 @@
+flowchart TB
+    OWNER[Human owner / Chief AI Officer] -->|intent, approvals, secure enrollment| UX
+    CODEX[Codex installation operator] -->|clone main, inspect, plan, bootstrap, verify| STATION
+
+    subgraph VPS[Clean Ubuntu/Debian VPS]
+        STATION[Station control plane<br/>policy, Zones, Projects, releases, evidence]
+        HERMES[Hermes central execution brain<br/>sessions, profiles, teams, tools, memory]
+        OS[Operative Systems<br/>Directors + specialist NanoTeams]
+        PROJECTS[Isolated Projects<br/>repos, resources, worktrees, credentials]
+        PROOF[Doctor + tests + receipts + readback]
+
+        STATION -->|compile and govern| HERMES
+        STATION -->|isolate and place| PROJECTS
+        HERMES -->|run| OS
+        OS -->|bounded work| PROJECTS
+        PROJECTS --> PROOF
+        OS --> PROOF
+        PROOF -->|accepted truth| STATION
+    end
+
+    UX[Discord / Agentik UI / API / other Hermes platforms] -->|Zone and OS binding| HERMES
+    HERMES -->|semantic progress and result| UX
+    HERMES -->|allowlisted capabilities| TOOLS
+    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC]
+    TOOLS -->|observations and external readback| PROOF
+    OWNER -->|production/destructive approval only| STATION

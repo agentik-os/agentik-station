@@ -4,7 +4,7 @@ Release claim: **READY_FOR_SETUP**. This is not a production OPERATIONAL claim.
 
 Locally verified release gates:
 
-- 109 Station tests PASS;
+- 110 Station tests PASS;
 - 7/7 Builder/Librarian deterministic gates PASS;
 
 - repository Doctor;

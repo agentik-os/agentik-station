@@ -1,12 +1,123 @@
-# Agentik Station 11.12
+# Chief AI Officer AIOS — VPS System
 
-Agentik Station is the Linux control plane and isolated execution foundation for Operator's private systems, Agentik development, OS Factory, personal agentic projects, organization development environments, and remote organization/project Hosts.
+## Agentik Station 11.12
+
+Agentik Station turns a clean Ubuntu/Debian VPS into a governed **Chief AI Officer AI Operating System**. Station owns the Linux foundation, isolation, policy and evidence. Hermes is the central agentic brain. Operative Systems supply specialized AI teams. Discord, the Agentik UI and other Hermes platforms are the human control surfaces.
 
 **Release:** `11.12`  
 **Posture:** final repository candidate  
 **Current verified claim:** the repository can compile a typed plan and reconcile the Station Linux foundation, immutable release, Zones, Projects, desired OS declarations, receipts, and Doctor state to `READY_FOR_SETUP` on the supported Ubuntu/Debian provider. It does **not** claim that Hermes, Discord, Composio, remote Fleet reconciliation, encrypted off-Host backup, or any OS package is already operational.
 
 **Start with [`atlas.md`](atlas.md)** for the full map: Hermes central brain, filesystem, Zones/Projects, OS Factory, resources, Discord bootstrap, DevOps team, installation, updates and acceptance.
+
+## Can I give Codex the repository link and say “install and setup”?
+
+**Yes for the complete reproducible VPS foundation.** Start Codex as a newly created, non-root user that has `sudo`; do not run the Codex session itself as root. Codex can clone the one canonical `main` branch, read the repository instructions, inspect the VPS, show the plan, run the full bootstrap after your approval, and verify the resulting Host.
+
+Minimum starting conditions are a supported Ubuntu/Debian systemd VPS, network/DNS access, the new user able to run `sudo`, and an authenticated Codex session. Codex can install `git` and CA certificates first if the base image does not include them.
+
+**External accounts still need you at their secure gate.** Codex cannot invent or safely receive Discord bot tokens, GitHub/Vercel/Convex/Clerk/Stripe/Composio credentials, model-provider authentication or OAuth consent. It must pause and guide you through each provider's native login/setup flow without putting secrets in chat, shell arguments, Git or evidence.
+
+Give Codex this exact prompt on the clean VPS:
+
+```text
+Install and set up the Chief AI Officer AIOS from the canonical main branch:
+https://github.com/agentik-os/agentik-station
+
+Work as my current non-root sudo user; do not run Codex itself as root.
+Clone only branch main with --single-branch into a normal user workspace, then read
+AGENTS.md, atlas.md, SECURITY.md, INSTALL.md, SETUP.md and AI_INSTALL_PROMPT.md.
+Run repository Doctor and inspect the VPS. Show me the exact installation plan before
+mutation. After I approve it, run the full bootstrap with the optional AI stack:
+sudo ./bootstrap.sh --mode full --with-ai-stack
+
+Then run full Station Doctor, status, module status and toolchain checks. Continue through
+SETUP.md one external gate at a time. Never ask me to paste a secret into chat and never
+place a token in a command argument or repository. Use the provider/Hermes interactive
+login flow. Keep anything without real external readback below OPERATIONAL and report the
+remaining human actions precisely.
+```
+
+This is the direct shell start if you prefer to clone first:
+
+```bash
+git clone --branch main --single-branch https://github.com/agentik-os/agentik-station.git
+cd agentik-station
+./station doctor --repo
+sudo ./bootstrap.sh --mode full --with-ai-stack
+```
+
+Do not add `--yes` until the generated plan has been reviewed.
+
+## Chief AI Officer AIOS logic
+
+```mermaid
+flowchart TB
+    OWNER[Human owner / Chief AI Officer] -->|intent, approvals, secure enrollment| UX
+    CODEX[Codex installation operator] -->|clone main, inspect, plan, bootstrap, verify| STATION
+
+    subgraph VPS[Clean Ubuntu/Debian VPS]
+        STATION[Station control plane<br/>policy, Zones, Projects, releases, evidence]
+        HERMES[Hermes central execution brain<br/>sessions, profiles, teams, tools, memory]
+        OS[Operative Systems<br/>Directors + specialist NanoTeams]
+        PROJECTS[Isolated Projects<br/>repos, resources, worktrees, credentials]
+        PROOF[Doctor + tests + receipts + readback]
+
+        STATION -->|compile and govern| HERMES
+        STATION -->|isolate and place| PROJECTS
+        HERMES -->|run| OS
+        OS -->|bounded work| PROJECTS
+        PROJECTS --> PROOF
+        OS --> PROOF
+        PROOF -->|accepted truth| STATION
+    end
+
+    UX[Discord / Agentik UI / API / other Hermes platforms] -->|Zone and OS binding| HERMES
+    HERMES -->|semantic progress and result| UX
+    HERMES -->|allowlisted capabilities| TOOLS
+    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC]
+    TOOLS -->|observations and external readback| PROOF
+    OWNER -->|production/destructive approval only| STATION
+```
+
+The standalone diagram source is [`docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`](docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd).
+
+## What the one-command bootstrap does
+
+With `--mode full --with-ai-stack`, bootstrap:
+
+1. audits the current VPS and repository;
+2. creates the dedicated `agk-station` sudo account and moves managed source out of `/root`;
+3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain;
+4. installs the reviewed Hermes release and backup/Doctor-gated update timer;
+5. stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
+6. installs AGK-TUI;
+7. reconciles `/etc/station`, `/opt/station`, `/srv/station`, `/var/lib/station`, logs, backups and runtime paths;
+8. creates isolated Zones and Projects with independent Unix identities and `HERMES_HOME` roots;
+9. installs the immutable Station release, desired OS declarations, systemd units and receipts;
+10. runs Station Doctor and stops at the truthful state `READY_FOR_SETUP`.
+
+After that, Codex can guide the setup gates, but you must complete the secure provider/OAuth/token interactions and approvals. `OPERATIONAL` is reached only after real readback.
+
+## The simplest mental model
+
+```text
+Station = constitution + Linux control plane + isolation + evidence
+Hermes  = central brain and execution/orchestration fabric, isolated per Zone
+OS      = installable AI department with one Director and a specialist team
+Project = owned work, source, knowledge, resources, credentials and evidence
+Tools   = bounded hands connected through capabilities
+Discord = human cockpit, never the source of truth
+Doctor  = truth gate; a claim without evidence does not pass
+```
+
+## Main-only repository policy
+
+`main` is the only canonical and distributable branch. Installation instructions always clone `main` with `--single-branch`. Temporary implementation branches may exist only while integrating a reviewed change and must be deleted locally and remotely immediately after merge; there is no long-lived `develop`, release or vendor branch.
+
+## CI and optional review assistants
+
+GitHub Actions, the Station test suite, Builder/Librarian gates and `station doctor --repo` are the canonical repository verification system. CodeRabbit or any other third-party review bot is optional and may be enabled by a repository owner for extra review. Station installation, Hermes, OS compilation, readiness and release acceptance never depend on CodeRabbit being installed, available or within quota.
 
 ## One-repository direction
 
@@ -229,6 +340,7 @@ See [`modules/catalog.json`](modules/catalog.json) for machine-readable claims a
 
 ## Documentation map
 
+- [`AI_INSTALL_PROMPT.md`](AI_INSTALL_PROMPT.md): exact copy/paste instruction for Codex on a clean sudo-capable VPS session.
 - [`atlas.md`](atlas.md): complete end-to-end operator atlas and setup sequence.
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete final architecture.
 - [`INSTALL.md`](INSTALL.md): typed plan/apply and Host-role workflows.

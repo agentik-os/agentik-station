@@ -1,4 +1,4 @@
-# Agentik Station Atlas
+# Chief AI Officer AIOS — Agentik Station Atlas
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 

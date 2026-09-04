@@ -27,6 +27,20 @@ def test_atlas_covers_system_spine() -> None:
         assert subject in atlas
 
 
+def test_readme_explains_canonical_cao_aios_bootstrap() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "Chief AI Officer AIOS" in readme
+    assert "git clone --branch main --single-branch" in readme
+    assert "sudo ./bootstrap.sh --mode full --with-ai-stack" in readme
+    assert "CodeRabbit or any other third-party review bot is optional" in readme
+    assert "```mermaid" in readme
+    assert (ROOT / "docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd").is_file()
+    machine_paths = [ROOT / ".github/workflows", ROOT / "src", ROOT / "scripts", ROOT / "config", ROOT / "bootstrap.sh"]
+    for root in machine_paths:
+        candidates = [root] if root.is_file() else [path for path in root.rglob("*") if path.is_file()]
+        assert all("coderabbit" not in path.read_text(encoding="utf-8", errors="ignore").lower() for path in candidates)
+
+
 def test_resource_catalog_and_exact_web_stack_plan() -> None:
     catalog = load_resource_catalog(ROOT / "resources" / "CATALOG.json")
     assert catalog["open_to_other_stacks"] is True

@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1025
+Total files: 1026
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/copilot-instructions.md`
@@ -252,6 +252,7 @@ Total files: 1025
 - `docs/diagrams/11_ENGINEERING_HARNESS_LOOP.mmd`
 - `docs/diagrams/12_BUILDER_OS_FACTORY.mmd`
 - `docs/diagrams/13_OS_CONTRACT_TO_HERMES.mmd`
+- `docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`
 - `docs/diagrams/14_STATION_VPS_TRUST_ZONES.mmd`
 - `docs/diagrams/15_HERMES_UPDATE_RINGS.mmd`
 - `docs/diagrams/16_STATION_ORCHESTRATION_EVIDENCE.mmd`
