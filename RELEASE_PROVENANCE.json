@@ -9,7 +9,7 @@
   "generated_by": "scripts/generate_release_metadata.py",
   "release": "11.12",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1062,
+  "subject_count": 1066,
   "subjects": [
     {
       "executable": false,
@@ -80,8 +80,8 @@
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "7c0efaa95a028dc2a4ae57ebb0e62b63fad94fc92d8f99b897537a7b8edbc88a",
-      "size": 5009
+      "sha256": "e55c8ac086c4acba337035a1017881d8659786fa06decb95a6a65d14fbfbf5b3",
+      "size": 5215
     },
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "7ae1899b1d341386a5d606eb83eff0f580d5a394126da61886a5132996700fd7",
-      "size": 21272
+      "sha256": "99d1b63bb299d3fae9383f36873f0e28047cdd4b11eba3d4ff10a8b21c8e28c2",
+      "size": 21521
     },
     {
       "executable": false,
@@ -146,8 +146,8 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "b9babcbef937b9cdf02368b4828b29a74b0b41c25d8f6cd41ef664a6c0d39e08",
-      "size": 82095
+      "sha256": "f22bab2cb671a6df19fac262e845057763837a11e565fda8317d701fbd4a662a",
+      "size": 82668
     },
     {
       "executable": false,
@@ -158,14 +158,14 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "876e2b8954a0852ede5b12e36e1e0593cbfac125fa350347362475e20526c894",
-      "size": 9026
+      "sha256": "d3e53459861594c08c0ab5dffa68011be0f6fbeb68dad5ee49fd950e4b4ec7bf",
+      "size": 9164
     },
     {
       "executable": false,
       "path": "THIRD_PARTY.md",
-      "sha256": "e2c9776023feccce951639ecca905094d07d07d68e91a22e9edee544a68bf754",
-      "size": 1693
+      "sha256": "bf6f99126ae0a6a842d01cc28a9339559586e373c8bcc8c956eb3c3ef09d223b",
+      "size": 1846
     },
     {
       "executable": false,
@@ -182,8 +182,8 @@
     {
       "executable": false,
       "path": "VALIDATION_11_12.md",
-      "sha256": "1781436c9d623312e7e5e8c0cb0c49b0c06cf7a0bda5fa9a51a891a49cefa0a2",
-      "size": 1807
+      "sha256": "f398e220cbaac4a6f2a711cf6e00df006bca73721b3d2524e08a449080298edd",
+      "size": 1860
     },
     {
       "executable": false,
@@ -194,8 +194,8 @@
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "132936b6e60d084f94769b7680099fe13dcc14bb32f235e1414cc70aa4ddd13e",
-      "size": 47479
+      "sha256": "713e97aea3621b043fa5258134c81c1be086a39f176e57dbe219d4aaf00a854c",
+      "size": 47758
     },
     {
       "executable": true,
@@ -206,8 +206,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "068d4d796d1da01b04b2683c8b44860ec0d6b63ae5db4a27b4248b580e53f646",
-      "size": 15872
+      "sha256": "d4323f015913b1960ab46e4f32e4b16a8fa7655c41b6588bb83622e2c2bba4b2",
+      "size": 16338
     },
     {
       "executable": false,
@@ -608,8 +608,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/__init__.py",
-      "sha256": "26d7fe5095b3444d1a532665c7721f5b3fa2ab5662874242e7afe385c0e40a8a",
-      "size": 2045
+      "sha256": "a234666f41e507026b7319fe6f8965b587b0e661a4315c25183817a35b484371",
+      "size": 2420
     },
     {
       "executable": false,
@@ -674,8 +674,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/plugin.yaml",
-      "sha256": "20288413b2a281e58da3df826cf802a38edce036c3e001adda750610029c3f36",
-      "size": 262
+      "sha256": "c09c8c95d7634b075ceb5df1eb8f4f541ee930dd96ccfac4abdc57f901e90ef9",
+      "size": 286
     },
     {
       "executable": false,
@@ -688,6 +688,18 @@
       "path": "components/agk-tui/hermes/plugins/agentik_os/runtime_tool.py",
       "sha256": "8cd77b5c943bdd24965364cf4fc1764c60524ab33a369f74781de003e68f74ab",
       "size": 5028
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py",
+      "sha256": "5b433108024f461717de977fb05ac68bbe7751e6f0fd0b4649d7f69e2e350e70",
+      "size": 1047
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py",
+      "sha256": "e583c35d30e9925c6e707ce0153f6ade388dc7847bb2423e7f3d003f94f7643b",
+      "size": 4368
     },
     {
       "executable": false,
@@ -1004,8 +1016,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "f32c4210de3bb354a953756e42b3cbfb8d8186bba61b40ea573e1c0d2edb9176",
-      "size": 5002
+      "sha256": "23c1bca18f64d559471aa9a3d51c18906a1cef4599242d7f493cc2a01b2ce857",
+      "size": 5377
     },
     {
       "executable": false,
@@ -1238,8 +1250,8 @@
     {
       "executable": false,
       "path": "config/versions.lock",
-      "sha256": "8588bb09b811c91aa44fd642e7d9360e1df6f7672ed64b901728d9137e740c61",
-      "size": 2735
+      "sha256": "e2cf016ddc1a76d65f590acfa12e7fe803b46b44be5b7246691f86633fbee0e9",
+      "size": 2789
     },
     {
       "executable": false,
@@ -1484,8 +1496,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "46f30fe472ef8706f2927f00b3373826c3184079cba83b398e9dcf23fe1fc825",
-      "size": 5329
+      "sha256": "38dcd1df9985d4eff8e0df459a939b2d8f2bae18b45f76b646433e1f56de65ab",
+      "size": 5527
     },
     {
       "executable": false,
@@ -2666,8 +2678,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "21c7736e1c7f6c2addefe96cd43e9cef09c4b64f07fbdb1670ca15c4c5a2a7be",
-      "size": 8965
+      "sha256": "c202c125565d477fbd2eb64e95d77a16412c8b7372a4ebf2f75bbb61a112bf8b",
+      "size": 9486
     },
     {
       "executable": false,
@@ -3674,8 +3686,8 @@
     {
       "executable": false,
       "path": "os/devops/README.md",
-      "sha256": "f87a355f2a5e2227328ccb4d8d445c3cf371cc9194a99e7993aa40f63587b6ce",
-      "size": 2057
+      "sha256": "a604f179126bf229b2b584104921fa7541a930dbc85bea3a4baaf2481118a30a",
+      "size": 2196
     },
     {
       "executable": false,
@@ -3878,8 +3890,8 @@
     {
       "executable": false,
       "path": "os/devops/providers/ROUTES.json",
-      "sha256": "e34fd05a9ae236de0bb0072a328563bf331b7c0f440d5368a9acc28032e8e6ff",
-      "size": 1320
+      "sha256": "2a04f7f47bd70ab5937989545e6fe14d54b422392f9b857e6bdf2b40ebef79a5",
+      "size": 1561
     },
     {
       "executable": false,
@@ -3932,8 +3944,8 @@
     {
       "executable": false,
       "path": "os/devops/tools/CONTRACTS.json",
-      "sha256": "636f39f8af96dc21dd69bd1b3cb2389ed6a7ca7f43651754379db5f374dc0ba9",
-      "size": 4107
+      "sha256": "9fd3d45c4dca0fa3d1c8e0c4bd994932ab8616a2c4fda8cbdbece4621e801e4d",
+      "size": 4351
     },
     {
       "executable": false,
@@ -5678,8 +5690,8 @@
     {
       "executable": false,
       "path": "resources/CATALOG.json",
-      "sha256": "844bae2f76cc4d97abb00ff73420018dd6897817efa5e45b0a5c67607663773b",
-      "size": 2080
+      "sha256": "903232e517d155f7e6fb538d95e9538af9db1e9e8dd51bfaea03d38c509f62bf",
+      "size": 2473
     },
     {
       "executable": false,
@@ -5728,6 +5740,18 @@
       "path": "resources/frontend/shadcn-ui/RESOURCE.json",
       "sha256": "e4de31068b72276867ba8c38f9bdaae2ccfbefb762f2bb00d1c2182816fe1213",
       "size": 250
+    },
+    {
+      "executable": false,
+      "path": "resources/scrapegraphai/README.md",
+      "sha256": "53a8b5cc3bf5d251a4572937cacb7e4061e8e5ff821a22a2bc61758dd00f725d",
+      "size": 768
+    },
+    {
+      "executable": false,
+      "path": "resources/scrapegraphai/RESOURCE.json",
+      "sha256": "7708e36fe2ee5fa0b9a7921bab7d9b307cfa025cbdea1fe482c2733b90832a03",
+      "size": 527
     },
     {
       "executable": false,
@@ -5864,8 +5888,8 @@
     {
       "executable": true,
       "path": "scripts/generate_release_metadata.py",
-      "sha256": "4d6750f66fcad322a566df4f65ea5fadfcbf3671e623ff1214cdb72e6f29649f",
-      "size": 9270
+      "sha256": "c648f5c593135b36b2fd1153d21097d2d4c2262afd4085a180221228def1c3bf",
+      "size": 9487
     },
     {
       "executable": true,
@@ -5876,8 +5900,8 @@
     {
       "executable": true,
       "path": "scripts/station_deps_install.sh",
-      "sha256": "409a85d432c1dbd752cf7b1a57978141dd9b880838e8e9daa18b9d1bcaed63b2",
-      "size": 8192
+      "sha256": "89fbbacb868c1680e8aaf8bb5bc55d97e0401d93a2d83ef34bf69be3c208cf58",
+      "size": 9133
     },
     {
       "executable": true,
@@ -6044,8 +6068,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/doctor.py",
-      "sha256": "47adecf7d20a65a1d7962bb04deccf5a0b437861bcb92794be17edd4a0fa1aeb",
-      "size": 51946
+      "sha256": "f9002208d30fc30e0df3d3d9f412240d1531bb8cec7a9071f3ae9571856408bd",
+      "size": 52149
     },
     {
       "executable": false,
@@ -6248,14 +6272,14 @@
     {
       "executable": false,
       "path": "tests/contract/test_atlas_and_resources.py",
-      "sha256": "797addd81dab7620a1dab47692c6d4424fd0903bd28c7c3d1bc1cf7f4b9c841f",
-      "size": 3202
+      "sha256": "67b68eabdfe3b0533f20c6f353355dd2a76c8dde84163fc9c5003f56fa325086",
+      "size": 3275
     },
     {
       "executable": false,
       "path": "tests/contract/test_deps_stack.py",
-      "sha256": "15dad0f7de06830025dc1e96b6a68f05f041c35ec0fd4d0acd7d772549880b75",
-      "size": 5141
+      "sha256": "e9e0c4d313ffb66245e0ef5f11630358b0fd3d09c8f87b3e1e1361b317b9033e",
+      "size": 6141
     },
     {
       "executable": false,

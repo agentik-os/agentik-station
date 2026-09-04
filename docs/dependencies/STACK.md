@@ -18,6 +18,7 @@
 | Codex CLI | 0.153.2 | pinned npm package + locked registry integrity |
 | Composio CLI | 0.4.0 | checksum-locked official installer + verified bundle, pinned release, no automatic login/plugin setup |
 | discord.js SDK | 14.27.0 | npm lock + registry integrity, isolated under `.local/share/station-sdk/discord-js`; never starts a Gateway |
+| ScrapeGraphAI | 2.2.2 + Playwright Chromium 1.62.0 | default isolated Python 3.13 venv and Hermes `station_scrapegraph` tool | Zone model credential, public URL extraction and evidence readback |
 | shadcn CLI | 4.21.0 | pinned npm package + locked registry integrity; components remain Project-owned source |
 | Hermes Agent | v2026.8.31 / reviewed commit | checksum-locked upstream installer executed as `agk-station`, shared launcher, isolated Zone homes |
 | Hermes voice | explicit `voice,messaging` extras | OpenAI `gpt-transcribe` primary STT; OpenAI `gpt-4o-mini-tts` / `alloy`; Zone-local credential |

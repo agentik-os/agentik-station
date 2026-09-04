@@ -18,7 +18,7 @@ usage: station_deps_install.sh [--all] [--list]
        station_deps_install.sh --enable-hermes-auto-update
        station_deps_install.sh --platforms-guide
 
-Components: ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
+Components: scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
 USAGE
 }
 
@@ -97,6 +97,21 @@ install_python_sdk() {
   fi
   as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" "$package==$version"
   as_station "$venv/bin/python" -c "import $module; print('$id import OK')"
+}
+
+install_scrapegraphai() {
+  require_uv
+  local venv="$STATION_HOME/.local/share/agentik-station/venvs/scrapegraphai-py${AI_PYTHON_VERSION}"
+  as_station mkdir -p "$STATION_HOME/.local/share/agentik-station/venvs"
+  if [[ ! -x "$venv/bin/python" ]]; then
+    as_station "$STATION_HOME/.local/bin/uv" venv --python "$AI_PYTHON_VERSION" "$venv"
+  fi
+  as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" \
+    "scrapegraphai==$SCRAPEGRAPHAI_VERSION" "playwright==$PLAYWRIGHT_VERSION"
+  as_station "$venv/bin/python" -c 'import scrapegraphai; print("scrapegraphai import OK")'
+  as_station "$venv/bin/playwright" install chromium
+  as_station "$venv/bin/playwright" install --dry-run chromium >/dev/null
+  echo "ScrapeGraphAI $SCRAPEGRAPHAI_VERSION + Playwright Chromium $PLAYWRIGHT_VERSION installed for Hermes (tool: station_scrapegraph)."
 }
 
 install_tigervnc() {
@@ -202,11 +217,12 @@ if [[ "$ENABLE_AUTO" -eq 1 ]]; then
 fi
 
 if [[ "$ALL" -eq 1 ]]; then
-  COMPONENTS=(ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
+  COMPONENTS=(scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
 fi
 
 for id in "${COMPONENTS[@]}"; do
   case "$id" in
+    scrapegraphai) install_scrapegraphai;;
     ponytail) install_ponytail;;
     langfuse) install_langfuse;;
     honcho) install_honcho;;

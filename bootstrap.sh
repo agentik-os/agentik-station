@@ -18,6 +18,7 @@ INSTALL_AGK_TUI=1
 INSTALL_TOOLCHAIN=1
 INSTALL_AI_STACK=0
 INSTALL_VOICE=1
+INSTALL_SCRAPEGRAPHAI=1
 
 usage(){ cat <<'USAGE'
 Agentik Station host bootstrap
@@ -40,6 +41,7 @@ Options:
   --skip-agk-tui
   --skip-voice           skip Hermes voice extras and local Parakeet service
   --with-ai-stack        install all optional pinned AI services/clients/plugins
+  --skip-scrapegraphai   skip the default Hermes web-extraction tool and Chromium browser
   --yes
 
 Creates the dedicated sudo account `agk-station`. Source and user tools live under
@@ -63,6 +65,7 @@ while (($#)); do
     --skip-agk-tui) INSTALL_AGK_TUI=0; shift;;
     --skip-voice) INSTALL_VOICE=0; shift;;
     --with-ai-stack) INSTALL_AI_STACK=1; shift;;
+    --skip-scrapegraphai) INSTALL_SCRAPEGRAPHAI=0; shift;;
     --yes) YES=1; shift;;
     -h|--help) usage; exit 0;;
     *) echo "Unknown option: $1" >&2; usage; exit 2;;
@@ -102,6 +105,7 @@ Bootstrap plan
   Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
   Voice:        $([[ $INSTALL_VOICE -eq 1 ]] && echo 'OpenAI audio + local Parakeet' || echo skip)
+  ScrapeGraphAI:$([[ $INSTALL_SCRAPEGRAPHAI -eq 1 ]] && echo 'install + Playwright Chromium' || echo skip)
   AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
   sudo policy:  ${SUDO_MODE}
 EOF
@@ -204,6 +208,11 @@ if [[ "$INSTALL_TOOLCHAIN" -eq 1 ]]; then
   [[ "$INSTALL_HERMES" -eq 0 ]] && toolchain_args+=(--without-hermes)
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
     "$REPO_DIR/scripts/station_toolchain_install.sh" "${toolchain_args[@]}"
+fi
+
+if [[ "$INSTALL_SCRAPEGRAPHAI" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --component scrapegraphai
 fi
 
 if [[ "$INSTALL_VOICE" -eq 1 ]]; then

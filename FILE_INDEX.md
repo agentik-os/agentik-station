@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1065
+Total files: 1069
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -118,6 +118,8 @@ Total files: 1065
 - `components/agk-tui/hermes/plugins/agentik_os/plugin.yaml`
 - `components/agk-tui/hermes/plugins/agentik_os/rules.py`
 - `components/agk-tui/hermes/plugins/agentik_os/runtime_tool.py`
+- `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py`
+- `components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py`
 - `components/agk-tui/hermes/plugins/agentik_os/store.py`
 - `components/agk-tui/hermes/plugins/platforms/discord/AGK_PATCHSET.md`
 - `components/agk-tui/hermes/plugins/platforms/discord/__init__.py`
@@ -958,6 +960,8 @@ Total files: 1065
 - `resources/frontend/lucide/RESOURCE.json`
 - `resources/frontend/shadcn-ui/README.md`
 - `resources/frontend/shadcn-ui/RESOURCE.json`
+- `resources/scrapegraphai/README.md`
+- `resources/scrapegraphai/RESOURCE.json`
 - `resources/stacks/web-product/README.md`
 - `resources/stacks/web-product/STACK.json`
 - `rules/STATION_AGENT_RULES.md`

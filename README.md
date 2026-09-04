@@ -75,7 +75,7 @@ flowchart TB
     UX[Discord / Agentik UI / API / other Hermes platforms] -->|Zone and OS binding| HERMES
     HERMES -->|semantic progress and result| UX
     HERMES -->|allowlisted capabilities| TOOLS
-    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC · Parakeet · OpenAI Audio]
+    TOOLS[GitHub · Vercel · Convex · Clerk · Stripe · Composio<br/>ScrapeGraphAI · Langfuse · Honcho · Hindsight · Crawl4AI · TigerVNC · Parakeet · OpenAI Audio]
     TOOLS -->|observations and external readback| PROOF
     OWNER -->|production/destructive approval only| STATION
 ```
@@ -92,7 +92,7 @@ With `--mode full --with-ai-stack`, bootstrap:
 2. creates the dedicated `agk-station` sudo account and moves managed source out of `/root`;
 3. installs the pinned Python, AI Python, Node/npm, GitHub, Vercel, Codex, Composio and shadcn toolchain, plus the isolated integrity-locked discord.js SDK and signed stable Tailscale package;
 4. installs the reviewed Hermes release, explicit voice/messaging extras and backup/Doctor-gated update timer;
-5. installs loopback-only Parakeet for Discord STT failover and stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
+5. installs the default Zone-local ScrapeGraphAI + Playwright Chromium Hermes tool, loopback-only Parakeet for Discord STT failover, and stages Ponytail, Langfuse, Honcho, Hindsight, Crawl4AI and TigerVNC;
 6. installs AGK-TUI;
 7. reconciles `/etc/station`, `/opt/station`, `/srv/station`, `/var/lib/station`, logs, backups and runtime paths;
 8. creates isolated Zones and Projects with independent Unix identities and `HERMES_HOME` roots;
@@ -182,7 +182,7 @@ To stage every optional AI component as well:
 sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
-This installs or stages Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet, but does not create accounts, inject secrets, expose public ports or claim those services operational. Parakeet is also part of the default voice install; use `--skip-voice` only when deliberately omitting Hermes voice support.
+This installs or stages ScrapeGraphAI/Playwright, Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet, but does not create accounts, inject secrets, expose public ports or claim those services operational. ScrapeGraphAI is the default Hermes web-extraction tool; use `--skip-scrapegraphai` only when deliberately omitting browser tooling. Parakeet is also part of the default voice install; use `--skip-voice` only when deliberately omitting Hermes voice support.
 
 `full` maps to the complete Agentik Station (operator Host). `team` is the company install: shared System foundation + one Organization Zone; Discord/Composio/memory/credentials are member-scoped principals so several people share the Host without a single global Private Zone. There is no separate client-branded mode — pass your organization/project ids at bootstrap time.
 

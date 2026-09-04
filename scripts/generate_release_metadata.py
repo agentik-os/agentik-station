@@ -73,6 +73,8 @@ def sbom_payload() -> dict[str, Any]:
         ("Hermes Agent", "application", pins["HERMES_RELEASE"], "https://github.com/NousResearch/hermes-agent"),
         ("Python", "application", pins["PYTHON_VERSION"], "https://www.python.org"),
         ("Python AI", "application", pins["AI_PYTHON_VERSION"], "https://www.python.org"),
+        ("ScrapeGraphAI", "library", pins["SCRAPEGRAPHAI_VERSION"], "https://github.com/ScrapeGraphAI/Scrapegraph-ai"),
+        ("Playwright", "library", pins["PLAYWRIGHT_VERSION"], "https://playwright.dev/python/"),
         ("Node.js", "application", pins["NODE_VERSION"], "https://nodejs.org"),
         ("npm", "application", pins["NPM_VERSION"], "https://www.npmjs.com/package/npm"),
         ("GitHub CLI", "application", pins["GITHUB_CLI_VERSION"], "https://github.com/cli/cli"),

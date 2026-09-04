@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "scrapegraphai",
+  "package": "scrapegraphai",
+  "version": "2.2.2",
+  "browser": "playwright chromium",
+  "browser_version": "1.62.0",
+  "python": "3.13.15",
+  "hermes_tool": "station_scrapegraph",
+  "install_command": "station deps install --component scrapegraphai",
+  "runtime_claim": "NOT_INSTALLED",
+  "security": {
+    "url_policy": "public-http-https-only",
+    "credential_policy": "zone-local-environment-only",
+    "max_timeout_seconds": 180,
+    "max_prompt_characters": 2000
+  }
+}

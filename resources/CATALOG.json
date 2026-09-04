@@ -6,6 +6,16 @@
   "open_to_other_stacks": true,
   "resources": [
     {
+      "id": "scrapegraphai",
+      "kind": "isolated-python-hermes-tool",
+      "path": "resources/scrapegraphai",
+      "package": "scrapegraphai",
+      "version": "2.2.2",
+      "browser": "playwright chromium 1.62.0",
+      "install_scope": "zone-ai-venv",
+      "runtime_policy": "Hermes-only tool; HTTP(S) sources, bounded prompts, no credentials in arguments or evidence."
+    },
+    {
       "id": "discord-js-sdk",
       "kind": "isolated-node-sdk",
       "path": "resources/discord-js-sdk",

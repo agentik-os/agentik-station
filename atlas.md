@@ -32,7 +32,7 @@ Real systems and Project code
   ├── GitHub / repositories / CI
   ├── Vercel / Convex / Clerk / Stripe
   ├── Discord and other messaging platforms
-  ├── Langfuse / Honcho / Hindsight / Crawl4AI
+  ├── ScrapeGraphAI / Playwright / Langfuse / Honcho / Hindsight / Crawl4AI
   └── Hosts / containers / services / TigerVNC
   │
   ▼
@@ -392,6 +392,7 @@ Optional AI components have distinct jobs:
 | Langfuse | LLM traces, observability and evaluations | self-host/cloud enrollment, keys, retention and trace readback required |
 | Honcho | stateful agent memory SDK | isolated Python environment and Zone-scoped store/account |
 | Hindsight | learning/recall memory provider | bind per Zone/profile; verify recall and cross-Zone denial |
+| ScrapeGraphAI | structured AI web extraction | default isolated Hermes tool, public HTTP(S) URL policy and evidence |
 | Crawl4AI | agent-friendly crawling/scraping | isolated tool, allowlisted domains/egress and evidence |
 | TigerVNC | private remote graphical session when needed | private network, authentication, firewall and viewer readback |
 | Composio | scoped connected-account capability plane | stable principal plus explicit toolkit/account allowlist |
@@ -856,6 +857,7 @@ Repository-verified or implemented:
 - Hermes multi-platform gateway lifecycle wrapper;
 - Composio binding plus default-deny Discord tool policy and guided link/readback commands;
 - isolated, integrity-pinned discord.js SDK resource with no second Gateway;
+- default Zone-local ScrapeGraphAI 2.2.2 + Playwright Chromium resource exposed as the bounded Hermes `station_scrapegraph` tool;
 - DevOps six-identity team, tracker-neutral workflow contract, typed tools/routes,
   deterministic programs, 15-source Librarian ledger, 12 adversarial evals,
   exact recovery checksum and client operations schema;

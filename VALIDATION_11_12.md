@@ -4,7 +4,7 @@ Release claim: **READY_FOR_SETUP**. This is not a production OPERATIONAL claim.
 
 Locally verified release gates:
 
-- 123 Station tests PASS;
+- 124 Station tests PASS;
 - 181 AGK-TUI component tests PASS;
 - 15 Hermes Fleet TypeScript tests plus typecheck and production build PASS;
 - 7/7 Builder/Librarian deterministic gates PASS;
@@ -25,7 +25,7 @@ Locally verified release gates:
 - Librarian v3 canonical source and Hermes compiler path;
 - release manifest / file inventory readback;
 - SHA-256 release provenance, CycloneDX SBOM and source/install/loaded manifest receipt contract;
-- DevOps OS semantic Doctor: six identities, typed tools/provider routes, closed workflow, 15 Librarian sources, 12 adversarial scenarios and recovery checksum;
+- DevOps OS semantic Doctor: six identities, typed tools/provider routes (including the bounded ScrapeGraphAI research route), closed workflow, 15 Librarian sources, 12 adversarial scenarios and recovery checksum;
 - disposable Ubuntu 24.04 bootstrap workflow (weekly core profile; manual complete AI/voice profile);
 - ZIP integrity and extracted-repository Doctor.
 

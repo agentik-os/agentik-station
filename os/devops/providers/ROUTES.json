@@ -2,6 +2,7 @@
   "schema_version": 1,
   "authority": "Station policy; providers supply cognition only",
   "routes": [
+    {"task_class": "research-scrape", "role": "atlas", "primary": "scrapegraphai", "hermes_tool": "station_scrapegraph", "fallback": ["crawl4ai", "blocked"], "budget": "task", "on_exhaustion": "blocked", "egress": "public-http-https-only"},
     {"task_class": "orchestration", "role": "atlas", "primary": "reasoning-high", "fallback": ["alternate-approved-reasoning"], "budget": "mission", "on_exhaustion": "degraded-with-next-action"},
     {"task_class": "architecture", "role": "architect", "primary": "reasoning-high", "fallback": ["alternate-approved-reasoning"], "budget": "task", "on_exhaustion": "return-partial-plan"},
     {"task_class": "implementation", "role": "forge", "primary": "coding-task-fit", "fallback": ["alternate-approved-coding"], "budget": "work-record", "on_exhaustion": "preserve-worktree-and-resume"},

@@ -20,6 +20,7 @@
   disposable Ubuntu acceptance, deterministic CycloneDX SBOM, SHA-256 source
   provenance and GitHub build attestation;
 - fixed the release-manifest schema/CI omission for the shipped AGK-TUI suite.
+- added default Zone-local ScrapeGraphAI 2.2.2 with Playwright Chromium 1.62.0 and the bounded Hermes `station_scrapegraph` tool; URLs, credentials, timeout and output policy are enforced before execution.
 
 ## 11.12 — Station Kernel hardening
 

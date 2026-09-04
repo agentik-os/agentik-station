@@ -6,3 +6,4 @@ kind: standalone
 provides_tools:
   - agentik_runtime
   - agentik_agent
+  - station_scrapegraph

@@ -2578,6 +2578,18 @@
       "version": "v0.8.0"
     },
     {
+      "bom-ref": "station:playwright@1.62.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://playwright.dev/python/"
+        }
+      ],
+      "name": "Playwright",
+      "type": "library",
+      "version": "1.62.0"
+    },
+    {
       "bom-ref": "station:ponytail@v4.9.0",
       "externalReferences": [
         {
@@ -2636,6 +2648,18 @@
       "name": "PyYAML",
       "type": "library",
       "version": "6.0.3"
+    },
+    {
+      "bom-ref": "station:scrapegraphai@2.2.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/ScrapeGraphAI/Scrapegraph-ai"
+        }
+      ],
+      "name": "ScrapeGraphAI",
+      "type": "library",
+      "version": "2.2.2"
     },
     {
       "bom-ref": "station:setuptools@84.0.0",

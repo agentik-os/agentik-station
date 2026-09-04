@@ -27,12 +27,12 @@
   "history_is_non_canonical": true,
   "validation": {
     "repository_doctor": "PASS",
-    "station_tests": 123,
+    "station_tests": 124,
     "factory_pytest": 4,
     "builder_librarian_gates": "7/7 PASS",
     "agk_tui_component_tests": 181
   },
-  "file_count": 1065,
+  "file_count": 1069,
   "files": [
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -150,6 +150,8 @@
     "components/agk-tui/hermes/plugins/agentik_os/plugin.yaml",
     "components/agk-tui/hermes/plugins/agentik_os/rules.py",
     "components/agk-tui/hermes/plugins/agentik_os/runtime_tool.py",
+    "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py",
+    "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py",
     "components/agk-tui/hermes/plugins/agentik_os/store.py",
     "components/agk-tui/hermes/plugins/platforms/discord/AGK_PATCHSET.md",
     "components/agk-tui/hermes/plugins/platforms/discord/__init__.py",
@@ -990,6 +992,8 @@
     "resources/frontend/lucide/RESOURCE.json",
     "resources/frontend/shadcn-ui/README.md",
     "resources/frontend/shadcn-ui/RESOURCE.json",
+    "resources/scrapegraphai/README.md",
+    "resources/scrapegraphai/RESOURCE.json",
     "resources/stacks/web-product/README.md",
     "resources/stacks/web-product/STACK.json",
     "rules/STATION_AGENT_RULES.md",

@@ -142,6 +142,13 @@
       "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
     },
     {
+      "id": "scrapegraphai",
+      "maturity": "INSTALLABLE",
+      "claim": "ScrapeGraphAI 2.2.2 and Playwright Chromium 1.62.0 are installed in an isolated AI venv by default and exposed through the bounded Hermes station_scrapegraph tool; live credentialed extraction readback remains pending.",
+      "binary_probes": [],
+      "next_repair_action": "Run station deps install --component scrapegraphai, provide a Zone-local model credential and pass a public test URL extraction with evidence readback."
+    },
+    {
       "id": "parakeet",
       "maturity": "INSTALLABLE",
       "claim": "The reviewed Parakeet int8 image is digest-pinned, loopback-only and wired as a Hermes command-STT provider plus Discord audio failover; live transcription acceptance remains pending on each Host.",

@@ -22,6 +22,8 @@ def test_versions_lock_pins_hermes_and_deps():
         "COMPOSIO_CLI_VERSION=0.4.0",
         "COMPOSIO_INSTALL_SHA256=7a63922b75d206d16c790cdf683edac23f536903a28e13e94bfe3e55690b7a63",
         "DISCORD_JS_VERSION=14.27.0",
+        "SCRAPEGRAPHAI_VERSION=2.2.2",
+        "PLAYWRIGHT_VERSION=1.62.0",
         "DISCORD_JS_INTEGRITY=sha512-qHbFlFG2N7y3LjPySYsL6A1+BnX6bkTVgo842EX0CqVPk/KTMwZkojPHEXKsQUpWZNyz5BISNHK1cPpQw0+m4A==",
         "SHADCN_CLI_VERSION=4.21.0",
         "SHADCN_CLI_INTEGRITY=sha512-UU2mFNusW8C5rvadKdH69vERYZqUlOOlXBcf0MYhYLdTGP6DPti7X4qovCu+RTfCqsAgq/T+YfE0Vnttxh9aiw==",
@@ -47,7 +49,7 @@ def test_versions_lock_pins_hermes_and_deps():
 
 def test_deps_stack_yaml_exists():
     stack = (ROOT / "config" / "deps" / "stack.yaml").read_text()
-    for name in ("discord-js-sdk", "ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai", "parakeet"):
+    for name in ("scrapegraphai", "discord-js-sdk", "ponytail", "langfuse", "honcho", "hindsight", "tigervnc", "crawl4ai", "parakeet"):
         assert name in stack
 
 
@@ -79,6 +81,20 @@ def test_hermes_update_and_deps_scripts_executable():
         assert path.stat().st_mode & 0o111
 
 
+def test_scrapegraphai_is_default_hermes_tool_and_fail_closed():
+    bootstrap = (ROOT / "bootstrap.sh").read_text()
+    deps = (ROOT / "scripts" / "station_deps_install.sh").read_text()
+    plugin = (ROOT / "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_tool.py").read_text()
+    assert "INSTALL_SCRAPEGRAPHAI=1" in bootstrap
+    assert "--component scrapegraphai" in bootstrap
+    assert "scrapegraphai==$SCRAPEGRAPHAI_VERSION" in deps
+    assert '"$venv/bin/playwright" install chromium' in deps
+    assert 'name="station_scrapegraph"' in (ROOT / "components/agk-tui/hermes/plugins/agentik_os/__init__.py").read_text()
+    assert "private or reserved source addresses are not allowed" in plugin
+    assert "embedded credentials" in plugin
+    assert "SCRAPEGRAPHAI_OPENAI_API_KEY" in (ROOT / "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py").read_text()
+
+
 def test_ponytail_install_uses_immutable_hermes_plugin_ref():
     script = (ROOT / "scripts" / "station_deps_install.sh").read_text()
     assert 'plugins install "$PONYTAIL_REPOSITORY" --ref "$PONYTAIL_COMMIT" --enable' in script
@@ -88,7 +104,7 @@ def test_catalog_includes_new_modules():
     import json
     catalog = json.loads((ROOT / "modules" / "catalog.json").read_text())
     ids = {m["id"] for m in catalog["modules"]}
-    for mid in ("hermes-platforms", "resource-catalog", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "parakeet", "tigervnc"):
+    for mid in ("hermes-platforms", "resource-catalog", "ponytail", "langfuse", "honcho", "hindsight", "crawl4ai", "scrapegraphai", "parakeet", "tigervnc"):
         assert mid in ids
 
 

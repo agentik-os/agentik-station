@@ -55,6 +55,16 @@ resources:
   default_stack: web-product
   policy: Stack recipes are defaults, not a vendor lock; exact Project choices remain contract-driven.
 components:
+  - id: scrapegraphai
+    repository: https://github.com/ScrapeGraphAI/Scrapegraph-ai
+    role: Hermes-governed AI web extraction and structured scraping tool
+    package: scrapegraphai
+    version: 2.2.2
+    browser: playwright chromium 1.62.0
+    python: 3.13.15
+    install: isolated-python-venv-with-browser
+    hermes_tool: station_scrapegraph
+    maturity: INSTALLABLE
   - id: discord-js-sdk
     repository: https://github.com/discordjs/discord.js
     role: Isolated typed Discord API SDK for governed extensions; never a second gateway

@@ -9,6 +9,8 @@ Station integrates with external projects rather than relicensing them. Before d
 - [Vectorize Hindsight](https://github.com/vectorize-io/hindsight) — review repository/component licenses for the selected deployment
 - [TigerVNC](https://github.com/TigerVNC/tigervnc) — GPL-2.0
 - [Crawl4AI](https://github.com/unclecode/crawl4ai) — Apache-2.0
+- [ScrapeGraphAI](https://github.com/ScrapeGraphAI/Scrapegraph-ai) — MIT
+- [Playwright](https://github.com/microsoft/playwright-python) — Apache-2.0
 - [achetronic Parakeet](https://github.com/achetronic/parakeet) — MIT
 - [Python](https://www.python.org/), [uv](https://github.com/astral-sh/uv), [Node.js](https://nodejs.org/) and npm
 - [GitHub CLI](https://github.com/cli/cli) — MIT

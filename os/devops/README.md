@@ -12,6 +12,8 @@ Atlas owns the mission graph. Architect owns design/contracts, Forge implementat
   drift report.
 - `tools/CONTRACTS.json` is default-deny and declares role, authorization,
   timeout, idempotency, audit and fallback for every exposed tool.
+- `research.scrape` routes Atlas through the Zone-local Hermes
+  `station_scrapegraph` tool; public-URL policy and evidence are mandatory.
 - `providers/ROUTES.json` routes task classes, budgets, fallbacks and degraded
   behavior without changing authority.
 - `workflows/STATE_MACHINE.json` is the closed tracker-neutral state graph and

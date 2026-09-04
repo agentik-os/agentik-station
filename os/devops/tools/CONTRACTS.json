@@ -18,7 +18,8 @@
     {"role": "sre", "tool": "runtime.observe", "class": "external-read", "auth_owner": "zone", "timeout_seconds": 120, "idempotency": "probe+release", "approval": "none", "audit": "readback-evidence", "fallback": "degraded"},
     {"role": "sre", "tool": "recovery.execute", "class": "external-mutation", "auth_owner": "human-policy-authority", "timeout_seconds": 1800, "idempotency": "incident+target-release", "approval": "policy", "audit": "recovery-receipt", "fallback": "escalate"},
     {"role": "atlas", "tool": "composio.discord.read", "class": "external-read", "auth_owner": "zone-account-alias", "timeout_seconds": 20, "idempotency": "n/a", "approval": "none", "audit": "composio-call", "fallback": "hermes-native"},
-    {"role": "atlas", "tool": "composio.discord.write", "class": "external-mutation", "auth_owner": "zone-account-alias", "timeout_seconds": 20, "idempotency": "channel+event+artifact", "approval": "command-policy", "audit": "composio-call-and-readback", "fallback": "queue"}
+    {"role": "atlas", "tool": "composio.discord.write", "class": "external-mutation", "auth_owner": "zone-account-alias", "timeout_seconds": 20, "idempotency": "channel+event+artifact", "approval": "command-policy", "audit": "composio-call-and-readback", "fallback": "queue"},
+    {"role": "atlas", "tool": "research.scrape", "class": "external-read", "auth_owner": "zone", "timeout_seconds": 180, "idempotency": "source+prompt+model", "approval": "public-url-policy", "audit": "scrape-evidence", "fallback": "blocked"}
   ],
   "always_forbidden": [
     "discord.leave-guild",
