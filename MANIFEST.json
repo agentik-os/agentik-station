@@ -27,11 +27,11 @@
   "history_is_non_canonical": true,
   "validation": {
     "repository_doctor": "PASS",
-    "station_tests": 91,
+    "station_tests": 104,
     "factory_pytest": 7,
     "builder_librarian_gates": "7/7 PASS"
   },
-  "file_count": 1002,
+  "file_count": 1006,
   "files": [
     ".github/PULL_REQUEST_TEMPLATE.md",
     ".github/workflows/ci.yml",
@@ -481,6 +481,8 @@
     "modules/langfuse/README.md",
     "modules/observability/MODULE.json",
     "modules/observability/README.md",
+    "modules/operator-toolchain/MODULE.json",
+    "modules/operator-toolchain/README.md",
     "modules/os-factory/MODULE.json",
     "modules/os-factory/README.md",
     "modules/ponytail/MODULE.json",
@@ -776,7 +778,6 @@
     "os/librarian/integrations/INTEGRATIONS.yaml",
     "os/librarian/knowledge/SCOPE.yaml",
     "os/librarian/librarian/14_BUILDER_HANDOFF.md",
-    "os/librarian/manifest.json",
     "os/librarian/memory/SCOPE.yaml",
     "os/librarian/missions/MISSION_SCHEMA.json",
     "os/librarian/orchestration/ACCEPTANCE.md",
@@ -964,6 +965,7 @@
     "scripts/station_agk_sync.py",
     "scripts/station_deps_install.sh",
     "scripts/station_hermes_update.sh",
+    "scripts/station_toolchain_install.sh",
     "scripts/systemd/station-hermes-update.service",
     "scripts/systemd/station-hermes-update.timer",
     "specs/01_DISCORD_PROVISIONER_CONTRACT.md",
@@ -989,6 +991,7 @@
     "src/agentik_station/doctor.py",
     "src/agentik_station/errors.py",
     "src/agentik_station/filesystem.py",
+    "src/agentik_station/hermes_platforms.py",
     "src/agentik_station/hermes_updates.py",
     "src/agentik_station/identifiers.py",
     "src/agentik_station/identity.py",
@@ -1033,6 +1036,7 @@
     "tests/security/test_remote_bootstrap.py",
     "tests/security/test_safe_filesystem.py",
     "tests/unit/test_configuration.py",
+    "tests/unit/test_hermes_platforms.py",
     "tests/unit/test_identifiers.py",
     "tests/unit/test_models.py"
   ]

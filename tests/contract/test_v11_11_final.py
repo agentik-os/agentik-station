@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_real_librarian_v3_is_canonical() -> None:
-    manifest = json.loads((ROOT / "os/librarian/manifest.json").read_text())
+    manifest = json.loads((ROOT / "os/librarian/MANIFEST.json").read_text())
     assert manifest["name"] == "Librarian OS"
     assert manifest["version"] == "3.0.0"
     agents = [p for p in (ROOT / "os/librarian/skills/book/agents").iterdir() if p.is_file() and p.suffix == ".md"]

@@ -12,8 +12,11 @@ PROJECT=""
 ENVIRONMENT="development"
 YES=0
 INSTALL_HERMES=1
+INSTALL_HERMES_AUTO_UPDATE=1
 INSTALL_CODEX=1
 INSTALL_AGK_TUI=1
+INSTALL_TOOLCHAIN=1
+INSTALL_AI_STACK=0
 
 usage(){ cat <<'USAGE'
 Agentik Station host bootstrap
@@ -30,8 +33,11 @@ Options:
   --env development|staging|production
   --sudo-mode passwordless|password
   --skip-hermes
+  --skip-hermes-auto-update
   --skip-codex
+  --skip-toolchain         skip Python/Node/GitHub/Vercel/Composio/Codex toolchain
   --skip-agk-tui
+  --with-ai-stack        install all optional pinned AI services/clients/plugins
   --yes
 
 Creates the dedicated sudo account `agk-station`. Source and user tools live under
@@ -48,9 +54,12 @@ while (($#)); do
     --project) PROJECT="$2"; shift 2;;
     --env) ENVIRONMENT="$2"; shift 2;;
     --sudo-mode) SUDO_MODE="$2"; shift 2;;
-    --skip-hermes) INSTALL_HERMES=0; shift;;
+    --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; shift;;
+    --skip-hermes-auto-update) INSTALL_HERMES_AUTO_UPDATE=0; shift;;
     --skip-codex) INSTALL_CODEX=0; shift;;
+    --skip-toolchain) INSTALL_TOOLCHAIN=0; INSTALL_CODEX=0; shift;;
     --skip-agk-tui) INSTALL_AGK_TUI=0; shift;;
+    --with-ai-stack) INSTALL_AI_STACK=1; shift;;
     --yes) YES=1; shift;;
     -h|--help) usage; exit 0;;
     *) echo "Unknown option: $1" >&2; usage; exit 2;;
@@ -60,6 +69,10 @@ done
 [[ "${EUID}" -eq 0 ]] || { echo 'ERROR: run with sudo or as root.' >&2; exit 2; }
 [[ "$MODE" == full || "$MODE" == team ]] || { echo 'ERROR: --mode must be full or team.' >&2; exit 2; }
 [[ "$SUDO_MODE" == passwordless || "$SUDO_MODE" == password ]] || { echo 'ERROR: invalid --sudo-mode.' >&2; exit 2; }
+[[ "$INSTALL_AI_STACK" -eq 0 || "$INSTALL_TOOLCHAIN" -eq 1 ]] || {
+  echo 'ERROR: --with-ai-stack requires the Station toolchain; remove --skip-toolchain.' >&2
+  exit 2
+}
 if [[ "$MODE" == team && -z "$ORGANIZATION" ]]; then echo 'ERROR: --organization is required in team mode.' >&2; exit 2; fi
 
 source_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -77,8 +90,11 @@ Bootstrap plan
   repository:   ${REPO_DIR}
   mode:         ${MODE}
   Hermes:       $([[ $INSTALL_HERMES -eq 1 ]] && echo install || echo skip)
+  Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly verified timer' || echo ' disabled')
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
+  Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
+  AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
   sudo policy:  ${SUDO_MODE}
 EOF
   read -r -p 'Continue? [y/N] ' answer
@@ -87,14 +103,15 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y git curl ca-certificates xz-utils sudo rsync jq unzip build-essential nodejs npm
+apt-get install -y git curl ca-certificates xz-utils sudo rsync jq unzip build-essential \
+  python3 python3-venv python3-dev pkg-config libssl-dev libffi-dev
 
 if ! id "$STATION_USER" >/dev/null 2>&1; then
   useradd --create-home --home-dir "$STATION_HOME" --shell /bin/bash --groups sudo --comment "Agk-Station" "$STATION_USER"
 else
   usermod -aG sudo "$STATION_USER"
 fi
-install -d -m 0750 -o "$STATION_USER" -g "$STATION_USER" "$STATION_HOME/repos" "$STATION_HOME/.local/bin" "$STATION_HOME/.local/share/npm" "$STATION_HOME/.config"
+install -d -m 0750 -o "$STATION_USER" -g "$STATION_USER" "$STATION_HOME/repos" "$STATION_HOME/.local/bin" "$STATION_HOME/.config"
 
 sudoers="/etc/sudoers.d/${STATION_USER}"
 if [[ "$SUDO_MODE" == passwordless ]]; then
@@ -115,21 +132,47 @@ command -v loginctl >/dev/null 2>&1 && loginctl enable-linger "$STATION_USER" ||
 # Stable user-local PATH without touching root's profile.
 profile="$STATION_HOME/.profile"
 touch "$profile"; chown "$STATION_USER:$STATION_USER" "$profile"
-for line in 'export PATH="$HOME/.local/bin:$HOME/.local/share/npm/bin:$PATH"' 'export NPM_CONFIG_PREFIX="$HOME/.local/share/npm"'; do
+for line in 'export PATH="$HOME/.local/bin:$PATH"' 'export NPM_CONFIG_PREFIX="$HOME/.local"'; do
   grep -Fqx "$line" "$profile" || echo "$line" >> "$profile"
 done
 
 if [[ "$INSTALL_HERMES" -eq 1 ]]; then
+  # shellcheck disable=SC1091
+  source "$source_root/config/versions.lock"
   tmp="$(mktemp)"
-  curl --fail --silent --show-error --location https://hermes-agent.nousresearch.com/install.sh --output "$tmp"
+  curl --fail --silent --show-error --location "$HERMES_INSTALL_URL" --output "$tmp"
+  printf '%s  %s\n' "$HERMES_INSTALL_SHA256" "$tmp" | sha256sum --check --status || {
+    echo 'ERROR: Hermes installer checksum drifted; review upstream and update the lock intentionally.' >&2
+    rm -f "$tmp"
+    exit 2
+  }
   chmod 0755 "$tmp"
-  # Execute the downloaded upstream installer as the dedicated account, never as root.
-  sudo -u "$STATION_USER" -H env HERMES_HOME="$STATION_HOME/.hermes" bash "$tmp" --skip-setup --non-interactive
+  hermes_install_dir="/opt/station/tools/hermes/current"
+  install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" /opt/station/tools/hermes
+  # Execute the downloaded upstream installer as the dedicated account, pinned to the reviewed release commit.
+  sudo -u "$STATION_USER" -H env HERMES_HOME="$STATION_HOME/.hermes" bash "$tmp" \
+    --dir "$hermes_install_dir" --branch main --commit "$HERMES_COMMIT" --skip-setup --non-interactive
+  [[ -x "$STATION_HOME/.local/bin/hermes" ]] || { echo 'ERROR: Hermes launcher was not created.' >&2; exit 2; }
+  install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes" /usr/local/bin/hermes
   rm -f "$tmp"
 fi
 
-if [[ "$INSTALL_CODEX" -eq 1 ]]; then
-  sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$HOME/.local/share/npm/bin:$PATH"; export NPM_CONFIG_PREFIX="$HOME/.local/share/npm"; npm install -g @openai/codex'
+if [[ "$INSTALL_TOOLCHAIN" -eq 1 ]]; then
+  toolchain_args=(--install)
+  [[ "$INSTALL_CODEX" -eq 0 ]] && toolchain_args+=(--without-codex)
+  [[ "$INSTALL_HERMES" -eq 0 ]] && toolchain_args+=(--without-hermes)
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_toolchain_install.sh" "${toolchain_args[@]}"
+fi
+
+if [[ "$INSTALL_HERMES_AUTO_UPDATE" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --enable-hermes-auto-update
+fi
+
+if [[ "$INSTALL_AI_STACK" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --all
 fi
 
 # AGK-TUI (RMUX session control plane) — vendored under components/agk-tui
@@ -168,8 +211,19 @@ sudo -u "$STATION_USER" -H -- "$REPO_DIR/station.sh" "${args[@]}"
 mkdir -p /etc/station
 hermes_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$HOME/.local/share/npm/bin:$PATH"; hermes --version 2>/dev/null || true' | head -1)"
 codex_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$HOME/.local/share/npm/bin:$PATH"; codex --version 2>/dev/null || true' | head -1)"
+python_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; python-latest --version 2>/dev/null || true' | head -1)"
+python_ai_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; python-ai --version 2>/dev/null || true' | head -1)"
+node_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; node --version 2>/dev/null || true' | head -1)"
+github_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; gh --version 2>/dev/null || true' | head -1)"
+vercel_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; vercel --version 2>/dev/null || true' | head -1)"
+composio_version="$(sudo -u "$STATION_USER" -H bash -lc 'export PATH="$HOME/.local/bin:$PATH"; composio --version 2>/dev/null || true' | head -1)"
 pin_version="$(cat "$REPO_DIR/components/agk-tui/PIN" 2>/dev/null || true)"
-jq -n --arg user "$STATION_USER" --arg hermes "$hermes_version" --arg codex "$codex_version" --arg repo "$REPO_DIR" --arg mode "$MODE" --arg pin "$pin_version" '{station_user:$user,hermes:$hermes,codex:$codex,agk_tui:$pin,claude:"",agk_tui_pin:$pin,repository:$repo,mode:$mode}' > /etc/station/bootstrap-tools.json
+jq -n --arg user "$STATION_USER" --arg hermes "$hermes_version" --arg codex "$codex_version" \
+  --arg python "$python_version" --arg python_ai "$python_ai_version" --arg node "$node_version" --arg github "$github_version" \
+  --arg vercel "$vercel_version" --arg composio "$composio_version" --arg repo "$REPO_DIR" \
+  --arg mode "$MODE" --arg pin "$pin_version" \
+  '{station_user:$user,hermes:$hermes,codex:$codex,python:$python,python_ai:$python_ai,node:$node,github_cli:$github,vercel_cli:$vercel,composio_cli:$composio,agk_tui:$pin,claude:"",agk_tui_pin:$pin,repository:$repo,mode:$mode,external_auth:"NOT_CONFIGURED"}' \
+  > /etc/station/bootstrap-tools.json
 chmod 0640 /etc/station/bootstrap-tools.json
 
 # Sync Station metadata into AGK home (best-effort).
@@ -189,7 +243,12 @@ Next login (Agk-Station session — dedicated sudo account, not root):
 
 Verify tools:
   hermes doctor
+  ./scripts/station_toolchain_install.sh --check
+  python-ai --version
   codex --version
+  gh auth status
+  vercel whoami
+  composio --version
   ./station.sh doctor
   ./station.sh status
   agk doctor         # AGK-TUI / RMUX
@@ -201,6 +260,9 @@ Live sessions (Hermes, Codex, Claude Code, terminal):
 Authentication remains operator-controlled:
   hermes setup
   codex              # follow the current sign-in flow
+  gh auth login
+  vercel login
+  composio login && composio setup --target auto
   # Claude Code: install/login separately, then open via agk
   ./scripts/station_hermes_update.sh update
   ./scripts/station_deps_install.sh --list

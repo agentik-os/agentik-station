@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": "ponytail",
-  "maturity": "SCAFFOLDED",
-  "claim": "Ponytail YAGNI agent-skill repo is declared and installable via station deps; Hermes/Claude skill wiring and acceptance are pending.",
+  "maturity": "INSTALLABLE",
+  "claim": "Ponytail v4.9.0 is installable at an immutable commit through the native Hermes plugin protocol; coding-session acceptance is pending.",
   "binary_probes": [],
-  "next_repair_action": "Install with scripts/station_deps_install.sh --component ponytail then bind as a Hermes skill and pass a coding-session check."
+  "next_repair_action": "Run station deps install --component ponytail, inspect hermes plugins list, and pass a coding-session check."
 }

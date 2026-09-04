@@ -4,7 +4,7 @@ Release claim: **READY_FOR_SETUP**. This is not a production OPERATIONAL claim.
 
 Locally verified release gates:
 
-- 91 Station tests PASS;
+- 104 Station tests PASS;
 - 7/7 Builder/Librarian deterministic gates PASS;
 
 - repository Doctor;
@@ -12,6 +12,10 @@ Locally verified release gates:
 - full/core and team desired-state plans;
 - Bash syntax for `station.sh` and `bootstrap.sh`;
 - dedicated `agk-station` account bootstrap contract;
+- pinned operator-toolchain and checksum/integrity contract;
+- Hermes release-commit pin, backup/Doctor update wrapper and receipt contract;
+- Zone-isolated Hermes gateway argv/alias contract;
+- case-insensitive repository path portability;
 - `ORGANIZATIONS` category and team member contract;
 - no real-person/client/project names in the packaged source;
 - six canonical AGK OS source Doctors;

@@ -112,6 +112,12 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "install",
         "station.sh",
         "bootstrap.sh",
+        "scripts/station_toolchain_install.sh",
+        "scripts/station_deps_install.sh",
+        "scripts/station_hermes_update.sh",
+        "config/versions.lock",
+        "config/deps/stack.yaml",
+        "src/agentik_station/hermes_platforms.py",
         "installer/install_station.py",
         "src/agentik_station/installer.py",
         "src/agentik_station/filesystem.py",
@@ -196,6 +202,64 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         result.fail("repo:hygiene:pyc", f"Compiled Python artifacts are present: {pyc[:3]}", "Delete *.pyc files.")
     else:
         result.pass_check("repo:hygiene:pyc")
+
+    casefolded: dict[str, Path] = {}
+    collisions: list[tuple[Path, Path]] = []
+    for path in repo_root.rglob("*"):
+        if ".git" in path.parts:
+            continue
+        relative = path.relative_to(repo_root)
+        folded = str(relative).casefold()
+        if folded in casefolded:
+            collisions.append((casefolded[folded], relative))
+        else:
+            casefolded[folded] = relative
+    if collisions:
+        result.fail(
+            "repo:hygiene:case-collisions",
+            f"Repository paths collide on case-insensitive filesystems: {collisions[:3]}",
+            "Rename or remove case-only duplicate paths and regenerate the release manifest.",
+        )
+    else:
+        result.pass_check("repo:hygiene:case-collisions")
+
+    versions_path = repo_root / "config" / "versions.lock"
+    try:
+        pins = {}
+        for line in versions_path.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#"):
+                continue
+            key, value = line.split("=", 1)
+            pins[key] = value
+        required_pins = {
+            "HERMES_RELEASE",
+            "HERMES_COMMIT",
+            "HERMES_INSTALL_SHA256",
+            "PYTHON_VERSION",
+            "AI_PYTHON_VERSION",
+            "HERMES_PYTHON_VERSION",
+            "UV_VERSION",
+            "NODE_VERSION",
+            "GITHUB_CLI_VERSION",
+            "VERCEL_CLI_VERSION",
+            "CODEX_CLI_VERSION",
+            "COMPOSIO_CLI_VERSION",
+            "COMPOSIO_INSTALL_SHA256",
+        }
+        missing_pins = sorted(required_pins - pins.keys())
+        if missing_pins or any(not pins[key] for key in required_pins & pins.keys()):
+            raise ValueError(f"missing/empty toolchain pins: {missing_pins}")
+        if pins["PYTHON_VERSION"].startswith(pins["HERMES_PYTHON_VERSION"] + "."):
+            raise ValueError("latest user Python and Hermes compatibility Python must be separate pins")
+        if pins["AI_PYTHON_VERSION"].startswith(pins["HERMES_PYTHON_VERSION"] + "."):
+            raise ValueError("AI compatibility Python and Hermes compatibility Python must be separate pins")
+        result.pass_check("repo:toolchain-pins", f"{len(pins)} pins")
+    except Exception as exc:
+        result.fail(
+            "repo:toolchain-pins",
+            str(exc),
+            "Repair config/versions.lock with explicit reviewed toolchain and Hermes pins.",
+        )
 
     symlinks = ensure_no_symlinks(repo_root)
     if symlinks:
@@ -956,6 +1020,12 @@ def station_doctor(
 
         external = {
             "Hermes": shutil.which("hermes"),
+            "Python latest": shutil.which("python-latest"),
+            "Python AI": shutil.which("python-ai"),
+            "Node.js": shutil.which("node"),
+            "GitHub CLI": shutil.which("gh"),
+            "Vercel CLI": shutil.which("vercel"),
+            "Codex CLI": shutil.which("codex"),
             "Composio": shutil.which("composio"),
             "Tailscale": shutil.which("tailscale"),
             "Podman": shutil.which("podman"),

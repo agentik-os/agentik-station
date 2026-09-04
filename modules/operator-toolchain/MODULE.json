@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "id": "operator-toolchain",
+  "maturity": "INSTALLABLE",
+  "runtime_claim": "NOT_CONFIGURED"
+}

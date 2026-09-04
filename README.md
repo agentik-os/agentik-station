@@ -56,7 +56,17 @@ For a company/team installation:
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 ```
 
-The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs host dependencies, installs Hermes and Codex under that account, and invokes the same typed Station plan/apply workflow. It deliberately keeps source and user tooling out of `/root`. External authentication remains an explicit setup gate.
+The bootstrap creates the dedicated sudo account `agk-station`, relocates the working checkout to `/home/agk-station/repos/agentik-station`, installs the pinned operator toolchain, installs the reviewed Hermes release in `/opt/station/tools/hermes/current`, and invokes the same typed Station plan/apply workflow. The shared Hermes launcher can execute for every Zone, but configuration, credentials, sessions and bot state remain isolated in that Zone's `HERMES_HOME`. Source and user tooling stay out of `/root`; external authentication remains an explicit setup gate.
+
+The default toolchain is Python 3.14.7, Node.js 24 LTS, npm, GitHub CLI, Vercel CLI, Codex CLI and Composio CLI. Isolated AI SDKs/tools use Python 3.13.15 for current wheel compatibility. Hermes deliberately keeps its own supported Python 3.11 environment because the current upstream release requires Python `<3.14`. Exact pins live in [`config/versions.lock`](config/versions.lock).
+
+To stage every optional AI component as well:
+
+```bash
+sudo ./bootstrap.sh --mode full --with-ai-stack
+```
+
+This installs or stages Ponytail, Langfuse, Honcho, Hindsight, TigerVNC and Crawl4AI, but does not create accounts, inject secrets, expose ports or claim those services operational.
 
 `full` maps to the complete Agentik Station (operator Host). `team` is the company install: shared System foundation + one Organization Zone; Discord/Composio/memory/credentials are member-scoped principals so several people share the Host without a single global Private Zone. There is no separate client-branded mode — pass your organization/project ids at bootstrap time.
 
@@ -173,6 +183,11 @@ station doctor --full
 station status
 station module status
 station provider status
+station deps toolchain-check
+station deps list
+sudo station platform setup --zone <zone-id> --platform slack
+sudo station platform install --zone <zone-id>
+sudo station platform status --zone <zone-id>
 ```
 
 A team Host example:
@@ -198,6 +213,8 @@ Read [`INSTALL.md`](INSTALL.md) before applying and [`SETUP.md`](SETUP.md) befor
 | Host foundation | VERIFIED | reboot/system-service gate required on real Host |
 | Zone runtime | VERIFIED | rootless negative-isolation runtime gate pending |
 | Hermes runtime/compiler | INSTALLABLE | profile/gateway/plugin/fresh-session gate pending |
+| Operator toolchain | INSTALLABLE | GitHub/Vercel/Composio/Codex login and scoped readback pending |
+| Hermes platforms | INSTALLABLE | per-Zone platform enrollment and live message readback pending |
 | Discord Experience | INSTALLABLE | dedicated test-guild create/edit/interactions/readback pending |
 | Composio plane | INSTALLABLE | OAuth/session/MCP/trigger/revocation gate pending |
 | Rootless runtime | INSTALLABLE | live Podman negative-isolation gate pending |
@@ -250,7 +267,12 @@ Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATI
 
 ## Hermes platforms + optional deps
 
-- Update Hermes: `./scripts/station_hermes_update.sh update` (pin in `config/versions.lock`)
-- Weekly auto-update (opt-in): `sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update`
-- Multi-platform bots: `hermes gateway setup` then `hermes gateway start`
-- Optional stack (Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC): `docs/dependencies/STACK.md`
+- Verify the pinned toolchain: `station deps toolchain-check`
+- Update Hermes with backup, Doctor and receipt: `station hermes update`
+- The weekly backup/Doctor/receipt-gated updater is enabled by bootstrap; opt out with `--skip-hermes-auto-update`, or enable it later with `sudo station deps enable-auto-update`.
+- Configure a Zone bot on any supported surface: `sudo station platform setup --zone <zone-id> --platform <name>`
+- Install/start its user service: `sudo station platform install --zone <zone-id>`
+- Observe it: `sudo station platform status --zone <zone-id>` and then perform live message readback
+- Install the optional stack: `sudo station deps install --all`
+
+Supported Hermes gateway surfaces include Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles/iMessage, QQ, Yuanbao, Microsoft Teams, LINE, ntfy and browser chat. See [`docs/dependencies/HERMES_PLATFORMS.md`](docs/dependencies/HERMES_PLATFORMS.md) and [`docs/dependencies/STACK.md`](docs/dependencies/STACK.md).

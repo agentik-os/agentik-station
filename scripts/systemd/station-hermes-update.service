@@ -9,6 +9,7 @@ User=agk-station
 Group=agk-station
 Environment=HOME=/home/agk-station
 Environment=HERMES_HOME=/home/agk-station/.hermes
+Environment=HERMES_INSTALL_DIR=/opt/station/tools/hermes/current
 Environment=PATH=/home/agk-station/.local/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/home/agk-station/repos/agentik-station/scripts/station_hermes_update.sh update
+ExecStart=/usr/local/libexec/station-hermes-update auto
 Nice=10

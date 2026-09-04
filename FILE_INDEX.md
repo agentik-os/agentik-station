@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1002
+Total files: 1006
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/workflows/ci.yml`
@@ -450,6 +450,8 @@ Total files: 1002
 - `modules/langfuse/README.md`
 - `modules/observability/MODULE.json`
 - `modules/observability/README.md`
+- `modules/operator-toolchain/MODULE.json`
+- `modules/operator-toolchain/README.md`
 - `modules/os-factory/MODULE.json`
 - `modules/os-factory/README.md`
 - `modules/ponytail/MODULE.json`
@@ -745,7 +747,6 @@ Total files: 1002
 - `os/librarian/integrations/INTEGRATIONS.yaml`
 - `os/librarian/knowledge/SCOPE.yaml`
 - `os/librarian/librarian/14_BUILDER_HANDOFF.md`
-- `os/librarian/manifest.json`
 - `os/librarian/memory/SCOPE.yaml`
 - `os/librarian/missions/MISSION_SCHEMA.json`
 - `os/librarian/orchestration/ACCEPTANCE.md`
@@ -933,6 +934,7 @@ Total files: 1002
 - `scripts/station_agk_sync.py`
 - `scripts/station_deps_install.sh`
 - `scripts/station_hermes_update.sh`
+- `scripts/station_toolchain_install.sh`
 - `scripts/systemd/station-hermes-update.service`
 - `scripts/systemd/station-hermes-update.timer`
 - `specs/01_DISCORD_PROVISIONER_CONTRACT.md`
@@ -958,6 +960,7 @@ Total files: 1002
 - `src/agentik_station/doctor.py`
 - `src/agentik_station/errors.py`
 - `src/agentik_station/filesystem.py`
+- `src/agentik_station/hermes_platforms.py`
 - `src/agentik_station/hermes_updates.py`
 - `src/agentik_station/identifiers.py`
 - `src/agentik_station/identity.py`
@@ -1002,5 +1005,6 @@ Total files: 1002
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
 - `tests/unit/test_configuration.py`
+- `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_identifiers.py`
 - `tests/unit/test_models.py`

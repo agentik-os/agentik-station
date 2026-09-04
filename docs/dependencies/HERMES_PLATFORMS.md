@@ -1,41 +1,59 @@
-# Easy Hermes multi-platform bots
+# Zone-isolated Hermes multi-platform bots
 
-Hermes Messaging Gateway is **one background process** that connects your bot to many platforms.
+Hermes Messaging Gateway is the common bot protocol and process model for Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles/iMessage, QQ, Yuanbao, Microsoft Teams, LINE, ntfy and browser chat.
 
-Official surfaces include: Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Home Assistant, Mattermost, Matrix, DingTalk, Feishu/Lark, WeCom, Weixin, BlueBubbles/iMessage, QQ, Yuanbao, Microsoft Teams, LINE, ntfy, and browser chat.
+Station does not reimplement those adapters. It supplies the isolation and lifecycle wrapper around Hermes native gateway commands.
 
-Guide: https://hermes-agent.nousresearch.com/docs/user-guide/messaging
-
-## Fast path on Station (`agk-station`)
+## Fast path
 
 ```bash
-sudo -iu agk-station
-# 1) Provider + tools (model keys stay host-owned)
-hermes setup
+# Inspect the exact Zone identity and HERMES_HOME first.
+sudo station platform setup \
+  --zone organization-alpha-dev \
+  --platform slack \
+  --plan
 
-# 2) Interactive platform wizard — pick any Hermes-supported platform
-hermes gateway setup
+# Run Hermes' interactive provider/platform wizard as the Zone Unix user.
+sudo station platform setup \
+  --zone organization-alpha-dev \
+  --platform slack
 
-# 3) Start the single gateway (all configured platforms)
-hermes gateway start
-hermes gateway status
+# Install/start the Hermes user service for that Zone, then observe it.
+sudo station platform install --zone organization-alpha-dev
+sudo station platform start --zone organization-alpha-dev
+sudo station platform status --zone organization-alpha-dev
+sudo station platform doctor --zone organization-alpha-dev
 ```
 
-Then message the bot from that platform. Same conversation can continue in AGK-TUI (`agk` / `station tui`) when session sync is enabled.
+The `--platform` value validates intent and guides the operator; credentials are accepted only by Hermes' own wizard. Aliases such as `teams`, `lark`, `feishu`, `imessage` and `homeassistant` normalize to canonical platform ids.
 
-## Station rules
+## Isolation contract
 
-- Tokens stay in the owning Hermes profile home (`HERMES_HOME`) — never commit them.
-- Discord/Composio remain separate Station modules with their own Doctor gates.
-- Bot-to-bot collaboration stays inside Hermes/AGK (see `SETUP.md`); do not recurse Discord auto-replies.
-- Claim **READY_FOR_SETUP** after bootstrap; platforms become usable only after gateway setup + live readback.
+Every Station invocation uses:
 
-## Useful commands
+```text
+runuser --user <zone-unix-user>
+HOME=<zone-state-root>/home
+HERMES_HOME=<zone-state-root>/hermes
+XDG_RUNTIME_DIR=/run/user/<zone-uid>
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/<zone-uid>/bus
+/usr/local/bin/hermes gateway <action>
+```
 
-| Goal | Command |
-|------|---------|
-| Configure platforms | `hermes gateway setup` |
-| Start / status | `hermes gateway start` / `hermes gateway status` |
-| CLI chat | `hermes` |
-| Live terminal sessions | `agk` or `station tui` |
-| Update Hermes | `./scripts/station_hermes_update.sh update` |
+`station platform install` also enables systemd linger for the Zone identity and starts its user manager before asking Hermes to install the service.
+
+The launcher is shared code installed at `/opt/station/tools/hermes/current`; tokens, sessions, pairing data, memory and bot configuration are not shared. Never put platform secrets in `/etc/station`, the Git repository, the shared Hermes code directory or another Zone.
+
+## Done-when
+
+A successful `gateway status` is only observed process state. Acceptance also requires:
+
+1. outbound message delivery to the intended account/channel;
+2. inbound message receipt and correct Zone/profile routing;
+3. unauthorized-user and wrong-channel negative tests;
+4. restart/reboot persistence;
+5. recorded readback evidence without token material.
+
+Bot-to-bot work stays inside Hermes delegation/message-agent mechanisms. Do not create recursive public-platform reply loops.
+
+Official gateway guide: [Hermes Messaging](https://hermes-agent.nousresearch.com/docs/user-guide/messaging).

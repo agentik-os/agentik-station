@@ -1,10 +1,11 @@
 # Bootstrap entrypoint
 
-The preferred first install on a fresh Host is now `bootstrap.sh`. It creates the dedicated `agk-station` sudo account, keeps the repository and user tools outside `/root`, installs dependencies, Hermes and Codex, and then delegates to the typed Station kernel.
+The preferred first install on a fresh Host is `bootstrap.sh`. It creates the dedicated `agk-station` sudo account, keeps the repository and user tools outside `/root`, installs the pinned operator toolchain and reviewed Hermes release, and then delegates to the typed Station kernel.
 
 ```bash
 sudo ./bootstrap.sh --mode full
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
+sudo ./bootstrap.sh --mode full --with-ai-stack  # includes every optional AI component
 ```
 
 Use the lower-level `station` / `install` commands below when you need explicit release engineering control.
@@ -18,8 +19,10 @@ The current safe-kernel provider supports:
 - Ubuntu or Debian;
 - a running systemd Host;
 - `apt-get`;
-- Python 3.11 or newer for the repository CLI;
+- the distribution Python 3.11 or newer for the repository CLI;
 - root only for `station apply` / `./install`.
+
+Bootstrap also installs Python 3.14.7 user-locally as `python-latest`, plus Python 3.13.15 as `python-ai` for isolated AI packages that do not yet guarantee 3.14 wheels. It does not replace the distribution Python. Hermes owns a separate Python 3.11 environment because `v2026.8.31` currently requires Python `>=3.11,<3.14`.
 
 Other distributions and init systems are not silently approximated.
 
@@ -198,7 +201,20 @@ It never concatenates user values into a remote shell command. In 11.12 the boot
 
 ## External installers
 
-The safe kernel does not execute unattended network scripts as root. Tailscale, Hermes, Composio, and other external modules are enrolled in the separate setup phase with explicit provenance, policy, and readback gates.
+The safe kernel does not execute unattended network scripts as root. The explicit operator-invoked `bootstrap.sh` downloads upstream installers first, executes Hermes and Composio installers under `agk-station`, pins reviewed versions/commits, and checks published checksums or package-manager integrity where available. Authentication and live service enrollment remain separate setup gates.
+
+The pinned default toolchain is installed under `/home/agk-station/.local`:
+
+```text
+Python latest stable + uv
+Node.js LTS + npm
+GitHub CLI
+Vercel CLI
+Codex CLI
+Composio CLI
+```
+
+Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there: each Zone uses its own `/var/lib/station/zones/<zone-id>/hermes`.
 
 ## Recommended Bash entry point
 
@@ -237,8 +253,19 @@ After bootstrap (`READY_FOR_SETUP`):
 ./scripts/station_hermes_update.sh check
 ./scripts/station_hermes_update.sh update
 sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
+station deps toolchain-check
 ./scripts/station_deps_install.sh --list
-sudo ./scripts/station_deps_install.sh --all   # optional; scaffolds only
+sudo ./scripts/station_deps_install.sh --all   # optional; installs/stages, then awaits configuration/readback
 ```
 
-Multi-platform bots: `hermes gateway setup` then `hermes gateway start` (see `docs/dependencies/HERMES_PLATFORMS.md`).
+`station hermes update` always requests an upstream backup, runs Hermes Doctor, observes gateway status and writes a receipt under the owning `HERMES_HOME`. Bootstrap enables the weekly timer by default; pass `--skip-hermes-auto-update` to opt out. A failed Doctor restores the pre-update Hermes state when upstream supports it and returns non-zero; code compatibility still requires operator review.
+
+Multi-platform bots are executed under the owning Zone identity:
+
+```bash
+sudo station platform setup --zone organization-alpha-dev --platform slack
+sudo station platform install --zone organization-alpha-dev
+sudo station platform status --zone organization-alpha-dev
+```
+
+See [`docs/dependencies/HERMES_PLATFORMS.md`](docs/dependencies/HERMES_PLATFORMS.md).

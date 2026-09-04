@@ -15,6 +15,7 @@ station doctor --full
 station status --json
 station module status
 station provider status
+station deps toolchain-check
 ```
 
 For a seeded organization/project Host, use the exact command pattern in `INSTALL.md` or a reviewed JSON `InstallSpec`.
@@ -33,7 +34,7 @@ The installation report must separate:
 After reading the repository contracts, an AI operator should prefer:
 
 ```bash
-./station.sh bootstrap --host-id station-core-01 --role core
+sudo ./bootstrap.sh --mode full
 ```
 
-Do not use `--yes` until the generated `Plan • not run` has been inspected. The Bash wrapper is an orchestrator only; all validation and mutation remain inside the typed Station kernel.
+Use `--with-ai-stack` only when Ponytail, Langfuse, Honcho, Hindsight, TigerVNC and Crawl4AI are all desired on this Host. Do not use `--yes` until the generated plan has been inspected. Bootstrap installs pinned binaries but never authenticates GitHub, Vercel, Composio, Codex, Hermes providers or messaging platforms on the operator's behalf.

@@ -12,7 +12,8 @@ A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 
 ## Gate 2 — Hermes runtime/compiler
 
-- install an approved Hermes version through the release-ring workflow;
+- install the approved Hermes release/commit through the release-ring workflow;
+- keep shared executable code in `/opt/station/tools/hermes/current` and never store Zone credentials there;
 - assign an independent `HERMES_HOME` to each Zone;
 - compile AGK OS definitions into Hermes Profile Distributions, profiles/Bots, Skills, plugins, MCP/tool filters, boards, cron, and gateway bindings;
 - configure Project `cwd` and allowed roots;
@@ -25,6 +26,11 @@ Until this exists, desired OS packages remain `NOT_INSTALLED`.
 
 ## Gate 3 — GitHub and coding executors
 
+- run `station deps toolchain-check` and compare observed versions with `config/versions.lock`;
+- authenticate GitHub CLI with `gh auth login`, then verify with `gh auth status`;
+- authenticate Vercel only where deployment is required, then verify with `vercel whoami`;
+- authenticate Composio with `composio login`, install its native agent integration with `composio setup --target auto`, and verify only the declared connections;
+- sign in to Codex through its current interactive flow; never copy a personal token into a shared Zone;
 - bind each Project only to its declared repositories;
 - use development/staging credentials by default;
 - keep production mutation behind explicit approval;
@@ -88,17 +94,21 @@ Only raise the Host/OS to `OPERATIONAL` when all applicable module gates have ob
 
 Use the Hermes Messaging Gateway — one process for Telegram, Discord, Slack, WhatsApp, Signal, Email, Teams, and more.
 
+Use the owning Zone, not the global operator home:
+
 ```bash
-sudo -iu agk-station
-hermes setup
-hermes gateway setup    # pick any supported platform
-hermes gateway start
-hermes gateway status
+sudo station platform setup --zone organization-alpha-dev --platform slack
+sudo station platform install --zone organization-alpha-dev
+sudo station platform start --zone organization-alpha-dev
+sudo station platform status --zone organization-alpha-dev
+sudo station platform doctor --zone organization-alpha-dev
 ```
+
+Add `--plan` to any of these commands to inspect the exact `runuser`/`HERMES_HOME` invocation before execution. `setup` opens Hermes' interactive gateway wizard; the platform flag validates operator intent and includes it in the emitted result, but tokens are entered only through Hermes. `install` enables linger and starts the Zone's systemd user manager so the gateway survives logout/reboot.
 
 Details: `docs/dependencies/HERMES_PLATFORMS.md` and https://hermes-agent.nousresearch.com/docs/user-guide/messaging
 
-Keep tokens in `HERMES_HOME`. Do not claim OPERATIONAL for a platform until live message readback passes.
+Keep tokens in the Zone's dedicated `HERMES_HOME`. Do not claim OPERATIONAL for a platform until bidirectional live message readback passes.
 
 ## Gate — Optional dependency stack
 
@@ -111,4 +121,4 @@ sudo ./scripts/station_deps_install.sh --component <id>
 sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
 ```
 
-See `docs/dependencies/STACK.md`. These remain SCAFFOLDED until component Doctor/readback.
+See `docs/dependencies/STACK.md`. Install/readback state is reported separately from repository maturity; no component becomes OPERATIONAL merely because its package or source is present.

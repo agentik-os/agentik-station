@@ -1,9 +1,12 @@
 ## 11.12 — Dependency stack + Hermes platforms
 
-- Pin Hermes `HERMES_RELEASE=v2026.8.31` in `config/versions.lock`; opt-in weekly auto-update timer.
-- Optional deps: Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI (`config/deps/stack.yaml`).
-- Easy multi-platform bots via Hermes gateway (`docs/dependencies/HERMES_PLATFORMS.md`).
-- CLI: `station hermes update`, `station deps {list,install,platforms,enable-auto-update}`.
+- Pin Hermes `v2026.8.31` and its reviewed commit; install shared executable code with a dedicated `HERMES_HOME` per Zone.
+- Add the pinned operator toolchain: Python 3.14.7, Python 3.13.15 for isolated AI packages, Node.js LTS, npm, GitHub CLI, Vercel CLI, Codex CLI and Composio CLI.
+- Verify Node/uv/GitHub release checksums and npm registry integrity; keep external login operator-owned.
+- Install Ponytail through Hermes native plugins; isolate Honcho/Hindsight Python clients; pin Langfuse and Crawl4AI.
+- Add backup + Doctor + receipt to Hermes updates and a bootstrap-enabled weekly verified timer with an explicit opt-out.
+- Add Zone-aware `station platform {setup,install,start,restart,status,doctor}` for every Hermes gateway surface.
+- Remove the `os/librarian/MANIFEST.json`/`manifest.json` case collision so the repository clones cleanly on macOS and Linux.
 
 ## 11.12 — AGK-TUI integration
 
