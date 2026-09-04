@@ -30,7 +30,7 @@ jobs:
           git archive --format=tar.gz --prefix=agentik-station/ --output=agentik-station-${{ github.sha }}.tar.gz HEAD
           sha256sum agentik-station-${{ github.sha }}.tar.gz > agentik-station-${{ github.sha }}.tar.gz.sha256
       - name: GitHub artifact attestation
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: agentik-station-${{ github.sha }}.tar.gz
       - name: Upload archive, checksum, SBOM and provenance
