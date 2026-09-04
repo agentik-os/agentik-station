@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly Hermes update check/apply for Agentik Station
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

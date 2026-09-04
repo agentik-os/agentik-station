@@ -82,3 +82,33 @@ It must not rely on hidden context from a previous debugging session. After the 
 ## Final state
 
 Only raise the Host/OS to `OPERATIONAL` when all applicable module gates have observed evidence, external readback, and acceptance. Otherwise retain the exact lower maturity/readiness state and a next repair action.
+
+
+## Gate — Hermes multi-platform bots (easy connect)
+
+Use the Hermes Messaging Gateway — one process for Telegram, Discord, Slack, WhatsApp, Signal, Email, Teams, and more.
+
+```bash
+sudo -iu agk-station
+hermes setup
+hermes gateway setup    # pick any supported platform
+hermes gateway start
+hermes gateway status
+```
+
+Details: `docs/dependencies/HERMES_PLATFORMS.md` and https://hermes-agent.nousresearch.com/docs/user-guide/messaging
+
+Keep tokens in `HERMES_HOME`. Do not claim OPERATIONAL for a platform until live message readback passes.
+
+## Gate — Optional dependency stack
+
+Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC are declared in `config/deps/stack.yaml`.
+
+```bash
+./scripts/station_deps_install.sh --list
+sudo ./scripts/station_deps_install.sh --component <id>
+./scripts/station_hermes_update.sh update
+sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
+```
+
+See `docs/dependencies/STACK.md`. These remain SCAFFOLDED until component Doctor/readback.

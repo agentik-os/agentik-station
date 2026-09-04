@@ -246,3 +246,11 @@ Generic client and project examples use only `organization-alpha` and `example-p
 
 After bootstrap, open Hermes / Codex / Claude Code / terminal sessions with `agk` or `station tui`.
 Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATION_AGK_TUI.md`.
+
+
+## Hermes platforms + optional deps
+
+- Update Hermes: `./scripts/station_hermes_update.sh update` (pin in `config/versions.lock`)
+- Weekly auto-update (opt-in): `sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update`
+- Multi-platform bots: `hermes gateway setup` then `hermes gateway start`
+- Optional stack (Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC): `docs/dependencies/STACK.md`

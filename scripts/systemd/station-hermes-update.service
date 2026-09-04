@@ -1,0 +1,14 @@
+[Unit]
+Description=Agentik Station Hermes auto-update (agk-station)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=agk-station
+Group=agk-station
+Environment=HOME=/home/agk-station
+Environment=HERMES_HOME=/home/agk-station/.hermes
+Environment=PATH=/home/agk-station/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/agk-station/repos/agentik-station/scripts/station_hermes_update.sh update
+Nice=10

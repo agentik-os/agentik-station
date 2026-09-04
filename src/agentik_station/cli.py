@@ -444,6 +444,46 @@ def cmd_release_rollback(args: argparse.Namespace) -> int:
     print("NEXT: run station doctor --full and verify runtime compatibility before further mutation.")
     return 0
 
+
+def cmd_hermes_update(args: argparse.Namespace) -> int:
+    """Apply Hermes update via scripts/station_hermes_update.sh (explicit operator action)."""
+    import os
+    script = repository_root() / "scripts" / "station_hermes_update.sh"
+    if not script.is_file():
+        raise StationError(f"missing {script}")
+    mode = "check" if args.check_only else ("backup-update" if args.backup else "update")
+    cmd = ["bash", str(script), mode]
+    print("RUNNING", " ".join(cmd))
+    completed = subprocess.run(cmd, check=False)
+    return int(completed.returncode)
+
+
+def cmd_deps(args: argparse.Namespace) -> int:
+    """Optional dependency stack: list / install / platforms / hermes auto-update timer."""
+    script = repository_root() / "scripts" / "station_deps_install.sh"
+    if not script.is_file():
+        raise StationError(f"missing {script}")
+    cmd = ["bash", str(script)]
+    if args.deps_command == "list":
+        cmd.append("--list")
+    elif args.deps_command == "platforms":
+        cmd.append("--platforms-guide")
+    elif args.deps_command == "enable-auto-update":
+        cmd.append("--enable-hermes-auto-update")
+    elif args.deps_command == "install":
+        if args.all:
+            cmd.append("--all")
+        for item in args.component or []:
+            cmd.extend(["--component", item])
+        if len(cmd) == 2:
+            raise ValidationError("pass --all or --component ID")
+    else:
+        raise ValidationError(f"unknown deps command: {args.deps_command}")
+    print("RUNNING", " ".join(cmd))
+    completed = subprocess.run(cmd, check=False)
+    return int(completed.returncode)
+
+
 def cmd_hermes_check(args: argparse.Namespace) -> int:
     from .hermes_updates import run_check
 
@@ -929,9 +969,26 @@ def build_parser() -> argparse.ArgumentParser:
 
     hermes = sub.add_parser("hermes")
     hermes_sub = hermes.add_subparsers(dest="hermes_command", required=True)
-    hermes_check = hermes_sub.add_parser("check")
+    hermes_check = hermes_sub.add_parser("check", help="Plan-only Hermes update check (never applies)")
     hermes_check.add_argument("--record", action="store_true")
     hermes_check.set_defaults(handler=cmd_hermes_check)
+    hermes_update = hermes_sub.add_parser("update", help="Explicitly apply Hermes update (hermes update)")
+    hermes_update.add_argument("--check-only", action="store_true")
+    hermes_update.add_argument("--backup", action="store_true")
+    hermes_update.set_defaults(handler=cmd_hermes_update)
+
+    deps = sub.add_parser("deps", help="Optional dependency stack (Langfuse, Honcho, Crawl4AI, ...)")
+    deps_sub = deps.add_subparsers(dest="deps_command", required=True)
+    deps_list = deps_sub.add_parser("list")
+    deps_list.set_defaults(handler=cmd_deps)
+    deps_platforms = deps_sub.add_parser("platforms")
+    deps_platforms.set_defaults(handler=cmd_deps)
+    deps_auto = deps_sub.add_parser("enable-auto-update")
+    deps_auto.set_defaults(handler=cmd_deps)
+    deps_install = deps_sub.add_parser("install")
+    deps_install.add_argument("--all", action="store_true")
+    deps_install.add_argument("--component", action="append", default=[])
+    deps_install.set_defaults(handler=cmd_deps)
 
     return parser
 

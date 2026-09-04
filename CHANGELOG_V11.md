@@ -1,3 +1,10 @@
+## 11.12 — Dependency stack + Hermes platforms
+
+- Pin Hermes `HERMES_RELEASE=v2026.8.31` in `config/versions.lock`; opt-in weekly auto-update timer.
+- Optional deps: Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI (`config/deps/stack.yaml`).
+- Easy multi-platform bots via Hermes gateway (`docs/dependencies/HERMES_PLATFORMS.md`).
+- CLI: `station hermes update`, `station deps {list,install,platforms,enable-auto-update}`.
+
 ## 11.12 — AGK-TUI integration
 
 - Vendored AGK-TUI at `components/agk-tui` (pin in `config/versions.lock`).

@@ -227,3 +227,18 @@ For a generic team Host:
 
 Bootstrap installs AGK-TUI for `agk-station` (skip with `--skip-agk-tui`).
 Then: `agk` or `station tui` for live sessions. Sync metadata: `~/.agentik/station-sync.json`.
+
+
+## Optional dependency stack + Hermes auto-update
+
+After bootstrap (`READY_FOR_SETUP`):
+
+```bash
+./scripts/station_hermes_update.sh check
+./scripts/station_hermes_update.sh update
+sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
+./scripts/station_deps_install.sh --list
+sudo ./scripts/station_deps_install.sh --all   # optional; scaffolds only
+```
+
+Multi-platform bots: `hermes gateway setup` then `hermes gateway start` (see `docs/dependencies/HERMES_PLATFORMS.md`).

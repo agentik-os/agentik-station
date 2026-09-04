@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "hermes-platforms",
+  "maturity": "INSTALLABLE",
+  "claim": "Hermes Messaging Gateway connects one bot process to Telegram Discord Slack WhatsApp Signal Email Teams and more; Station documents easy gateway setup. Live per-platform token enrollment remains operator-owned.",
+  "binary_probes": [],
+  "next_repair_action": "Run hermes gateway setup, enroll one test platform, hermes gateway start, then message readback."
+}

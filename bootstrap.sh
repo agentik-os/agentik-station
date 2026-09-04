@@ -202,4 +202,7 @@ Authentication remains operator-controlled:
   hermes setup
   codex              # follow the current sign-in flow
   # Claude Code: install/login separately, then open via agk
+  ./scripts/station_hermes_update.sh update
+  ./scripts/station_deps_install.sh --list
+  hermes gateway setup   # multi-platform bots
 EOF

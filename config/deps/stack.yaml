@@ -1,0 +1,72 @@
+# Agentik Station optional dependency stack (11.12+)
+# Maturity: SCAFFOLDED or INSTALLABLE until Host Doctor/readback proves more.
+schema_version: 1
+hermes:
+  track: main
+  release_pin: v2026.8.31
+  install_url: https://hermes-agent.nousresearch.com/install.sh
+  update_command: hermes update
+  check_command: hermes update --check
+  auto_update:
+    unit: station-hermes-update.timer
+    schedule: weekly
+    note: Opt-in via station deps enable hermes-auto-update; never silent root network.
+components:
+  - id: ponytail
+    repository: https://github.com/DietrichGebert/ponytail
+    role: Agent skill / YAGNI coding posture for Hermes + Claude Code
+    install: skill
+    maturity: SCAFFOLDED
+  - id: langfuse
+    repository: https://github.com/langfuse/langfuse
+    role: LLM observability / evals (self-hosted or cloud)
+    install: docker-compose-optional
+    maturity: SCAFFOLDED
+  - id: honcho
+    repository: https://github.com/plastic-labs/honcho
+    role: Stateful agent memory library
+    install: pip-optional
+    maturity: SCAFFOLDED
+  - id: hindsight
+    repository: https://github.com/vectorize-io/hindsight
+    role: Agent memory that learns
+    install: pip-optional
+    maturity: SCAFFOLDED
+  - id: tigervnc
+    repository: https://github.com/TigerVNC/tigervnc
+    role: High-performance VNC for remote desktop sessions
+    install: apt
+    packages: [tigervnc-standalone-server, tigervnc-viewer]
+    maturity: SCAFFOLDED
+  - id: crawl4ai
+    repository: https://github.com/unclecode/crawl4ai
+    role: LLM-friendly web crawler / scraper tool for agents
+    install: pip-optional
+    maturity: SCAFFOLDED
+platforms:
+  note: Hermes Messaging Gateway is the single process for multi-platform bots.
+  setup: hermes gateway setup
+  start: hermes gateway start
+  docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging
+  surfaces:
+    - Telegram
+    - Discord
+    - Slack
+    - WhatsApp
+    - Signal
+    - SMS
+    - Email
+    - Home Assistant
+    - Mattermost
+    - Matrix
+    - DingTalk
+    - Feishu/Lark
+    - WeCom
+    - Weixin
+    - BlueBubbles/iMessage
+    - QQ
+    - Yuanbao
+    - Microsoft Teams
+    - LINE
+    - ntfy
+    - browser

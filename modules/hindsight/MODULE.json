@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "hindsight",
+  "maturity": "SCAFFOLDED",
+  "claim": "Hindsight agent-memory dependency is declared for optional install; learning-store isolation pending.",
+  "binary_probes": [],
+  "next_repair_action": "Install per upstream README, bind to one Hermes profile, verify recall without exporting secrets to Control."
+}

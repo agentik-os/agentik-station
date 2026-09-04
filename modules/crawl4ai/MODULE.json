@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "id": "crawl4ai",
+  "maturity": "SCAFFOLDED",
+  "claim": "Crawl4AI LLM crawler is declared for optional user install; tool allowlist and network egress policy pending.",
+  "binary_probes": [],
+  "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
+}

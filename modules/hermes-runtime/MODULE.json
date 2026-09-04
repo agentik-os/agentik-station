@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "hermes-runtime",
   "maturity": "INSTALLABLE",
-  "claim": "AGK OS sources compile deterministically into Hermes Profile Distributions for Director and worker profiles; live profile installation and Hermes Doctor require an enrolled Hermes runtime.",
+  "claim": "AGK OS sources compile into Hermes Profile Distributions; bootstrap installs Hermes via official installer and versions.lock pins HERMES_RELEASE (auto-update via hermes update / station timer is opt-in). Live profile Doctor and fresh-session acceptance still require enrolled Hermes.",
   "binary_probes": [],
-  "next_repair_action": "Enroll Hermes on a disposable Zone, install compiled profiles, then pass Hermes/plugin Doctor and fresh-session acceptance."
+  "next_repair_action": "Enroll Hermes, run scripts/station_hermes_update.sh check, install compiled profiles, pass Hermes/plugin Doctor and fresh-session acceptance."
 }
