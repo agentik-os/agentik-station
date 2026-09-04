@@ -1,0 +1,12 @@
+[Unit]
+Description=Keep the AGK topology snapshot current
+
+[Timer]
+OnBootSec=20s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Persistent=true
+Unit=agk-topology-refresh.service
+
+[Install]
+WantedBy=timers.target

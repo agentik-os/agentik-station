@@ -1,0 +1,26 @@
+providers:
+  hermes:
+    command: hermes
+    install: https://hermes-agent.nousresearch.com/install.sh
+    role: primary-agent-runtime
+  claude:
+    command: claude
+    install: https://claude.ai/install.sh
+    role: coding-provider
+  codex:
+    command: codex
+    install: https://chatgpt.com/codex/install.sh
+    role: coding-provider
+  openrouter:
+    command: hermes --provider openrouter --model stealth/ox-alpha
+    setup: hermes setup model
+    role: hermes-model-provider
+  opencode:
+    command: opencode
+    install: https://opencode.ai/install
+    role: coding-provider
+  composio:
+    command: composio
+    connect: composio link TOOLKIT
+    list: composio tools list TOOLKIT
+    role: authenticated-tool-catalog

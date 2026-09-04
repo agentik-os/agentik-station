@@ -1,0 +1,14 @@
+{
+  "name": "agentik-os",
+  "label": "OS & Agents",
+  "description": "Validated Agentik OS packages, installed Hermes agents, and their linked runtime sessions.",
+  "icon": "Cpu",
+  "version": "0.5.0",
+  "tab": {
+    "path": "/os-agents",
+    "position": "after:skills"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}

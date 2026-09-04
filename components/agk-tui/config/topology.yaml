@@ -1,0 +1,86 @@
+schema_version: 1
+mode: multi-user
+machine_id: agk-core
+
+# Product code uses profile IDs. Linux users are runtime adapters resolved
+# only by TopologyManager, so a later mono-user migration does not change the
+# business model or Discord bindings.
+shared:
+  hermes_code: /opt/agk-terminal/hermes-agent
+  hermes_alias: /opt/agentik/hermes/current
+  os_registry: /opt/agentik/os-registry
+
+profiles:
+  operator:
+    display_name: Operator
+    runtime:
+      driver: linux-user
+      linux_user: operator
+    workspace: /home/operator/workspace
+    hermes_home: /home/operator/.hermes
+    rmux_scope: linux-user
+    workspace_layout:
+      - infrastructure
+      - security
+      - deployments
+      - monitoring
+      - automation
+      - deposit
+      - docs
+
+  agentik:
+    display_name: Agentik
+    runtime:
+      driver: linux-user
+      linux_user: agentik
+    workspace: /home/agentik/workspace
+    hermes_home: /home/agentik/.hermes
+    rmux_scope: linux-user
+    workspace_layout:
+      - projects
+      - products
+      - missions
+      - research
+      - content
+      - growth
+      - community
+      - knowledge
+      - artifacts
+
+  mission:
+    display_name: Mission
+    runtime:
+      driver: linux-user
+      linux_user: mission
+    workspace: /home/mission/workspace
+    hermes_home: /home/mission/.hermes
+    rmux_scope: linux-user
+    workspace_layout:
+      - clients
+      - internal
+      - shared
+    client_layout:
+      - .client
+      - projects
+      - missions
+      - knowledge
+      - artifacts
+      - infrastructure
+      - automation
+
+  private:
+    display_name: Private
+    runtime:
+      driver: linux-user
+      linux_user: private
+    workspace: /home/private/workspace
+    hermes_home: /home/private/.hermes
+    rmux_scope: linux-user
+    workspace_layout:
+      - projects
+      - journal
+      - goals
+      - learning
+      - research
+      - knowledge
+      - artifacts

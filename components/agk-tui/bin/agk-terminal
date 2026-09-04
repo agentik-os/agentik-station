@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_launcher() {
+  local path=$1 target
+  case "$path" in /*) ;; *) path=$PWD/$path ;; esac
+  while [ -L "$path" ]; do
+    target=$(readlink "$path")
+    case "$target" in
+      /*) path=$target ;;
+      *) path=$(dirname "$path")/$target ;;
+    esac
+  done
+  printf '%s/%s\n' "$(cd "$(dirname "$path")" && pwd -P)" "$(basename "$path")"
+}
+
+launcher=$(resolve_launcher "${BASH_SOURCE[0]}")
+prefix_root=$(cd "$(dirname "$launcher")/.." && pwd -P)
+install_root=${AGK_TERMINAL_ROOT:-$prefix_root/lib/agk-terminal}
+if [ -z "${HOME:-}" ]; then
+  HOME=$(getent passwd "$(id -u)" 2>/dev/null | cut -d: -f6 || true)
+  HOME=${HOME:-$(cd ~ && pwd -P)}
+  export HOME
+fi
+export PATH="$install_root/bin:$HOME/.local/bin:$PATH"
+command_name=${1:-help}
+shift || true
+
+case "$command_name" in
+  provider)
+    exec "$install_root/scripts/provider.sh" "$@"
+    ;;
+  composio)
+    subcommand=${1:-help}
+    shift || true
+    composio_auth=${COMPOSIO_AUTH_PATH:-${HOME:?HOME is required}/.composio/user_data.json}
+    composio_inventory=$install_root/scripts/composio_inventory.py
+    composio_logged_in() {
+      python3 - "$composio_auth" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+try:
+    value = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")).get("api_key")
+except (OSError, ValueError, AttributeError):
+    raise SystemExit(1)
+raise SystemExit(0 if isinstance(value, str) and value.strip() else 1)
+PY
+    }
+    composio_login() {
+      echo "Composio login required for AGK profile $(id -un) (HOME=$HOME)."
+      composio login
+      if ! composio_logged_in; then
+        echo "Composio login did not complete for profile $(id -un)." >&2
+        return 1
+      fi
+      chmod 600 "$composio_auth"
+    }
+    case "$subcommand" in
+      login)
+        composio_login
+        "$composio_inventory" refresh >/dev/null
+        exec composio whoami
+        ;;
+      connect)
+        toolkit=${1:?usage: agk-terminal composio connect TOOLKIT}
+        shift
+        if ! composio_logged_in; then
+          composio_login
+        fi
+        composio link "$toolkit" "$@"
+        exec "$composio_inventory" refresh
+        ;;
+      list)
+        if [ "$#" -eq 0 ]; then
+          exec "$composio_inventory" refresh
+        fi
+        toolkit=$1
+        exec composio tools list "$toolkit"
+        ;;
+      connections|refresh)
+        exec "$composio_inventory" refresh
+        ;;
+      search)
+        [ "$#" -gt 0 ] || { echo "usage: agk-terminal composio search TASK" >&2; exit 2; }
+        exec composio search "$@" --human
+        ;;
+      status)
+        if ! composio_logged_in; then
+          echo "Composio · $(id -un) · SETUP REQUIRED"
+          echo "Run: agk composio login"
+          exit 1
+        fi
+        exec composio whoami
+        ;;
+      *)
+        echo "usage: agk-terminal composio {login|connect|connections|list|search|status}" >&2
+        exit 2
+        ;;
+    esac
+    ;;
+  hermes)
+    subcommand=${1:-help}
+    shift || true
+    case "$subcommand" in
+      sync) exec "$install_root/scripts/sync-hermes.sh" "$@" ;;
+      install-shared) exec "$install_root/scripts/install-shared-hermes.sh" "$@" ;;
+      gateway) exec hermes gateway "$@" ;;
+      *) echo "usage: agk-terminal hermes {sync|install-shared|gateway}" >&2; exit 2 ;;
+    esac
+    ;;
+  topology)
+    exec "$install_root/scripts/topology.py" "$@"
+    ;;
+  doctor)
+    exec "$install_root/scripts/doctor.sh" "$@"
+    ;;
+  help|-h|--help)
+    echo "AGK-TUI"
+    echo "  agk-terminal doctor"
+    echo "  agk-terminal provider {list|verify|install} [provider]"
+    echo "  agk-terminal composio {login|connect|connections|list|search|status} ..."
+    echo "  agk-terminal hermes {sync|install-shared|gateway}"
+    echo "  agk-terminal topology {detect|status|resolve|apply|refresh}"
+    ;;
+  *)
+    echo "unknown command: $command_name" >&2
+    exit 2
+    ;;
+esac

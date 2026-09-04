@@ -700,6 +700,36 @@ def cmd_backup_check(args: argparse.Namespace) -> int:
     return 0 if payload.get("verified") else 1
 
 
+
+def cmd_tui(args: argparse.Namespace) -> int:
+    """Open AGK-TUI (Hermes / Codex / Claude Code / terminal sessions via RMUX)."""
+    import os
+    import shutil
+    # Prefer installed launcher, then repo-local component wrapper.
+    candidates = []
+    which = shutil.which('agk')
+    if which:
+        candidates.append(which)
+    home = Path.home()
+    candidates.extend([
+        home / '.local' / 'bin' / 'agk',
+        Path('/usr/local/bin/agk'),
+    ])
+    repo = Path(__file__).resolve().parents[2]
+    candidates.append(repo / 'components' / 'agk-tui' / 'bin' / 'agk')
+    target = next((Path(p) for p in candidates if Path(p).exists() and os.access(p, os.X_OK)), None)
+    if target is None:
+        print('ERROR: AGK-TUI launcher `agk` not found. Install via bootstrap or components/agk-tui/install.sh.', file=sys.stderr)
+        print('STATE: DEGRADED', file=sys.stderr)
+        print('NEXT: sudo ./bootstrap.sh (or re-run with AGK-TUI enabled), then station tui.', file=sys.stderr)
+        return 2
+    os.environ.setdefault('AGK_ENVIRONMENT', os.environ.get('USER') or Path.home().name)
+    # Forward remaining argv after `tui`
+    extra = list(getattr(args, 'tui_args', []) or [])
+    os.execv(str(target), [str(target), *extra])
+    return 0  # unreachable
+
+
 def cmd_recovery_rehearse(args: argparse.Namespace) -> int:
     from .providers.backup import restore_to_staging
     plan = _load_backup_plan(args.plan)
@@ -891,6 +921,11 @@ def build_parser() -> argparse.ArgumentParser:
     rollback = release_sub.add_parser("rollback")
     rollback.add_argument("--to", required=True)
     rollback.set_defaults(handler=cmd_release_rollback)
+
+
+    tui = sub.add_parser("tui", help="Open AGK-TUI live sessions (Hermes, Codex, Claude Code, terminal)")
+    tui.add_argument("tui_args", nargs=argparse.REMAINDER, help="Optional args forwarded to agk")
+    tui.set_defaults(handler=cmd_tui)
 
     hermes = sub.add_parser("hermes")
     hermes_sub = hermes.add_subparsers(dest="hermes_command", required=True)

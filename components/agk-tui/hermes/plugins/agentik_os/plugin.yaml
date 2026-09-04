@@ -1,0 +1,8 @@
+name: agentik-os
+version: 0.3.1
+description: "Canonical Agentik OS command, state, Operative System registry, specialized-agent, and Hermes dashboard integration layer."
+author: "Agentik OS"
+kind: standalone
+provides_tools:
+  - agentik_runtime
+  - agentik_agent

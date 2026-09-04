@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_launcher() {
+  local path=$1 target
+  case "$path" in /*) ;; *) path=$PWD/$path ;; esac
+  while [ -L "$path" ]; do
+    target=$(readlink "$path")
+    case "$target" in
+      /*) path=$target ;;
+      *) path=$(dirname "$path")/$target ;;
+    esac
+  done
+  printf '%s/%s\n' "$(cd "$(dirname "$path")" && pwd -P)" "$(basename "$path")"
+}
+
+launcher=$(resolve_launcher "${BASH_SOURCE[0]}")
+prefix_root=$(cd "$(dirname "$launcher")/.." && pwd -P)
+install_root=${AGK_TERMINAL_ROOT:-$prefix_root/lib/agk-terminal}
+# USER is not guaranteed to exist in SSH, systemd, gateway, or exec-based
+# launches. The native TUI uses AGK_ENVIRONMENT to select control.db rows, so
+# derive it from the effective Linux identity unless explicitly overridden.
+export AGK_ENVIRONMENT=${AGK_ENVIRONMENT:-$(id -un)}
+export AGK_TERMINAL_ROOT=$install_root
+export PATH="$install_root/bin:$HOME/.local/bin:$PATH"
+
+case "${1:-}" in
+  client)
+    shift
+    if [ -x "$install_root/venv/bin/python" ]; then
+      exec "$install_root/venv/bin/python" "$install_root/scripts/client_control.py" "$@"
+    fi
+    exec python3 "$install_root/scripts/client_control.py" "$@"
+    ;;
+  provider|composio|hermes|topology|doctor)
+    exec agk-terminal "$@"
+    ;;
+  help|-h|--help)
+    cat <<'EOF'
+AGK-TUI · RMUX control plane
+
+Interactive:
+  agk
+
+Sessions:
+  agk {status|sessions|projects|agents|os|mcp|skills|rules|system}
+  agk new TYPE NAME [--cwd PATH] [--client ID] [--project ID]
+  agk specialist start AGENT_ID
+  agk {open|resume|info|archive|restart} SESSION
+  agk close SESSION --yes
+  agk kill SESSION --yes
+  agk purge SESSION --yes
+  agk rename SESSION NAME
+  agk fork SESSION NAME
+  agk reconcile
+
+Setup and health:
+  agk doctor
+  agk client {bootstrap|init|list|show|doctor|integrations|linear|discord|work|run}
+  agk provider {list|verify|install} [PROVIDER]
+  agk composio {login|connect|connections|list|search|status} ...
+  agk hermes {sync|install-shared|gateway}
+  agk topology {detect|status|resolve|apply|refresh}
+EOF
+    exit 0
+    ;;
+esac
+
+if [ "$#" -eq 0 ] && [ -x "$install_root/bin/agk-tui" ]; then
+  exec "$install_root/bin/agk-tui"
+fi
+if [ -x "$install_root/venv/bin/python" ]; then
+  exec "$install_root/venv/bin/python" "$install_root/scripts/agk_control.py" "$@"
+fi
+exec "$install_root/scripts/agk_control.py" "$@"

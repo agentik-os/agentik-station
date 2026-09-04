@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+repository=agentik-os/AGK-TUI
+ref=${AGK_TUI_REF:-main}
+bootstrap_args=()
+
+usage() {
+  cat <<'EOF'
+AGK-TUI online installer
+
+Usage:
+  # Debian/Ubuntu VPS
+  curl -fsSL https://raw.githubusercontent.com/agentik-os/AGK-TUI/main/install | sudo bash
+
+  # macOS (run as your normal user)
+  curl -fsSL https://raw.githubusercontent.com/agentik-os/AGK-TUI/main/install | bash
+
+Options:
+  --core-only      Skip optional Claude Code, Codex and OpenCode installation
+  --skip-packages  Require an already provisioned host toolchain
+  --dry-run        Print the full installation plan without changing the host
+  --ref REF        Install a specific branch, tag or commit (default: main)
+  -h, --help       Show this help
+
+Environment:
+  AGK_TUI_REF      Alternative way to select a branch, tag or commit
+EOF
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --ref)
+      ref=${2:?missing ref}
+      shift 2
+      ;;
+    --core-only|--skip-packages|--dry-run)
+      bootstrap_args+=("$1")
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [[ ! "$ref" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+  echo "invalid AGK-TUI ref: $ref" >&2
+  exit 2
+fi
+
+dry_run=false
+for argument in "${bootstrap_args[@]}"; do
+  if [ "$argument" = "--dry-run" ]; then
+    dry_run=true
+  fi
+done
+platform=$(uname -s)
+case "$platform" in
+  Linux)
+    bootstrap=bootstrap-vps.sh
+    mode="fresh Debian/Ubuntu VPS"
+    if [ "$dry_run" = false ] && [ "$(id -u)" -ne 0 ]; then
+      echo "AGK-TUI Linux installation needs root privileges." >&2
+      echo "Run the curl command with: | sudo bash" >&2
+      exit 1
+    fi
+    ;;
+  Darwin)
+    bootstrap=bootstrap-macos.sh
+    mode="single-user macOS profile"
+    if [ "$dry_run" = false ] && [ "$(id -u)" -eq 0 ]; then
+      echo "Run the macOS installation as your normal user, without sudo." >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "unsupported AGK-TUI platform: $platform" >&2
+    exit 1
+    ;;
+esac
+
+for command in curl tar mktemp awk; do
+  command -v "$command" >/dev/null || {
+    echo "required bootstrap command is missing: $command" >&2
+    exit 1
+  }
+done
+
+temporary=$(mktemp -d -t agk-tui-online.XXXXXX)
+cleanup() {
+  if [ -n "${temporary:-}" ] && [ -d "$temporary" ]; then
+    rm -rf -- "$temporary"
+  fi
+}
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+archive=$temporary/source.tar.gz
+source_dir=$temporary/source
+archive_url="https://codeload.github.com/$repository/tar.gz/$ref"
+
+printf 'AGK-TUI online installer\n'
+printf '  source: https://github.com/%s @ %s\n' "$repository" "$ref"
+printf '  mode:   %s\n\n' "$mode"
+
+curl --proto '=https' --tlsv1.2 --retry 3 --retry-all-errors \
+  -fsSL "$archive_url" -o "$archive"
+
+if ! tar -tzf "$archive" | awk '
+  /^\// || /(^|\/)\.\.(\/|$)/ { unsafe = 1 }
+  END { exit unsafe }
+'; then
+  echo "refusing an archive with unsafe paths" >&2
+  exit 1
+fi
+
+mkdir -p "$source_dir"
+if [ "$platform" = Linux ]; then
+  tar -xzf "$archive" --strip-components=1 --no-same-owner -C "$source_dir"
+else
+  tar -xzf "$archive" --strip-components=1 -C "$source_dir"
+fi
+for expected in bootstrap-vps.sh bootstrap-macos.sh install.sh \
+  scripts/repair-rmux-daemon.sh apps/agk-tui/Cargo.toml
+do
+  [ -e "$source_dir/$expected" ] || {
+    echo "downloaded AGK-TUI archive is incomplete: missing $expected" >&2
+    exit 1
+  }
+done
+
+# The temporary tree contains only the validated public archive. Linux builds
+# as `operator`; macOS builds inside the current single-user profile.
+chmod 0755 "$temporary" "$source_dir"
+chmod -R a+rX "$source_dir"
+
+bash "$source_dir/$bootstrap" "${bootstrap_args[@]}"

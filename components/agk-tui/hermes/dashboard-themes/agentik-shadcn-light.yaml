@@ -1,0 +1,227 @@
+name: agentik-shadcn-light
+label: Agentik Linear Light
+description: A bright Linear-first workspace with compact shadcn-style surfaces.
+palette:
+  background:
+    hex: "#fbfbfa"
+    alpha: 1
+  midground:
+    hex: "#1f1f1e"
+    alpha: 1
+  foreground:
+    hex: "#000000"
+    alpha: 0
+  warmGlow: "rgba(0, 0, 0, 0)"
+  noiseOpacity: 0
+typography:
+  fontSans: "Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+  fontMono: "Geist Mono, SFMono-Regular, Cascadia Code, Roboto Mono, Menlo, monospace"
+  fontDisplay: "Geist, Inter, ui-sans-serif, system-ui, sans-serif"
+  baseSize: "14px"
+  lineHeight: "1.5"
+  letterSpacing: "-0.005em"
+layout:
+  radius: "0.625rem"
+  density: compact
+layoutVariant: standard
+colorOverrides:
+  card: "#ffffff"
+  cardForeground: "#1f1f1e"
+  popover: "#ffffff"
+  popoverForeground: "#1f1f1e"
+  primary: "#1f1f1e"
+  primaryForeground: "#ffffff"
+  secondary: "#f0f0ee"
+  secondaryForeground: "#1f1f1e"
+  muted: "#f0f0ee"
+  mutedForeground: "#737370"
+  accent: "#e9e9e6"
+  accentForeground: "#1f1f1e"
+  destructive: "#dc2626"
+  destructiveForeground: "#ffffff"
+  success: "#16803c"
+  warning: "#b45309"
+  border: "#dfdfdc"
+  input: "#d2d2ce"
+  ring: "#8a8a86"
+componentStyles:
+  card:
+    background: "#ffffff"
+    boxShadow: "none"
+    clipPath: "none"
+  header:
+    background: "#fbfbfa"
+    clipPath: "none"
+  sidebar:
+    background: "#f7f7f5"
+    clipPath: "none"
+  tab:
+    clipPath: "none"
+  page:
+    background: "#fbfbfa"
+customCSS: |
+  :root {
+    color-scheme: light;
+    --agk-ui-panel-radius: 0.75rem;
+    --agk-ui-card-radius: 0.625rem;
+    --agk-ui-control-radius: 0.5rem;
+  }
+  #root,
+  #root button,
+  #root input,
+  #root select,
+  #root textarea,
+  #root [class*="font-mondwest"],
+  #root [class*="font-compressed"],
+  #root [class*="font-expanded"],
+  #root [class*="font-courier"] {
+    font-family: var(--theme-font-sans) !important;
+    font-style: normal;
+  }
+  #root code,
+  #root kbd,
+  #root [class*="font-mono"] {
+    font-family: var(--theme-font-mono) !important;
+  }
+  #root h1,
+  #root h2,
+  #root h3,
+  #root h4 {
+    font-family: var(--theme-font-sans);
+    font-weight: 600;
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+  }
+  #root .uppercase,
+  #root [class*="uppercase"] {
+    letter-spacing: -0.01em !important;
+    text-transform: none !important;
+  }
+  #root .tracking-wider,
+  #root .tracking-widest,
+  #root [class*="tracking-["] {
+    letter-spacing: 0 !important;
+  }
+  #root button,
+  #root [role="button"],
+  #root input,
+  #root select,
+  #root textarea {
+    border-radius: var(--agk-ui-control-radius) !important;
+    box-shadow: none !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+  #root [class*="shadow-"],
+  #root .arc-border {
+    box-shadow: none !important;
+    clip-path: none !important;
+  }
+  #root .arc-border {
+    display: none !important;
+  }
+  #root main .contents > .flex.flex-col.gap-8 {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-top: 0;
+  }
+  #root main .contents > .flex.flex-col.gap-8 > section {
+    gap: 0.75rem;
+  }
+  #root main .contents > .flex.flex-col.gap-8 > section > h2 {
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  #root main .border.border-border,
+  #root main [class*="border-midground/15"] {
+    border-color: var(--color-border) !important;
+    border-radius: var(--agk-ui-card-radius) !important;
+  }
+  #root main .border.border-border {
+    background: color-mix(in srgb, var(--color-card) 84%, var(--color-background));
+  }
+  #root main [class*="border-b"]:not(input):not(button),
+  #root main [class*="border-t"]:not(input):not(button) {
+    border-color: var(--color-border) !important;
+  }
+  #root [role="tablist"],
+  #root [role="listbox"],
+  #root [role="menu"] {
+    border-radius: var(--agk-ui-card-radius) !important;
+    box-shadow: none !important;
+  }
+  #root [class*="font-compressed"][class*="inline-flex"] {
+    border-radius: 999px !important;
+    font-size: 0.6875rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+  }
+  #app-sidebar {
+    border-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-card) 38%, var(--color-background));
+  }
+  #app-sidebar > div:first-child {
+    height: 3.5rem;
+    border-color: var(--color-border);
+  }
+  #app-sidebar > div:first-child .uppercase {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  #app-sidebar nav {
+    padding: 0.5rem;
+    border-top: 0;
+  }
+  #app-sidebar nav ul {
+    gap: 0.125rem;
+  }
+  #app-sidebar nav a {
+    gap: 0.625rem;
+    padding: 0.4375rem 0.625rem;
+    border-radius: var(--agk-ui-control-radius);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+  #app-sidebar nav a > div.absolute {
+    inset: 0 !important;
+    border-radius: var(--agk-ui-control-radius);
+  }
+  #app-sidebar nav a[aria-current="page"] {
+    background: var(--color-secondary);
+  }
+  #app-sidebar nav a[aria-current="page"] > span:last-child {
+    display: none;
+  }
+  #app-sidebar nav a > svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  #app-sidebar nav a > span:last-child {
+    border-radius: 0.5rem;
+  }
+  #hermes-sidebar-plugin-nav-heading {
+    padding: 0.7rem 0.625rem 0.3rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  @media (min-width: 1024px) {
+    #root main {
+      padding: 1rem 1.125rem 1.125rem !important;
+    }
+  }
+  @media (max-width: 640px) {
+    #root main {
+      padding-inline: 0.625rem !important;
+    }
+    #root main .border.border-border,
+    #root main [class*="border-midground/15"] {
+      border-radius: 0.5rem !important;
+    }
+  }

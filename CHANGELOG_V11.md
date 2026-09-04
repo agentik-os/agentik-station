@@ -1,3 +1,10 @@
+## 11.12 — AGK-TUI integration
+
+- Vendored AGK-TUI at `components/agk-tui` (pin in `config/versions.lock`).
+- Bootstrap installs AGK-TUI for `agk-station` (`--skip-agk-tui` to skip).
+- Commands: `agk` and `station tui` for live Hermes/Codex/Claude/terminal sessions.
+- `scripts/station_agk_sync.py` writes `~/.agentik/station-sync.json` and best-effort reconcile.
+
 # Agentik Station v11
 
 **Product release:** `11.12`  

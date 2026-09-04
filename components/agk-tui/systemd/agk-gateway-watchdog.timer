@@ -1,0 +1,12 @@
+[Unit]
+Description=Check AGK profile gateways every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=60s
+AccuracySec=10s
+Persistent=true
+Unit=agk-gateway-watchdog.service
+
+[Install]
+WantedBy=timers.target

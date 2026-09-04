@@ -1,0 +1,23 @@
+[Unit]
+Description=Hermes browser dashboard (@PROFILE_USER@)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment=HOME=@PROFILE_HOME@
+Environment=HERMES_HOME=@PROFILE_HOME@/.hermes
+EnvironmentFile=-@PROFILE_HOME@/.hermes/secrets/serve.env
+ExecStart=/usr/local/bin/hermes dashboard --host 127.0.0.1 --port @PORT@ --no-open --skip-build
+WorkingDirectory=@PROFILE_HOME@/.hermes
+Restart=always
+RestartSec=3
+KillMode=mixed
+TimeoutStopSec=30
+UMask=0077
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

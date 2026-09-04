@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+slug=${1:?usage: provision-client SLUG NAME [DISCORD_GUILD_ID] [options]}
+name=${2:?usage: provision-client SLUG NAME [DISCORD_GUILD_ID] [options]}
+guild=${3:-}
+if [[ "$guild" = --* ]]; then
+  guild=
+  shift 2
+elif [ "$#" -ge 3 ]; then
+  shift 3
+else
+  shift 2
+fi
+
+arguments=(client init "$slug" --name "$name")
+if [ -n "$guild" ]; then
+  arguments+=(--discord-guild "$guild")
+fi
+exec agk "${arguments[@]}" "$@"

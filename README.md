@@ -241,3 +241,8 @@ Repository Doctor
 ```
 
 Generic client and project examples use only `organization-alpha` and `example-project`. No real client or personal project identity belongs in the canonical repository.
+
+## AGK-TUI (live sessions)
+
+After bootstrap, open Hermes / Codex / Claude Code / terminal sessions with `agk` or `station tui`.
+Vendored at `components/agk-tui` (pin in `config/versions.lock`). See `INTEGRATION_AGK_TUI.md`.

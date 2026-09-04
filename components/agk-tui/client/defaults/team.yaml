@@ -1,0 +1,107 @@
+schema_version: 2
+instantiation: on_demand
+orchestrator:
+  role: project-manager
+  provider: hermes
+roles:
+  project-manager:
+    group: product
+    scope: delivery-orchestration
+    max_level: L2
+    responsibilities: [dev-request-intake, client-intake, linear-planning, plan-proposal-before-execution, feedback-to-delivery-promotion, decomposition-coordination, agent-routing, delivery-status, risk-escalation, acceptance-coordination]
+  product-manager:
+    group: product
+    scope: product-direction
+    reports_to: project-manager
+    max_level: L1
+    responsibilities: [product-discovery, roadmap, specifications, issue-quality, acceptance-criteria]
+  meeting-intake-coordinator:
+    group: product
+    scope: drive-to-linear
+    reports_to: project-manager
+    max_level: L1
+    responsibilities: [drive-summary-intake, action-item-extraction, linear-task-creation, linear-progress-sync, deduplication, human-gate-escalation]
+  tech-lead:
+    group: engineering
+    max_level: L2
+    responsibilities: [full-issue-and-history-review, architecture, decomposition, code-review, engineering-arbitration]
+  product-engineer:
+    group: engineering
+    max_level: L2
+    responsibilities: [product-implementation, integration, pull-requests]
+  frontend-engineer:
+    group: engineering
+    max_level: L2
+    responsibilities: [frontend, accessibility, visual-integration]
+  backend-engineer:
+    group: engineering
+    max_level: L2
+    responsibilities: [backend, data-contracts, integrations]
+  qa-engineer:
+    group: quality
+    max_level: L2
+    responsibilities: [functional-tests, regression-tests, real-browser-navigation, console-and-network-inspection, edge-case-and-incoherence-search, screenshot-evidence, acceptance-evidence]
+  visual-qa:
+    group: quality
+    max_level: L2
+    responsibilities: [design-conformance, responsive-validation, visual-regressions, before-after-screenshots, deployed-surface-navigation]
+  designer:
+    group: design
+    max_level: L1
+    responsibilities: [ux, ui, figma, design-review]
+  platform-lead:
+    group: platform
+    max_level: L3
+    responsibilities: [infrastructure-plan, orchestration, risk-arbitration]
+  ci-cd-engineer:
+    group: platform
+    max_level: L2
+    responsibilities: [builds, pipelines, deployment-automation]
+  infrastructure-engineer:
+    group: platform
+    max_level: L2
+    responsibilities: [vps, containers, networking, dns-planning]
+  security-engineer:
+    group: platform
+    max_level: L2
+    responsibilities: [secrets, permissions, dependencies, vulnerability-review]
+  sre-observability:
+    group: platform
+    max_level: L3
+    responsibilities: [logs, metrics, health-checks, incidents, rollback-advice]
+  release-manager:
+    group: platform
+    max_level: L3
+    responsibilities: [release-evidence, staging, production, rollback]
+  finops:
+    group: platform
+    max_level: L1
+    responsibilities: [cloud-cost, budgets, resource-anomalies]
+provider_policy:
+  primary_orchestrator: hermes
+  coding: [codex, claude, opencode, hermes]
+  review: [hermes, codex, claude]
+  fallback_requires_record: true
+discord_channels:
+  dev_requests: dev-requests
+  product: team-product
+  engineering: team-engineering
+  quality: team-quality
+  platform: team-platform
+  design: team-design
+execution_model:
+  client_profile: dedicated
+  agents: on_demand_preserved_sessions
+  discord_identity: dedicated_client_project_manager_bot
+  production_gate: cto_required
+  supervision_surface: agk_tui
+  specialist_sessions: preserved_and_visible
+agent_collaboration:
+  project_manager_routes_work: true
+  shared_context: [linear_issue, work_record, evidence_comments, linked_preserved_sessions]
+  handoff_requires: [owner, requested_input, expected_output, current_evidence, blockers]
+  changes_requested_resumes_same_session: true
+human_gates:
+  issue_human_only_fields: [human_decision, human_approval, production_authorization]
+  agents_may_propose: true
+  agents_may_complete_human_fields: false

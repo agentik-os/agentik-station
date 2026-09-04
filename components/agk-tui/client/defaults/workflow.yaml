@@ -1,0 +1,151 @@
+schema_version: 4
+source_of_truth:
+  work: linear
+  code: github
+  design: figma
+  execution: hermes
+  human_decisions: discord_and_authorized_linear_state
+  orchestration: agk
+invariants:
+  linear_issue_required: true
+  full_issue_context_required: true
+  backlog_is_passive: true
+  explicit_human_start_authorization_required: true
+  preserve_session_on_changes: true
+  preserve_issue_branch_and_pr_on_changes: true
+  coding_complete_is_not_qa_complete: true
+  real_navigation_required: true
+  screenshots_required_for_review: true
+  engineering_approval_is_not_deploy_authorization: true
+  agents_never_mark_approved_for_prod: true
+  agents_never_mark_done: true
+intake:
+  discord_channel: dev-requests
+  feedback_and_delivery_separated: true
+  feedback_promotion: linked_issue_only
+  project_manager_must_propose_plan: true
+  product_definition_requires: [title, source, requester, business_and_product_context, problem, requested_outcome, user_and_business_impact, full_issue_description, complete_comment_history, attachments_and_screenshots, acceptance_criteria, technical_context, affected_repositories_and_services, dependencies, security_and_data_constraints, test_plan, real_navigation_requirements, staging_and_deployment_requirements, evidence_plan, rollback_considerations, links_to_source_mission_pr_release_incident_and_decisions, risks]
+statuses: [backlog, todo, in_progress, blocked, agent_review, automated_qa, failed_qa, security_review, failed_security, staging, business_review, ready_for_cto, changes_requested, cto_approved, ready_to_deploy, production, failed_deploy, rollback, verified, done]
+display_names:
+  backlog: Product Definition
+  todo: Ready for Engineering
+  in_progress: In Progress
+  blocked: Blocked
+  agent_review: Engineering Review
+  automated_qa: QA
+  failed_qa: Failed QA
+  security_review: Security Review
+  failed_security: Failed Security
+  staging: Staging
+  business_review: Business Review
+  ready_for_cto: CTO Review
+  changes_requested: Changes Requested
+  cto_approved: Approved for Prod
+  ready_to_deploy: Release Queued
+  production: Deploying
+  failed_deploy: Failed Deploy
+  rollback: Rollback
+  verified: Production Verify
+  done: Done
+transitions:
+  backlog: [todo, blocked]
+  todo: [in_progress, blocked]
+  in_progress: [agent_review, blocked]
+  agent_review: [automated_qa, in_progress, blocked]
+  automated_qa: [security_review, failed_qa, in_progress, blocked]
+  failed_qa: [in_progress, blocked]
+  security_review: [staging, failed_security, in_progress, blocked]
+  failed_security: [in_progress, blocked]
+  staging: [business_review, in_progress, blocked]
+  business_review: [ready_for_cto, changes_requested]
+  ready_for_cto: [changes_requested, cto_approved]
+  changes_requested: [in_progress]
+  cto_approved: [ready_to_deploy]
+  ready_to_deploy: [production, failed_deploy]
+  production: [verified, failed_deploy, rollback]
+  failed_deploy: [ready_to_deploy, rollback, blocked]
+  rollback: [in_progress, verified, blocked]
+  verified: [done, rollback, blocked]
+  done: []
+  blocked: [in_progress, todo]
+human_start_authorization:
+  target_state: todo
+  accepted_sources: [discord_start_mission]
+  record_requires: [actor, source, timestamp, client, project, issue, scope, priority, constraints]
+harness_engineering_loop:
+  claim:
+    set_linear_status: in_progress
+    preserve_session: true
+  understand:
+    required_reads: [full_issue_description, all_comments, attachments, screenshots, linked_feedback_or_parent_issue, existing_prs_and_commits, affected_code_and_docs]
+    output: [problem_statement, fact_assumption_decision_question_risk_map, expected_vs_actual, acceptance_criteria, implementation_plan, test_plan, security_risk, deployment_risk, rollback_plan]
+  implement:
+    method: vertical_slices
+    test_policy: test_first
+    branch_per_issue: true
+    no_unrelated_changes: true
+  engineering_review:
+    required: [diff_review, architecture_review, typecheck_or_compile, targeted_tests, full_relevant_test_suite, regression_risk_review, documentation_review]
+  qa:
+    environment: deployed_non_production
+    browser: exact_authenticated_client_profile_from_runtime
+    authentication_reprobe_after_restart: true
+    forbid_personal_anonymous_or_cross_client_profile: true
+    evidence_delivery: [discord_team_quality_attachment, linear_attachment, signed_qa_receipt]
+    required: [dismiss_or_document_obstructing_overlays, test_mobile_390x844, test_ipad_820x1180, test_desktop_1440x900, test_large_desktop_1920x1080, capture_full_page_unobstructed_evidence, navigate_real_user_flow, test_happy_path, test_edge_and_error_paths, verify_permissions_and_tenant_isolation, verify_visual_and_responsive_coherence, inspect_console_errors, inspect_failed_network_requests, verify_api_database_and_integrations, search_for_incoherent_or_non_logical_behavior, capture_before_after_and_error_screenshots, attach_test_evidence_to_linear]
+  correction_loop:
+    on_failure: return_to_in_progress
+    preserve: [linear_issue, branch, pull_request, hermes_session, work_record, evidence_history]
+    repeat_until: [acceptance_criteria_pass, no_known_blocking_bug, real_navigation_passes, mandatory_gates_pass, evidence_is_complete]
+security_review:
+  proportional_to_risk: true
+  mandatory_for: [authentication, authorization, payments, permissions, pii, production_database_migration, infrastructure, secrets, billing, compliance]
+gates:
+  security_review:
+    requires: [security_report_or_recorded_not_required_decision]
+  staging:
+    requires: [pull_request, ci_passed, engineering_review_passed, qa_passed, security_passed_or_not_required, staging_url, commit_sha, build_version]
+  business_review:
+    human_decision_required: true
+    requires: [staging_preview, qa_evidence, business_acceptance_result, business_reviewer_actor, business_review_timestamp, business_review_decision_id]
+  ready_for_cto:
+    requires: [pull_request, ci_passed, engineering_review_passed, qa_passed, security_passed_or_not_required, staging_preview, business_review_passed, business_review_decision_id, screenshots, exact_validation_steps, risk_and_rollback]
+    validation_request_channel: cto_inbox
+    validation_request_requires: [staging_url, exact_pr, exact_head_sha, tests, security_disposition, screenshots, risk, rollback]
+  cto_approved:
+    human_only: true
+    requires: [authorized_production_approval, approval_actor, approval_timestamp, approved_issue, approved_pr, approved_head_sha]
+  ready_to_deploy:
+    system_only: true
+    requires: [release_controller_gate_validation, immutable_release_run]
+  production:
+    system_only: true
+  verified:
+    requires: [deployment_succeeded, service_health, critical_endpoints, logs_and_errors, latency, data_health, integration_health, critical_real_user_flow]
+  done:
+    human_only: true
+    requires: [production_health_verified, evidence_complete, documentation_updated_when_needed, human_marked_done_in_linear]
+    agents_forbidden_from_provider_state_mutation: true
+release_controller:
+  enabled: false
+  operational_acceptance_verified: false
+  mode: dry_run_until_acceptance_test
+  trigger: authorized_linear_state_approved_for_prod
+  fail_closed: true
+  dedupe_key: linear_issue+approval_id+pr_head_sha
+  merge_method: github_api_or_merge_queue
+  never: [raw_git_push, merge_unverified_head, deploy_without_human_approval, infer_approval_from_ambiguous_chat]
+agent_communication:
+  project_manager_is_orchestrator: true
+  hermes_is_execution_brain: true
+  supervision_surface: agk_tui
+  specialists_share_context_through: [linear_issue, work_record, durable_kanban, linked_agent_sessions, evidence_comments, discord_team_channels]
+  communication_rules: [every_handoff_names_owner_input_output_evidence_and_blockers, agents_comment_material_findings_on_linear, debug_stream_goes_to_agent_activity, owner_decisions_go_to_cto_inbox_reviews_or_authorized_linear_state, discord_never_replaces_linear_status]
+linear_evidence_policy:
+  comment_every_material_gate: true
+  attach_all_required_viewports: true
+  preserve_failed_attempts_and_corrections: true
+  required_comment_sections: [status_and_gate, issue_work_task_and_session_ids, expected_vs_actual, exact_url_environment_build_and_viewport, steps_executed, commands_and_results, console_and_network_findings, screenshot_and_attachment_index, pr_and_exact_head_sha, ci_review_security_and_staging, risk_and_rollback, blockers_and_next_human_action]
+  required_viewport_attachments: [mobile_390x844, ipad_820x1180, desktop_1440x900, large_desktop_1920x1080, contact_sheet]
+  include: [before, after, failure, correction_loop, final_validation]
+  never: [claim_pass_without_attachments, replace_linear_with_discord_only, omit_failed_attempts, expose_secrets_or_patient_data]

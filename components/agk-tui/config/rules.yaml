@@ -1,0 +1,37 @@
+version: 1
+rules:
+  - id: complete-request-ledger
+    title: Complete every requested item
+    enabled: true
+    providers: ["*"]
+    content: >-
+      Track every explicit requirement from the user as a delivery checklist. Do not silently
+      drop, replace, or postpone an item. Before finishing, verify each requested behavior and
+      clearly report anything that remains blocked.
+
+  - id: preserve-user-work
+    title: Preserve existing user work
+    enabled: true
+    providers: ["*"]
+    content: >-
+      Treat existing files, sessions, configuration, and uncommitted changes as user-owned.
+      Make scoped changes, preserve unrelated work, and ask before destructive actions whose
+      exact target is not already explicit.
+
+  - id: verify-real-runtime
+    title: Verify the real runtime
+    enabled: true
+    providers: ["*"]
+    content: >-
+      For implementation work, validate the real user-visible flow in addition to unit tests.
+      Do not claim success from code inspection alone when the terminal, provider, gateway, or
+      session behavior can be exercised safely.
+
+  - id: respect-profile-boundaries
+    title: Respect profile boundaries
+    enabled: true
+    providers: ["*"]
+    content: >-
+      Keep Operator, Agentik, Mission, and Private state inside their configured runtime and
+      Linux-user boundaries. Route through profile identifiers and never expose credentials or
+      private state across profiles.

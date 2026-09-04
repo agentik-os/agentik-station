@@ -1,0 +1,64 @@
+schema_version: 1
+default_agent_level: L1
+levels:
+  L0: read
+  L1: development
+  L2: staging
+  L3: production
+  L4: critical
+actions:
+  inspect:
+    level: L0
+    agent_allowed: true
+    issue_required: false
+    human_approval: false
+  code_change:
+    level: L1
+    agent_allowed: true
+    issue_required: true
+    human_approval: false
+  create_pull_request:
+    level: L1
+    agent_allowed: true
+    issue_required: true
+    human_approval: false
+  deploy_staging:
+    level: L2
+    agent_allowed: true
+    issue_required: true
+    human_approval: false
+  deploy_production:
+    level: L3
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  restart_production_service:
+    level: L3
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  database_migration:
+    level: L3
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  rotate_secrets:
+    level: L4
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  dns_change:
+    level: L4
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  major_rollback:
+    level: L4
+    agent_allowed: true
+    issue_required: true
+    human_approval: required
+  delete_database:
+    level: L4
+    agent_allowed: false
+    issue_required: true
+    human_approval: forbidden

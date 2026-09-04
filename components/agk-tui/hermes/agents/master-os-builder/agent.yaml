@@ -1,0 +1,14 @@
+id: master-os-builder
+name: Master OS Builder
+version: 1.0.1
+description: Designs, researches, builds, validates, packages, and evolves Agentik Operative Systems.
+scope:
+  - operator
+  - agentik
+  - mission
+  - private
+runtime: hermes
+prompt: prompt.md
+distribution: bundled
+aliases:
+  - build-os

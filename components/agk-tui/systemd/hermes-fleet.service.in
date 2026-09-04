@@ -1,0 +1,26 @@
+[Unit]
+Description=AGK Hermes Fleet organization switcher
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Environment=HERMES_FLEET_DIST=@FLEET_ROOT@/dist
+Environment=HERMES_FLEET_HOST=127.0.0.1
+Environment=HERMES_FLEET_PORT=8459
+Environment=HERMES_FLEET_ALLOWED_HOSTS=@ALLOWED_HOSTS@
+ExecStart=/usr/bin/node @FLEET_ROOT@/server-dist/server.js
+WorkingDirectory=@FLEET_ROOT@
+Restart=always
+RestartSec=3
+KillMode=mixed
+TimeoutStopSec=20
+UMask=0077
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=default.target

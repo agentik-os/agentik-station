@@ -1,0 +1,227 @@
+name: agentik-shadcn
+label: Agentik Linear Dark
+description: A calm Linear-first workspace with compact shadcn-style surfaces.
+palette:
+  background:
+    hex: "#0d0d0d"
+    alpha: 1
+  midground:
+    hex: "#fafafa"
+    alpha: 1
+  foreground:
+    hex: "#ffffff"
+    alpha: 0
+  warmGlow: "rgba(16, 163, 127, 0.05)"
+  noiseOpacity: 0
+typography:
+  fontSans: "Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+  fontMono: "Geist Mono, SFMono-Regular, Cascadia Code, Roboto Mono, Menlo, monospace"
+  fontDisplay: "Geist, Inter, ui-sans-serif, system-ui, sans-serif"
+  baseSize: "14px"
+  lineHeight: "1.5"
+  letterSpacing: "-0.005em"
+layout:
+  radius: "0.625rem"
+  density: compact
+layoutVariant: standard
+colorOverrides:
+  card: "#171717"
+  cardForeground: "#fafafa"
+  popover: "#171717"
+  popoverForeground: "#fafafa"
+  primary: "#fafafa"
+  primaryForeground: "#171717"
+  secondary: "#212121"
+  secondaryForeground: "#fafafa"
+  muted: "#212121"
+  mutedForeground: "#a3a3a3"
+  accent: "#2f2f2f"
+  accentForeground: "#fafafa"
+  destructive: "#ef4444"
+  destructiveForeground: "#fafafa"
+  success: "#22c55e"
+  warning: "#f59e0b"
+  border: "#2f2f2f"
+  input: "#424242"
+  ring: "#a3a3a3"
+componentStyles:
+  card:
+    background: "#171717"
+    boxShadow: "none"
+    clipPath: "none"
+  header:
+    background: "#0d0d0d"
+    clipPath: "none"
+  sidebar:
+    background: "#0d0d0d"
+    clipPath: "none"
+  tab:
+    clipPath: "none"
+  page:
+    background: "#0d0d0d"
+customCSS: |
+  :root {
+    color-scheme: dark;
+    --agk-ui-panel-radius: 0.75rem;
+    --agk-ui-card-radius: 0.625rem;
+    --agk-ui-control-radius: 0.5rem;
+  }
+  #root,
+  #root button,
+  #root input,
+  #root select,
+  #root textarea,
+  #root [class*="font-mondwest"],
+  #root [class*="font-compressed"],
+  #root [class*="font-expanded"],
+  #root [class*="font-courier"] {
+    font-family: var(--theme-font-sans) !important;
+    font-style: normal;
+  }
+  #root code,
+  #root kbd,
+  #root [class*="font-mono"] {
+    font-family: var(--theme-font-mono) !important;
+  }
+  #root h1,
+  #root h2,
+  #root h3,
+  #root h4 {
+    font-family: var(--theme-font-sans);
+    font-weight: 600;
+    letter-spacing: -0.02em !important;
+    text-transform: none !important;
+  }
+  #root .uppercase,
+  #root [class*="uppercase"] {
+    letter-spacing: -0.01em !important;
+    text-transform: none !important;
+  }
+  #root .tracking-wider,
+  #root .tracking-widest,
+  #root [class*="tracking-["] {
+    letter-spacing: 0 !important;
+  }
+  #root button,
+  #root [role="button"],
+  #root input,
+  #root select,
+  #root textarea {
+    border-radius: var(--agk-ui-control-radius) !important;
+    box-shadow: none !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+  #root [class*="shadow-"],
+  #root .arc-border {
+    box-shadow: none !important;
+    clip-path: none !important;
+  }
+  #root .arc-border {
+    display: none !important;
+  }
+  #root main .contents > .flex.flex-col.gap-8 {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-top: 0;
+  }
+  #root main .contents > .flex.flex-col.gap-8 > section {
+    gap: 0.75rem;
+  }
+  #root main .contents > .flex.flex-col.gap-8 > section > h2 {
+    color: var(--color-foreground);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  #root main .border.border-border,
+  #root main [class*="border-midground/15"] {
+    border-color: var(--color-border) !important;
+    border-radius: var(--agk-ui-card-radius) !important;
+  }
+  #root main .border.border-border {
+    background: color-mix(in srgb, var(--color-card) 84%, var(--color-background));
+  }
+  #root main [class*="border-b"]:not(input):not(button),
+  #root main [class*="border-t"]:not(input):not(button) {
+    border-color: var(--color-border) !important;
+  }
+  #root [role="tablist"],
+  #root [role="listbox"],
+  #root [role="menu"] {
+    border-radius: var(--agk-ui-card-radius) !important;
+    box-shadow: none !important;
+  }
+  #root [class*="font-compressed"][class*="inline-flex"] {
+    border-radius: 999px !important;
+    font-size: 0.6875rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+  }
+  #app-sidebar {
+    border-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-card) 38%, var(--color-background));
+  }
+  #app-sidebar > div:first-child {
+    height: 3.5rem;
+    border-color: var(--color-border);
+  }
+  #app-sidebar > div:first-child .uppercase {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  #app-sidebar nav {
+    padding: 0.5rem;
+    border-top: 0;
+  }
+  #app-sidebar nav ul {
+    gap: 0.125rem;
+  }
+  #app-sidebar nav a {
+    gap: 0.625rem;
+    padding: 0.4375rem 0.625rem;
+    border-radius: var(--agk-ui-control-radius);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+  #app-sidebar nav a > div.absolute {
+    inset: 0 !important;
+    border-radius: var(--agk-ui-control-radius);
+  }
+  #app-sidebar nav a[aria-current="page"] {
+    background: var(--color-secondary);
+  }
+  #app-sidebar nav a[aria-current="page"] > span:last-child {
+    display: none;
+  }
+  #app-sidebar nav a > svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  #app-sidebar nav a > span:last-child {
+    border-radius: 0.5rem;
+  }
+  #hermes-sidebar-plugin-nav-heading {
+    padding: 0.7rem 0.625rem 0.3rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  @media (min-width: 1024px) {
+    #root main {
+      padding: 1rem 1.125rem 1.125rem !important;
+    }
+  }
+  @media (max-width: 640px) {
+    #root main {
+      padding-inline: 0.625rem !important;
+    }
+    #root main .border.border-border,
+    #root main [class*="border-midground/15"] {
+      border-radius: 0.5rem !important;
+    }
+  }

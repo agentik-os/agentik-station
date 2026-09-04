@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+COMPONENT="$ROOT/components/agk-tui"
+# Prefer a fully installed launcher; fall back to the vendored component launcher.
+if [[ -x "$HOME/.local/bin/agk" ]] && [[ "$(readlink -f "$HOME/.local/bin/agk" 2>/dev/null || true)" != "$(readlink -f "$0" 2>/dev/null || true)" ]]; then
+  # Avoid recursion if this wrapper is itself installed as ~/.local/bin/agk
+  if ! grep -q 'components/agk-tui' "$HOME/.local/bin/agk" 2>/dev/null; then
+    exec "$HOME/.local/bin/agk" "$@"
+  fi
+fi
+if [[ -x /usr/local/bin/agk ]]; then
+  exec /usr/local/bin/agk "$@"
+fi
+export AGK_ENVIRONMENT="${AGK_ENVIRONMENT:-$(id -un)}"
+if [[ -x "$COMPONENT/bin/agk" ]]; then
+  # Dev/local path before install.sh has placed lib/agk-terminal
+  export AGK_TERMINAL_ROOT="${AGK_TERMINAL_ROOT:-$COMPONENT}"
+  exec "$COMPONENT/bin/agk" "$@"
+fi
+echo "ERROR: AGK-TUI not installed. Run sudo ./bootstrap.sh or components/agk-tui/install.sh" >&2
+exit 2

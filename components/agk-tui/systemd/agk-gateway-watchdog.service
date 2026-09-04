@@ -1,0 +1,13 @@
+[Unit]
+Description=AGK profile gateway availability watchdog
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/agk-terminal/venv/bin/python /usr/local/lib/agk-terminal/scripts/gateway_watchdog.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/agk-terminal

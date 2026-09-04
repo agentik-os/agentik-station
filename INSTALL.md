@@ -222,3 +222,8 @@ For a generic team Host:
 ```
 
 `station.sh` always creates one versioned `InstallSpec` first and uses that exact spec for both plan and apply. It never reconstructs remote commands from unvalidated values and never bypasses the Station kernel. Use `--yes` only after the plan is already trusted in non-interactive automation.
+
+## AGK-TUI
+
+Bootstrap installs AGK-TUI for `agk-station` (skip with `--skip-agk-tui`).
+Then: `agk` or `station tui` for live sessions. Sync metadata: `~/.agentik/station-sync.json`.
