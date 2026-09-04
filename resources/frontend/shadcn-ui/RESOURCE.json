@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "shadcn-ui",
+  "package": "shadcn",
+  "version": "4.21.0",
+  "role": "Project-owned accessible UI component source",
+  "cli_scope": "operator",
+  "source_scope": "project",
+  "canonical_command": ["shadcn", "init"]
+}

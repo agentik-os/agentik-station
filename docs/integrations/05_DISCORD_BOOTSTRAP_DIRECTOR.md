@@ -7,11 +7,11 @@ Once the user connects a Discord server, a privileged agent should be able to se
 ## Bootstrap sequence
 
 ```text
-User connects Discord bot/application
+Server owner creates a Discord application/bot and obtains its token
 ↓
-Agentik detects target guild
+Server owner authorizes that application to the target guild through OAuth2
 ↓
-User authorizes bootstrap on this guild
+Token is entered through the owning Zone's Hermes gateway setup
 ↓
 Discord Bootstrap Director starts maintenance window
 ↓
@@ -27,16 +27,16 @@ Persist immutable bindings
 ↓
 Run route/permission tests
 ↓
-Remove Administrator
+Ask server owner to remove temporary Administrator/elevation
 ↓
-Verify runtime least privilege
+Read back the role change and verify runtime least privilege
 ↓
 Emit evidence + final report
 ```
 
 ## Why temporary Administrator
 
-Initial setup may need broad permissions to create and order roles, categories and channels. But `Administrator` bypasses channel restrictions, therefore it must be treated as bootstrap-only and removed after successful provisioning.
+Initial setup may need broad permissions to create and order roles, categories and channels. But `Administrator` bypasses channel restrictions, therefore it must be treated as bootstrap-only. Station cannot use a bot token to create independent Discord applications/tokens, and a bot must not be trusted to remove its own highest/equal managed role. The server owner performs and confirms the final privilege removal; Station reads the result back before acceptance. A narrower explicit permission set is preferred whenever it can create the desired topology.
 
 ## Role hierarchy rule
 
@@ -65,15 +65,17 @@ The Director does not receive a raw unrestricted shell if not needed. It invokes
 discord.bootstrap.plan
 discord.bootstrap.apply
 discord.bootstrap.verify
-discord.bootstrap.demote
+discord.bootstrap.verify_runtime_permissions
 ```
+
+The names above are capability contracts. In release 11.12, Station has binding validation and Discord message create/edit/read transport, but the full guild topology provisioner has not passed external test-guild acceptance and is not `OPERATIONAL`.
 
 ## Maintenance after install
 
 When a new OS is installed:
 
 ```text
-agentik os install sales
+station os install --id sales-os --zone <zone-id> --project <project-id>
 → desired Discord state changes
 → drift detected
 → Discord Bootstrap Director plans reconciliation
@@ -84,3 +86,7 @@ agentik os install sales
 ## v3 Bot Mode provisioning
 
 The Bootstrap Director also compiles installed OS Bot declarations into Discord virtual identities/aliases, channel-default bindings and Bot Group/team bindings. Reconciliation remains adopt-and-extend and idempotent.
+
+## Token and application boundary
+
+The bootstrap application may create guild roles, categories, channels, overwrites and commands within permissions granted by the server owner. It cannot mint the separate applications and secret bot tokens required for durable per-OS public identities. Those applications/tokens remain human enrollment gates unless a separately approved control plane is introduced. Internal specialists normally stay behind the Nano Director and therefore need no public Discord application.

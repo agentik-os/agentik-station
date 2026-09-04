@@ -1,5 +1,5 @@
 # hermes-platforms
 
-Hermes Messaging Gateway connects one bot process to Telegram Discord Slack WhatsApp Signal Email Teams and more; Station documents easy gateway setup. Live per-platform token enrollment remains operator-owned.
+Hermes Messaging Gateway connects one bot process to Telegram, Discord, Slack, WhatsApp, Signal, Email, Teams and more. Station wraps native gateway actions with the owning Zone Unix identity and dedicated `HERMES_HOME`.
 
-Next: Run hermes gateway setup, enroll one test platform, hermes gateway start, then message readback.
+Next: run `station platform setup --zone <id> --platform <name>`, install/start the gateway, then complete bidirectional live message readback.

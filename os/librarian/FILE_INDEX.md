@@ -33,7 +33,6 @@ Canonical Station source. Integrity is established through versioned provenance,
 - `integrations/INTEGRATIONS.yaml`
 - `knowledge/SCOPE.yaml`
 - `librarian/14_BUILDER_HANDOFF.md`
-- `manifest.json`
 - `memory/SCOPE.yaml`
 - `missions/MISSION_SCHEMA.json`
 - `orchestration/ACCEPTANCE.md`

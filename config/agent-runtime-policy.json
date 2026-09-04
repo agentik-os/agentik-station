@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "canonical_rules": "rules/STATION_AGENT_RULES.md",
+  "execution_engine": "hermes",
+  "instruction_entrypoints": {
+    "codex": "AGENTS.md",
+    "claude_code": "CLAUDE.md",
+    "gemini_cli": "GEMINI.md",
+    "github_copilot": ".github/copilot-instructions.md",
+    "other": ".station/STATION_AGENT_RULES.md"
+  },
+  "roots": {
+    "desired_state": "/etc/station",
+    "software": "/opt/station",
+    "human_runtime": "/srv/station",
+    "durable_state": "/var/lib/station",
+    "logs": "/var/log/station",
+    "backups": "/var/backups/station",
+    "ephemeral_runtime": "/run/station"
+  },
+  "project_contract": {
+    "repositories": "<project>/repos",
+    "resources": "<project>/resources",
+    "workspaces": "<project>/workspaces",
+    "worktrees": "<project>/worktrees",
+    "credentials": "<project>/credentials",
+    "forbidden_roots": ["/root", "/tmp", "/var/www", "random-user-home"]
+  },
+  "provider_contract": {
+    "authority": "station-policy",
+    "orchestrator": "hermes",
+    "model_provider": "replaceable-cognition-route",
+    "tool_access": "capability-allowlist",
+    "external_write": "approval-and-readback-when-required",
+    "secrets": "zone-or-project-scoped"
+  },
+  "resource_contract": {
+    "catalog": "resources/CATALOG.json",
+    "default_stack": "web-product",
+    "open_to_other_stacks": true
+  }
+}

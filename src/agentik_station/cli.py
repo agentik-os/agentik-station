@@ -402,6 +402,62 @@ def cmd_module_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _resource_catalog() -> dict[str, Any]:
+    from .resources import load_resource_catalog
+
+    return load_resource_catalog(repository_root() / "resources" / "CATALOG.json")
+
+
+def cmd_resource_list(args: argparse.Namespace) -> int:
+    catalog = _resource_catalog()
+    if args.json:
+        print(json.dumps(catalog, indent=2, sort_keys=True))
+    else:
+        for item in catalog["resources"]:
+            print(f"resource {item['id']}: {item['kind']} {item.get('package', '')}@{item.get('version', '')}")
+        for item in catalog["stacks"]:
+            marker = " (default)" if item["id"] == catalog["default_stack"] else ""
+            print(f"stack {item['id']}{marker}: {item['purpose']}")
+        print("POLICY: preferred recipes are open to reviewed alternative stacks")
+    return 0
+
+
+def cmd_resource_show(args: argparse.Namespace) -> int:
+    from .resources import find_resource
+
+    print(json.dumps(find_resource(_resource_catalog(), args.id), indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_resource_stack_plan(args: argparse.Namespace) -> int:
+    from .resources import build_stack_plan
+
+    print(json.dumps(build_stack_plan(_resource_catalog(), args.id), indent=2, sort_keys=True))
+    return 0
+
+
+def _canonical_agent_rules() -> str:
+    path = repository_root() / "rules" / "STATION_AGENT_RULES.md"
+    if path.is_symlink() or not path.is_file():
+        raise StationError(f"Canonical Station rules are missing or unsafe: {path}")
+    return path.read_text(encoding="utf-8")
+
+
+def cmd_rules_show(_: argparse.Namespace) -> int:
+    print(_canonical_agent_rules(), end="")
+    return 0
+
+
+def cmd_rules_install(args: argparse.Namespace) -> int:
+    from .agent_rules import install_agent_rules
+
+    if not args.plan and os.geteuid() == 0:
+        raise StationError("Install repository rules as the owning Project user, not root; use --plan for root inspection")
+    payload = install_agent_rules(Path(args.repo), _canonical_agent_rules(), plan_only=args.plan)
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def cmd_provider_status(args: argparse.Namespace) -> int:
     payload = {
         "Hermes": {"binary": shutil.which("hermes"), "readiness": "UNKNOWN_UNTIL_DOCTOR_AND_PROFILE_READBACK"},
@@ -446,12 +502,12 @@ def cmd_release_rollback(args: argparse.Namespace) -> int:
 
 
 def cmd_hermes_update(args: argparse.Namespace) -> int:
-    """Apply Hermes update via scripts/station_hermes_update.sh (explicit operator action)."""
+    """Apply a backed-up, Doctor-gated Hermes update with a durable receipt."""
     import os
     script = repository_root() / "scripts" / "station_hermes_update.sh"
     if not script.is_file():
         raise StationError(f"missing {script}")
-    mode = "check" if args.check_only else ("backup-update" if args.backup else "update")
+    mode = "check" if args.check_only else "update"
     cmd = ["bash", str(script), mode]
     print("RUNNING", " ".join(cmd))
     completed = subprocess.run(cmd, check=False)
@@ -460,6 +516,14 @@ def cmd_hermes_update(args: argparse.Namespace) -> int:
 
 def cmd_deps(args: argparse.Namespace) -> int:
     """Optional dependency stack: list / install / platforms / hermes auto-update timer."""
+    if args.deps_command.startswith("toolchain-"):
+        script = repository_root() / "scripts" / "station_toolchain_install.sh"
+        if not script.is_file():
+            raise StationError(f"missing {script}")
+        mode = args.deps_command.removeprefix("toolchain-")
+        cmd = ["bash", str(script), f"--{mode}"]
+        print("RUNNING", " ".join(cmd))
+        return int(subprocess.run(cmd, check=False).returncode)
     script = repository_root() / "scripts" / "station_deps_install.sh"
     if not script.is_file():
         raise StationError(f"missing {script}")
@@ -481,6 +545,84 @@ def cmd_deps(args: argparse.Namespace) -> int:
         raise ValidationError(f"unknown deps command: {args.deps_command}")
     print("RUNNING", " ".join(cmd))
     completed = subprocess.run(cmd, check=False)
+    return int(completed.returncode)
+
+
+def cmd_platform_gateway(args: argparse.Namespace) -> int:
+    """Run the native Hermes gateway under the owning Zone identity and HERMES_HOME."""
+    from .hermes_platforms import build_gateway_argv, normalize_platform
+
+    zone = _load_zone_record(args.zone)
+    requested_platform = normalize_platform(getattr(args, "platform", None))
+    hermes = next(
+        (path for path in (Path("/usr/local/bin/hermes"), Path(shutil.which("hermes") or "")) if path.is_absolute() and path.is_file()),
+        None,
+    )
+    runuser = Path(shutil.which("runuser") or "/usr/sbin/runuser")
+    if hermes is None:
+        raise StationError("Shared Hermes launcher is missing; rerun bootstrap.sh with Hermes enabled")
+    if not runuser.is_file():
+        raise StationError("runuser is required for Zone-isolated Hermes gateways")
+    unix_user = validate_identifier(str(zone.get("unix_user", "")), "Zone Unix user")
+    try:
+        zone_user = pwd.getpwnam(unix_user)
+    except KeyError as exc:
+        raise StationError(f"Zone Unix user is missing: {unix_user}") from exc
+    argv = build_gateway_argv(
+        zone,
+        args.platform_command,
+        runtime_uid=zone_user.pw_uid,
+        hermes_binary=hermes,
+        runuser_binary=runuser,
+    )
+    payload = {
+        "schema_version": 1,
+        "zone_id": args.zone,
+        "platform": requested_platform,
+        "action": args.platform_command,
+        "argv": argv,
+        "claim": "PREPARED_NOT_RUN" if args.plan else "OBSERVED_NOT_ACCEPTED",
+        "operational": False,
+        "next_repair_action": (
+            "Complete the Hermes wizard/service action, then send and receive a live message on the named "
+            "platform before recording ACCEPTED."
+        ),
+    }
+    if args.plan:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+    if os.geteuid() != 0:
+        raise StationError("Executing a Zone gateway action requires root for runuser identity switching")
+    if args.platform_command == "install":
+        loginctl = shutil.which("loginctl")
+        systemctl = shutil.which("systemctl")
+        if not loginctl or not systemctl or not Path("/run/systemd/system").is_dir():
+            raise StationError("Hermes gateway service installation requires a running systemd/loginctl Host")
+        linger = subprocess.run([loginctl, "enable-linger", unix_user], check=False, capture_output=True, text=True)
+        if linger.returncode != 0:
+            raise StationError(f"Could not enable systemd linger for {unix_user}: {linger.stderr.strip()}")
+        manager = subprocess.run(
+            [systemctl, "start", f"user@{zone_user.pw_uid}.service"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if manager.returncode != 0:
+            raise StationError(f"Could not start systemd user manager for {unix_user}: {manager.stderr.strip()}")
+    interactive = args.platform_command == "setup"
+    completed = subprocess.run(
+        argv,
+        check=False,
+        text=True,
+        capture_output=not interactive,
+        timeout=None if interactive else 300,
+    )
+    payload["returncode"] = completed.returncode
+    if not interactive:
+        payload["stdout"] = completed.stdout[-12000:]
+        payload["stderr"] = completed.stderr[-12000:]
+    payload["claim"] = "OBSERVED_COMMAND_SUCCEEDED_NOT_ACCEPTED" if completed.returncode == 0 else "DEGRADED"
+    print(json.dumps(payload, indent=2, sort_keys=True))
     return int(completed.returncode)
 
 
@@ -887,6 +1029,27 @@ def build_parser() -> argparse.ArgumentParser:
     module_status.add_argument("--json", action="store_true")
     module_status.set_defaults(handler=cmd_module_status)
 
+    resource = sub.add_parser("resource", help="Inspect versioned Station resources and stack recipes")
+    resource_sub = resource.add_subparsers(dest="resource_command", required=True)
+    resource_list = resource_sub.add_parser("list")
+    resource_list.add_argument("--json", action="store_true")
+    resource_list.set_defaults(handler=cmd_resource_list)
+    resource_show = resource_sub.add_parser("show")
+    resource_show.add_argument("--id", required=True)
+    resource_show.set_defaults(handler=cmd_resource_show)
+    resource_plan = resource_sub.add_parser("stack-plan")
+    resource_plan.add_argument("--id", default="web-product")
+    resource_plan.set_defaults(handler=cmd_resource_stack_plan)
+
+    rules = sub.add_parser("rules", help="Inspect or install Station rules for LLM coding executors")
+    rules_sub = rules.add_subparsers(dest="rules_command", required=True)
+    rules_show = rules_sub.add_parser("show")
+    rules_show.set_defaults(handler=cmd_rules_show)
+    rules_install = rules_sub.add_parser("install")
+    rules_install.add_argument("--repo", required=True)
+    rules_install.add_argument("--plan", action="store_true")
+    rules_install.set_defaults(handler=cmd_rules_install)
+
     provider = sub.add_parser("provider")
     provider_sub = provider.add_subparsers(dest="provider_command", required=True)
     provider_status = provider_sub.add_parser("status")
@@ -972,9 +1135,8 @@ def build_parser() -> argparse.ArgumentParser:
     hermes_check = hermes_sub.add_parser("check", help="Plan-only Hermes update check (never applies)")
     hermes_check.add_argument("--record", action="store_true")
     hermes_check.set_defaults(handler=cmd_hermes_check)
-    hermes_update = hermes_sub.add_parser("update", help="Explicitly apply Hermes update (hermes update)")
+    hermes_update = hermes_sub.add_parser("update", help="Apply Hermes update with backup, Doctor and receipt")
     hermes_update.add_argument("--check-only", action="store_true")
-    hermes_update.add_argument("--backup", action="store_true")
     hermes_update.set_defaults(handler=cmd_hermes_update)
 
     deps = sub.add_parser("deps", help="Optional dependency stack (Langfuse, Honcho, Crawl4AI, ...)")
@@ -989,6 +1151,18 @@ def build_parser() -> argparse.ArgumentParser:
     deps_install.add_argument("--all", action="store_true")
     deps_install.add_argument("--component", action="append", default=[])
     deps_install.set_defaults(handler=cmd_deps)
+    for action in ("plan", "install", "check"):
+        toolchain = deps_sub.add_parser(f"toolchain-{action}")
+        toolchain.set_defaults(handler=cmd_deps)
+
+    platform = sub.add_parser("platform", help="Zone-isolated Hermes messaging gateway")
+    platform_sub = platform.add_subparsers(dest="platform_command", required=True)
+    for action in ("setup", "install", "start", "restart", "status", "doctor"):
+        command = platform_sub.add_parser(action)
+        command.add_argument("--zone", required=True)
+        command.add_argument("--platform", help="Hermes platform name or alias")
+        command.add_argument("--plan", action="store_true")
+        command.set_defaults(handler=cmd_platform_gateway)
 
     return parser
 

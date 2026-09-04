@@ -21,6 +21,7 @@ PROJECT_SUBDIRS = [
     "repos",
     "docs",
     "knowledge",
+    "resources",
     "integrations",
     "credentials",
     "workspaces",

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": "tigervnc",
-  "maturity": "SCAFFOLDED",
-  "claim": "TigerVNC packages are declared for optional apt install; display auth and firewall policy pending.",
+  "maturity": "INSTALLABLE",
+  "claim": "TigerVNC uses the signed Ubuntu/Debian package; upstream v1.16.2 was reviewed. Display auth and firewall policy are pending.",
   "binary_probes": [],
   "next_repair_action": "Install tigervnc packages, configure VNC auth for agk-station only, verify viewer connect over private network."
 }

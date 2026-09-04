@@ -1,5 +1,5 @@
 # langfuse
 
-Langfuse self-host path is declared (clone + docker compose); Station does not auto-start it or store cloud keys.
+Langfuse v4.28.1 can be staged as an immutable tagged checkout. Station does not auto-start it, expose ports or store cloud keys.
 
 Next: Clone via deps install, bring up Langfuse compose with operator secrets, then wire Hermes/OpenTelemetry export and verify traces.

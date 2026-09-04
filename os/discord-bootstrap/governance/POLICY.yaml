@@ -2,3 +2,6 @@ default_capability: deny
 cross_zone: deny
 production_write: approval
 secrets_export: deny
+bootstrap_administrator: temporary-owner-granted
+elevation_removal: human-owner-confirmed
+acceptance_requires_runtime_permission_readback: true

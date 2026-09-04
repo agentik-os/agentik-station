@@ -6,7 +6,8 @@ discord:
     mode: adopt-and-extend
     destructive_changes: deny
     bootstrap_admin: temporary
-    auto_demote_after_verify: true
+    owner_confirmed_admin_removal: required
+    auto_demote_after_verify: false
     managed_resource_tag: agentik-managed
 
   os_bots:
@@ -89,4 +90,4 @@ discord:
     mission_channels: director-decision
 
   bindings:
-    persistence: /var/lib/agentik/discord/bindings.yaml
+    persistence: /var/lib/station/zones/<zone-id>/connector-state/discord/bindings.yaml

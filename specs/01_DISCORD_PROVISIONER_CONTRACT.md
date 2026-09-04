@@ -10,7 +10,8 @@ compile(org, os_registry, policies) -> DesiredGuildState
 plan(current, desired) -> ProvisionPlan
 apply(plan, policy) -> ApplyResult
 verify(desired, bindings) -> VerificationReport
-demote() -> RuntimePermissionReport
+request_owner_elevation_removal() -> ExternalGate
+verify_runtime_permissions() -> RuntimePermissionReport
 reconcile() -> ReconcileReport
 ```
 
@@ -40,6 +41,8 @@ Resources created by Agentik should be traceable through stored IDs and state me
 ## Idempotency
 
 Given the same desired state and unchanged guild, a second plan after successful apply must converge to no-op.
+
+The server owner, not the bot, removes the bot's temporary broad/elevated role. The provisioner pauses at that external gate and reads back the resulting role/permission state.
 
 ## Partial failure
 

@@ -1,8 +1,9 @@
 # FILE_INDEX
 
-Total files: 1002
+Total files: 1026
 
 - `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/copilot-instructions.md`
 - `.github/workflows/ci.yml`
 - `.gitignore`
 - `AGENTS.md`
@@ -13,6 +14,7 @@ Total files: 1002
 - `CLAUDE.md`
 - `CONTRIBUTING.md`
 - `FILE_INDEX.md`
+- `GEMINI.md`
 - `INSTALL.md`
 - `INTEGRATION_AGK_TUI.md`
 - `LICENSE.md`
@@ -27,6 +29,7 @@ Total files: 1002
 - `VALIDATION_11_11.md`
 - `VALIDATION_11_12.md`
 - `VERSION`
+- `atlas.md`
 - `bin/agk`
 - `bootstrap.sh`
 - `components/agk-tui/LICENSE`
@@ -155,6 +158,7 @@ Total files: 1002
 - `components/agk-tui/tests/test_provider.py`
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
 - `components/agk-tui/tests/test_topology.py`
+- `config/agent-runtime-policy.json`
 - `config/deps/stack.yaml`
 - `config/examples/advanced/agentik.lock.example.yaml`
 - `config/examples/advanced/builder.policy.example.yaml`
@@ -248,6 +252,7 @@ Total files: 1002
 - `docs/diagrams/11_ENGINEERING_HARNESS_LOOP.mmd`
 - `docs/diagrams/12_BUILDER_OS_FACTORY.mmd`
 - `docs/diagrams/13_OS_CONTRACT_TO_HERMES.mmd`
+- `docs/diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`
 - `docs/diagrams/14_STATION_VPS_TRUST_ZONES.mmd`
 - `docs/diagrams/15_HERMES_UPDATE_RINGS.mmd`
 - `docs/diagrams/16_STATION_ORCHESTRATION_EVIDENCE.mmd`
@@ -450,10 +455,14 @@ Total files: 1002
 - `modules/langfuse/README.md`
 - `modules/observability/MODULE.json`
 - `modules/observability/README.md`
+- `modules/operator-toolchain/MODULE.json`
+- `modules/operator-toolchain/README.md`
 - `modules/os-factory/MODULE.json`
 - `modules/os-factory/README.md`
 - `modules/ponytail/MODULE.json`
 - `modules/ponytail/README.md`
+- `modules/resource-catalog/MODULE.json`
+- `modules/resource-catalog/README.md`
 - `modules/rootless-runtime/MODULE.json`
 - `modules/rootless-runtime/README.md`
 - `modules/station-kernel/MODULE.json`
@@ -745,7 +754,6 @@ Total files: 1002
 - `os/librarian/integrations/INTEGRATIONS.yaml`
 - `os/librarian/knowledge/SCOPE.yaml`
 - `os/librarian/librarian/14_BUILDER_HANDOFF.md`
-- `os/librarian/manifest.json`
 - `os/librarian/memory/SCOPE.yaml`
 - `os/librarian/missions/MISSION_SCHEMA.json`
 - `os/librarian/orchestration/ACCEPTANCE.md`
@@ -914,6 +922,15 @@ Total files: 1002
 - `os/station-maintainer/workflows/WORKFLOWS.yaml`
 - `os/station-maintainer/workflows/hermes-upstream-upgrade.yaml`
 - `pyproject.toml`
+- `resources/CATALOG.json`
+- `resources/README.md`
+- `resources/frontend/lucide/README.md`
+- `resources/frontend/lucide/RESOURCE.json`
+- `resources/frontend/shadcn-ui/README.md`
+- `resources/frontend/shadcn-ui/RESOURCE.json`
+- `resources/stacks/web-product/README.md`
+- `resources/stacks/web-product/STACK.json`
+- `rules/STATION_AGENT_RULES.md`
 - `runtime/hermes-station/hermes/managed-config.example.yaml`
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/README.md`
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/__init__.py`
@@ -933,6 +950,7 @@ Total files: 1002
 - `scripts/station_agk_sync.py`
 - `scripts/station_deps_install.sh`
 - `scripts/station_hermes_update.sh`
+- `scripts/station_toolchain_install.sh`
 - `scripts/systemd/station-hermes-update.service`
 - `scripts/systemd/station-hermes-update.timer`
 - `specs/01_DISCORD_PROVISIONER_CONTRACT.md`
@@ -952,12 +970,14 @@ Total files: 1002
 - `specs/16_CAPABILITY_READINESS_SCHEMA.example.json`
 - `specs/17_DELIVERABLE_QUALITY_SCHEMA.example.json`
 - `src/agentik_station/__init__.py`
+- `src/agentik_station/agent_rules.py`
 - `src/agentik_station/cli.py`
 - `src/agentik_station/configuration.py`
 - `src/agentik_station/constants.py`
 - `src/agentik_station/doctor.py`
 - `src/agentik_station/errors.py`
 - `src/agentik_station/filesystem.py`
+- `src/agentik_station/hermes_platforms.py`
 - `src/agentik_station/hermes_updates.py`
 - `src/agentik_station/identifiers.py`
 - `src/agentik_station/identity.py`
@@ -976,6 +996,7 @@ Total files: 1002
 - `src/agentik_station/providers/tailscale.py`
 - `src/agentik_station/receipts.py`
 - `src/agentik_station/remote.py`
+- `src/agentik_station/resources.py`
 - `station`
 - `station.sh`
 - `station.yaml.example`
@@ -986,6 +1007,7 @@ Total files: 1002
 - `templates/zone/ZONE.yaml`
 - `tests/conftest.py`
 - `tests/contract/test_agk_tui_integration.py`
+- `tests/contract/test_atlas_and_resources.py`
 - `tests/contract/test_deps_stack.py`
 - `tests/contract/test_discord_plugin.py`
 - `tests/contract/test_orchestration_state.py`
@@ -1001,6 +1023,8 @@ Total files: 1002
 - `tests/security/test_doctor_boundaries.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
+- `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
+- `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_identifiers.py`
 - `tests/unit/test_models.py`

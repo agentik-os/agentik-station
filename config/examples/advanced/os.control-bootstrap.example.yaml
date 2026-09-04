@@ -13,7 +13,8 @@ capabilities:
     - discord.bootstrap.plan
     - discord.bootstrap.apply
     - discord.bootstrap.verify
-    - discord.bootstrap.demote
+    - discord.bootstrap.request-owner-elevation-removal
+    - discord.bootstrap.verify-runtime-permissions
     - discord.bindings.write
 
   denied:

@@ -25,7 +25,9 @@ OS channel/thread
 
 ## Bootstrap reality
 
-Station can provision guild structure, roles, channels, permissions, command registration and bindings after credentials are enrolled. Discord application creation/token enrollment remains an explicit secure provisioning step unless an external authorized application-management process is introduced.
+The desired Station provisioner creates/adopts guild structure, roles, channels, permissions, command registration and bindings after credentials are enrolled. Discord application creation/token enrollment remains an explicit human-controlled step unless a separately authorized application-management process is introduced. In release 11.12 the complete provisioner still requires external test-guild acceptance and is not `OPERATIONAL`.
+
+Temporary broad bootstrap permission is granted and later removed by the server owner. Station must read back least-privilege runtime permissions; the bot is not trusted to demote its own highest/equal role.
 
 
 ## Hermes gateway deployment

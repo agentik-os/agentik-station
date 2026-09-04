@@ -27,6 +27,7 @@ def _profile_distribution(
     os_version: str,
     profile_id: str,
     profile_text: str,
+    station_rules: str,
     project_root: Path,
 ) -> None:
     destination.mkdir(parents=True, mode=0o750)
@@ -44,6 +45,7 @@ def _profile_distribution(
         'author: "AGK / Agentik"\n'
         'distribution_owned:\n'
         '  - SOUL.md\n'
+        '  - STATION_RULES.md\n'
         '  - config.yaml\n'
         '  - skills/\n'
         '  - distribution.yaml\n'
@@ -58,7 +60,15 @@ def _profile_distribution(
 
     (destination / "distribution.yaml").write_text(distribution, encoding="utf-8")
     (destination / "config.yaml").write_text(config, encoding="utf-8")
-    (destination / "SOUL.md").write_text(profile_text, encoding="utf-8")
+    soul = (
+        profile_text.rstrip()
+        + "\n\n## Station universal agent rules\n\n"
+        + "The following rules are mandatory for this profile and every delegated executor.\n\n"
+        + station_rules.strip()
+        + "\n"
+    )
+    (destination / "SOUL.md").write_text(soul, encoding="utf-8")
+    (destination / "STATION_RULES.md").write_text(station_rules.rstrip() + "\n", encoding="utf-8")
     (destination / "COMMANDS.yaml").write_text(
         (source / "discord/COMMANDS.yaml").read_text(encoding="utf-8"),
         encoding="utf-8",
@@ -76,6 +86,11 @@ def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> d
     if not result.ok:
         raise ValidationError(f"OS source Doctor failed for {source}: {result.issues[:3]}")
     _require_clean_output(output)
+
+    rules_path = source.parents[1] / "rules" / "STATION_AGENT_RULES.md"
+    if rules_path.is_symlink() or not rules_path.is_file():
+        raise ValidationError(f"Canonical Station agent rules are missing or unsafe: {rules_path}")
+    station_rules = rules_path.read_text(encoding="utf-8")
 
     contract = json.loads((source / "CONTRACT.json").read_text(encoding="utf-8"))
     os_id = validate_identifier(str(contract["os_id"]), "OS id")
@@ -107,6 +122,7 @@ def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> d
             os_version=os_version,
             profile_id=profile_id,
             profile_text=profile_text,
+            station_rules=station_rules,
             project_root=project_root,
         )
 

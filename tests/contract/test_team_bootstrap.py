@@ -28,8 +28,12 @@ def test_bootstrap_uses_dedicated_account_and_no_piped_installers() -> None:
     text = (ROOT / "bootstrap.sh").read_text()
     assert 'STATION_USER="agk-station"' in text
     assert "/home/${STATION_USER}" in text
-    assert "npm install -g @openai/codex" in text
-    assert "https://hermes-agent.nousresearch.com/install.sh" in text
+    assert "station_toolchain_install.sh" in text
+    assert "--skip-hermes-auto-update" in text
+    assert "HERMES_INSTALL_SHA256" in text
+    assert 'HERMES_COMMIT' in text
+    assert '--dir "$hermes_install_dir"' in text
+    assert 'curl --fail --silent --show-error --location "$HERMES_INSTALL_URL"' in text
     assert "curl -fsSL" not in text
     assert "| bash" not in text
     assert 'source_root" == /root' in text

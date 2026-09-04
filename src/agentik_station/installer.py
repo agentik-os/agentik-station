@@ -297,7 +297,7 @@ class StationInstaller:
             self.fs.mkdir(path, mode, owner)
         for category in CATEGORIES.values():
             self.fs.mkdir(zones / category, 0o755, root_owner)
-        for name in ["packages", "schemas", "assets", "cache"]:
+        for name in ["packages", "schemas", "assets", "cache", "resources"]:
             self.fs.mkdir(shared / name, 0o750, root_owner)
 
         self.fs.write_text(
@@ -329,6 +329,17 @@ class StationInstaller:
                 "# Shared package projection\n\n"
                 "Canonical package source is in the active immutable Station release. "
                 "Generated distributions may be published here later; editable duplicate sources are forbidden.\n"
+            ),
+            0o644,
+            root_owner,
+        )
+        self.fs.write_text(
+            shared / "resources" / "README.md",
+            (
+                "# Shared resource projection\n\n"
+                "Canonical reviewed resources live in `/opt/station/current/resources`. "
+                "Use `station resource list` and record selections in the owning Project `resources/`; "
+                "this projection is non-secret and never a second editable source.\n"
             ),
             0o644,
             root_owner,
@@ -649,6 +660,7 @@ class StationInstaller:
         self.fs.mkdir(project, 0o750, owner)
         for name in PROJECT_SUBDIRS:
             self.fs.mkdir(project / name, 0o700 if name == "credentials" else 0o750, owner)
+        self.fs.mkdir(project / ".station", 0o750, owner)
         state_root = self.paths.zones_state / zone.zone_id / "projects" / project_id
         self.fs.mkdir(state_root, 0o700, owner)
         for name in ["mission-state", "databases", "connector-state", "caches"]:
@@ -673,10 +685,31 @@ class StationInstaller:
         )
         self.fs.write_text(
             project / "README.md",
-            f"# {project_id}\n\nAll Project source, documentation, knowledge, references, workspaces, artifacts, evidence, and operations belong here.\n",
+            (
+                f"# {project_id}\n\n"
+                "All Project source, documentation, knowledge, resources, references, workspaces, artifacts, evidence, and operations belong here.\n\n"
+                "Clone repositories only under `repos/`. Then run `station rules install --repo <absolute-repository-path>` "
+                "as the owning Zone user so Hermes, Codex, Claude Code, Gemini CLI and GitHub Copilot inherit the same Station rules.\n"
+            ),
             0o640,
             owner,
         )
+        rules_path = self.repo_root / "rules" / "STATION_AGENT_RULES.md"
+        if rules_path.is_symlink() or not rules_path.is_file():
+            raise ReconcileError(f"Canonical Station agent rules are missing or unsafe: {rules_path}")
+        self.fs.write_text(
+            project / ".station" / "STATION_AGENT_RULES.md",
+            rules_path.read_text(encoding="utf-8"),
+            0o640,
+            owner,
+        )
+        adapters = {
+            "AGENTS.md": "# Project agent contract\n\nRead and obey `.station/STATION_AGENT_RULES.md` before any work.\n",
+            "CLAUDE.md": "# Claude Code contract\n\nRead and obey `.station/STATION_AGENT_RULES.md` before any work.\n",
+            "GEMINI.md": "# Gemini CLI contract\n\nRead and obey `.station/STATION_AGENT_RULES.md` before any work.\n",
+        }
+        for filename, content in adapters.items():
+            self.fs.write_text(project / filename, content, 0o640, owner)
 
     def _os_catalog(self) -> dict[str, Any]:
         return load_os_catalog(self.repo_root / "os" / "CATALOG.json")

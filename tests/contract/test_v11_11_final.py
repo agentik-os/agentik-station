@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_real_librarian_v3_is_canonical() -> None:
-    manifest = json.loads((ROOT / "os/librarian/manifest.json").read_text())
+    manifest = json.loads((ROOT / "os/librarian/MANIFEST.json").read_text())
     assert manifest["name"] == "Librarian OS"
     assert manifest["version"] == "3.0.0"
     agents = [p for p in (ROOT / "os/librarian/skills/book/agents").iterdir() if p.is_file() and p.suffix == ".md"]
@@ -47,6 +47,8 @@ def test_every_canonical_os_compiles_to_hermes(tmp_path: Path) -> None:
             profile_root = output / "profiles" / profile
             assert (profile_root / "distribution.yaml").is_file()
             assert (profile_root / "config.yaml").is_file()
+            assert (profile_root / "STATION_RULES.md").is_file()
+            assert "Station universal agent rules" in (profile_root / "SOUL.md").read_text()
             assert "home_mode: profile" in (profile_root / "config.yaml").read_text()
 
 

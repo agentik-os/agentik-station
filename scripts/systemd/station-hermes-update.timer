@@ -1,5 +1,5 @@
 [Unit]
-Description=Weekly Hermes update check/apply for Agentik Station
+Description=Weekly verified Hermes update for Agentik Station
 
 [Timer]
 OnCalendar=weekly

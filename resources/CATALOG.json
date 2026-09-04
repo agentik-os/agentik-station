@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "canonical_root": "/opt/station/current/resources",
+  "human_projection": "/srv/station/3_SHARED/resources",
+  "default_stack": "web-product",
+  "open_to_other_stacks": true,
+  "resources": [
+    {
+      "id": "shadcn-ui",
+      "kind": "component-source-and-cli",
+      "path": "resources/frontend/shadcn-ui",
+      "package": "shadcn",
+      "version": "4.21.0",
+      "install_scope": "operator-cli-and-project-source",
+      "license_note": "Components are copied into and owned by each Project."
+    },
+    {
+      "id": "lucide",
+      "kind": "icon-library",
+      "path": "resources/frontend/lucide",
+      "package": "lucide-react",
+      "version": "1.41.0",
+      "install_scope": "project-dependency"
+    }
+  ],
+  "stacks": [
+    {
+      "id": "web-product",
+      "path": "resources/stacks/web-product",
+      "purpose": "Preferred full-stack web product baseline; not a vendor lock.",
+      "runtime_packages": [
+        "next@16.3.4",
+        "react@19.2.8",
+        "react-dom@19.2.8",
+        "convex@1.45.0",
+        "@clerk/nextjs@7.9.1",
+        "stripe@22.6.1",
+        "@stripe/stripe-js@9.15.0",
+        "lucide-react@1.41.0"
+      ],
+      "development_packages": [
+        "typescript@7.0.2",
+        "tailwindcss@4.3.3",
+        "eslint@10.10.0",
+        "eslint-config-next@16.3.4",
+        "@types/node@24.13.3",
+        "@types/react@19.2.18",
+        "@types/react-dom@19.2.7"
+      ],
+      "external_systems": [
+        "vercel",
+        "convex",
+        "clerk",
+        "stripe"
+      ],
+      "initializers": [
+        ["shadcn", "init"]
+      ]
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 This repository is executable infrastructure. Architecture and security contracts are constraints, not suggestions.
 
+Read and obey the canonical cross-provider rules in `rules/STATION_AGENT_RULES.md`. This file adds repository-specific constraints; where they overlap, apply the stricter rule.
+
 ## Source-of-truth order
 
 1. `AGENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md`, `SETUP.md`;

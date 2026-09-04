@@ -32,9 +32,23 @@
     {
       "id": "hermes-runtime",
       "maturity": "INSTALLABLE",
-      "claim": "AGK OS sources compile into Hermes Profile Distributions; bootstrap installs Hermes via official installer and versions.lock pins HERMES_RELEASE (auto-update via hermes update / station timer is opt-in). Live profile Doctor and fresh-session acceptance still require enrolled Hermes.",
-      "binary_probes": [],
-      "next_repair_action": "Enroll Hermes, run scripts/station_hermes_update.sh check, install compiled profiles, pass Hermes/plugin Doctor and fresh-session acceptance."
+      "claim": "AGK OS sources compile into Hermes Profile Distributions; bootstrap installs the reviewed Hermes release commit into a shared executable runtime while every Zone keeps its own HERMES_HOME. Automatic updates take a backup, run Doctor and write a receipt, with an explicit bootstrap opt-out. Live profile and fresh-session acceptance still require enrollment.",
+      "binary_probes": ["hermes"],
+      "next_repair_action": "Enroll Hermes, run station hermes check, install compiled profiles, pass Hermes/plugin Doctor and fresh-session acceptance."
+    },
+    {
+      "id": "operator-toolchain",
+      "maturity": "INSTALLABLE",
+      "claim": "The bootstrap can install pinned user-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI with checksum or registry-integrity verification. External account authentication is never inferred.",
+      "binary_probes": ["python-latest", "python-ai", "node", "gh", "vercel", "codex", "composio", "shadcn"],
+      "next_repair_action": "Run station deps toolchain-install, then toolchain-check and complete least-privilege login/readback for each provider actually needed."
+    },
+    {
+      "id": "resource-catalog",
+      "maturity": "INSTALLABLE",
+      "claim": "A versioned resource catalog and exact preferred web-product stack plan are queryable by Hermes and coding executors; no Project dependency or external provider is claimed configured by catalog presence.",
+      "binary_probes": ["shadcn"],
+      "next_repair_action": "Run station resource stack-plan in an owning Project repository, review/apply its pins, then complete provider setup and tests."
     },
     {
       "id": "discord-experience",
@@ -88,48 +102,48 @@
     {
       "id": "hermes-platforms",
       "maturity": "INSTALLABLE",
-      "claim": "Hermes Messaging Gateway connects one bot process to Telegram Discord Slack WhatsApp Signal Email Teams and more; Station documents easy gateway setup. Live per-platform token enrollment remains operator-owned.",
+      "claim": "Station exposes plan/setup/install/start/restart/status/doctor commands for the Hermes Messaging Gateway under the owning Zone Unix identity and dedicated HERMES_HOME. Live per-platform token enrollment remains operator-owned.",
       "binary_probes": [],
-      "next_repair_action": "Run hermes gateway setup, enroll one test platform, hermes gateway start, then message readback."
+      "next_repair_action": "Run station platform setup --zone <id> --platform <name>, install/start the gateway, then complete a live message readback."
     },
     {
       "id": "ponytail",
-      "maturity": "SCAFFOLDED",
-      "claim": "Ponytail YAGNI agent-skill repo is declared and installable via station deps; Hermes/Claude skill wiring and acceptance are pending.",
+      "maturity": "INSTALLABLE",
+      "claim": "Ponytail is installed at an immutable reviewed commit through Hermes native plugin protocol and enabled by station deps; coding-session acceptance is pending.",
       "binary_probes": [],
-      "next_repair_action": "Install with scripts/station_deps_install.sh --component ponytail then bind as a Hermes skill and pass a coding-session check."
+      "next_repair_action": "Install with station deps install --component ponytail, review plugin status, and pass a coding-session check."
     },
     {
       "id": "langfuse",
-      "maturity": "SCAFFOLDED",
+      "maturity": "INSTALLABLE",
       "claim": "Langfuse self-host path is declared (clone + docker compose); Station does not auto-start it or store cloud keys.",
       "binary_probes": [],
       "next_repair_action": "Clone via deps install, bring up Langfuse compose with operator secrets, then wire Hermes/OpenTelemetry export and verify traces."
     },
     {
       "id": "honcho",
-      "maturity": "SCAFFOLDED",
-      "claim": "Honcho agent-memory dependency is declared for optional pip install under agk-station; Zone-local memory policy pending.",
+      "maturity": "INSTALLABLE",
+      "claim": "The pinned Honcho SDK is installable in an isolated Station venv; API/self-hosted service and Zone-local memory policy remain operator-owned.",
       "binary_probes": [],
       "next_repair_action": "Install package, configure Zone-scoped credentials/store, then Doctor a memory round-trip without cross-Zone leakage."
     },
     {
       "id": "hindsight",
-      "maturity": "SCAFFOLDED",
-      "claim": "Hindsight agent-memory dependency is declared for optional install; learning-store isolation pending.",
+      "maturity": "INSTALLABLE",
+      "claim": "The pinned Hindsight client is installable in an isolated Station venv and Hermes provides a native Hindsight memory setup path; learning-store isolation is pending.",
       "binary_probes": [],
       "next_repair_action": "Install per upstream README, bind to one Hermes profile, verify recall without exporting secrets to Control."
     },
     {
       "id": "crawl4ai",
-      "maturity": "SCAFFOLDED",
+      "maturity": "INSTALLABLE",
       "claim": "Crawl4AI LLM crawler is declared for optional user install; tool allowlist and network egress policy pending.",
       "binary_probes": [],
       "next_repair_action": "Install crawl4ai for agk-station, allowlist in Hermes tools, run one crawl with evidence receipt."
     },
     {
       "id": "tigervnc",
-      "maturity": "SCAFFOLDED",
+      "maturity": "INSTALLABLE",
       "claim": "TigerVNC packages are declared for optional apt install; display auth and firewall policy pending.",
       "binary_probes": [],
       "next_repair_action": "Install tigervnc packages, configure VNC auth for agk-station only, verify viewer connect over private network."

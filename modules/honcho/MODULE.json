@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": "honcho",
-  "maturity": "SCAFFOLDED",
-  "claim": "Honcho agent-memory dependency is declared for optional pip install under agk-station; Zone-local memory policy pending.",
+  "maturity": "INSTALLABLE",
+  "claim": "Honcho SDK 2.4.0 installs into an isolated Station venv; server/API enrollment and Zone-local memory policy are pending.",
   "binary_probes": [],
   "next_repair_action": "Install package, configure Zone-scoped credentials/store, then Doctor a memory round-trip without cross-Zone leakage."
 }

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "web-product",
+  "frontend": ["next", "react", "tailwindcss", "shadcn-ui", "lucide"],
+  "backend_and_state": ["convex"],
+  "identity": ["clerk"],
+  "payments": ["stripe"],
+  "deployment": ["vercel"],
+  "policy": "preferred-not-exclusive"
+}

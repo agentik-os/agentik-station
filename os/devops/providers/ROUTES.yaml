@@ -1,5 +1,10 @@
 routes:
   director: reasoning-high
-  worker: task-fit
-  reviewer: independent-review
+  architect: reasoning-high
+  forge: coding-task-fit
+  sentinel: independent-review
+  release-engineer: release-task-fit
+  sre: operations-task-fit
 model_agnostic: true
+fallback: alternate-approved-provider-or-blocked
+provider_is_authority: false

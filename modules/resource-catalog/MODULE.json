@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "id": "resource-catalog",
+  "maturity": "INSTALLABLE",
+  "runtime_claim": "CATALOG_QUERYABLE_NOT_PROJECT_CONFIGURED"
+}

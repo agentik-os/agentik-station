@@ -1,3 +1,17 @@
 workflows:
   - id: default-mission
-    graph: clarify -> plan -> execute -> verify -> readback -> accept
+    graph: clarify -> architect -> plan -> forge -> sentinel -> release -> sre-readback -> atlas-accept
+    gates:
+      - scope-resolved
+      - plan-persisted
+      - implementation-tested
+      - independent-review-passed
+      - ci-and-release-evidence
+      - external-readback-when-applicable
+      - recovery-coordinate-recorded
+    parallel_branches:
+      allowed: true
+      condition: explicit-owner-and-non-overlapping-state
+    production:
+      approval: human-policy-authority
+      default: denied

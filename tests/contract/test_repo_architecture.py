@@ -61,3 +61,14 @@ def test_no_forbidden_legacy_or_generated_cache_in_active_tree() -> None:
 def test_only_one_canonical_systemd_source_exists() -> None:
     sources = [path for path in ROOT.rglob("station-doctor.service") if "history" not in path.parts]
     assert sources == [ROOT / "runtime" / "systemd" / "station-doctor.service"]
+
+
+def test_repository_paths_are_portable_to_case_insensitive_filesystems() -> None:
+    seen: dict[str, Path] = {}
+    for path in ROOT.rglob("*"):
+        relative = path.relative_to(ROOT)
+        if ".git" in relative.parts:
+            continue
+        folded = str(relative).casefold()
+        assert folded not in seen, f"case-colliding paths: {seen.get(folded)} and {relative}"
+        seen[folded] = relative
