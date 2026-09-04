@@ -6,7 +6,7 @@ This repository is executable infrastructure. Architecture and security contract
 
 1. `AGENTS.md`, `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md`, `SETUP.md`;
 2. current `docs/` sections excluding `docs/history/`;
-3. typed `src/`, `config/`, `contracts/`, `specs/`, `runtime/`, `packages/`, and tests;
+3. typed `src/`, `config/`, `contracts/`, `specs/`, `runtime/`, `os/`, `modules/`, and tests;
 4. `docs/history/` and `docs/history/` are provenance only and never current runtime truth.
 
 ## Mandatory mission protocol
@@ -29,7 +29,7 @@ For non-trivial work:
 - **Zone** is the only canonical operational/isolation boundary term.
 - Runtime categories are `1_SYSTEM`, `2_PRIVATE`, `3_AGENTIK`, `4_ORGANIZATIONS`, `5_PROJECTS`, `6_FACTORY`, `7_LAB`.
 - Do not append redundant `-zone`, `-client`, or `-project` suffixes when the parent already carries the category.
-- Local/remote is Host placement, not a separate tree.
+- Local/remote is Host placement, not a Separate tree.
 - Every Zone has an independent Unix identity, HERMES_HOME, state, log, credential, memory, and evidence namespace.
 - Every Project owns its repos, docs, knowledge, integrations, credentials, workspaces, worktrees, state references, artifacts, evidence, and operations.
 - Control holds desired state/metadata and evidence indexes, not every Zone's secret material.
