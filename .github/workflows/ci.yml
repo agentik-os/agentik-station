@@ -81,16 +81,16 @@ jobs:
               "schema_version": 1,
               "release_version": Path('VERSION').read_text().strip(),
               "operation_id": "op-ci-example",
-              "host_id": "moonbase-prod-01",
-              "role": "client",
+              "host_id": "organization-alpha-prod-01",
+              "role": "team",
               "install_system_packages": False,
               "configure_fail2ban": False,
               "enable_doctor_timer": False,
               "seed": {
-                  "category": "CLIENTS",
-                  "name": "moonbase",
+                  "category": "ORGANIZATIONS",
+                  "name": "organization-alpha",
                   "environment": "production",
-                  "organization": "moonbase",
+                  "organization": "organization-alpha",
                   "project": "platform"
               }
           }
@@ -109,21 +109,21 @@ jobs:
           print(f'JSON_OK {len(json_files)} YAML_OK {len(yaml_files)} SCHEMA_OK')
           PY
 
-      - name: Compile exact core and client plans
+      - name: Compile exact full/core and team plans
         run: |
-          ./station plan --host-id gareth-core-01 --role core --json > /tmp/core-plan.json
+          ./station plan --host-id station-core-01 --role core --json > /tmp/core-plan.json
           ./station plan \
-            --host-id moonbase-prod-01 \
-            --role client \
-            --seed-category CLIENTS \
-            --seed-name moonbase \
+            --host-id organization-alpha-prod-01 \
+            --role team \
+            --seed-category ORGANIZATIONS \
+            --seed-name organization-alpha \
             --seed-env production \
-            --seed-organization moonbase \
+            --seed-organization organization-alpha \
             --seed-project platform \
-            --json > /tmp/client-plan.json
+            --json > /tmp/team-plan.json
           python - <<'PY'
           import json
-          for path in ['/tmp/core-plan.json', '/tmp/client-plan.json']:
+          for path in ['/tmp/core-plan.json', '/tmp/team-plan.json']:
               payload = json.load(open(path))
               assert payload['final_claim_if_successful'] == 'READY_FOR_SETUP'
           print('PLAN_CONTRACT_OK')
