@@ -61,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.34 Host
+## Supported base for Station 11.35 Host
 
 The current safe-kernel provider supports:
 
@@ -87,7 +87,7 @@ cd agentik-station
 
 ## Core Host
 
-Release 11.34 full/core bootstrap additionally installs the native Stepper,
+Release 11.35 full/core bootstrap additionally installs the native Stepper,
 Builder and Librarian teams in the existing Factory `os` Zone after kernel
 readback. Team bootstrap uses its declared Organization Zone. This is profile
 software installation, not account enrollment or gateway activation. The
@@ -170,7 +170,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.34",
+  "release_version": "11.35",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -383,7 +383,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22–11.25 installation needing the current controls, publish the
-11.34 immutable Station kernel first, preserving the Host's desired state. Then
+11.35 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -397,9 +397,13 @@ agk doctor --offline
 agk
 ```
 
-The controls-only step checks eight exact existing operator software destinations:
-the launcher, controller, provider, watchdog, Doctor, sync script and the two
-operator Discord session-panel copies. It does not rebuild Rust, execute Hermes
+The controls-only step checks twelve exact operator software destinations:
+the launcher, controller, provider, watchdog, Doctor, sync script, two Discord
+session-panel copies, two agent-router copies and their two canonical-routing
+helpers. Only the exact new helper files may be absent; their existing parents
+must be safe. Missing helpers are published before dependent controls, with
+exclusive creation. Reviewed 11.34 controller/router bytes are accepted alongside
+the historical pins. It does not rebuild Rust, execute Hermes
 sync, restart gateways or change configuration/session data. Modified local
 software and an unrelated existing public `agk` are refused for explicit review.
 The source and target directory chains must not be group/world-writable. A normal
@@ -499,7 +503,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.34 publishes beside earlier releases; it never overwrites an old
+Station 11.35 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

@@ -812,6 +812,13 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         profile = runtime["role_profile_map"].get(role)
         if profile is None:
             raise ValidationError("Requested role is not in this instance's trusted Hermes team")
+    source_selection = None
+    if runtime and args.platform_command in {"chat", "install", "start", "restart"}:
+        from .os_discovery import require_current_runtime
+        # A verified old team is not the current Station package. Keep this
+        # selection guard separate from verification so ordinary instance chat
+        # does not acquire an unrelated full-team VERIFIED requirement.
+        source_selection = require_current_runtime(repository_root(), runtime)
     if runtime and runtime["state"] != "VERIFIED" and args.platform_command in {"install", "start", "restart"}:
         # The trusted reader downgrades stale verification to CONFIGURED. Both
         # fresh and changed teams must pass current full-team verification;
@@ -865,6 +872,9 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         "profile": profile,
         "role": role,
         "bundle_sha256": runtime["bundle_sha256"] if runtime else None,
+        "compiled_distribution": runtime.get("compiled_distribution") if runtime else None,
+        "installed_version": runtime.get("os_version") if runtime else None,
+        "canonical_source_selection": source_selection,
         "platform": requested_platform,
         "platform_selection": "operator-intent-only; actions target the selected profile's whole gateway",
         "action": args.platform_command,

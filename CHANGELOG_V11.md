@@ -1,3 +1,17 @@
+## 11.35 — Complete Builder Suite and canonical instance selection
+
+- Export Builder, Librarian and Stepper together from exact committed Station
+  bytes with a standalone verifier and explicit source-only provenance. No second
+  editable canonical tree or incomplete single-OS mirror.
+- Cross-check OS catalog/contract/manifest versions, report installed/current
+  versions and trusted bundle identity, and prevent old-version/team chat or
+  gateway activation from masquerading as current Station execution.
+- Remove AGK's silent canonical-OS fallback to the generic legacy Builder;
+  present scoped, non-executing Station guidance and retain explicitly named
+  compatibility access without copying account state.
+- Deliver the shared router to both reviewed operator plugin locations through
+  controls-only refresh before dependent code. Preserve profiles and services.
+
 ## 11.34 — Accurate post-install readiness and verified gateway activation
 
 - Correct Ponytail module/engineering claims: the required plugin remains

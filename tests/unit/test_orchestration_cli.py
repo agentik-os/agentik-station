@@ -12,6 +12,7 @@ from agentik_station import cli
 from agentik_station import native_process
 from agentik_station.errors import SecurityError, ValidationError
 from agentik_station.paths import LayoutPaths
+from agentik_station.os_discovery import resolve_package
 
 
 def test_setup_cli_passes_explicit_scope_without_executing_next_actions(monkeypatch, capsys):
@@ -68,9 +69,11 @@ def gateway(monkeypatch, tmp_path):
             "hermes_home": "/var/lib/station/zones/example-dev/hermes"}
     monkeypatch.setattr(cli, "_load_zone_record", lambda _: zone)
     calls = []
+    package = resolve_package(Path(__file__).resolve().parents[2], "devops-os")
     def load(paths, **kwargs):
         calls.append(kwargs)
-        return {"os_id": "devops-os", "project_id": "platform", "nano_director": "atlas",
+        return {"zone_id": zone["id"], "os_version": package["version"], "expected_profiles": package["roles"],
+                "os_id": "devops-os", "project_id": "platform", "nano_director": "atlas",
                 "bundle_sha256": "a" * 64, "state": "CONFIGURED"}
     monkeypatch.setitem(sys.modules, "agentik_station.os_lifecycle", SimpleNamespace(load_os_runtime_record=load))
     monkeypatch.setattr(cli.subprocess, "run", lambda *a, **k: pytest.fail("Plan executed a command"))

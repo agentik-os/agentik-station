@@ -1,6 +1,7 @@
 """The CLI chooses full trusted instances, not a sticky profile or another client."""
 import json
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -8,14 +9,17 @@ import pytest
 from agentik_station import cli
 from agentik_station.errors import ValidationError
 from agentik_station.os_runtime import instance_profile_map
+from agentik_station.os_discovery import resolve_package
 from test_orchestration_cli import gateway
 
 
 @pytest.fixture
 def instance_gateway(gateway, monkeypatch):
     zone, _ = gateway
-    mapping = instance_profile_map(zone["id"], "engineering", ["atlas", "forge"])
-    record = {"os_id": "devops-os", "instance_id": "engineering", "organization_id": "example",
+    package = resolve_package(Path(__file__).resolve().parents[2], "devops-os")
+    mapping = instance_profile_map(zone["id"], "engineering", package["roles"])
+    record = {"zone_id": zone["id"], "os_version": package["version"],
+              "os_id": "devops-os", "instance_id": "engineering", "organization_id": "example",
               "allowed_project_ids": ["platform"], "nano_director": mapping["atlas"],
               "role_profile_map": mapping, "state": "CONFIGURED", "bundle_sha256": "a" * 64}
     calls = []

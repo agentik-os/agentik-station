@@ -951,22 +951,31 @@ fn draw_os(frame: &mut Frame, app: &App, area: Rect, size: Density, colors: Pale
     if detail_area.width > 0 {
         let owner = app.current_os_agent();
         let owner_name = owner.map(|agent| agent.name.as_str()).unwrap_or("—");
-        let owner_profile = owner
-            .and_then(|agent| agent.profile.as_deref())
-            .unwrap_or("default");
+        let owner_profile =
+            owner
+                .and_then(|agent| agent.profile.as_deref())
+                .unwrap_or(if owner.is_some() {
+                    "default"
+                } else {
+                    "not selected"
+                });
         let owner_session = owner
             .map(|agent| agent.runtime_name.as_str())
             .unwrap_or("—");
         let text = app.current_os().map_or_else(
-            || Text::from(vec![
-                Line::raw("No Operative System package is installed yet."),
-                Line::raw(""),
-                Line::styled(
-                    "Master OS Builder is available under Agents to build the first validated OS.",
-                    Style::default().fg(colors.info),
-                ),
-                Line::raw("OS packages remain versioned objects; the builder itself is an agent."),
-            ]),
+            || {
+                Text::from(vec![
+                    Line::raw("No Operative System package is installed yet."),
+                    Line::raw(""),
+                    Line::styled(
+                        "Use Station's OS catalog to select Builder and its owning runtime.",
+                        Style::default().fg(colors.info),
+                    ),
+                    Line::raw(
+                        "A bundled compatibility agent is not a canonical Station OS instance.",
+                    ),
+                ])
+            },
             |package| {
                 Text::from(vec![
                     field("OS", &package.name, colors),
@@ -978,6 +987,7 @@ fn draw_os(frame: &mut Frame, app: &App, area: Rect, size: Density, colors: Pale
                     field("Owner", owner_name, colors),
                     field("Profile", owner_profile, colors),
                     field("Session", owner_session, colors),
+                    Line::raw(app.current_os_route_guidance().unwrap_or_default()),
                     field("Skills", &join(&package.skills), colors),
                     field("Workflows", &join(&package.workflows), colors),
                     Line::raw(""),

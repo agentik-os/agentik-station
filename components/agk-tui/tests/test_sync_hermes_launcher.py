@@ -1,3 +1,5 @@
+import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -133,3 +135,26 @@ def test_sync_rejects_directory_in_place_of_launcher(sync_fixture):
     assert launcher.is_dir()
     assert list(launcher.iterdir()) == []
     assert not calls.exists()
+
+
+def test_sync_delivers_importable_canonical_routing_helper(sync_fixture):
+    launcher, _, _, env = sync_fixture
+    write_launcher(launcher)
+    source = SCRIPT.parents[1] / "hermes/plugins/agentik_os/canonical_routing.py"
+    copied = Path(env["AGK_TERMINAL_ROOT"]) / "hermes/plugins/agentik_os/canonical_routing.py"
+    shutil.copyfile(source, copied)
+    result = run_sync(env)
+    assert result.returncode == 0, result.stderr
+    installed = Path(env["HERMES_HOME"]) / "plugins/agentik_os/canonical_routing.py"
+    assert installed.read_bytes() == source.read_bytes()
+    probe = subprocess.run([
+        sys.executable, "-I", "-B", "-c",
+        "import importlib.util,json,sys; "
+        "spec=importlib.util.spec_from_file_location('routing',sys.argv[1]); "
+        "module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); "
+        "print(json.dumps(module.canonical_handoff('builder-os',zone='os',instance='builder')))",
+        str(installed),
+    ], capture_output=True, text=True, check=False, timeout=10)
+    assert probe.returncode == 0, probe.stderr
+    handoff = json.loads(probe.stdout)
+    assert handoff["agent"] == "builder-os" and not handoff["executed"]

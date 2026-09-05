@@ -28,6 +28,7 @@ PREVIOUS = {
         "5ae627aa79d2eca21194b0b735dbee5030039c3a498526ec3f3b262f5773133d",
         "0e527d95999f1bf052abe6b27adc1e01054c6f505328fb853d68da328ffcba5b",
         "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
+        "e12560e812fb40f52c5e535d9f5699f4b0ddd3761a2f8837c99835e33b13e561",
     }),
     "scripts/provider.sh": frozenset({
         "e9d8c11fe54612b7598cf4aa2690a5b8526300f5aa1ecca8a96a76fca0037c13",
@@ -45,10 +46,17 @@ PREVIOUS = {
     "scripts/sync-hermes.sh": frozenset({
         "246dc7015ad4c4fb5722218a89127d7b244b9d5a4ab0b92e193a061733c27c80",
     }),
+    # Exact 11.34 source and both installed Moonbase copies independently read
+    # back before the 11.35 update. No arbitrary older plugin is adopted.
+    "hermes/plugins/agentik_os/agent_registry.py": frozenset({
+        "e48d609d88727a6f2c27d0adf69b6ff5917ded14776aa94caf5e13ebfcc9a3c8",
+    }),
+    "hermes/plugins/agentik_os/canonical_routing.py": frozenset(),
 }
 # Exact HOME-relative software destinations only, including the one confirmed
 # operator plugin copy. Other profiles, state, configuration and native binaries
-# are never scanned or implicitly adopted. Every destination must already exist.
+# are never scanned or implicitly adopted. Only the two exact new helper
+# destinations may be absent; all predecessor software must already exist.
 TARGETS = {
     ".local/bin/agk": ("bin/agk", 0o755),
     ".local/lib/agk-terminal/scripts/agk_control.py": ("scripts/agk_control.py", 0o755),
@@ -60,7 +68,17 @@ TARGETS = {
     ".hermes/plugins/platforms/discord/agk_session_panel.py": (
         "hermes/plugins/platforms/discord/agk_session_panel.py", 0o644),
     ".local/lib/agk-terminal/scripts/sync-hermes.sh": ("scripts/sync-hermes.sh", 0o755),
+    ".local/lib/agk-terminal/hermes/plugins/agentik_os/canonical_routing.py": (
+        "hermes/plugins/agentik_os/canonical_routing.py", 0o644),
+    ".hermes/plugins/agentik_os/canonical_routing.py": (
+        "hermes/plugins/agentik_os/canonical_routing.py", 0o644),
+    ".local/lib/agk-terminal/hermes/plugins/agentik_os/agent_registry.py": (
+        "hermes/plugins/agentik_os/agent_registry.py", 0o644),
+    ".hermes/plugins/agentik_os/agent_registry.py": (
+        "hermes/plugins/agentik_os/agent_registry.py", 0o644),
 }
+NEW_TARGETS = frozenset(destination for destination, (relative, _) in TARGETS.items()
+                        if relative == "hermes/plugins/agentik_os/canonical_routing.py")
 MAX_BYTES = 256 * 1024
 
 
@@ -138,16 +156,31 @@ def refresh_controls(source: Path, prefix: Path) -> dict:
             # Python helpers as 0644 even though install.sh publishes them 0755.
             content = _read(parent, source_file.name, {0, account.pw_uid}, False)
         with _parent(target.parent, uid=account.pw_uid, anchor=home) as parent:
-            old = _read(parent, target.name, {account.pw_uid}, executable)
-        if old != content and hashlib.sha256(old).hexdigest() not in previous:
+            try:
+                old = _read(parent, target.name, {account.pw_uid}, executable)
+            except FileNotFoundError:
+                if destination not in NEW_TARGETS:
+                    raise
+                old = None
+        if old is not None and old != content and hashlib.sha256(old).hexdigest() not in previous:
             raise ValueError("Installed controls were customized or are not a reviewed release; preserved for review")
         prepared.append((target, old, content, mode, executable))
     changed = []
     # All files are checked before the first mutation. This is not a global
     # transaction: a filesystem failure after one replacement requires retry.
-    for target, old, content, mode, executable in prepared:
+    # Publish missing dependencies first. A later partial failure must not leave
+    # the new controller/router installed without its shared helper.
+    ordered = [item for item in prepared if item[1] is None] + [item for item in prepared if item[1] is not None]
+    for target, old, content, mode, executable in ordered:
         with _parent(target.parent, uid=account.pw_uid, anchor=home) as parent:
-            if _read(parent, target.name, {account.pw_uid}, executable) != old:
+            if old is None:
+                try:
+                    os.stat(target.name, dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                else:
+                    raise ValueError("New controls destination appeared during refresh; preserved for review")
+            elif _read(parent, target.name, {account.pw_uid}, executable) != old:
                 raise ValueError("Installed controls changed during refresh; stop and review")
             if old == content:
                 continue
@@ -159,7 +192,13 @@ def refresh_controls(source: Path, prefix: Path) -> dict:
                     stream.flush()
                 os.fchmod(fd, mode)
                 os.fsync(fd)
-                os.replace(temporary, target.name, src_dir_fd=parent, dst_dir_fd=parent)
+                if old is None:
+                    # Exclusive publication also refuses a racing file/symlink;
+                    # replacing it would adopt unreviewed software.
+                    os.link(temporary, target.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+                    os.unlink(temporary, dir_fd=parent)
+                else:
+                    os.replace(temporary, target.name, src_dir_fd=parent, dst_dir_fd=parent)
                 os.fsync(parent)
             finally:
                 os.close(fd)

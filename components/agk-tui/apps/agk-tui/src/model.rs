@@ -545,11 +545,28 @@ impl App {
         self.filtered_os().nth(self.selected)
     }
 
+    pub fn current_os_route_guidance(&self) -> Option<String> {
+        let package = self.current_os()?;
+        if !matches!(
+            package.id.as_str(),
+            "builder-os" | "stepper-os" | "librarian-os"
+        ) {
+            return None;
+        }
+        Some(format!(
+            "Select the owning Station Host, Zone + instance: sudo station os resolve --name {} --zone <zone> --instance <instance>; then sudo station os instance chat --zone <zone> --instance <instance> --plan. Nothing launched. Personal Workstation uses its own Station OS workflow, not Host sudo commands.",
+            package.id
+        ))
+    }
+
     /// Resolve the catalog agent responsible for the selected OS. Explicit
-    /// versioned `os` bindings win, then manifest agent IDs, with the bundled
-    /// OS lifecycle agent as a compatibility owner for older packages.
+    /// versioned `os` bindings win, then manifest agent IDs. The operator-local
+    /// catalog cannot resolve canonical Station instance/profile authority.
     pub fn current_os_agent(&self) -> Option<&AgentRecord> {
         let package = self.current_os()?;
+        if self.current_os_route_guidance().is_some() {
+            return None;
+        }
         let versioned = format!("{}@{}", package.id, package.version);
         self.snapshot
             .agents
@@ -567,12 +584,6 @@ impl App {
                         .iter()
                         .any(|owner| owner == &agent.id || owner.replace('_', "-") == agent.id)
                 })
-            })
-            .or_else(|| {
-                self.snapshot
-                    .agents
-                    .iter()
-                    .find(|agent| agent.id == "master-os-builder")
             })
     }
 
@@ -1071,5 +1082,40 @@ mod tests {
         let owner = app.current_os_agent().expect("OS owner");
         assert_eq!(owner.id, "mission-specialist");
         assert_eq!(owner.profile.as_deref(), Some("mission-os"));
+    }
+
+    #[test]
+    fn unmapped_os_never_falls_back_to_legacy_builder() {
+        let mut app = app();
+        app.set_snapshot(RegistrySnapshot {
+            agents: vec![agent("master-os-builder", &[])],
+            os_packages: vec![os_package("unmapped-os", "1.0.0")],
+            ..RegistrySnapshot::default()
+        });
+        app.set_view(View::Os);
+        assert!(app.current_os_agent().is_none());
+        assert!(!app.enter_os_conversations());
+        assert!(app.os_conversations.is_none());
+    }
+
+    #[test]
+    fn canonical_suite_never_uses_operator_catalog_as_instance_authority() {
+        for id in ["builder-os", "stepper-os", "librarian-os"] {
+            let mut app = app();
+            let mut package = os_package(id, "1.0.0");
+            package.agents = vec!["master-os-builder".into()];
+            app.set_snapshot(RegistrySnapshot {
+                agents: vec![agent("master-os-builder", &[id])],
+                os_packages: vec![package],
+                ..RegistrySnapshot::default()
+            });
+            app.set_view(View::Os);
+            assert!(app.current_os_agent().is_none());
+            assert!(!app.enter_os_conversations());
+            let guidance = app.current_os_route_guidance().expect("canonical handoff");
+            assert!(guidance.contains(&format!("station os resolve --name {id}")));
+            assert!(guidance.contains("--zone <zone> --instance <instance> --plan"));
+            assert!(guidance.contains("Nothing launched"));
+        }
     }
 }

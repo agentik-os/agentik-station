@@ -57,14 +57,14 @@ def runtime(monkeypatch):
 
 
 @pytest.mark.parametrize("alias", ["operator", "agk-station"])
-def test_real_operator_alias_selects_builder_without_changing_session_namespace(runtime, monkeypatch, alias):
+def test_explicit_legacy_builder_preserves_operator_session_namespace(runtime, monkeypatch, alias):
     monkeypatch.setenv("AGENTIK_ENVIRONMENT", alias)
-    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "master-os-builder"}))
+    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "legacy-master-os-builder"}))
     assert result["success"] is True
     assert result["runtime"]["name"] == "agk-station-master-os-builder"
     assert runtime.calls == ["agk-station-master-os-builder"]
     env = runtime.controller.Environment("agk-station", Path.home(), Path.home() / "workspace/projects")
-    assert runtime.controller.specialist_definition(env, "master-os-builder")["id"] == "master-os-builder"
+    assert runtime.controller.specialist_definition(env, "legacy-master-os-builder")["id"] == "master-os-builder"
 
 
 def test_real_operator_without_user_environment_uses_actual_identity(runtime, monkeypatch):
@@ -76,11 +76,11 @@ def test_real_operator_without_user_environment_uses_actual_identity(runtime, mo
 @pytest.mark.parametrize("environment", ["station", "unknown", "private", "mission", "acme-dev", "../operator"])
 def test_operator_mislabeled_environment_is_denied_before_runtime_lookup(runtime, monkeypatch, environment):
     monkeypatch.setenv("AGENTIK_ENVIRONMENT", environment)
-    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "master-os-builder"}))
+    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "legacy-master-os-builder"}))
     assert "error" in result and runtime.calls == []
     env = runtime.controller.Environment(environment, Path.home(), Path.home() / "workspace/projects")
     with pytest.raises(ValueError, match="environment"):
-        runtime.controller.specialist_definition(env, "master-os-builder")
+        runtime.controller.specialist_definition(env, "legacy-master-os-builder")
 
 
 @pytest.mark.parametrize("change", ["account", "home", "account-home", "root", "setuid"])
@@ -97,7 +97,7 @@ def test_operator_alias_cannot_be_claimed_by_wrong_identity(runtime, monkeypatch
         monkeypatch.setattr(runtime.scope.os, "geteuid", lambda: 0)
     else:
         monkeypatch.setattr(runtime.scope.os, "getuid", lambda: 1002)
-    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "master-os-builder"}))
+    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "legacy-master-os-builder"}))
     assert "error" in result and runtime.calls == []
 
 
@@ -141,7 +141,7 @@ def test_validated_personal_workstation_retains_private_agent_scope(runtime, mon
     monkeypatch.setenv("HOME", str(root / "personal/home"))
     monkeypatch.setenv("STATION_WORKSTATION_ROOT", str(root))
     monkeypatch.setenv("AGENTIK_ENVIRONMENT", "private")
-    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "master-os-builder"}))
+    result = json.loads(runtime.agents.handle_agent({"action": "status", "agent": "legacy-master-os-builder"}))
     assert result["success"] is True
     assert runtime.calls == ["private-master-os-builder"]
     with pytest.raises(ValueError, match="private"):
@@ -151,7 +151,92 @@ def test_validated_personal_workstation_retains_private_agent_scope(runtime, mon
         runtime.scope.agent_environment("private", Path.home())
 
 
-def test_bundled_builder_is_available_to_native_tui_without_scope_bypass():
+def test_explicit_legacy_builder_retains_its_original_scope_without_bypass():
     import yaml
     definition = yaml.safe_load((COMPONENT / "hermes/agents/master-os-builder/agent.yaml").read_text())
     assert definition["scope"] == ["operator", "agk-station", "agentik", "mission", "private"]
+
+
+@pytest.mark.parametrize("agent,os_id", [
+    ("BuilderOS", "builder-os"), ("builder", "builder-os"),
+    ("builder-os", "builder-os"), ("master-os-builder", "builder-os"),
+    ("build-os", "builder-os"), ("Stepper", "stepper-os"),
+    ("steper", "stepper-os"), ("steper-os", "stepper-os"),
+    ("stepper-os", "stepper-os"), ("Librarian", "librarian-os"),
+    ("librarian-os", "librarian-os"),
+])
+@pytest.mark.parametrize("action", ["start", "status", "message", "logs"])
+def test_canonical_natural_language_tool_route_never_touches_legacy_runtime(runtime, agent, os_id, action):
+    result = json.loads(runtime.agents.handle_agent({
+        "action": action, "agent": agent, "instruction": "Use this OS to build my new system",
+    }))
+    assert result["agent"] == os_id
+    assert result["success"] is False and result["executed"] is False
+    assert result["status"] == "STATION_HANDOFF_REQUIRED"
+    assert result["installed_version"] is None and result["director_profile"] is None
+    assert result["scope"] == {"zone": None, "instance": None}
+    assert result["commands_are_templates"] is True
+    assert result["resolve_argv"] == [
+        "sudo", "station", "os", "resolve", "--name", os_id,
+        "--zone", "<zone>", "--instance", "<instance>",
+    ]
+    assert runtime.calls == []
+
+
+def test_explicit_scope_renders_exact_plan_but_never_claims_authority(runtime):
+    result = json.loads(runtime.agents.handle_agent({
+        "action": "start", "agent": "BuilderOS", "zone": "os", "instance": "builder",
+    }))
+    assert result["chat_plan_argv"] == [
+        "sudo", "station", "os", "instance", "chat", "--zone", "os",
+        "--instance", "builder", "--plan",
+    ]
+    assert result["commands_are_templates"] is False
+    assert result["executed"] is False and result["success"] is False
+    assert "not run" in result["next_action"]
+    assert runtime.calls == []
+
+
+@pytest.mark.parametrize("scope", [
+    {"zone": "os"}, {"instance": "builder"}, {"zone": "../other", "instance": "builder"},
+    {"zone": "os", "instance": "--help"}, {"zone": "os", "instance": "bad\nvalue"},
+    {"zone": "os", "instance": 42}, {"zone": "", "instance": "builder"},
+])
+def test_canonical_handoff_rejects_ambiguous_or_unsafe_selectors(runtime, scope):
+    result = json.loads(runtime.agents.handle_agent({"action": "start", "agent": "builder", **scope}))
+    assert "error" in result
+    assert runtime.calls == []
+
+
+def test_router_prompt_and_slash_command_distinguish_canonical_and_legacy(runtime):
+    prompt = runtime.agents.agent_router_prompt()
+    assert "Station's canonical builder-os" in prompt
+    assert "legacy-master-os-builder" in prompt
+    assert "not a launched session" in prompt
+    service = runtime.agents.AgentCommandService()
+    listing = service.dispatch("list")
+    assert "builder-os · canonical Station OS" in listing
+    assert "stepper-os · canonical Station OS" in listing
+    assert "librarian-os · canonical Station OS" in listing
+    assert "legacy-master-os-builder" in listing
+    result = json.loads(service.dispatch('start BuilderOS "build a new OS"'))
+    assert result["status"] == "STATION_HANDOFF_REQUIRED" and not result["executed"]
+    assert runtime.calls == []
+
+
+@pytest.mark.parametrize("agent", ["builder", "builder-os", "master-os-builder", "stepper", "librarian-os"])
+def test_controller_canonical_start_stops_before_workspace_and_rmux(runtime, monkeypatch, agent):
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("Canonical handoff must not prepare a legacy workspace or launch")
+    monkeypatch.setattr(runtime.controller, "prepare_specialist_workspace", forbidden)
+    env = runtime.controller.Environment("agk-station", Path.home(), Path.home() / "workspace/projects")
+    with pytest.raises(ValueError, match="sudo station os resolve"):
+        runtime.controller.start_specialist(env, SimpleNamespace(ensure_specialist=forbidden), agent)
+
+
+def test_plugin_listing_never_advertises_legacy_as_canonical_builder(runtime):
+    listing = json.loads(runtime.agents.handle_agent({"action": "list"}))
+    assert "master-os-builder" not in {agent["id"] for agent in listing["agents"]}
+    assert "legacy-master-os-builder" in {agent["id"] for agent in listing["agents"]}
+    assert {os["agent"] for os in listing["station_os"]} == {"builder-os", "stepper-os", "librarian-os"}
+    assert all(not os["executed"] and os["installed_version"] is None for os in listing["station_os"])

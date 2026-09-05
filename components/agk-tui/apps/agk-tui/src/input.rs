@@ -403,7 +403,9 @@ pub fn handle_key_for_layout(
                     app.status =
                         Some("OS conversations · Enter open · n new · x delete · Esc back".into());
                 } else {
-                    app.status = Some("No responsible catalog agent is assigned".into());
+                    app.status = Some(app.current_os_route_guidance().unwrap_or_else(||
+                        "No responsible catalog agent is assigned; select an explicit package owner".into()
+                    ));
                 }
                 Action::None
             } else if let Some(runtime) = app.current_os_conversation() {
@@ -1518,6 +1520,29 @@ mod tests {
         handle_key(&mut app, key(KeyCode::Right), true);
         assert_eq!(app.view, View::Sessions);
         assert_eq!(app.focus, Focus::List);
+    }
+
+    #[test]
+    fn canonical_os_enter_shows_scoped_handoff_without_opening_a_legacy_agent() {
+        for id in ["builder-os", "stepper-os", "librarian-os"] {
+            let mut app = app();
+            add_os_agent(&mut app);
+            app.snapshot.os_packages[0].id = id.into();
+            app.snapshot.os_packages[0].agents = vec!["master-os-builder".into()];
+            app.snapshot.agents[0].id = "master-os-builder".into();
+            app.snapshot.agents[0].os = vec![id.into()];
+            app.set_view(View::Os);
+            assert_eq!(
+                handle_key(&mut app, key(KeyCode::Enter), true),
+                Action::None
+            );
+            assert!(app.os_conversations.is_none());
+            assert_eq!(app.overlay, Overlay::None);
+            let status = app.status.as_deref().expect("handoff guidance");
+            assert!(status.contains(&format!("station os resolve --name {id}")));
+            assert!(status.contains("--zone <zone> --instance <instance> --plan"));
+            assert!(status.contains("Nothing launched"));
+        }
     }
 
     #[test]

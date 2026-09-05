@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1339
+Total files: 1344
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -107,6 +107,7 @@ Total files: 1339
 - `components/agk-tui/hermes/dashboard-themes/agentik-shadcn.yaml`
 - `components/agk-tui/hermes/plugins/agentik_os/__init__.py`
 - `components/agk-tui/hermes/plugins/agentik_os/agent_registry.py`
+- `components/agk-tui/hermes/plugins/agentik_os/canonical_routing.py`
 - `components/agk-tui/hermes/plugins/agentik_os/commands.py`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css`
@@ -260,6 +261,7 @@ Total files: 1339
 - `docs/assets/readme/station-os-map.svg`
 - `docs/assets/readme/station-system-map.svg`
 - `docs/audit/2026-09-05-agk-tui-acceptance.md`
+- `docs/audit/2026-09-05-builder-suite-publication.md`
 - `docs/audit/2026-09-05-chatbotx-acceptance.md`
 - `docs/audit/2026-09-05-chatbotx-install-plan.md`
 - `docs/audit/2026-09-05-coordinated-updates-plan.md`
@@ -1179,6 +1181,7 @@ Total files: 1339
 - `runtime/systemd/station-hermes-watch.service`
 - `runtime/systemd/station-hermes-watch.timer`
 - `runtime/systemd/station-parakeet.service`
+- `scripts/builder_suite.py`
 - `scripts/ci_vps_acceptance.sh`
 - `scripts/ci_vps_evidence.py`
 - `scripts/generate_release_metadata.py`
@@ -1270,6 +1273,7 @@ Total files: 1339
 - `tests/contract/test_atlas_and_resources.py`
 - `tests/contract/test_build_resource_delivery.py`
 - `tests/contract/test_builder_execution.py`
+- `tests/contract/test_builder_suite_export.py`
 - `tests/contract/test_chatbotx_install.py`
 - `tests/contract/test_deps_stack.py`
 - `tests/contract/test_devops_os_semantics.py`
@@ -1332,6 +1336,7 @@ Total files: 1339
 - `tests/unit/test_models.py`
 - `tests/unit/test_onboarding.py`
 - `tests/unit/test_orchestration_cli.py`
+- `tests/unit/test_os_canonical_selection.py`
 - `tests/unit/test_platform_activation_verification.py`
 - `tests/unit/test_platform_setup_entrypoint.py`
 - `tests/unit/test_release_generation.py`

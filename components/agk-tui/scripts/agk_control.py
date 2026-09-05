@@ -236,6 +236,19 @@ def specialist_environment(env: Environment) -> tuple[str, str]:
 def specialist_definition(env: Environment, agent_id: str) -> dict[str, object]:
     if not NAME_RE.fullmatch(agent_id):
         raise ValueError("specialist id must use the canonical name grammar")
+    # This operator-local catalog is not the trusted Station instance ledger.
+    # Share aliases and repair guidance with the Hermes tool, without loading
+    # that plugin or depending on a configured native Hermes installation.
+    import importlib.util
+    helper = Path(__file__).resolve().parents[1] / "hermes/plugins/agentik_os/canonical_routing.py"
+    spec = importlib.util.spec_from_file_location("agk_canonical_routing", helper)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    handoff = module.canonical_handoff(agent_id)
+    if handoff is not None:
+        raise ValueError(handoff["next_action"])
+    if agent_id == module.LEGACY_BUILDER:
+        agent_id = "master-os-builder"
     root = agent_catalog_path(env.home).resolve()
     manifest = (root / agent_id / "agent.yaml").resolve()
     if root not in manifest.parents or not manifest.is_file():
@@ -722,7 +735,7 @@ def start_specialist(
     definition = specialist_definition(env, agent_id)
     workspace = prepare_specialist_workspace(env, definition)
     command = specialist_command(env, definition, workspace)
-    canonical = f"{env.name}-{agent_id}"
+    canonical = f"{env.name}-{definition['id']}"
     session = session_name or canonical
     if session != canonical and (
         not NAME_RE.fullmatch(session) or not session.startswith(f"{canonical}-")

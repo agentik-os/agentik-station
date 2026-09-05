@@ -14,6 +14,7 @@ from pathlib import Path
 import yaml
 
 from tools.registry import tool_error, tool_result
+from .canonical_routing import LEGACY_BUILDER, canonical_handoff
 from .workstation import agent_environment, agk_executable
 
 
@@ -22,7 +23,8 @@ AGENT_TOOL_SCHEMA = {
     "name": "agentik_agent",
     "description": (
         "List, start, inspect, message, or read a specialized Agentik agent. "
-        "Every started agent receives a persistent Hermes session inside its own AGK/RMUX runtime."
+        "Station Builder, Stepper and Librarian return a scoped, non-executing Station handoff. "
+        "Other started catalog agents receive operator-local Hermes + AGK/RMUX sessions."
     ),
     "parameters": {
         "type": "object",
@@ -30,6 +32,8 @@ AGENT_TOOL_SCHEMA = {
             "action": {"type": "string", "enum": ["list", "start", "status", "message", "logs"]},
             "agent": {"type": "string", "description": "Canonical agent id."},
             "instruction": {"type": "string", "description": "Objective or follow-up instruction."},
+            "zone": {"type": "string", "description": "Explicit Station Zone for OS handoff guidance, not authorization."},
+            "instance": {"type": "string", "description": "Explicit installed Station OS instance for handoff guidance."},
         },
         "required": ["action"],
     },
@@ -61,16 +65,30 @@ def _definitions() -> list[dict]:
 
 
 def _definition(agent_id: str) -> dict | None:
-    return next((item for item in _definitions() if item["id"] == agent_id), None)
+    source_id = "master-os-builder" if agent_id == LEGACY_BUILDER else agent_id
+    definition = next((item for item in _definitions() if item["id"] == source_id), None)
+    return definition
 
 
 def agent_router_prompt(_session_info: dict | None = None) -> str:
-    available = ", ".join(item["id"] for item in _definitions()) or "none"
+    available = ", ".join(
+        LEGACY_BUILDER if item["id"] == "master-os-builder" else item["id"]
+        for item in _definitions()
+    ) or "none"
     return (
         "Agentik specialized-agent routing:\n"
-        f"Installed agent ids: {available}.\n"
+        "Requests to use Builder / BuilderOS / master-os-builder, Stepper / Steper or Librarian "
+        "mean Station's canonical builder-os, stepper-os or librarian-os, respectively. "
+        "Call agentik_agent with that canonical id and the explicit Zone + instance when known. "
+        "It returns a Station handoff, not a launched session. Use the trusted Station resolve "
+        "and instance chat plan to check the active version and exact namespaced Director; "
+        "never infer the Zone from the operator or a Project.\n"
+        f"Operator-local compatibility agent ids: {available}. "
+        f"{LEGACY_BUILDER} is the old bundled agent, not canonical Station Builder OS; "
+        "use it only when the user explicitly requests that legacy agent.\n"
         "When the user explicitly asks to start, call, use, or continue an installed specialized agent, "
-        "use the agentik_agent tool. Start creates or resumes its durable Hermes + AGK/RMUX runtime; "
+        "use the agentik_agent tool. For non-Station catalog agents, start creates or resumes its "
+        "durable Hermes + AGK/RMUX runtime; "
         "message sends a follow-up; logs reads its bounded output. Never pretend to have launched an agent, "
         "never create a second ad-hoc session system, and never cross the current Linux environment boundary."
     )
@@ -133,11 +151,19 @@ def handle_agent(args: dict, **_kwargs) -> str:
     agent_id = str(args.get("agent") or "").lower().strip()
     instruction = str(args.get("instruction") or "").strip()
     try:
+        if action not in {"list", "start", "status", "message", "logs"}:
+            return tool_error("unknown agent action")
         if action == "list":
             return tool_result({"success": True, "agents": [
-                {key: item.get(key) for key in ("id", "name", "version", "description", "scope")}
+                {**{key: item.get(key) for key in ("id", "name", "version", "description", "scope")},
+                 "id": LEGACY_BUILDER if item["id"] == "master-os-builder" else item["id"],
+                 "route": "operator-local-compatibility"}
                 for item in _definitions()
-            ]})
+            ], "station_os": [canonical_handoff(os_id) for os_id in
+                               ("builder-os", "stepper-os", "librarian-os")]})
+        handoff = canonical_handoff(agent_id, zone=args.get("zone"), instance=args.get("instance"))
+        if handoff is not None:
+            return tool_result(handoff)
         definition = _definition(agent_id)
         if not definition:
             return tool_error(f"unknown Agentik agent: {agent_id}")
@@ -147,7 +173,7 @@ def handle_agent(args: dict, **_kwargs) -> str:
             return tool_error(f"agent {agent_id} has an invalid scope")
         if not {environment, policy_scope}.intersection(scope):
             return tool_error(f"agent {agent_id} is not allowed in {environment}")
-        session = f"{environment}-{agent_id}"
+        session = f"{environment}-{definition['id']}"
         row = _runtime_row(session)
         if action == "start":
             if not row:
@@ -191,7 +217,11 @@ class AgentCommandService:
         if action == "list":
             data = json.loads(handle_agent({"action": "list"}))
             agents = data.get("agents") or []
-            return "AGENTS\n" + ("\n".join(
+            canonical = "\n".join(
+                f"• {item['agent']} · canonical Station OS; select its Zone + instance (not launched)"
+                for item in data.get("station_os", [])
+            )
+            return "STATION OS\n" + canonical + "\n\nCOMPATIBILITY AGENTS\n" + ("\n".join(
                 f"• {item['id']} · {item.get('description') or item.get('name')}" for item in agents
             ) if agents else "No specialized agents installed.")
         if action in {"start", "status", "logs"} and len(argv) >= 2:

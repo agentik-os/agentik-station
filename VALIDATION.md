@@ -1,4 +1,23 @@
-# Agentik Station 11.34 Validation
+# Agentik Station 11.35 Validation
+
+## Complete Builder suite and canonical runtime selection — 11.35
+
+The [publication and runtime-selection audit](docs/audit/2026-09-05-builder-suite-publication.md)
+binds Builder/Librarian/Stepper exports to one committed Station source and corrects
+ambiguous version and legacy-agent selection. The OS package versions themselves
+remain 11.14 / 3.0.1 / 0.2.0; no package or enrolled team is force-replaced.
+
+The AGK canonical handoff is explicitly non-executing when no authorized Station
+instance execution boundary is available. It is not an automatic cross-Zone
+launcher. Source export, routing regressions, installed native readback and live
+provider/Discord acceptance remain distinct validation gates.
+
+Local candidate validation passed **2,383 Station/Factory tests** (23 Linux-only
+skips), **529 AGK Python tests** (two missing native-web-library skips), **115
+Rust tests**, Rust formatting and **263 npm tests**. The Station suite includes
+46 exporter regressions, including all three real source trees and 29 roles.
+These results do not substitute for published-commit CI, external repository
+verification or native Host acceptance.
 
 ## Post-installation routing and readiness — 11.34
 

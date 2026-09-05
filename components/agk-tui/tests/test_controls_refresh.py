@@ -109,6 +109,7 @@ def test_predecessor_allowlist_is_only_exact_reviewed_software():
             "5ae627aa79d2eca21194b0b735dbee5030039c3a498526ec3f3b262f5773133d",
             "0e527d95999f1bf052abe6b27adc1e01054c6f505328fb853d68da328ffcba5b",
             "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
+            "e12560e812fb40f52c5e535d9f5699f4b0ddd3761a2f8837c99835e33b13e561",
         }),
         "scripts/provider.sh": frozenset({
             "e9d8c11fe54612b7598cf4aa2690a5b8526300f5aa1ecca8a96a76fca0037c13",
@@ -126,6 +127,10 @@ def test_predecessor_allowlist_is_only_exact_reviewed_software():
         "scripts/sync-hermes.sh": frozenset({
             "246dc7015ad4c4fb5722218a89127d7b244b9d5a4ab0b92e193a061733c27c80",
         }),
+        "hermes/plugins/agentik_os/agent_registry.py": frozenset({
+            "e48d609d88727a6f2c27d0adf69b6ff5917ded14776aa94caf5e13ebfcc9a3c8",
+        }),
+        "hermes/plugins/agentik_os/canonical_routing.py": frozenset(),
     }
     assert {source for source, _ in refresh.TARGETS.values()} == set(refresh.PREVIOUS)
     assert set(refresh.TARGETS) == {
@@ -136,6 +141,10 @@ def test_predecessor_allowlist_is_only_exact_reviewed_software():
         ".local/lib/agk-terminal/hermes/plugins/platforms/discord/agk_session_panel.py",
         ".hermes/plugins/platforms/discord/agk_session_panel.py",
         ".local/lib/agk-terminal/scripts/sync-hermes.sh",
+        ".local/lib/agk-terminal/hermes/plugins/agentik_os/canonical_routing.py",
+        ".hermes/plugins/agentik_os/canonical_routing.py",
+        ".local/lib/agk-terminal/hermes/plugins/agentik_os/agent_registry.py",
+        ".hermes/plugins/agentik_os/agent_registry.py",
     }
 
 
@@ -198,6 +207,15 @@ fi
                 b"    if not {environment, policy_scope}.intersection(scope):\n",
                 b'    if env.name != "operator" and env.name not in scope:\n',
             )
+            # Strip the later canonical Station handoff too. The fixed
+            # predecessor hash below must keep proving historical bytes.
+            routing_start = old.index(b"    # This operator-local catalog is not the trusted Station instance ledger.")
+            routing_end = old.index(b"    root = agent_catalog_path(env.home).resolve()", routing_start)
+            old = old[:routing_start] + old[routing_end:]
+            old = old.replace(
+                b'''    canonical = f"{env.name}-{definition['id']}"\n''',
+                b'    canonical = f"{env.name}-{agent_id}"\n',
+            )
         if relative in removed:
             delta = removed[relative].encode()
             assert old.count(delta) == 1
@@ -220,7 +238,7 @@ def test_reviewed_1124_1125_refresh_changes_only_three_software_files(reviewed_h
     result = refresh.refresh_controls(source, prefix)
     assert result == {"state": "CONTROLS_REFRESHED", "changed": changed_paths(prefix, pairs[:3]),
                       "runtime_verified": False}
-    assert len(untouched) == 5
+    assert len(untouched) == len(refresh.TARGETS) - 3
     assert all(dst.stat().st_ino == inode for dst, inode in untouched.items())
     assert all(dst.read_bytes() == new for _, dst, _, new in pairs)
     assert refresh.refresh_controls(source, prefix)["changed"] == []
@@ -389,3 +407,58 @@ def test_component_controls_path_exits_before_build_network_or_hermes():
     assert invoke < source.index("install_rmux\n")
     assert invoke < source.index("build --locked --release")
     assert invoke < source.index('pip install')
+
+
+def test_missing_canonical_helpers_are_published_before_dependent_controller(controls, monkeypatch):
+    source, prefix, pairs = controls
+    new_pairs = [pair for pair in pairs if str(pair[1].relative_to(prefix.parent)) in refresh.NEW_TARGETS]
+    for _, path, _, _ in new_pairs:
+        path.unlink()
+    replace = refresh.os.replace
+    calls = []
+
+    def checked_replace(*args, **kwargs):
+        calls.append(args)
+        assert all(path.read_bytes() == new for _, path, _, new in new_pairs)
+        return replace(*args, **kwargs)
+
+    monkeypatch.setattr(refresh.os, "replace", checked_replace)
+    result = refresh.refresh_controls(source, prefix)
+    assert calls and set(result["changed"][:2]) == refresh.NEW_TARGETS
+    assert all(path.stat().st_nlink == 1 for _, path, _, _ in new_pairs)
+    assert refresh.refresh_controls(source, prefix)["changed"] == []
+
+
+def test_racing_new_helper_is_never_overwritten(controls, monkeypatch):
+    source, prefix, pairs = controls
+    targets = [pair for pair in pairs if str(pair[1].relative_to(prefix.parent)) in refresh.NEW_TARGETS]
+    for _, path, _, _ in targets:
+        path.unlink()
+    link = refresh.os.link
+    victim = targets[0][1]
+
+    def raced_link(*args, **kwargs):
+        victim.write_bytes(b"concurrent owner file")
+        return link(*args, **kwargs)
+
+    monkeypatch.setattr(refresh.os, "link", raced_link)
+    with pytest.raises(FileExistsError):
+        refresh.refresh_controls(source, prefix)
+    assert victim.read_bytes() == b"concurrent owner file"
+    assert pairs[1][1].read_bytes() == pairs[1][2]
+
+
+@pytest.mark.parametrize("kind", ["symlink", "customized"])
+def test_new_helper_is_not_an_arbitrary_adoption_path(controls, monkeypatch, kind):
+    source, prefix, pairs = controls
+    src, target, _, _ = next(pair for pair in pairs
+                            if str(pair[1].relative_to(prefix.parent)) in refresh.NEW_TARGETS)
+    previous = dict(refresh.PREVIOUS)
+    previous[str(src.relative_to(source))] = frozenset()
+    monkeypatch.setattr(refresh, "PREVIOUS", previous)
+    if kind == "symlink":
+        target.unlink()
+        target.symlink_to(src)
+    with pytest.raises((ValueError, OSError)):
+        refresh.refresh_controls(source, prefix)
+    assert pairs[0][1].read_bytes() == pairs[0][2]

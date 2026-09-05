@@ -9,6 +9,7 @@ import pytest
 
 from agentik_station import cli, native_process, os_instances, os_lifecycle
 from agentik_station.errors import ValidationError
+from agentik_station.os_discovery import resolve_package
 
 
 ACTIVATION = ("install", "start", "restart")
@@ -25,10 +26,12 @@ def activation(monkeypatch):
             "state_root": "/var/lib/station/zones/example-dev",
             "hermes_home": "/var/lib/station/zones/example-dev/hermes"}
     profile = "i-1234567890-atlas"
+    package = resolve_package(Path(__file__).resolve().parents[2], "devops-os")
     record = {
+        "zone_id": zone["id"], "os_version": package["version"],
         "os_id": "devops-os", "instance_id": "engineering", "organization_id": "example",
         "project_id": "platform", "allowed_project_ids": [], "nano_director": profile,
-        "role_profile_map": {"atlas": profile, "forge": "i-1234567890-forge"},
+        "role_profile_map": {role: f"i-1234567890-{role}" for role in package["roles"]},
         "expected_profiles": [profile], "profile_states": {profile: {"state": "INSTALLED"}},
         "bundle_sha256": "a" * 64, "state": "VERIFIED",
         "verification": {"config_sha256": {profile: "current-config-hash"}},
