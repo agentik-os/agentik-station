@@ -17,7 +17,7 @@ The preferred first install on a fresh Host is `bootstrap.sh`. It creates the de
 # After reviewing the plan, choose ONE installation mode:
 sudo ./bootstrap.sh --mode full
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
-sudo ./bootstrap.sh --mode full --with-ai-stack  # includes every optional AI component
+sudo ./bootstrap.sh --mode full  # complete required software stack is the default
 ```
 
 Use the lower-level `station` / `install` commands below when you need explicit release engineering control.
@@ -61,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.27 Host
+## Supported base for Station 11.28 Host
 
 The current safe-kernel provider supports:
 
@@ -161,7 +161,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.27",
+  "release_version": "11.28",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -245,7 +245,9 @@ surviving installer processes, then explicitly acknowledge that attempt:
 sudo ./bootstrap.sh --mode full --acknowledge-incomplete <attempt-id>
 ```
 
-Repeat the same reviewed feature flags, such as `--with-ai-stack`, where intended.
+Repeat the same reviewed feature flags; `--minimal` explicitly selects a partial
+installation and is required for software skip flags. `--with-ai-stack` is now a
+compatibility alias for the default full software selection.
 This starts a **new full attempt**, not a resume or a rollback; the previous receipt
 survives. A forcibly killed shell may leave children running, especially across
 sudo descriptor boundaries. Never acknowledge an incomplete attempt without
@@ -371,8 +373,8 @@ it never grants sudo, opens the private operator home or copies login credential
 `agk status` is noninteractive; bare `station` displays help. The TUI requires a
 real terminal (`ssh -t` for a one-command SSH launch).
 
-For a reviewed 11.22/11.23 installation needing the current controls, publish the
-11.27 immutable Station kernel first, preserving the Host's desired state. Then
+For a reviewed 11.22–11.25 installation needing the current controls, publish the
+11.28 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -435,10 +437,21 @@ After bootstrap (`READY_FOR_SETUP`):
 sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
 station deps toolchain-check
 ./scripts/station_deps_install.sh --list
-sudo ./scripts/station_deps_install.sh --all   # optional; installs/stages, then awaits configuration/readback
+station deps full-plan
+sudo station deps install --all   # independent software repair from the immutable release
+sudo station deps full-check      # exhaustive native inventory; nonzero if incomplete
 ```
 
 `station hermes update` requests an upstream backup, runs Hermes Doctor after a successful update, observes gateway status and writes a receipt under the owning `HERMES_HOME`. Bootstrap enables the weekly timer by default; pass `--skip-hermes-auto-update` to opt out. A failed update or Doctor returns non-zero with a repair action. The pinned Hermes CLI has no supported automatic state-restore command: preserve its native backup and review state/code recovery explicitly. Station does not claim that a backup was restored or that code compatibility was recovered.
+
+The default full stack now includes reviewed Linux AMD64 server software bundles
+for Langfuse, Honcho, Hindsight and ChatbotX, not just source checkouts or SDKs.
+Images are installed and digest-checked without starting containers, exposing
+ports, creating demo users or guessing credentials. Native Hermes memory/MCP/
+Langfuse clients are installed into its own compatible environment. A blocked
+component does not prevent independent dependency installers from running, but
+does keep the aggregate result incomplete. Ponytail currently fails its native
+security gate. See the [full inventory and exact readiness boundaries](docs/dependencies/FULL_STACK.md).
 
 Multi-platform bots are executed under the owning Zone identity:
 
@@ -471,7 +484,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.27 publishes beside earlier releases; it never overwrites an old
+Station 11.28 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

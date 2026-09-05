@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.27.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.28.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -159,7 +159,7 @@ sudo ./bootstrap.sh --mode full --with-ai-stack
 
 **What happens next:** the bootstrap prepares the operator account, pinned toolchain, Hermes, selected dependencies, Station filesystem, Zones, desired OS declarations and Doctor receipts. A successful foundation stops at `READY_FOR_SETUP`. Continue through **[SETUP.md](SETUP.md)** to enroll accounts and verify real workflows.
 
-Do not add `--yes` before reviewing the plan. `--with-ai-stack` installs or stages optional components; it does not authenticate services, activate every OS or run security scans.
+Do not add `--yes` before reviewing the plan. The **full software stack is now the default**; `--with-ai-stack` is a compatibility alias. Independent component failures are collected, not hidden, and the final result is nonzero if any requirement fails. Installation does not authenticate services, activate every OS or run security scans. Use `sudo station deps full-check` for the complete software inventory; see the [full-stack contract](docs/dependencies/FULL_STACK.md).
 
 ### From a clean VPS to a verified mission
 
@@ -230,14 +230,14 @@ The canonical, more detailed handoff is **[AI_INSTALL_PROMPT.md](AI_INSTALL_PROM
 Choose **one** bootstrap mode for a fresh Host:
 
 ```bash
-# Operator / Agentik Host; optional AI services are not all staged.
-sudo ./bootstrap.sh --mode full
+# Explicitly partial Operator / Agentik Host.
+sudo ./bootstrap.sh --mode full --minimal
 
 # Company Host; System foundation + an Organization Zone.
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 ```
 
-Default bootstrap still includes the Hermes voice/messaging layer, Parakeet, ScrapeGraphAI and Crawl4AI. Deliberate opt-outs are documented in [INSTALL.md](INSTALL.md).
+Full bootstrap includes every required component. `--minimal` retains the base Hermes/voice/web tools but omits the larger stack; all software opt-outs require this explicit partial mode. Neither mode can infer that accounts and services are connected. See [INSTALL.md](INSTALL.md).
 
 For lower-level control, `./station plan` and `sudo ./install` expose the typed kernel; `./station.sh bootstrap` wraps plan/confirmation/apply with one shared InstallSpec. These are not substitutes for the full dependency bootstrap. See the [installation workflows](INSTALL.md).
 
@@ -365,18 +365,18 @@ For a **Strix mission**, Architect scopes sanitized source, a human approves dis
 
 ## The toolchain
 
-**One catalog. Explicit ownership. No “installed means connected” shortcuts.** Exact reviewed versions live in [versions.lock](config/versions.lock), with resources in [CATALOG.json](resources/CATALOG.json) and optional components in [stack.yaml](config/deps/stack.yaml).
+**One required inventory. Explicit ownership. No “installed means connected” shortcuts.** Exact reviewed versions live in [versions.lock](config/versions.lock), with resources in [CATALOG.json](resources/CATALOG.json), components in [stack.yaml](config/deps/stack.yaml), and digest-pinned server bundles in [resources/services](resources/services/README.md). Inspect `station deps full-plan` before installing.
 
 | Layer | Components | Installation / activation boundary |
 | :--- | :--- | :--- |
 | **Execution** | Hermes; Python, AI Python, Node.js, npm, uv | Pinned runtimes; Hermes configuration and sessions belong to each Zone. |
 | **Operator tools** | GitHub CLI, Vercel CLI, Codex CLI, Composio CLI, shadcn CLI, AGK-TUI | Bootstrap installs tools; account login and scoped readback are separate. |
-| **Marketing workspace** | [ChatbotX CLI](resources/chatbotx/README.md) + optional native Hermes MCP | Default client installation with exact executable checks; no automatic account connection, campaign or full app deployment. |
+| **Marketing workspace** | [ChatbotX CLI](resources/chatbotx/README.md), [application + MCP server images](resources/services/chatbotx/README.md) | Full Host installs the CLI and all nine app/infrastructure images. Activation, accounts and campaigns remain separate; Workstation installs the client only. |
 | **Chat & voice** | Hermes messaging, Discord, discord.js, OpenAI audio, local Parakeet | Default voice layer and isolated SDK; bot tokens, audio keys and live round trips need setup. |
 | **Web extraction** | [Crawl4AI](resources/crawl4ai/README.md), [ScrapeGraphAI](resources/scrapegraphai/README.md), Playwright | Default web resources. Station adapters fetch public HTML **without JavaScript**; Crawl4AI yields Markdown, ScrapeGraphAI uses a Zone key for structured extraction. |
-| **Security assessment** | [Strix](resources/strix/README.md) | Optional CLI, included with `--with-ai-stack`. No automatic scans or Docker grants; execution needs an accepted disposable LAB and human approval. |
-| **Memory & observability** | Honcho, Hindsight, Langfuse | Optional packages or source are staged; service configuration, retention and isolation need acceptance. |
-| **Engineering & desktop** | Ponytail, TigerVNC | Optional capability setup; installed source is not a running or publicly exposed service. |
+| **Security assessment** | [Strix](resources/strix/README.md) | Required CLI in the full Host. No automatic scans or Docker grants; execution needs an accepted disposable LAB and human approval. |
+| **Memory & observability** | Honcho, Hindsight, Langfuse | Required server images, operator SDKs and compatible native Hermes clients. Select one external memory provider per profile; configure private services, project keys and retention before live acceptance. |
+| **Engineering & desktop** | Ponytail, TigerVNC | Both required. Ponytail remains blocked by Hermes' native security scan and prevents a full-success result. VNC packages do not open a display or public listener. |
 | **Private enrollment** | Tailscale and Station's guided setup broker | Human Tailnet enrollment first; private setup links afterwards. No public fallback. |
 
 Explore the [dependency guide](docs/dependencies/STACK.md) for each component's role and activation gate. Hermes remains the only messaging gateway; Composio and discord.js extend capabilities rather than owning chat sessions.

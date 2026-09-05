@@ -1,4 +1,4 @@
-# Agentik Station optional dependency stack (11.12+)
+# Agentik Station required full Host dependency stack (11.28+)
 # Maturity: SCAFFOLDED or INSTALLABLE until Host Doctor/readback proves more.
 schema_version: 1
 hermes:
@@ -66,7 +66,8 @@ components:
     runtime: explicit-node-launcher-private-account-free-native-checks
     account_setup: explicit-private-config-no-token-argv
     mcp: disabled-template-no-published-npm-server
-    self_hosted_application: separate-reviewed-deployment-not-installed
+    self_hosted_application: default-full-host-nine-image-bundle-configuration-required
+    service_manifest: resources/services/chatbotx.json
     maturity: INSTALLABLE
   - id: strix
     repository: https://github.com/usestrix/strix
@@ -75,7 +76,7 @@ components:
     version: 1.6.1
     commit_pin: f1e24fe3f2a5d0d332e2c47f8511a436c9033fbf
     python: 3.13.15
-    install: optional-shared-read-only-cli-included-with-ai-stack
+    install: default-full-host-shared-read-only-cli
     hermes_tool: station_strix
     team: os/devops/team/STRIX.json
     execution: authorized-local-source-disposable-lab-host-only
@@ -103,24 +104,31 @@ components:
     version: v4.9.0
     commit_pin: 0a4dd63ad4541f4f655c4108a295916f3c1d8fda
     install: hermes-plugin
+    acceptance: blocked-native-security-scan-not-installed
     maturity: INSTALLABLE
   - id: langfuse
     repository: https://github.com/langfuse/langfuse
     role: LLM observability / evals (self-hosted or cloud)
     version: v4.28.1
-    install: pinned-source-checkout
+    install: pinned-source-and-complete-server-image-bundle
+    service_manifest: resources/services/langfuse.json
+    hermes_sdk: 4.15.1
     maturity: INSTALLABLE
   - id: honcho
     repository: https://github.com/plastic-labs/honcho
     role: Stateful agent memory library
     version: 2.4.0
-    install: isolated-python-sdk
+    install: isolated-python-sdk-and-server-image-bundle
+    service_manifest: resources/services/honcho.json
+    hermes_sdk: 2.2.0
     maturity: INSTALLABLE
   - id: hindsight
     repository: https://github.com/vectorize-io/hindsight
     role: Agent memory that learns
     version: 0.9.2
-    install: hermes-native-memory-or-isolated-client
+    install: hermes-native-client-and-operator-client-and-server-image-bundle
+    service_manifest: resources/services/hindsight.json
+    hermes_sdk: 0.6.1
     maturity: INSTALLABLE
   - id: tigervnc
     repository: https://github.com/TigerVNC/tigervnc

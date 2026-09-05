@@ -103,9 +103,17 @@ def test_scrapegraphai_is_default_hermes_tool_and_fail_closed():
     assert "SCRAPEGRAPHAI_OPENAI_API_KEY" in (ROOT / "components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py").read_text()
 
 
-def test_ponytail_install_uses_immutable_hermes_plugin_ref():
+def test_ponytail_install_enforces_reviewed_immutable_security_block():
     script = (ROOT / "scripts" / "station_deps_install.sh").read_text()
-    assert 'plugins install "$PONYTAIL_REPOSITORY" --ref "$PONYTAIL_COMMIT" --enable' in script
+    block = script.split('install_ponytail() {', 1)[1].split('\n}\n', 1)[0]
+    lock = dict(line.split('=', 1) for line in (ROOT / 'config/versions.lock').read_text().splitlines()
+                if line and not line.startswith('#'))
+    for key in ('PONYTAIL_REPOSITORY', 'PONYTAIL_RELEASE', 'PONYTAIL_COMMIT'):
+        assert lock[key] in block
+        assert f'${{{key}:-}}' in block
+    assert 'BLOCKED:' in block and 'NOT_VERIFIED:' in block
+    assert 'plugins install' not in block
+    assert '--enable' not in block
 
 
 def test_web_runtime_paths_and_pins_agree_with_installer_resources():

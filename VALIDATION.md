@@ -1,4 +1,25 @@
-# Agentik Station 11.27 Validation
+# Agentik Station 11.28 Validation
+
+## Required full Host stack — 11.28
+
+The default selection now includes every requested Host component. Independent
+dependency subprocesses retain per-component exit evidence and cannot convert a
+failed internal command into a successful installer. Server software manifests
+pin exact Linux AMD64 image bytes for Langfuse, Honcho, Hindsight and ChatbotX.
+The native inventory separates artifact/import verification from activation,
+profile/account enrollment and live acceptance. Ponytail remains a required,
+security-blocked component; no full-stack operational claim is made.
+
+The complete local run passed 1,845 cases with 21 Linux-only skips and exposed
+one obsolete Ponytail contract expectation. After replacing that expectation
+with the enforced immutable security block, all 87 contract/Ponytail checks
+passed. AGK's initial component run passed 425 cases (two local native-web skips);
+the subsequent reviewed 11.25-controls migration passed 91 focused checks. All
+168 npm tests and the packed-consumer smoke test passed. The final published
+commit's CI and installed Host readback remain independent acceptance gates.
+
+Current run evidence and remaining limitations are recorded in the
+[full-stack installation audit](docs/audit/2026-09-05-full-stack-install-plan.md).
 
 ## Default ChatbotX client — 11.27
 

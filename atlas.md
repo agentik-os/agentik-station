@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.27`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.28`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Laptop/existing machine:** [Station Workstation](docs/distribution/workstation.md)
 provides a personal macOS/Linux Hermes+AGK installation under one folder. It does
@@ -466,7 +466,7 @@ Hermes selects the smallest approved mechanism in this order:
 
 Each capability has a scope, principal, input contract, output contract, permission policy, timeout/retry behavior, evidence and failure state. “The model knows how” never grants permission.
 
-Optional AI components have distinct jobs:
+Required full-Host AI components have distinct jobs:
 
 | Component | Job in Station | Control boundary |
 |---|---|---|
@@ -480,7 +480,15 @@ Optional AI components have distinct jobs:
 | Composio | scoped connected-account capability plane | stable principal plus explicit toolkit/account allowlist |
 | ChatbotX | default marketing application CLI, invoked by Hermes | private workspace credentials; exact Node wrapper/byte checks; disabled MCP template and full app deployment remain explicit gates |
 
-Use `station deps list` and install only declared components. `--with-ai-stack` stages all of them but does not authenticate, expose or accept them.
+Use `station deps full-plan` and install only declared components. The full Host
+stack is the default; `--with-ai-stack` is a compatibility alias, and `--minimal`
+is explicitly partial. `sudo station deps full-check` checks native artifacts
+instead of counting Git repositories. The four server bundles include actual
+digest-pinned images, while configuration, private service activation and
+profile/account acceptance remain separate. Native Hermes clients are installed
+at the versions compatible with Hermes; Honcho and Hindsight cannot both be the
+active external memory provider of the same profile. Ponytail's security block
+keeps full success incomplete. See the [complete contract](docs/dependencies/FULL_STACK.md).
 
 ChatbotX's client is part of the default toolchain, not a new Station OS or
 gateway. Its state follows the calling Unix HOME (`.chatbotX`), not a Hermes
@@ -809,7 +817,7 @@ Full Operator Station:
 sudo ./bootstrap.sh --mode full
 ```
 
-Full Operator Station plus all optional AI components:
+Full Operator Station with all required AI software selected by default:
 
 ```bash
 sudo ./bootstrap.sh --mode full --with-ai-stack
@@ -1024,7 +1032,9 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - `SETUP.md` — external enrollment and acceptance gates.
 - `docs/organization/05_OS_INSTANCES.md` — client ownership, definition/instance/Project distinction, role mapping and legacy boundaries.
 - `config/versions.lock` — reviewed tool/dependency pins.
-- `config/deps/stack.yaml` — optional AI dependency roles and maturity.
+- `config/deps/stack.yaml` — required full-Host AI dependency roles and maturity.
+- `resources/services/*.json` — exact application/infrastructure image digests.
+- `station deps full-plan` / `full-check` — complete inventory and native software readback.
 - `resources/CATALOG.json` — reusable resources and preferred stack recipe.
 - `resources/discord-js-sdk/` — integrity-locked typed Discord SDK, never a Gateway.
 - `modules/catalog.json` — module maturity claims and next actions.

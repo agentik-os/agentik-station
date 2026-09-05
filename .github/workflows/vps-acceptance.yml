@@ -33,7 +33,7 @@ jobs:
           if [[ "$AGK_VPS_PROFILE" == full ]]; then
             sudo ./bootstrap.sh --mode full --with-ai-stack --yes
           else
-            sudo ./bootstrap.sh --mode full --skip-voice --yes
+            sudo ./bootstrap.sh --mode full --minimal --skip-voice --yes
           fi
       - name: Installed-state readback
         run: sudo --preserve-env=AGK_VPS_PROFILE,AGK_VPS_EVIDENCE ./scripts/ci_vps_acceptance.sh

@@ -172,6 +172,14 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
         "bootstrap.sh",
         "scripts/station_toolchain_install.sh",
         "scripts/station_deps_install.sh",
+        "scripts/station_dependency_probe.py",
+        "src/agentik_station/full_stack.py",
+        "src/agentik_station/service_software.py",
+        "docs/dependencies/FULL_STACK.md",
+        "resources/services/langfuse.json",
+        "resources/services/honcho.json",
+        "resources/services/hindsight.json",
+        "resources/services/chatbotx.json",
         "scripts/station_guided_setup_enable.sh",
         "scripts/station_hermes_update.sh",
         "scripts/station_parakeet_transcribe.sh",
@@ -405,6 +413,21 @@ def repo_doctor(repo_root: Path) -> DoctorResult:
             str(exc),
             "Repair config/versions.lock with explicit reviewed toolchain and Hermes pins.",
         )
+
+    try:
+        from .full_stack import plan as full_stack_plan
+        from .service_software import install_bundle
+        inventory = full_stack_plan(repo_root.absolute())
+        image_count = 0
+        for component in ("langfuse", "honcho", "hindsight", "chatbotx"):
+            bundle = install_bundle(repo_root.absolute(), component, plan=True)
+            if bundle["software_installed"] or bundle["operational"]:
+                raise ValueError("A repository service plan cannot claim installed or operational state")
+            image_count += len(bundle["images"])
+        result.pass_check("repo:full-stack-contract", f"{inventory['required_count']} requirements; {image_count} pinned image entries; plan only")
+    except Exception as exc:
+        result.fail("repo:full-stack-contract", str(exc),
+                    "Repair required inventory and immutable server manifests; repository validity is not Host installation evidence.")
 
     symlinks = ensure_no_symlinks(repo_root)
     if symlinks:

@@ -118,12 +118,149 @@ def test_unprivileged_bootstrap_plan_never_mutates(shell, harness, args, role):
     result = harness.run(shell, "bootstrap.sh", "--plan", *args)
     assert result.returncode == 0, result.stderr
     assert "PLAN_ONLY" in result.stdout
+    assert "installation: full-stack" in result.stdout
+    assert "AI stack:     install-all" in result.stdout
     calls = harness.calls()
     assert [call["kind"] for call in calls] == ["kernel", "preflight", "kernel", "kernel"]
     assert [call["args"][0] for call in calls if call["kind"] == "kernel"] == ["doctor", "spec", "plan"]
     plan = calls[-1]
     assert json.loads(plan["spec_bytes"])["role"] == role
     assert not Path(plan["spec_path"]).exists(), "Temporary plan must be cleaned up"
+
+
+SOFTWARE_SKIPS = (
+    "--skip-hermes", "--skip-toolchain", "--skip-codex", "--skip-agk-tui",
+    "--skip-voice", "--skip-scrapegraphai", "--skip-crawl4ai",
+)
+
+
+@pytest.mark.parametrize("flag", SOFTWARE_SKIPS)
+def test_software_skips_require_explicit_minimal_before_preflight(shell, harness, flag):
+    result = harness.run(shell, "bootstrap.sh", "--plan", flag)
+    assert result.returncode == 2
+    assert "software skips require --minimal" in result.stderr
+    assert not harness.calls()
+
+
+@pytest.mark.parametrize("before", [False, True])
+@pytest.mark.parametrize("flag", SOFTWARE_SKIPS)
+def test_minimal_allows_software_skips_independent_of_argument_order(shell, harness, flag, before):
+    args = ["--minimal", flag] if before else [flag, "--minimal"]
+    result = harness.run(shell, "bootstrap.sh", "--plan", *args)
+    assert result.returncode == 0, result.stderr
+    assert "installation: minimal-partial" in result.stdout
+    assert "AI stack:     omitted (--minimal)" in result.stdout
+    assert [call["kind"] for call in harness.calls()] == ["kernel", "preflight", "kernel", "kernel"]
+
+
+@pytest.mark.parametrize("args", [
+    ["--minimal", "--with-ai-stack"], ["--with-ai-stack", "--minimal"],
+])
+def test_explicit_full_and_minimal_conflict_before_preflight(shell, harness, args):
+    result = harness.run(shell, "bootstrap.sh", "--plan", *args)
+    assert result.returncode == 2
+    assert "mutually exclusive" in result.stderr
+    assert not harness.calls()
+
+
+@pytest.mark.parametrize("args", [[], ["--with-ai-stack"], ["--minimal"]])
+def test_scheduled_update_opt_out_preserves_selected_software_profile(shell, harness, args):
+    result = harness.run(shell, "bootstrap.sh", "--plan", *args, "--skip-hermes-auto-update")
+    assert result.returncode == 0, result.stderr
+    profile = "minimal-partial" if "--minimal" in args else "full-stack"
+    assert f"installation: {profile}" in result.stdout
+    assert "Hermes:       install" in result.stdout
+    assert "Hermes update: disabled" in result.stdout
+    assert "Toolchain:    install" in result.stdout
+    assert "Voice:        OpenAI audio + local Parakeet" in result.stdout
+    assert all(call["kind"] != "forbidden" for call in harness.calls())
+
+
+def test_full_stack_failure_never_records_success_or_reaches_later_stages(shell, tmp_path):
+    source = (ROOT / "bootstrap.sh").read_text()
+    section = source.split("# Runtime services are installed only after", 1)[1]
+    section = section[section.index('if [[ "$INSTALL_AI_STACK" -eq 1 ]]'):]
+    section = section.split('if [[ "$INSTALL_HERMES" -eq 1 ]]', 1)[0]
+    immutable_installer = "/opt/station/current/scripts/station_deps_install.sh"
+    assert f"{immutable_installer} --all" in section
+    # Production must use the published release. Substitute only that exact
+    # executable in this extracted block so the fixture cannot touch the Host.
+    section = section.replace(immutable_installer, '"$REPO_DIR/scripts/station_deps_install.sh"', 1)
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    executable(scripts / "station_deps_install.sh", f"#!{shell}\nexit 43\n")
+    result = subprocess.run(
+        [shell, "-c", "set -Eeuo pipefail\n"
+         "bootstrap_checkpoint() { printf '%s %s\\n' \"$1\" \"$2\"; };\n"
+         + section + "printf 'LATER_STAGES_WOULD_RUN\\n'\n"],
+        env=dict(os.environ, INSTALL_AI_STACK="1", INSTALL_VOICE="1", STATION_USER="fixture",
+                 STATION_HOME=str(tmp_path / "untouched-home"), REPO_DIR=str(scripts.parent)),
+        text=True, capture_output=True, timeout=10,
+    )
+    assert result.returncode == 43
+    assert result.stdout.splitlines() == ["ai-stack running"]
+    assert not (tmp_path / "untouched-home").exists()
+
+
+@pytest.mark.parametrize("ai_stack,audit_rc", [(1, 0), (1, 41), (0, 41)])
+def test_final_full_audit_fails_closed_after_setup_before_updater_and_completion(shell, tmp_path, ai_stack, audit_rc):
+    source = (ROOT / "bootstrap.sh").read_text()
+    section = source.split("# Runtime services are installed only after", 1)[1]
+    section = section[section.index('if [[ "$INSTALL_AI_STACK" -eq 1 ]]'):]
+    section = section.split("bootstrap_checkpoint tool-inventory running", 1)[0]
+    immutable_installer = "/opt/station/current/scripts/station_deps_install.sh"
+    immutable_audit = '/opt/station/current/station deps full-check --operator "$STATION_USER"'
+    assert f"{immutable_installer} --all" in section
+    assert immutable_audit in section
+    assert section.index("bootstrap_checkpoint guided-setup success") < section.index(immutable_audit)
+    assert section.index(immutable_audit) < section.index("bootstrap_checkpoint hermes-update-timer running")
+    # Substitute only exact reviewed executables; this extracted block cannot
+    # reach a real Host, service, enrolled account or installation.
+    section = section.replace(immutable_installer, '"$REPO_DIR/scripts/station_deps_install.sh"', 1)
+    section = section.replace(immutable_audit, '"$REPO_DIR/station" deps full-check --operator "$STATION_USER"', 1)
+    scripts = tmp_path / "repo" / "scripts"
+    scripts.mkdir(parents=True)
+    executable(scripts / "station_deps_install.sh", f"#!{shell}\nprintf 'INSTALL %s\\n' \"$*\"\nexit 0\n")
+    executable(scripts / "station_guided_setup_enable.sh", f"#!{shell}\nprintf 'GUIDED_SETUP %s\\n' \"$*\"\nexit 0\n")
+    executable(scripts.parent / "station", f'''#!{shell}
+[[ "$*" == 'deps full-check --operator fixture' ]] || exit 81
+printf 'FULL_AUDIT\\n'
+exit "$AUDIT_RC"
+''')
+    trap_source = "finish_bootstrap(){" + source.split("finish_bootstrap(){", 1)[1].split(
+        "bootstrap_checkpoint system-packages running", 1)[0]
+    finalizer = "bootstrap_state finish --attempt" + source.split("bootstrap_state finish --attempt", 1)[1].split(
+        "cat <<EOF", 1)[0]
+    harness = '''set -Eeuo pipefail
+bootstrap_finished=0
+bootstrap_interrupted=0
+bootstrap_attempt=op-fixture
+bootstrap_checkpoint() { printf 'CHECKPOINT %s %s\\n' "$1" "$2"; }
+bootstrap_state() { printf 'STATE %s\\n' "$*"; }
+cleanup_bootstrap_plan() { :; }
+'''
+    result = subprocess.run(
+        [shell, "-c", harness + trap_source + section + finalizer + "printf 'AGK Station bootstrap complete.\\n'\n"],
+        env=dict(os.environ, INSTALL_AI_STACK=str(ai_stack), INSTALL_VOICE="1", INSTALL_HERMES="1",
+                 INSTALL_HERMES_AUTO_UPDATE="1", STATION_USER="fixture", AUDIT_RC=str(audit_rc),
+                 STATION_HOME=str(tmp_path / "untouched-home"), REPO_DIR=str(scripts.parent)),
+        text=True, capture_output=True, timeout=10,
+    )
+    expected_rc = audit_rc if ai_stack else 0
+    assert result.returncode == expected_rc, result.stderr
+    lines = result.stdout.splitlines()
+    assert "GUIDED_SETUP --if-enrolled" in lines
+    assert ("FULL_AUDIT" in lines) == bool(ai_stack)
+    assert ("CHECKPOINT full-stack-verify running" in lines) == bool(ai_stack)
+    assert ("CHECKPOINT full-stack-verify success" in lines) == bool(ai_stack and not audit_rc)
+    assert ("INSTALL --enable-hermes-auto-update" in lines) == (expected_rc == 0)
+    assert ("STATE finish --attempt op-fixture --exit-code 0" in lines) == (expected_rc == 0)
+    assert ("AGK Station bootstrap complete." in lines) == (expected_rc == 0)
+    if expected_rc:
+        assert f"STATE finish --attempt op-fixture --exit-code {expected_rc}" in lines
+        assert "CHECKPOINT ai-stack success" in lines
+        assert "CHECKPOINT hermes-update-timer running" not in lines
+    assert not (tmp_path / "untouched-home").exists()
 
 
 def test_bootstrap_stops_when_preflight_rejects(shell, harness):

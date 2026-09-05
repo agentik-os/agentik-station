@@ -13,19 +13,25 @@ import sys
 import uuid
 
 
-# Exact reviewed Station 11.22 and 11.23 controls. The latter comes from
-# 8d6994ea329c348abea628311e9e20b1ec6863a1. Never accept arbitrary installed bytes.
+# Exact reviewed Station 11.22/11.23 controls, plus the three changed controls
+# from 11.24/11.25 (3482519; read back identical in immutable 11.25 and its
+# installed operator copies). The other five destinations are already current.
+# The 11.23 controls come from 8d6994ea329c348abea628311e9e20b1ec6863a1.
+# Never accept arbitrary installed bytes.
 PREVIOUS = {
     "bin/agk": frozenset({
         "f86d05b8e2c014056eb49e362bffcac2c9c73755536ebd5699b4b59364b68df8",
         "4e84b0bf28eb936a062b476c52dc3d546281c1739dec2c117e7d97e96e829be6",
+        "94a54f416f35db6b0a2f5f5c3cda4fd176f716bc5e5aa0a8d1678add40af4013",
     }),
     "scripts/agk_control.py": frozenset({
         "5ae627aa79d2eca21194b0b735dbee5030039c3a498526ec3f3b262f5773133d",
         "0e527d95999f1bf052abe6b27adc1e01054c6f505328fb853d68da328ffcba5b",
+        "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
     }),
     "scripts/provider.sh": frozenset({
         "e9d8c11fe54612b7598cf4aa2690a5b8526300f5aa1ecca8a96a76fca0037c13",
+        "9e1bb99c5ae16c2ae89f66c4e507de05e2dbf6e7fd70be6955c38fe9a318ea7d",
     }),
     "scripts/gateway_watchdog.py": frozenset({
         "a20c69424a87d6121ac62e54756836d4e63d7c090a7e80fff9a431c122f24419",

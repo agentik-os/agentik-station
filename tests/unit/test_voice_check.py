@@ -174,7 +174,11 @@ def test_native_ffmpeg_roundtrip_uses_no_device_or_network(probe):
 
 def test_bootstrap_runs_isolated_probe_before_voice_success():
     source = (ROOT / "bootstrap.sh").read_text()
-    block = source.split('if [[ "$INSTALL_VOICE" -eq 1 ]]; then', 1)[1].split("\nfi", 1)[0]
+    # Select the voice checkpoint, not another voice-enabled stage such as
+    # Parakeet. Full profiles defer this work to the aggregate dependency batch.
+    prefix, block = source.split("  bootstrap_checkpoint voice running\n", 1)
+    assert prefix.rstrip().endswith('if [[ "$INSTALL_VOICE" -eq 1 && "$INSTALL_AI_STACK" -eq 0 ]]; then')
+    block = block.split("\nfi", 1)[0]
     assert '--editable "${hermes_install_dir}[voice,messaging]"' in block
     assert '"$hermes_install_dir/venv/bin/python" -I -B' in block
     assert 'PATH=/usr/local/bin:/usr/bin:/bin' in block

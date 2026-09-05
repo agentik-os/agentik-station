@@ -17,6 +17,7 @@ assert SPEC and SPEC.loader
 refresh = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = refresh
 SPEC.loader.exec_module(refresh)
+REVIEWED_PREVIOUS = refresh.PREVIOUS
 
 
 @pytest.fixture
@@ -82,13 +83,13 @@ def test_frozen_sources_use_actual_shipped_modes_not_destination_execute_bits(co
     assert stat.S_IMODE((prefix / "lib/agk-terminal/scripts/gateway_watchdog.py").stat().st_mode) == 0o755
 
 
-@pytest.mark.parametrize("version", ["11.22", "11.23"])
+@pytest.mark.parametrize("version", ["11.22", "11.23", "11.24", "11.25"])
 def test_refresh_accepts_each_exact_reviewed_predecessor(controls, monkeypatch, version):
     source, prefix, pairs = controls
     previous = {}
     for (relative, _), (_, dst, _, _) in zip(refresh.TARGETS.values(), pairs):
         versions = {name: f"#!/bin/sh\n# {name} {relative}\n".encode()
-                    for name in ("11.22", "11.23")}
+                    for name in ("11.22", "11.23", "11.24", "11.25")}
         previous[relative] = frozenset(hashlib.sha256(value).hexdigest()
                                        for value in versions.values())
         dst.write_bytes(versions[version])
@@ -102,13 +103,16 @@ def test_predecessor_allowlist_is_only_exact_reviewed_software():
         "bin/agk": frozenset({
             "f86d05b8e2c014056eb49e362bffcac2c9c73755536ebd5699b4b59364b68df8",
             "4e84b0bf28eb936a062b476c52dc3d546281c1739dec2c117e7d97e96e829be6",
+            "94a54f416f35db6b0a2f5f5c3cda4fd176f716bc5e5aa0a8d1678add40af4013",
         }),
         "scripts/agk_control.py": frozenset({
             "5ae627aa79d2eca21194b0b735dbee5030039c3a498526ec3f3b262f5773133d",
             "0e527d95999f1bf052abe6b27adc1e01054c6f505328fb853d68da328ffcba5b",
+            "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
         }),
         "scripts/provider.sh": frozenset({
             "e9d8c11fe54612b7598cf4aa2690a5b8526300f5aa1ecca8a96a76fca0037c13",
+            "9e1bb99c5ae16c2ae89f66c4e507de05e2dbf6e7fd70be6955c38fe9a318ea7d",
         }),
         "scripts/gateway_watchdog.py": frozenset({
             "a20c69424a87d6121ac62e54756836d4e63d7c090a7e80fff9a431c122f24419",
@@ -133,6 +137,93 @@ def test_predecessor_allowlist_is_only_exact_reviewed_software():
         ".hermes/plugins/platforms/discord/agk_session_panel.py",
         ".local/lib/agk-terminal/scripts/sync-hermes.sh",
     }
+
+
+@pytest.fixture
+def reviewed_host_controls(controls, monkeypatch):
+    """Reconstruct exact 11.24/11.25 bytes from the reviewed 023c036 delta.
+
+    No Git history or network is required in packaged-source test runs. These
+    hashes were independently matched against Git and immutable live 11.25.
+    """
+    source, prefix, pairs = controls
+    removed = {
+        "bin/agk": '''    if [ -n "${STATION_WORKSTATION_ROOT:-}" ]; then
+      /usr/bin/python3 -I -S "$install_root/hermes/plugins/agentik_os/workstation.py" --validate >/dev/null || exit 2
+      echo 'Client Organizations and isolated OS instances belong to a Linux Station Host with independent-UID Zones. The legacy agk client controller is not supported in personal Workstation mode; use the Host station organization/project/os instance workflow.' >&2
+      exit 2
+    fi
+''',
+        "scripts/provider.sh": '''if [ -n "${STATION_WORKSTATION_ROOT:-}" ]; then
+  workstation_component=${AGK_TERMINAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}
+  /usr/bin/python3 -I -S "$workstation_component/hermes/plugins/agentik_os/workstation.py" --validate >/dev/null || exit 2
+  if [ "$action" = install ]; then
+    echo 'Station Workstation owns pinned dependencies: use agentik-station repair --root PATH; model enrollment uses agentik-station model --root PATH. Installed CLIs retain their scoped login commands.' >&2
+    exit 2
+  fi
+fi
+
+''',
+        "scripts/agk_control.py": '''        permitted = cwd == allowed or allowed in cwd.parents
+        if os.environ.get("STATION_WORKSTATION_ROOT"):
+            # Shared canonical resolver used by the plugin and controller. Load
+            # just this stdlib helper, not the Hermes plugin __init__ package.
+            import importlib.util
+            helper = Path(__file__).resolve().parents[1] / "hermes/plugins/agentik_os/workstation.py"
+            spec = importlib.util.spec_from_file_location("agk_workstation_scope", helper)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            permitted = module.permitted_cwd(cwd, self.env.home)
+        if not permitted:
+''',
+    }
+    expected = {
+        "bin/agk": "94a54f416f35db6b0a2f5f5c3cda4fd176f716bc5e5aa0a8d1678add40af4013",
+        "scripts/agk_control.py": "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
+        "scripts/provider.sh": "9e1bb99c5ae16c2ae89f66c4e507de05e2dbf6e7fd70be6955c38fe9a318ea7d",
+    }
+    actual_pairs = []
+    for src, dst, _, _ in pairs:
+        relative = str(src.relative_to(source))
+        new = (ROOT / relative).read_bytes()
+        old = new
+        if relative in removed:
+            delta = removed[relative].encode()
+            assert new.count(delta) == 1
+            replacement = (b"        if cwd != allowed and allowed not in cwd.parents:\n"
+                           if relative == "scripts/agk_control.py" else b"")
+            old = new.replace(delta, replacement)
+            assert hashlib.sha256(old).hexdigest() == expected[relative]
+        src.write_bytes(new)
+        dst.write_bytes(old)
+        actual_pairs.append((src, dst, old, new))
+    monkeypatch.setattr(refresh, "PREVIOUS", REVIEWED_PREVIOUS)
+    return source, prefix, actual_pairs
+
+
+def test_reviewed_1124_1125_refresh_changes_only_three_software_files(reviewed_host_controls):
+    source, prefix, pairs = reviewed_host_controls
+    untouched = {dst: dst.stat().st_ino for _, dst, old, new in pairs if old == new}
+    # The new helper is Workstation-only, not an extra Host refresh destination.
+    assert not (prefix / "lib/agk-terminal/hermes/plugins/agentik_os/workstation.py").exists()
+    result = refresh.refresh_controls(source, prefix)
+    assert result == {"state": "CONTROLS_REFRESHED", "changed": changed_paths(prefix, pairs[:3]),
+                      "runtime_verified": False}
+    assert len(untouched) == 5
+    assert all(dst.stat().st_ino == inode for dst, inode in untouched.items())
+    assert all(dst.read_bytes() == new for _, dst, _, new in pairs)
+    assert refresh.refresh_controls(source, prefix)["changed"] == []
+
+
+@pytest.mark.parametrize("which", range(3))
+def test_modified_reviewed_host_predecessor_is_preserved(reviewed_host_controls, which):
+    source, prefix, pairs = reviewed_host_controls
+    dst = pairs[which][1]
+    dst.write_bytes(dst.read_bytes() + b"\n# local customization\n")
+    before = [path.read_bytes() for _, path, _, _ in pairs]
+    with pytest.raises(ValueError, match="customized"):
+        refresh.refresh_controls(source, prefix)
+    assert [path.read_bytes() for _, path, _, _ in pairs] == before
 
 
 @pytest.mark.parametrize("which", range(len(refresh.TARGETS)))

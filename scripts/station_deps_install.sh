@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Optional dependency installer for Agentik Station power stack.
+# Required full Host dependency installer; independent failures are aggregated.
 # Does NOT claim OPERATIONAL. Installation remains below VERIFIED until Doctor/readback.
 set -Eeuo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 STATION_USER="${STATION_USER:-agk-station}"
 STATION_HOME="${STATION_HOME:-/home/${STATION_USER}}"
 STACK="$ROOT/config/deps/stack.yaml"
@@ -18,8 +18,9 @@ usage: station_deps_install.sh [--all] [--list]
        station_deps_install.sh --enable-hermes-auto-update
        station_deps_install.sh --platforms-guide
        station_deps_install.sh --check-web
+       station_deps_install.sh --check-hermes-clients|--check-memory|--check-strix|--check-voice
 
-Components: strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet
+Components: toolchain hermes-clients hermes-voice hermes-updater strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet chatbotx
 USAGE
 }
 
@@ -29,17 +30,41 @@ LIST_ONLY=0
 PLATFORMS=0
 ALL=0
 CHECK_WEB=0
+PROBE=""
 
 while (($#)); do
   case "$1" in
     --all) ALL=1; shift;;
     --check-web) CHECK_WEB=1; shift;;
+    --check-hermes-clients) PROBE=hermes-clients; shift;;
+    --check-memory) PROBE=memory; shift;;
+    --check-strix) PROBE=strix; shift;;
+    --check-voice) PROBE=voice; shift;;
     --list) LIST_ONLY=1; shift;;
-    --component) COMPONENTS+=("$2"); shift 2;;
+    --component) [[ $# -ge 2 && "$2" != --* ]] || { usage >&2; exit 2; }; COMPONENTS+=("$2"); shift 2;;
     --enable-hermes-auto-update) ENABLE_AUTO=1; shift;;
     --platforms-guide) PLATFORMS=1; shift;;
     -h|--help) usage; exit 0;;
     *) echo "unknown: $1" >&2; usage; exit 2;;
+  esac
+done
+
+# Reject invalid selections before any action (including timer installation),
+# and never silently discard a misspelled component supplied alongside --all.
+if [[ "$ALL" -eq 1 && "${#COMPONENTS[@]}" -ne 0 ]]; then
+  echo 'Choose --all OR explicit --component IDs' >&2
+  exit 2
+fi
+action_count=$((ENABLE_AUTO + LIST_ONLY + PLATFORMS + CHECK_WEB))
+[[ -z "$PROBE" ]] || action_count=$((action_count + 1))
+if [[ "$action_count" -gt 1 || ( "$action_count" -ne 0 && ( "$ALL" -ne 0 || "${#COMPONENTS[@]}" -ne 0 ) ) ]]; then
+  echo 'Choose one action; do not combine probes, timer changes and component installs' >&2
+  exit 2
+fi
+for id in ${COMPONENTS[@]+"${COMPONENTS[@]}"}; do
+  case "$id" in
+    toolchain|hermes-clients|hermes-voice|hermes-updater|strix|scrapegraphai|ponytail|langfuse|honcho|hindsight|tigervnc|crawl4ai|parakeet|chatbotx) ;;
+    *) echo "unknown component: $id" >&2; exit 2;;
   esac
 done
 
@@ -71,10 +96,10 @@ fi
 
 as_station() {
   if [[ "$(id -un)" == "$STATION_USER" ]]; then
-    env HOME="$STATION_HOME" HERMES_HOME="${HERMES_HOME:-$STATION_HOME/.hermes}" \
+    env --chdir="$STATION_HOME" HOME="$STATION_HOME" HERMES_HOME="${HERMES_HOME:-$STATION_HOME/.hermes}" \
       PATH="$STATION_HOME/.local/bin:$PATH" "$@"
   else
-    sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" \
+    sudo -u "$STATION_USER" -H env --chdir="$STATION_HOME" HOME="$STATION_HOME" \
       HERMES_HOME="${HERMES_HOME:-$STATION_HOME/.hermes}" \
       PATH="$STATION_HOME/.local/bin:$PATH" "$@"
   fi
@@ -85,6 +110,64 @@ require_uv() {
     echo "ERROR: pinned uv is missing; run scripts/station_toolchain_install.sh first" >&2
     return 2
   }
+}
+
+probe_dependency() {
+  # Run under the operator, but imports happen only inside a disposable,
+  # credential-free HOME supervised by Station's bounded Linux runner.
+  local runner=(/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8
+    /usr/bin/python3 -I -S -B "$ROOT/scripts/station_dependency_probe.py" "$ROOT" "$1")
+  if [[ "$(/usr/bin/id -un)" != "$STATION_USER" ]]; then
+    runner=(/usr/bin/sudo -n -u "$STATION_USER" -H "${runner[@]}")
+  fi
+  "${runner[@]}"
+}
+
+install_service_software() {
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" /usr/bin/python3 - "$ROOT" "$1" <<'PY'
+import json, pathlib, sys
+from agentik_station.service_software import install_bundle
+result = install_bundle(pathlib.Path(sys.argv[1]), sys.argv[2])
+print(json.dumps(result, indent=2))
+if not result['software_installed']:
+    raise SystemExit(1)
+PY
+}
+
+install_hermes_clients() {
+  require_uv
+  local runtime=/opt/station/tools/hermes/current
+  [[ -x "$runtime/venv/bin/python" ]] || { echo 'ERROR: install Hermes foundation first' >&2; return 2; }
+  # Additional native clients must match this Hermes release, not the independent
+  # operator SDK versions. Never prune its existing provider/voice packages.
+  local actual
+  actual="$(as_station git -C "$runtime" rev-parse HEAD)"
+  [[ "$actual" == "$HERMES_COMMIT" ]] || { echo 'ERROR: review native client compatibility for the installed Hermes revision first' >&2; return 2; }
+  as_station "$runtime/venv/bin/python" -I -B -c 'import sys; assert sys.version_info[:2] == (3, 11)'
+  as_station "$STATION_HOME/.local/bin/uv" pip install --python "$runtime/venv/bin/python" \
+    --editable "$runtime[mcp,honcho,hindsight]" \
+    "${LANGFUSE_PYTHON_WHEEL_URL}#sha256=${LANGFUSE_PYTHON_WHEEL_SHA256}"
+  probe_dependency hermes-clients
+  echo 'Native Hermes clients installed; memory selection and observability enrollment remain profile-scoped.'
+}
+
+install_toolchain() {
+  if "$ROOT/scripts/station_toolchain_install.sh" --check; then
+    return 0
+  fi
+  "$ROOT/scripts/station_toolchain_install.sh" --install
+}
+
+install_hermes_voice() {
+  require_uv
+  local runtime=/opt/station/tools/hermes/current
+  [[ -x "$runtime/venv/bin/python" ]] || { echo 'ERROR: install Hermes foundation first' >&2; return 2; }
+  local actual
+  actual="$(as_station git -C "$runtime" rev-parse HEAD)"
+  [[ "$actual" == "$HERMES_COMMIT" ]] || { echo 'ERROR: review voice compatibility for the installed Hermes revision first' >&2; return 2; }
+  as_station "$STATION_HOME/.local/bin/uv" pip install --python "$runtime/venv/bin/python" \
+    --editable "$runtime[voice,messaging]"
+  probe_dependency voice
 }
 
 install_python_sdk() {
@@ -99,7 +182,7 @@ install_python_sdk() {
     as_station "$STATION_HOME/.local/bin/uv" venv --python "$AI_PYTHON_VERSION" "$venv"
   fi
   as_station "$STATION_HOME/.local/bin/uv" pip install --python "$venv/bin/python" "$package==$version"
-  as_station "$venv/bin/python" -c "import $module; print('$id import OK')"
+  probe_dependency "$id"
 }
 
 install_scrapegraphai() {
@@ -171,7 +254,7 @@ SafeFS([runtime]).write_text(runtime / 'BUILT', 'INSTALLED_NOT_VERIFIED\n', mode
 PY
   fi
   if [[ "$component" == strix ]]; then
-    as_station "$venv/bin/strix" --version
+    probe_dependency strix
     echo 'Strix CLI only: no Docker grant, image pull, cloud connection or scan was performed.'
     return
   fi
@@ -181,11 +264,7 @@ PY
 
 check_web_runtime() {
   local component="$1" version="$2"
-  local runtime="/opt/station/tools/web/${component}-${version}-py${AI_PYTHON_VERSION}-pw${PLAYWRIGHT_VERSION}"
-  local venv="$runtime/venv" runner="$ROOT/components/agk-tui/hermes/plugins/agentik_os/scrapegraph_runner.py"
-  printf '{"component":"%s","health":true}\n' "$component" | \
-    as_station env PLAYWRIGHT_BROWSERS_PATH="$runtime/browsers" TIKTOKEN_CACHE_DIR="$runtime/tokenizers" PYTHONDONTWRITEBYTECODE=1 \
-      "$venv/bin/python" "$runner"
+  probe_dependency "$component"
 }
 
 install_tigervnc() {
@@ -203,21 +282,37 @@ install_crawl4ai() {
 
 install_honcho() {
   install_python_sdk honcho honcho-ai "$HONCHO_PYTHON_VERSION" honcho
-  echo "Honcho SDK $HONCHO_PYTHON_VERSION installed; API/self-hosted service credentials remain unconfigured."
+  install_service_software honcho
+  echo "Honcho SDK and server software installed; service and Hermes profile enrollment remain unconfigured."
 }
 
 install_hindsight() {
   install_python_sdk hindsight hindsight-client "$HINDSIGHT_PYTHON_VERSION" hindsight_client
-  echo "Hindsight client $HINDSIGHT_PYTHON_VERSION installed. Configure the native Hermes provider with: hermes memory setup"
+  install_service_software hindsight
+  echo "Hindsight client and server software installed. Configure one profile's native memory provider separately."
 }
 
 install_ponytail() {
-  local hermes="$STATION_HOME/.local/bin/hermes"
-  [[ -x "$hermes" ]] || hermes="$(command -v hermes || true)"
-  [[ -x "$hermes" ]] || { echo "ERROR: Hermes is required for the Ponytail plugin" >&2; return 2; }
-  as_station "$hermes" plugins install "$PONYTAIL_REPOSITORY" --ref "$PONYTAIL_COMMIT" --enable
-  as_station "$hermes" plugins list
-  echo "Ponytail installed through the native Hermes plugin protocol (pinned release: $PONYTAIL_RELEASE / $PONYTAIL_COMMIT)."
+  # The reviewed native full-tree scan rejected this exact distribution. Native
+  # Hermes permits an account's plugins.scan_on_install=false to skip its guard;
+  # do not let that persisted setting publish/enable a known-rejected plugin.
+  # A pin bump is NOT acceptance: future distributions need new immutable-source
+  # review, a full native scan and a deliberately reviewed installer path here.
+  # Never edit account config, filter the tree, copy an active plugin, or force it.
+  local reviewed_repository=DietrichGebert/ponytail
+  local reviewed_release=v4.9.0
+  local reviewed_commit=0a4dd63ad4541f4f655c4108a295916f3c1d8fda
+  if [[ "${PONYTAIL_REPOSITORY:-}" == "$reviewed_repository" &&
+        "${PONYTAIL_RELEASE:-}" == "$reviewed_release" &&
+        "${PONYTAIL_COMMIT:-}" == "$reviewed_commit" ]]; then
+    printf 'BLOCKED: Ponytail %s (%s@%s) was rejected by the reviewed native full-tree security scan.\n' \
+      "$reviewed_release" "$reviewed_repository" "$reviewed_commit" >&2
+    echo 'No plugin was installed or enabled; account scan settings cannot override this Station gate. See docs/audit/2026-09-05-ponytail-native-scan.md.' >&2
+    return 1
+  fi
+  echo 'NOT_VERIFIED: this Ponytail source pin has no accepted Station installation path. A pin change requires a new immutable-source review and full native security acceptance; it does not clear the existing block.' >&2
+  echo 'No plugin was installed or enabled, and no account configuration was changed.' >&2
+  return 2
 }
 
 install_langfuse() {
@@ -234,7 +329,8 @@ install_langfuse() {
     return 1
   }
   as_station ln -sfn "$dest" "$STATION_HOME/repos/langfuse-current"
-  echo "Langfuse $LANGFUSE_RELEASE staged at $dest; compose services and secrets are not auto-started."
+  install_service_software langfuse
+  echo "Langfuse source and complete server software installed; service secrets and profile tracing enrollment remain unconfigured."
 }
 
 install_parakeet() {
@@ -268,14 +364,19 @@ install_parakeet() {
   return 1
 }
 
-enable_hermes_auto_update() {
-  [[ "$(id -u)" -eq 0 ]] || { echo "enabling timer needs root" >&2; return 2; }
+install_hermes_updater() {
+  [[ "$(id -u)" -eq 0 ]] || { echo "installing updater software needs root" >&2; return 2; }
   unit_dir=/etc/systemd/system
   install -d -m 0755 /usr/local/libexec
   install -m 0755 "$ROOT/scripts/station_hermes_update.sh" /usr/local/libexec/station-hermes-update
   install -m 0644 "$ROOT/scripts/systemd/station-hermes-update.service" "$unit_dir/"
   install -m 0644 "$ROOT/scripts/systemd/station-hermes-update.timer" "$unit_dir/"
   systemctl daemon-reload
+  echo "Hermes updater software installed; existing timer activation was not changed."
+}
+
+enable_hermes_auto_update() {
+  install_hermes_updater
   systemctl enable --now station-hermes-update.timer
   systemctl list-timers station-hermes-update.timer --no-pager || true
   echo "Hermes weekly auto-update timer enabled."
@@ -287,16 +388,78 @@ if [[ "$CHECK_WEB" -eq 1 ]]; then
   exit 0
 fi
 
+if [[ -n "$PROBE" ]]; then
+  if [[ "$PROBE" == memory ]]; then
+    failed=0
+    probe_dependency honcho || failed=1
+    probe_dependency hindsight || failed=1
+    exit "$failed"
+  fi
+  probe_dependency "$PROBE"
+  exit 0
+fi
+
 if [[ "$ENABLE_AUTO" -eq 1 ]]; then
   enable_hermes_auto_update
 fi
 
 if [[ "$ALL" -eq 1 ]]; then
-  COMPONENTS=(strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet)
+  COMPONENTS=(toolchain hermes-clients hermes-voice hermes-updater strix scrapegraphai ponytail langfuse honcho hindsight tigervnc crawl4ai parakeet chatbotx)
 fi
 
-for id in "${COMPONENTS[@]}"; do
+# Validate the complete selection before any mutation. A child process per
+# component is essential: testing an installer FUNCTION in `if`/`||` disables
+# its internal errexit and can turn a partial install into a false success.
+for id in ${COMPONENTS[@]+"${COMPONENTS[@]}"}; do
   case "$id" in
+    toolchain|hermes-clients|hermes-voice|hermes-updater|strix|scrapegraphai|ponytail|langfuse|honcho|hindsight|tigervnc|crawl4ai|parakeet|chatbotx) ;;
+    *) echo "unknown component: $id" >&2; exit 2;;
+  esac
+done
+if [[ "$ALL" -eq 1 || "${#COMPONENTS[@]}" -gt 1 ]]; then
+  [[ "$(id -u)" -eq 0 && "$(uname -s)" == Linux ]] || { echo 'Full Host dependency installation requires Linux sudo' >&2; exit 2; }
+  failed=0
+  outcomes=()
+  for id in "${COMPONENTS[@]}"; do
+    status=0
+    /bin/bash "$ROOT/scripts/station_deps_install.sh" --component "$id" || status=$?
+    outcomes+=("$id:$status")
+    printf 'COMPONENT %s EXIT %s\n' "$id" "$status"
+    [[ "$status" -eq 0 ]] || failed=1
+    # A user interruption stops the batch, rather than unexpectedly starting
+    # more installers after Ctrl-C. Ordinary component failures do not.
+    [[ "$status" -ne 130 && "$status" -ne 143 ]] || break
+  done
+  PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$ROOT/src" /usr/bin/python3 - "$ALL" "${outcomes[@]}" <<'PY'
+import json, pathlib, sys
+from datetime import datetime, timezone
+from agentik_station.bootstrap_state import _secure_chain
+from agentik_station.filesystem import SafeFS
+rows = [dict(zip(('component', 'exit_code'), (item.rsplit(':', 1)[0], int(item.rsplit(':', 1)[1])))) for item in sys.argv[2:]]
+root = pathlib.Path('/var/lib/station/dependency-install')
+_secure_chain(root, 0, allow_missing=True)
+fs = SafeFS([root])
+fs.mkdir(root, mode=0o700, owner=(0, 0))
+record = {'schema_version': 1, 'full_selection': sys.argv[1] == '1',
+          'recorded_at': datetime.now(timezone.utc).isoformat(), 'components': rows,
+          'installation_steps_passed': all(row['exit_code'] == 0 for row in rows),
+          'operational': False, 'next': 'station deps full-check'}
+target = root / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ') + '.json')
+fs.write_text(target, json.dumps(record, indent=2) + '\n', mode=0o600, owner=(0, 0))
+print('Dependency receipt: ' + str(target))
+PY
+  if [[ "$failed" -ne 0 ]]; then
+    echo 'INCOMPLETE: one or more required components failed; successful independent components were retained.' >&2
+  fi
+  exit "$failed"
+fi
+
+for id in ${COMPONENTS[@]+"${COMPONENTS[@]}"}; do
+  case "$id" in
+    toolchain) install_toolchain;;
+    hermes-clients) install_hermes_clients;;
+    hermes-voice) install_hermes_voice;;
+    hermes-updater) install_hermes_updater;;
     strix) install_strix;;
     scrapegraphai) install_scrapegraphai;;
     ponytail) install_ponytail;;
@@ -306,6 +469,7 @@ for id in "${COMPONENTS[@]}"; do
     tigervnc) install_tigervnc;;
     crawl4ai) install_crawl4ai;;
     parakeet) install_parakeet;;
+    chatbotx) install_service_software chatbotx;;
     *) echo "unknown component: $id" >&2; exit 2;;
   esac
 done

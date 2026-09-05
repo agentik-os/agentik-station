@@ -1,3 +1,14 @@
+## 11.28 — Required full Host software inventory
+
+- Make the full software stack default; require explicit `--minimal` for partial installs.
+- Attempt independent component installers after ordinary failures, retain private receipts and return nonzero if incomplete.
+- Install and digest-check 20 Linux AMD64 application/infrastructure image entries for Langfuse, Honcho, Hindsight and ChatbotX; no automatic service activation or demo accounts.
+- Install native Hermes-compatible memory/MCP clients and pinned Langfuse SDK separately from operator SDK environments.
+- Add `station deps full-plan`, `full-check`, `service-plan` and `service-check`, with 18 explicit requirement groups and honest software/configuration/account boundaries.
+- Fix inherited operator-install cwd and permit the reviewed root-owned Ubuntu Rust-coreutils `env` alias without allowing untrusted symlinks.
+- Isolate web health probes from account HOME and require exact native library/browser readback.
+- Preserve Ponytail's native security rejection as a required incomplete gate; never bypass it or silently omit the plugin.
+
 ## 11.12 — Dependency stack + Hermes platforms
 
 - Pin Hermes `v2026.8.31` and its reviewed commit; install shared executable code with a dedicated `HERMES_HOME` per Zone.

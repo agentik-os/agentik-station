@@ -30,6 +30,7 @@ station status --json
 station module status
 station provider status
 station deps toolchain-check
+sudo station deps full-check
 sudo station setup --json
 ```
 
@@ -86,7 +87,28 @@ After reading the repository contracts, an AI operator should prefer:
 sudo ./bootstrap.sh --mode full
 ```
 
-Use `--with-ai-stack` only when Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet are all desired on this Host. Parakeet and Hermes voice/messaging support are already installed by the default bootstrap unless `--skip-voice` is explicit. Do not use `--yes` until the generated plan has been inspected. Bootstrap installs pinned binaries but never authenticates GitHub, Vercel, Convex, Clerk, Stripe, Composio, Codex, Hermes providers or messaging platforms on the operator's behalf. Codex must guide the first Tailscale and Discord enrollment through their native secure flows; afterward it should prefer Station's one-time Tailnet setup buttons. The human owner retains OAuth consent, secret entry and production/destructive approval.
+The complete Linux AMD64 Host software stack is the default. `--with-ai-stack`
+is a compatibility alias; `--minimal` explicitly selects a partial installation
+and is required for software skips. Read `docs/dependencies/FULL_STACK.md` and
+`station deps full-plan`. The full selection includes all requested native tools,
+Hermes-compatible clients and actual server image bundles, not merely Git clones.
+Run `sudo station deps full-check`; missing, failed, unsupported or security-blocked
+requirements must keep the result incomplete. Ponytail currently fails its native
+security guard: preserve that decision, continue independent components and never
+claim complete installation. Server-image delivery is not service/account readiness.
+
+Do not use `--yes` until the generated plan has been inspected. Bootstrap installs
+pinned binaries but never authenticates GitHub, Vercel, Convex, Clerk, Stripe,
+Composio, ChatbotX, Codex, Hermes providers or messaging platforms on the operator's
+behalf. Codex must guide first Tailscale and Discord enrollment through native
+secure flows; afterward prefer Station's one-time Tailnet setup buttons. The human
+owner retains OAuth consent, secret entry and production/destructive approval.
+
+On an existing Host, preserve the reviewed desired state and upgrade the immutable
+kernel first. Repair missing software using installed component commands; do not
+rerun whole bootstrap over existing accounts, Zone profiles or services. Honcho and
+Hindsight can both be installed, but Hermes selects one external memory provider
+per profile. Never guess that selection or reuse another client's credentials.
 
 The current guided broker writes Zone-base credentials; it does not automatically
 enroll every named Director. Never copy credentials across profiles to bypass this

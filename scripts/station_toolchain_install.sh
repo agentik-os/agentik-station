@@ -45,9 +45,9 @@ export PATH="$tool_path:$PATH"
 
 as_station() {
   if [[ "$(id -un)" == "$STATION_USER" ]]; then
-    env HOME="$STATION_HOME" PATH="$tool_path:$PATH" NPM_CONFIG_PREFIX="$STATION_HOME/.local" "$@"
+    env --chdir="$STATION_HOME" HOME="$STATION_HOME" PATH="$tool_path:$PATH" NPM_CONFIG_PREFIX="$STATION_HOME/.local" "$@"
   else
-    sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" PATH="$tool_path:$PATH" \
+    sudo -u "$STATION_USER" -H env --chdir="$STATION_HOME" HOME="$STATION_HOME" PATH="$tool_path:$PATH" \
       NPM_CONFIG_PREFIX="$STATION_HOME/.local" "$@"
   fi
 }

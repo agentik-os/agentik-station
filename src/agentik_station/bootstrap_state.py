@@ -14,9 +14,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from .constants import PRODUCT_VERSION
 from .errors import ReconcileError, SecurityError, StationError, ValidationError
 from .filesystem import SafeFS
-from .identifiers import validate_operation_id
+from .identifiers import validate_operation_id, validate_version
 from .models import InstallSpec, new_operation_id
 from .receipts import utc_now
 
@@ -46,18 +47,26 @@ REPAIR = {
     "agk-tui": "Inspect the AGK/RMUX installation and preserve existing sessions, launchers and user configuration.",
     "kernel-apply": "Inspect the separate kernel receipt and full Doctor before reapplying the desired state.",
     "kernel-readback": "Read the kernel receipt, status and full Doctor; a successful apply does not prove bootstrap complete.",
-    "ai-stack": "Inspect each selected component and its state; do not blindly repeat the entire optional stack.",
+    "ai-stack": "Inspect each required component and its state; do not blindly repeat the entire stack.",
     "parakeet": "Inspect the pinned image, service and loopback health; preserve existing service configuration.",
     "guided-setup": "Inspect the Zone broker, Tailnet enrollment and private Serve path before retrying setup.",
+    "full-stack-verify": "Inspect station deps full-check results and repair each unverified component; installer success alone is not full-stack acceptance.",
     "hermes-update-timer": "Inspect the updater unit and timer state; ensure no updater is still modifying Hermes.",
     "tool-inventory": "Read back selected tool versions and repair the inventory file without changing account credentials.",
     "agk-metadata-sync": "Retry only Station metadata synchronization after inspecting the AGK user state.",
 }
 
 
-def selected_stages(options: dict[str, Any]) -> list[str]:
+def selected_stages(options: dict[str, Any], release_version: str = PRODUCT_VERSION) -> list[str]:
+    # The graph belongs to the recorded release, not the reader's installed
+    # version. Older receipts retain their original independent web/voice gates.
+    version_parts = validate_version(release_version).split(".")
+    aggregate_dependencies = (options["ai_stack"] and all(part.isdecimal() for part in version_parts)
+                              and tuple(map(int, version_parts)) >= (11, 28))
+    deferred = {"scrapegraphai", "crawl4ai", "voice"} if aggregate_dependencies else set()
     stages = list(BASE_STAGES)
-    stages += [name for name in ("hermes", "toolchain", "scrapegraphai", "crawl4ai", "voice", "agk_tui") if options[name]]
+    stages += [name for name in ("hermes", "toolchain", "scrapegraphai", "crawl4ai", "voice", "agk_tui")
+               if options[name] and name not in deferred]
     stages = ["agk-tui" if name == "agk_tui" else name for name in stages]
     stages += ["kernel-apply", "kernel-readback"]
     if options["ai_stack"]:
@@ -66,6 +75,8 @@ def selected_stages(options: dict[str, Any]) -> list[str]:
         stages.append("parakeet")
     if options["hermes"]:
         stages.append("guided-setup")
+    if aggregate_dependencies:
+        stages.append("full-stack-verify")
     if options["hermes_auto_update"]:
         stages.append("hermes-update-timer")
     return stages + ["tool-inventory", "agk-metadata-sync"]
@@ -204,7 +215,7 @@ def _validate_receipt(receipt: dict[str, Any], attempt_id: str) -> None:
     options = validate_options(receipt["options"])
     stages = receipt.get("stages")
     if (not isinstance(stages, list) or not all(isinstance(stage, dict) for stage in stages)
-            or [stage.get("id") for stage in stages] != selected_stages(options)):
+            or [stage.get("id") for stage in stages] != selected_stages(options, spec.release_version)):
         raise ValidationError("Invalid bootstrap stage sequence")
     if any(stage.get("status") not in {"pending", "running", "success", "failed", "interrupted"}
            or stage.get("required") is not (stage["id"] != "agk-metadata-sync") for stage in stages):
@@ -364,7 +375,7 @@ class BootstrapState:
             "source_files": fingerprints,
             "source_fingerprint": hashlib.sha256(json.dumps(fingerprints, sort_keys=True).encode()).hexdigest(),
             "stages": [{"id": stage, "status": "pending", "required": stage != "agk-metadata-sync", "repair": REPAIR[stage]}
-                       for stage in selected_stages(options)],
+                       for stage in selected_stages(options, spec.release_version)],
             "previous_incomplete": ({"attempt_id": previous["attempt_id"], "status": "interrupted" if previous["status"] == "running" else previous["status"],
                                      "acknowledged": True} if previous and previous["status"] != "success" else None),
             "next_actions": [], "kernel_receipt": f"{spec.operation_id}.json",

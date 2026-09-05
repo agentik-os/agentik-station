@@ -87,6 +87,9 @@ def sbom_payload() -> dict[str, Any]:
         ("ChatbotX CLI", "application", pins["CHATBOTX_CLI_VERSION"], "https://github.com/ChatbotXIO/ChatbotX"),
         ("Ponytail", "library", pins["PONYTAIL_RELEASE"], "https://github.com/DietrichGebert/ponytail"),
         ("Langfuse", "application", pins["LANGFUSE_RELEASE"], "https://github.com/langfuse/langfuse"),
+        ("Langfuse Python SDK", "library", pins["LANGFUSE_PYTHON_VERSION"], "https://github.com/langfuse/langfuse-python"),
+        ("Hermes Honcho client", "library", "2.2.0", "https://pypi.org/project/honcho-ai/2.2.0/"),
+        ("Hermes Hindsight client", "library", "0.6.1", "https://pypi.org/project/hindsight-client/0.6.1/"),
         ("Honcho", "library", pins["HONCHO_PYTHON_VERSION"], "https://github.com/plastic-labs/honcho"),
         ("Hindsight", "library", pins["HINDSIGHT_PYTHON_VERSION"], "https://github.com/vectorize-io/hindsight"),
         ("TigerVNC", "application", pins["TIGERVNC_RELEASE"], "https://github.com/TigerVNC/tigervnc"),
@@ -115,6 +118,18 @@ def sbom_payload() -> dict[str, Any]:
         ROOT / "resources" / "discord-js-sdk" / "package-lock.json",
     ):
         components.extend(npm_components(lock))
+    for manifest in sorted((ROOT / "resources/services").glob("*.json")):
+        bundle = json.loads(manifest.read_text())
+        for item in bundle["images"]:
+            reference = item["reference"]
+            components.append({
+                "type": "container", "bom-ref": f"station:oci:{reference}",
+                "name": reference.split("@", 1)[0], "version": item["version"],
+                "hashes": [{"alg": "SHA-256", "content": reference.split("sha256:", 1)[1]}],
+                "properties": [{"name": "station:platform", "value": "linux/amd64"},
+                               {"name": "station:readiness", "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"}],
+                "externalReferences": [{"type": "vcs", "url": bundle["source"]["repository"] + "/tree/" + bundle["source"]["commit"]}],
+            })
     unique = {str(item["bom-ref"]): item for item in components}
     return {
         "bomFormat": "CycloneDX",

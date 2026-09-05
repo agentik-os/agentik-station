@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.27",
+  "release": "11.28",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -14,7 +14,7 @@
     {
       "id": "chatbotx",
       "maturity": "INSTALLABLE",
-      "claim": "Default pinned ChatbotX CLI with private Workstation and shared Host Node launchers, account-free native checks and a disabled Hermes remote-MCP resource. No account, campaign, local MCP server or self-hosted application is activated.",
+      "claim": "Default pinned ChatbotX CLI with private Workstation and shared Host Node launchers, account-free native checks and a disabled Hermes remote-MCP resource. Full Linux AMD64 Hosts also install nine digest-pinned application/MCP/infrastructure images with bound readback. No account, campaign or server is activated.",
       "binary_probes": [],
       "next_repair_action": "Run the owning installer verification, then review resources/chatbotx/README.md and explicitly enroll one scoped workspace. Native configured version commands can fetch a schema; use the installer account-free check."
     },
@@ -130,21 +130,21 @@
     {
       "id": "langfuse",
       "maturity": "INSTALLABLE",
-      "claim": "Langfuse self-host path is declared (clone + docker compose); Station does not auto-start it or store cloud keys.",
+      "claim": "Full Host installation delivers Langfuse source, six exact-digest application/infrastructure images and a compatible native Hermes SDK. Bound image readback is distinct from service activation, profile tracing enrollment and live trace acceptance.",
       "binary_probes": [],
-      "next_repair_action": "Clone via deps install, bring up Langfuse compose with operator secrets, then wire Hermes/OpenTelemetry export and verify traces."
+      "next_repair_action": "Run service-check; review private deployment and retention, enroll the selected Hermes observability profile, and verify a synthetic trace in its owning project. Do not apply upstream demo Compose verbatim."
     },
     {
       "id": "honcho",
       "maturity": "INSTALLABLE",
-      "claim": "The pinned Honcho SDK is installable in an isolated Station venv; API/self-hosted service and Zone-local memory policy remain operator-owned.",
+      "claim": "The full Host installs an isolated operator SDK, a Hermes-compatible native client and digest-pinned Honcho server/infrastructure images. Service configuration, principal memory bindings and live recall acceptance remain explicit.",
       "binary_probes": [],
       "next_repair_action": "Install package, configure Zone-scoped credentials/store, then Doctor a memory round-trip without cross-Zone leakage."
     },
     {
       "id": "hindsight",
       "maturity": "INSTALLABLE",
-      "claim": "The pinned Hindsight client is installable in an isolated Station venv and Hermes provides a native Hindsight memory setup path; learning-store isolation is pending.",
+      "claim": "The full Host installs an isolated operator client, a Hermes-compatible native client and digest-pinned Hindsight server images. The one-provider-per-profile native memory selection and learning-store isolation require explicit acceptance.",
       "binary_probes": [],
       "next_repair_action": "Install per upstream README, bind to one Hermes profile, verify recall without exporting secrets to Control."
     },
@@ -172,7 +172,7 @@
     {
       "id": "tigervnc",
       "maturity": "INSTALLABLE",
-      "claim": "TigerVNC packages are declared for optional apt install; display auth and firewall policy pending.",
+      "claim": "TigerVNC server/viewer packages are required in the full Host apt install; actual distro versions are checked separately from the upstream release. Display auth and private-network policy remain pending.",
       "binary_probes": [],
       "next_repair_action": "Install tigervnc packages, configure VNC auth for agk-station only, verify viewer connect over private network."
     }

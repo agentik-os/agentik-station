@@ -1,14 +1,21 @@
-# Station toolchain and optional AI stack
+# Station toolchain and required full Host AI stack
 
 [`config/versions.lock`](../../config/versions.lock) is the machine-readable pin set. [`config/deps/stack.yaml`](../../config/deps/stack.yaml) describes role and maturity. Pins were checked against upstream releases on 2026-09-04.
 
 > **Observed installation blocker (2026-09-05):** native Hermes scanning blocks
-> the pinned Ponytail source. `--all` / `--with-ai-stack` consequently stops at
-> that component; it does not silently skip or bypass the decision. Independent
-> components can be installed with `--component <id>`. Ponytail remains
+> the pinned Ponytail source. `--all` now continues independent component
+> installers and returns an aggregate **INCOMPLETE/nonzero** result; it does not
+> silently skip or bypass the decision. Ponytail remains
 > `NOT_INSTALLED` until the [upstream/security gate is resolved](../audit/2026-09-05-ponytail-native-scan.md).
 
 ## Default operator toolchain
+
+The complete Linux AMD64 Host software stack is the default in 11.28; the old
+`--with-ai-stack` flag is an alias. `--minimal` declares a partial installation.
+Start with [`FULL_STACK.md`](FULL_STACK.md) and `station deps full-plan` for the
+exhaustive inventory, including server application images and native Hermes
+client libraries. `sudo station deps full-check` checks actual software and
+keeps configuration/account acceptance separate.
 
 `bootstrap.sh` installs these under the dedicated `agk-station` account:
 
@@ -61,19 +68,20 @@ The recipe does not create provider accounts, write secrets or force this stack 
 
 Both web runtimes live under `/opt/station/tools/web/<component>-<version>-py<version>-pw<version>/`; state and secrets stay under the calling Zone identity. Their automatic adapters process guarded public HTML, without JavaScript/browser subrequests. Chromium launch is checked separately. OS compilation includes the small native `station-web` plugin; existing profiles require reinstall/config activation and fresh-session acceptance. See [limits and verification](../../resources/scrapegraphai/README.md).
 
-## Optional components
+## Required full Host components
 
 These projects are not interchangeable Python dependencies:
 
 | Component | Pin | Station action | Still required before OPERATIONAL |
 |---|---:|---|---|
 | Strix | 1.6.1 / wheel and image digests | isolated CLI, existing Hermes DevOps team, typed local-source adapter | disposable LAB/network acceptance, reviewed source disclosure, dedicated model key, human grant and independent findings verification |
-| Ponytail | v4.9.0 / immutable commit | native `hermes plugins install ... --ref <sha> --enable` | plugin review + coding-session acceptance |
-| Langfuse | v4.28.1 | immutable tagged source checkout | secrets, compose/Kubernetes deployment, trace readback, backup |
-| Honcho | SDK 2.4.0 | isolated Python 3.13 venv | API/self-host, Zone credentials, memory round-trip |
-| Hindsight | client 0.9.2 | isolated Python 3.13 client; Hermes uses native `hermes memory setup` | provider enrollment + Zone-isolation/recall test |
+| Ponytail | v4.9.0 / immutable commit | blocked before activation by the retained native full-tree rejection; no account scanner opt-out can override it | new source/security acceptance, then coding-session acceptance |
+| Langfuse | server v4.28.1; native SDK 4.15.1 | complete six-image server bundle, source and Hermes client | private service, secrets, trace readback, backup |
+| Honcho | SDK 2.4.0; Hermes client 2.2.0 | isolated operator client, native Hermes client and complete server image bundle | API/self-host, Zone credentials, memory round-trip |
+| Hindsight | client 0.9.2; Hermes client 0.6.1 | isolated operator client, native Hermes client and complete server image bundle | one active external memory provider per profile; enrollment + Zone-isolation/recall test |
+| ChatbotX | app 1.5.0; CLI 0.1.3 | CLI plus complete nine-image app/MCP/infrastructure bundle | private deployment, secrets, no demo seed; owning workspace and MCP/API readback |
 | TigerVNC | distro package; upstream v1.16.2 reviewed | `apt` package install | private-network binding, auth, firewall and viewer readback |
-| Parakeet | v0.8.0 / immutable image digest | shared loopback-only, read-only int8 container and Hermes command-STT adapter | health + synthetic/Discord voice-channel fallback readback; voice-note attachment fallback is not implemented |
+| Parakeet | v0.8.0 / immutable image digest | shared loopback-only, read-only int8 container and explicit native Hermes voice provider | health + synthetic/Discord voice attachment readback; shared loopback is not a cross-Zone access boundary |
 
 ```bash
 station deps list
@@ -89,7 +97,11 @@ The one-command equivalent on a fresh Host is:
 sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
-It stages the complete optional stack but does not invent secrets, start Langfuse, expose VNC, or mark external services accepted.
+It installs all required software through independent installers but does not
+invent secrets, start new database-backed applications, expose VNC, or mark
+external services accepted. Inspect exact image digests and activation gates in
+[`resources/services`](../../resources/services). Ponytail's current security
+block prevents full-success acceptance, even when the other installers pass.
 
 Strix adds no automatic scans or Docker permissions; its subordinate team and
 authorization contract are in the [security resource guide](../../resources/strix/README.md).

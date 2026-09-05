@@ -2506,6 +2506,30 @@
       "version": "v2026.8.31"
     },
     {
+      "bom-ref": "station:hermes-hindsight-client@0.6.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://pypi.org/project/hindsight-client/0.6.1/"
+        }
+      ],
+      "name": "Hermes Hindsight client",
+      "type": "library",
+      "version": "0.6.1"
+    },
+    {
+      "bom-ref": "station:hermes-honcho-client@2.2.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://pypi.org/project/honcho-ai/2.2.0/"
+        }
+      ],
+      "name": "Hermes Honcho client",
+      "type": "library",
+      "version": "2.2.0"
+    },
+    {
       "bom-ref": "station:hindsight@0.9.2",
       "externalReferences": [
         {
@@ -2542,6 +2566,18 @@
       "version": "4.25.1"
     },
     {
+      "bom-ref": "station:langfuse-python-sdk@4.15.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/langfuse/langfuse-python"
+        }
+      ],
+      "name": "Langfuse Python SDK",
+      "type": "library",
+      "version": "4.15.1"
+    },
+    {
       "bom-ref": "station:langfuse@v4.28.1",
       "externalReferences": [
         {
@@ -2576,6 +2612,538 @@
       "name": "npm",
       "type": "application",
       "version": "12.0.2"
+    },
+    {
+      "bom-ref": "station:oci:cgr.dev/chainguard/minio@sha256:b53973fa7410987380f05d54c5c9220e187cc4a3bad769713ddfd74475e71500",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b53973fa7410987380f05d54c5c9220e187cc4a3bad769713ddfd74475e71500"
+        }
+      ],
+      "name": "cgr.dev/chainguard/minio",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "image-created-2026-09-04T22:14:13Z"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/clickhouse/clickhouse-server@sha256:8ecb92fa564142a2bad5fef7b39f89af7265ddbfd782693b15f002ca0f70be14",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8ecb92fa564142a2bad5fef7b39f89af7265ddbfd782693b15f002ca0f70be14"
+        }
+      ],
+      "name": "docker.io/clickhouse/clickhouse-server",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "25.12.11.4"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/library/postgres@sha256:d13db94ae661d517c5ed57c509a578d5ea64aae639871ba25294f4f42d83de28",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d13db94ae661d517c5ed57c509a578d5ea64aae639871ba25294f4f42d83de28"
+        }
+      ],
+      "name": "docker.io/library/postgres",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "17.11-1.pgdg13+2"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/library/redis@sha256:5abe7a95302345d227a38553bd066c3a3d11044ee616654de2f6471a7676fe1e",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/plastic-labs/honcho/tree/5d992bc65afcfbc05a5911ab4edbaa88ef64c690"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5abe7a95302345d227a38553bd066c3a3d11044ee616654de2f6471a7676fe1e"
+        }
+      ],
+      "name": "docker.io/library/redis",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "8.2.9"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/library/redis@sha256:cd5f3ac681c77791c6a8eaa62de876ad2be043ee5a428afb7c0095aa08246277",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cd5f3ac681c77791c6a8eaa62de876ad2be043ee5a428afb7c0095aa08246277"
+        }
+      ],
+      "name": "docker.io/library/redis",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "8.8.0-alpine"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/library/redis@sha256:e2debfb7956fa12c7ddc79d7e645c8cf26b30c99a6e9161ea9bf4171e1668a5f",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e2debfb7956fa12c7ddc79d7e645c8cf26b30c99a6e9161ea9bf4171e1668a5f"
+        }
+      ],
+      "name": "docker.io/library/redis",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "7.4.11"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/pgvector/pgvector@sha256:a6579dded3ff4ed3d9565ae54ab253e2cb7ae24c5d1eb3bec8a89e73f038b68a",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/plastic-labs/honcho/tree/5d992bc65afcfbc05a5911ab4edbaa88ef64c690"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a6579dded3ff4ed3d9565ae54ab253e2cb7ae24c5d1eb3bec8a89e73f038b68a"
+        }
+      ],
+      "name": "docker.io/pgvector/pgvector",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "postgres-15.19-1.pgdg12+2-pgvector-pg15"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/rustfs/rc@sha256:71733d0a47d8c8816b1f54c7370be2e4908a13150a0e181aea5501ae293f81ac",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "71733d0a47d8c8816b1f54c7370be2e4908a13150a0e181aea5501ae293f81ac"
+        }
+      ],
+      "name": "docker.io/rustfs/rc",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "v0.1.22"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/rustfs/rustfs@sha256:7c72df8e6705aa5eb18f5fb2d9252103e897afd1533a5658935fe70929eda5ce",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7c72df8e6705aa5eb18f5fb2d9252103e897afd1533a5658935fe70929eda5ce"
+        }
+      ],
+      "name": "docker.io/rustfs/rustfs",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.0.0-beta.8"
+    },
+    {
+      "bom-ref": "station:oci:docker.io/timescale/timescaledb-ha@sha256:44d4f852b0f901b1e3e484f07d0060083575d70e144c27a5995ab1e995f3e355",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "44d4f852b0f901b1e3e484f07d0060083575d70e144c27a5995ab1e995f3e355"
+        }
+      ],
+      "name": "docker.io/timescale/timescaledb-ha",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "pg18.4-ts2.27.2-all"
+    },
+    {
+      "bom-ref": "station:oci:docker.langfuse.com/langfuse/langfuse-worker@sha256:af46e8d8f944eb80cdcc641aa3e6b8b0f65e269ecc35729cf9052692fb5dac82",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "af46e8d8f944eb80cdcc641aa3e6b8b0f65e269ecc35729cf9052692fb5dac82"
+        }
+      ],
+      "name": "docker.langfuse.com/langfuse/langfuse-worker",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "4.28.1"
+    },
+    {
+      "bom-ref": "station:oci:docker.langfuse.com/langfuse/langfuse@sha256:99e599817aeb61b4b6c23bde63ca1a51d25f7d0a22d4180175736e34908cef09",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/langfuse/langfuse/tree/70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "99e599817aeb61b4b6c23bde63ca1a51d25f7d0a22d4180175736e34908cef09"
+        }
+      ],
+      "name": "docker.langfuse.com/langfuse/langfuse",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "4.28.1"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/chatbotxio/chatbotx-builder@sha256:1f7b2ad9cf91ae4c51d4a75af97a3971b435918087aab70f0338ca29bcb2c33b",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1f7b2ad9cf91ae4c51d4a75af97a3971b435918087aab70f0338ca29bcb2c33b"
+        }
+      ],
+      "name": "ghcr.io/chatbotxio/chatbotx-builder",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/chatbotxio/chatbotx-javascript-executor@sha256:f44e4cd89ce0137b782acdbf3406afcbf7dac21b160bddf7823c59b3af7c487c",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f44e4cd89ce0137b782acdbf3406afcbf7dac21b160bddf7823c59b3af7c487c"
+        }
+      ],
+      "name": "ghcr.io/chatbotxio/chatbotx-javascript-executor",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/chatbotxio/chatbotx-mcp@sha256:91dd315890de0f6e593a8edf9d4f3864024e0be393182e8cf683da05ca0b5ef0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "91dd315890de0f6e593a8edf9d4f3864024e0be393182e8cf683da05ca0b5ef0"
+        }
+      ],
+      "name": "ghcr.io/chatbotxio/chatbotx-mcp",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/chatbotxio/chatbotx-realtime@sha256:88c8e58a674746418ca915fb54a178485164998f1c5c5c29d465f38c20a92c56",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "88c8e58a674746418ca915fb54a178485164998f1c5c5c29d465f38c20a92c56"
+        }
+      ],
+      "name": "ghcr.io/chatbotxio/chatbotx-realtime",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/chatbotxio/chatbotx-worker@sha256:7c490e5e26cf3703df276f2d2def820a1b12f43da33a71f6d44601c75ea423ec",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ChatbotXIO/ChatbotX/tree/526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7c490e5e26cf3703df276f2d2def820a1b12f43da33a71f6d44601c75ea423ec"
+        }
+      ],
+      "name": "ghcr.io/chatbotxio/chatbotx-worker",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/plastic-labs/honcho@sha256:1964967f2b6c2510a45246c1190abcdd15d94fa8328b507199e1d818b6d86b31",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/plastic-labs/honcho/tree/5d992bc65afcfbc05a5911ab4edbaa88ef64c690"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1964967f2b6c2510a45246c1190abcdd15d94fa8328b507199e1d818b6d86b31"
+        }
+      ],
+      "name": "ghcr.io/plastic-labs/honcho",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "3.1.1"
+    },
+    {
+      "bom-ref": "station:oci:ghcr.io/vectorize-io/hindsight@sha256:3b46e26ec69355422c46ceb496cd758ae226d751be4a0799b4e844251d524d46",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/vectorize-io/hindsight/tree/ebad478240d3171bb88201ececda5e8d9883d22d"
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3b46e26ec69355422c46ceb496cd758ae226d751be4a0799b4e844251d524d46"
+        }
+      ],
+      "name": "ghcr.io/vectorize-io/hindsight",
+      "properties": [
+        {
+          "name": "station:platform",
+          "value": "linux/amd64"
+        },
+        {
+          "name": "station:readiness",
+          "value": "SOFTWARE_ONLY_CONFIGURATION_REQUIRED"
+        }
+      ],
+      "type": "container",
+      "version": "0.9.2"
     },
     {
       "bom-ref": "station:parakeet@v0.8.0",
@@ -2748,10 +3316,10 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/agentik-station@11.27",
+      "bom-ref": "pkg:generic/agentik-station@11.28",
       "name": "agentik-station",
       "type": "application",
-      "version": "11.27"
+      "version": "11.28"
     },
     "properties": [
       {
@@ -2764,7 +3332,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:2e3324e0-d444-5f03-abc4-3b1e2acb55a4",
+  "serialNumber": "urn:uuid:1b556395-9bde-5344-8bc0-d9575d4ca4a7",
   "specVersion": "1.6",
   "version": 1
 }

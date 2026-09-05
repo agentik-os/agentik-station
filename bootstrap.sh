@@ -19,7 +19,9 @@ INSTALL_HERMES_AUTO_UPDATE=1
 INSTALL_CODEX=1
 INSTALL_AGK_TUI=1
 INSTALL_TOOLCHAIN=1
-INSTALL_AI_STACK=0
+INSTALL_AI_STACK=1
+MINIMAL=0
+EXPLICIT_AI_STACK=0
 INSTALL_VOICE=1
 INSTALL_SCRAPEGRAPHAI=1
 INSTALL_CRAWL4AI=1
@@ -41,19 +43,22 @@ Options:
   --plan                  validate and show the complete plan without Host changes
   --acknowledge-incomplete ATTEMPT
                           start a reviewed fresh run after inspecting that failed attempt
-  --skip-hermes
+  --minimal               explicitly select the partial base install; permits software skips
+  --skip-hermes           requires --minimal
   --skip-hermes-auto-update
   --skip-codex
-  --skip-toolchain         skip Python/Node/GitHub/Vercel/Composio/Codex/shadcn toolchain
+  --skip-toolchain         skip the operator toolchain; requires --minimal
   --skip-agk-tui
   --skip-voice           skip Hermes voice extras and local Parakeet service
-  --with-ai-stack        install all optional pinned AI services/clients/plugins
+  --with-ai-stack        compatibility alias for the default full stack; conflicts with --minimal
   --skip-scrapegraphai   skip the default Hermes web-extraction tool and Chromium browser
   --skip-crawl4ai        skip the default Hermes Markdown extraction tool
   --yes
 
 Creates the dedicated sudo account `agk-station`. Source and user tools live under
 /home/agk-station, while Station operational state uses /etc, /opt, /srv, /var and /run.
+The complete AI stack installs by default. Every software skip requires --minimal;
+--skip-hermes-auto-update only disables scheduled updates and is allowed independently.
 Nothing is installed into /root except the shell history of the administrator who invoked this command.
 USAGE
 }
@@ -74,13 +79,14 @@ while (($#)); do
     --sudo-mode) SUDO_MODE="$2"; shift 2;;
     --plan) PLAN_ONLY=1; shift;;
     --acknowledge-incomplete) ACKNOWLEDGE_INCOMPLETE="$2"; shift 2;;
+    --minimal) MINIMAL=1; shift;;
     --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; INSTALL_VOICE=0; shift;;
     --skip-hermes-auto-update) INSTALL_HERMES_AUTO_UPDATE=0; shift;;
     --skip-codex) INSTALL_CODEX=0; shift;;
     --skip-toolchain) INSTALL_TOOLCHAIN=0; INSTALL_CODEX=0; INSTALL_SCRAPEGRAPHAI=0; INSTALL_CRAWL4AI=0; shift;;
     --skip-agk-tui) INSTALL_AGK_TUI=0; shift;;
     --skip-voice) INSTALL_VOICE=0; shift;;
-    --with-ai-stack) INSTALL_AI_STACK=1; shift;;
+    --with-ai-stack) EXPLICIT_AI_STACK=1; shift;;
     --skip-scrapegraphai) INSTALL_SCRAPEGRAPHAI=0; shift;;
     --skip-crawl4ai) INSTALL_CRAWL4AI=0; shift;;
     --yes) YES=1; shift;;
@@ -95,18 +101,18 @@ done
 [[ -z "$ACKNOWLEDGE_INCOMPLETE" || "$ACKNOWLEDGE_INCOMPLETE" =~ ^[a-z0-9]([a-z0-9-]{0,62}[a-z0-9])?$ ]] || {
   echo 'ERROR: invalid incomplete bootstrap attempt identifier.' >&2; exit 2;
 }
-[[ "$INSTALL_AI_STACK" -eq 0 || "$INSTALL_TOOLCHAIN" -eq 1 ]] || {
-  echo 'ERROR: --with-ai-stack requires the Station toolchain; remove --skip-toolchain.' >&2
+[[ "$MINIMAL" -eq 0 || "$EXPLICIT_AI_STACK" -eq 0 ]] || {
+  echo 'ERROR: --minimal and --with-ai-stack are mutually exclusive.' >&2
   exit 2
 }
-[[ "$INSTALL_AI_STACK" -eq 0 || ( "$INSTALL_HERMES" -eq 1 && "$INSTALL_VOICE" -eq 1 ) ]] || {
-  echo 'ERROR: --with-ai-stack requires Hermes and the default voice stack.' >&2
+if [[ "$MINIMAL" -eq 1 ]]; then
+  INSTALL_AI_STACK=0
+elif [[ "$INSTALL_HERMES" -eq 0 || "$INSTALL_TOOLCHAIN" -eq 0 || "$INSTALL_CODEX" -eq 0 ||
+        "$INSTALL_AGK_TUI" -eq 0 || "$INSTALL_VOICE" -eq 0 ||
+        "$INSTALL_SCRAPEGRAPHAI" -eq 0 || "$INSTALL_CRAWL4AI" -eq 0 ]]; then
+  echo 'ERROR: software skips require --minimal to declare a partial installation.' >&2
   exit 2
-}
-[[ "$INSTALL_AI_STACK" -eq 0 || ( "$INSTALL_SCRAPEGRAPHAI" -eq 1 && "$INSTALL_CRAWL4AI" -eq 1 ) ]] || {
-  echo 'ERROR: --with-ai-stack conflicts with --skip-scrapegraphai or --skip-crawl4ai.' >&2
-  exit 2
-}
+fi
 if [[ "$MODE" == team && -z "$ORGANIZATION" ]]; then echo 'ERROR: --organization is required in team mode.' >&2; exit 2; fi
 
 source_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -152,6 +158,7 @@ Additional bootstrap operations (outside the kernel InstallSpec)
   home:         ${STATION_HOME}
   repository:   ${REPO_DIR}
   mode:         ${MODE}
+  installation: $([[ $MINIMAL -eq 1 ]] && echo minimal-partial || echo full-stack)
   Hermes:       $([[ $INSTALL_HERMES -eq 1 ]] && echo install || echo skip)
   Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly backup/Doctor timer' || echo ' disabled')
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
@@ -160,12 +167,16 @@ Additional bootstrap operations (outside the kernel InstallSpec)
   Voice:        $([[ $INSTALL_VOICE -eq 1 ]] && echo 'OpenAI audio + local Parakeet' || echo skip)
   ScrapeGraphAI:$([[ $INSTALL_SCRAPEGRAPHAI -eq 1 ]] && echo 'install + Playwright Chromium' || echo skip)
   Crawl4AI:     $([[ $INSTALL_CRAWL4AI -eq 1 ]] && echo 'install + Markdown tool' || echo skip)
-  AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
+  AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo 'omitted (--minimal)')
   sudo policy:  ${SUDO_MODE}
   packages:     apt dependencies + signed Tailscale repository
   enrollment:   human-owned; no provider credentials or bot tokens created
 EOF
 if [[ "$PLAN_ONLY" -eq 1 ]]; then echo 'PLAN_ONLY: no Host changes applied.'; exit 0; fi
+if [[ "$INSTALL_AI_STACK" -eq 1 && ( "$(uname -s)" != Linux || "$(uname -m)" != x86_64 ) ]]; then
+  echo 'ERROR: complete reviewed Host server bundles require Linux AMD64. No software was installed; use an appropriate Host or explicitly partial --minimal mode.' >&2
+  exit 2
+fi
 if [[ "$YES" -ne 1 ]]; then
   read -r -p 'Continue? [y/N] ' answer
   [[ "$answer" =~ ^([yY]|yes|YES)$ ]] || { echo 'Cancelled.'; exit 0; }
@@ -414,21 +425,21 @@ if [[ "$INSTALL_TOOLCHAIN" -eq 1 ]]; then
   bootstrap_checkpoint toolchain success
 fi
 
-if [[ "$INSTALL_SCRAPEGRAPHAI" -eq 1 ]]; then
+if [[ "$INSTALL_SCRAPEGRAPHAI" -eq 1 && "$INSTALL_AI_STACK" -eq 0 ]]; then
   bootstrap_checkpoint scrapegraphai running
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
     "$REPO_DIR/scripts/station_deps_install.sh" --component scrapegraphai
   bootstrap_checkpoint scrapegraphai success
 fi
 
-if [[ "$INSTALL_CRAWL4AI" -eq 1 ]]; then
+if [[ "$INSTALL_CRAWL4AI" -eq 1 && "$INSTALL_AI_STACK" -eq 0 ]]; then
   bootstrap_checkpoint crawl4ai running
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
     "$REPO_DIR/scripts/station_deps_install.sh" --component crawl4ai
   bootstrap_checkpoint crawl4ai success
 fi
 
-if [[ "$INSTALL_VOICE" -eq 1 ]]; then
+if [[ "$INSTALL_VOICE" -eq 1 && "$INSTALL_AI_STACK" -eq 0 ]]; then
   bootstrap_checkpoint voice running
   hermes_uv="$STATION_HOME/.local/bin/uv"
   [[ -x "$hermes_uv" ]] || hermes_uv="$STATION_HOME/.hermes/bin/uv"
@@ -487,12 +498,14 @@ bootstrap_checkpoint kernel-readback running
 bootstrap_checkpoint kernel-readback success
 
 # Runtime services are installed only after Station has reconciled the
-# canonical Zones and systemd units. Parakeet is default voice infrastructure;
-# the rest of the larger AI stack remains explicit.
+# canonical Zones and systemd units. The full stack is the default; explicit
+# minimal installs retain Parakeet when their voice infrastructure is selected.
+# A failed aggregate dependency run leaves this checkpoint incomplete and exits
+# nonzero. The updater must not start against an incomplete installation.
 if [[ "$INSTALL_AI_STACK" -eq 1 ]]; then
   bootstrap_checkpoint ai-stack running
   STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
-    "$REPO_DIR/scripts/station_deps_install.sh" --all
+    /opt/station/current/scripts/station_deps_install.sh --all
   bootstrap_checkpoint ai-stack success
 elif [[ "$INSTALL_VOICE" -eq 1 ]]; then
   bootstrap_checkpoint parakeet running
@@ -505,6 +518,14 @@ if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   bootstrap_checkpoint guided-setup running
   "$REPO_DIR/scripts/station_guided_setup_enable.sh" --if-enrolled
   bootstrap_checkpoint guided-setup success
+fi
+
+# Successful installers do not prove the assembled full profile is coherent.
+# Audit the published release after local setup, before scheduling any updater.
+if [[ "$INSTALL_AI_STACK" -eq 1 ]]; then
+  bootstrap_checkpoint full-stack-verify running
+  /opt/station/current/station deps full-check --operator "$STATION_USER"
+  bootstrap_checkpoint full-stack-verify success
 fi
 
 # Do not start an updater while the initial installation is still incomplete.

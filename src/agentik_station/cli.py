@@ -732,7 +732,19 @@ def cmd_hermes_update(args: argparse.Namespace) -> int:
 
 
 def cmd_deps(args: argparse.Namespace) -> int:
-    """Optional dependency stack: list / install / platforms / hermes auto-update timer."""
+    """Required Host software inventory, independent installers and native checks."""
+    if args.deps_command in {"full-plan", "full-check"}:
+        from .full_stack import check, plan
+        result = (plan(repository_root()) if args.deps_command == "full-plan" else
+                  check(repository_root(), operator=args.operator))
+        print(json.dumps(result, indent=2))
+        return 0 if args.deps_command == "full-plan" or result["full_software_verified"] else 1
+    if args.deps_command in {"service-plan", "service-check"}:
+        from .service_software import check_bundle, install_bundle
+        result = (install_bundle(repository_root(), args.component, plan=True)
+                  if args.deps_command == "service-plan" else check_bundle(repository_root(), args.component))
+        print(json.dumps(result, indent=2))
+        return 0 if args.deps_command == "service-plan" or result["software_installed"] else 1
     if args.deps_command.startswith("toolchain-"):
         script = repository_root() / "scripts" / "station_toolchain_install.sh"
         if not script.is_file():
@@ -1576,8 +1588,17 @@ def build_parser() -> argparse.ArgumentParser:
     hermes_update.add_argument("--check-only", action="store_true")
     hermes_update.set_defaults(handler=cmd_hermes_update)
 
-    deps = sub.add_parser("deps", help="Optional dependency stack (Langfuse, Honcho, Crawl4AI, ...)")
+    deps = sub.add_parser("deps", help="Full Host dependency stack: installation is distinct from service/account readiness")
     deps_sub = deps.add_subparsers(dest="deps_command", required=True)
+    for action in ("full-plan", "full-check"):
+        command = deps_sub.add_parser(action, help="Exhaustive required software inventory; never infers account readiness")
+        if action == "full-check":
+            command.add_argument("--operator", default="agk-station")
+        command.set_defaults(handler=cmd_deps)
+    for action in ("service-plan", "service-check"):
+        command = deps_sub.add_parser(action, help="Reviewed server image bundle; does not activate containers")
+        command.add_argument("--component", required=True, choices=("langfuse", "honcho", "hindsight", "chatbotx"))
+        command.set_defaults(handler=cmd_deps)
     deps_list = deps_sub.add_parser("list")
     deps_list.set_defaults(handler=cmd_deps)
     deps_platforms = deps_sub.add_parser("platforms")

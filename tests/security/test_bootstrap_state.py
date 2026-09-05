@@ -74,6 +74,112 @@ def test_receipt_binds_exact_spec_options_and_source(fixture, monkeypatch):
     assert fixture.receipt_path(attempt).stat().st_mode & 0o777 == 0o600
 
 
+def full_options():
+    return {**{name: True for name in FEATURES}, "mode": "full", "sudo_mode": "password"}
+
+
+LEGACY_FULL_STAGES = [
+    "system-packages", "tailscale", "operator-account", "operator-sudo",
+    "operator-checkout", "operator-profile", "hermes", "toolchain",
+    "scrapegraphai", "crawl4ai", "voice", "agk-tui", "kernel-apply",
+    "kernel-readback", "ai-stack", "guided-setup", "hermes-update-timer",
+    "tool-inventory", "agk-metadata-sync",
+]
+AGGREGATE_FULL_STAGES = [stage for stage in LEGACY_FULL_STAGES
+                         if stage not in {"scrapegraphai", "crawl4ai", "voice"}]
+AGGREGATE_FULL_STAGES.insert(AGGREGATE_FULL_STAGES.index("hermes-update-timer"), "full-stack-verify")
+
+
+@pytest.mark.parametrize("version", ["10.99", "11.9", "11.27", "11.27.9", "legacy-label"])
+def test_legacy_full_graph_preserves_original_web_and_voice_gates(version):
+    assert selected_stages(full_options(), version) == LEGACY_FULL_STAGES
+
+
+@pytest.mark.parametrize("version", ["11.28", "11.28.0", "11.100", "12.0"])
+def test_full_graph_defers_web_and_voice_to_one_aggregate_stage(version):
+    assert selected_stages(full_options(), version) == AGGREGATE_FULL_STAGES
+
+
+def test_default_graph_uses_current_product_release():
+    assert selected_stages(full_options()) == selected_stages(full_options(), PRODUCT_VERSION)
+    assert selected_stages(full_options()) == AGGREGATE_FULL_STAGES
+
+
+@pytest.mark.parametrize("version", ["11.27", "11.28"])
+def test_minimal_graph_keeps_independent_web_voice_and_parakeet_gates(version):
+    options = {**full_options(), "ai_stack": False}
+    expected = ["parakeet" if stage == "ai-stack" else stage for stage in LEGACY_FULL_STAGES]
+    assert selected_stages(options, version) == expected
+
+
+@pytest.mark.parametrize("version,expected", [
+    ("11.27", LEGACY_FULL_STAGES), ("11.28", AGGREGATE_FULL_STAGES),
+])
+def test_begin_and_receipt_readback_use_recorded_release_graph(fixture, version, expected):
+    fixture.options.update(full_options())
+    fixture.spec.write_text(json.dumps(InstallSpec(operation_id="op-fixture-kernel", release_version=version).to_dict()))
+    (fixture.source / "VERSION").write_text(version)
+    attempt = fixture.begin()
+    receipt = fixture.report()["latest"]
+    assert receipt["schema_version"] == 1 and receipt["spec"]["release_version"] == version
+    assert [stage["id"] for stage in receipt["stages"]] == expected
+    for stage in expected:
+        fixture.state.checkpoint(attempt, stage, "running")
+        fixture.state.checkpoint(attempt, stage, "success")
+    fixture.state.finish(attempt, 0)
+    before = fixture.receipt_path(attempt).read_bytes()
+    report = fixture.report()
+    assert report["status"] == "success" and report["operational"] is False
+    assert [stage["id"] for stage in report["latest"]["stages"]] == expected
+    assert fixture.receipt_path(attempt).read_bytes() == before
+
+
+@pytest.mark.parametrize("version", ["11.27", "11.28"])
+@pytest.mark.parametrize("defect", ["other-release-graph", "reordered"])
+def test_receipt_rejects_wrong_release_graph_and_reordered_stages(fixture, version, defect):
+    fixture.options.update(full_options())
+    fixture.spec.write_text(json.dumps(InstallSpec(operation_id="op-fixture-kernel", release_version=version).to_dict()))
+    (fixture.source / "VERSION").write_text(version)
+    attempt = fixture.begin()
+    path = fixture.receipt_path(attempt)
+    payload = json.loads(path.read_text())
+    if defect == "other-release-graph":
+        other = AGGREGATE_FULL_STAGES if version == "11.27" else LEGACY_FULL_STAGES
+        payload["stages"] = [{"id": stage, "status": "pending", "required": stage != "agk-metadata-sync",
+                              "repair": state_module.REPAIR[stage]} for stage in other]
+    else:
+        payload["stages"][0], payload["stages"][1] = payload["stages"][1], payload["stages"][0]
+    path.write_text(json.dumps(payload))
+    before = path.read_bytes()
+    assert fixture.report()["status"] == "unavailable"
+    with pytest.raises(ValidationError, match="stage sequence"):
+        fixture.begin(acknowledge=attempt)
+    assert path.read_bytes() == before
+
+
+def test_failed_full_verification_preserves_installer_success_but_blocks_completion(fixture):
+    fixture.options.update(full_options())
+    attempt = fixture.begin()
+    for stage in AGGREGATE_FULL_STAGES[:AGGREGATE_FULL_STAGES.index("full-stack-verify")]:
+        fixture.state.checkpoint(attempt, stage, "running")
+        fixture.state.checkpoint(attempt, stage, "success")
+    fixture.state.checkpoint(attempt, "full-stack-verify", "running")
+    fixture.state.finish(attempt, 41)
+    receipt = fixture.report()["latest"]
+    stages = {stage["id"]: stage for stage in receipt["stages"]}
+    assert receipt["status"] == "failed" and receipt["exit_code"] == 41
+    assert stages["ai-stack"]["status"] == stages["guided-setup"]["status"] == "success"
+    assert stages["full-stack-verify"]["status"] == "failed"
+    assert stages["full-stack-verify"]["exit_code"] == 41
+    assert stages["full-stack-verify"]["required"] is True
+    assert all(stages[stage]["status"] == "pending" for stage in
+               ("hermes-update-timer", "tool-inventory", "agk-metadata-sync"))
+    assert "full-check" in receipt["next_actions"][0]
+    assert receipt["operational"] is False
+    with pytest.raises(ValidationError, match="already finished"):
+        fixture.state.finish(attempt, 0)
+
+
 def test_failed_stage_preserves_exit_code_and_later_pending(fixture):
     attempt = fixture.begin()
     fixture.state.checkpoint(attempt, "system-packages", "running")
@@ -450,6 +556,12 @@ import sys
 print('ubuntu' if '$1 == "ID"' in sys.argv[2] else 'noble')
 ''')
     awk.chmod(0o755)
+    uname = binaries / "uname"
+    uname.write_text(f'''#!{sys.executable}
+import sys
+print('Linux' if sys.argv[1] == '-s' else 'x86_64')
+''')
+    uname.chmod(0o755)
     calls = tmp_path / "mutation-calls"
     for name in ("apt-get", "curl", "install", "useradd", "usermod", "chown", "systemctl", "rsync", "sudo"):
         executable = binaries / name

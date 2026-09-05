@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.27",
+  "release": "11.28",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1195,
+  "subject_count": 1214,
   "subjects": [
     {
       "executable": false,
@@ -50,8 +50,8 @@
     {
       "executable": false,
       "path": ".github/workflows/vps-acceptance.yml",
-      "sha256": "5d3de82af2f51be45bbdcd1c09e6c5df946424c4f482ac74df94e965f1c8470c",
-      "size": 1455
+      "sha256": "31fec4ecf2523dc1ae8fabe94583ac0730937f93a5c5b0f3060fff7a1c6cb5ef",
+      "size": 1465
     },
     {
       "executable": false,
@@ -68,8 +68,8 @@
     {
       "executable": false,
       "path": "AI_INSTALL_PROMPT.md",
-      "sha256": "9323294ddc0bdb801aea8b25fb53ee9aa760fabcc657a44dfdc3605c87c49c28",
-      "size": 7033
+      "sha256": "f69392a495c77183b2b0776abf664c6a614608b480fd9cf70d47c74430ee9ae2",
+      "size": 7939
     },
     {
       "executable": false,
@@ -86,8 +86,8 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "5ac1f3e8db88e72308fb44026a0187d2f3773ba97b519041607aef30ceb2eebe",
-      "size": 6579
+      "sha256": "e3598628838d39864cd72fb8d55b49fdbb4e91b7718c1c280619fb0ecc732732",
+      "size": 7685
     },
     {
       "executable": false,
@@ -110,8 +110,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "8fa1171c5d85e58187bb6350c8e4d4ea0101828de6aac3004712f756005df690",
-      "size": 24579
+      "sha256": "bd218293836d4db02e355ad6abc705c830ce637e73b91a16c53bc3bef96a6e03",
+      "size": 25466
     },
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "d11f78f651d1e054563ed4527bd3ea2a653c0b4e7a177a06366d77756b4c824a",
-      "size": 47238
+      "sha256": "05808e87381840f4e9a426946b73eee5eb566500bb8d5bb28769437807dc3d38",
+      "size": 48010
     },
     {
       "executable": false,
@@ -146,8 +146,8 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "50c1860f582c67a735802cb2cf6d3375516a2008fac39771181d3ac8ff8709d3",
-      "size": 83506
+      "sha256": "c89cd289b1613bab55f365253da45c86aa8efbee465ab9f2647ed12b90e2e6da",
+      "size": 100502
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "465862e6d0b3c1dcc71da91e505f04632199d8a3c9a2393ee6477ac0958950c7",
-      "size": 26366
+      "sha256": "26f0a5d2ba9a2441ea4f3447b5e4fbe840bead99572ada466e53343a75969f4c",
+      "size": 27647
     },
     {
       "executable": false,
@@ -188,14 +188,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "58a1657af3e364bf5a1880e784181e01820fcb67194ff99e438bb4ced1893784",
+      "sha256": "3e864a6e23111bf96180bd940b61cee7167d9f631ccb08f6921d4bdcca56d9d3",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "b553d3a4fba7bb1f45b5db1f14ad15fd159f07eb1defc53eaa3a65d01c289736",
-      "size": 60908
+      "sha256": "32cd29e34e129c736b34c57ea49bdfab1b42647e4fc72daeea129bc845d9855a",
+      "size": 61698
     },
     {
       "executable": true,
@@ -206,8 +206,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "4d0fbe46ba97d6288239775dbf11e43a41cca906488aab7b66c0a2d22dab7981",
-      "size": 30297
+      "sha256": "d946e6c43868422a09846302812f2913559031d924cb15878d4031d73d6d2c5a",
+      "size": 31643
     },
     {
       "executable": false,
@@ -866,8 +866,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/scripts/refresh-controls.py",
-      "sha256": "404b0fa2544f017fb37b209acfa7c98f439e1bfdfb22ca3aa4b3a3caa2bb19f2",
-      "size": 8761
+      "sha256": "94c233542140289109854552f7ea6ec0483a1eb4d4728d46ad724b0774784170",
+      "size": 9181
     },
     {
       "executable": true,
@@ -980,8 +980,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/tests/test_controls_refresh.py",
-      "sha256": "e2104755466b61e5324e21e76e71ac4a46394e9fb2954f71246733b884affa33",
-      "size": 12402
+      "sha256": "61afca06f2595b4ba0c8a3f69f515be7c4cbfbcd418ccd2b8861e3bbd362768f",
+      "size": 17346
     },
     {
       "executable": false,
@@ -1106,8 +1106,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "843f4991879d6fc8b3c90e07e5effe84505a315aa03200c94f17cd4ee2d1db1d",
-      "size": 6767
+      "sha256": "382d47de679cc0ba8e2f3e7ac6ccdb54be4bb8439254e3adfaea571fb74af487",
+      "size": 7197
     },
     {
       "executable": false,
@@ -1340,8 +1340,8 @@
     {
       "executable": false,
       "path": "config/versions.lock",
-      "sha256": "980a5fe09c983c509036b2cd3ac374ecfa4a8490ae9448e71692b6b0bbb8153f",
-      "size": 3995
+      "sha256": "ce867793aa49ea6f5645c69a9f37fa227de1e714a2cb95e1ca3336f9c97c9d07",
+      "size": 4286
     },
     {
       "executable": false,
@@ -1364,7 +1364,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "dd29fb11536407c90b17b1c215a9fd848321aa12b326b04a32500e85f0ab3053",
+      "sha256": "e08bab62d7a69a1f3959a8f3e728ff379b19e7e8f102aaf447059f0baff3c708",
       "size": 2339
     },
     {
@@ -1537,6 +1537,12 @@
     },
     {
       "executable": false,
+      "path": "docs/audit/2026-09-05-full-stack-install-plan.md",
+      "sha256": "fffef1fa688cd425c76a47656ab0621c334d8fa245f88770d420fb69056d8b38",
+      "size": 8364
+    },
+    {
+      "executable": false,
       "path": "docs/audit/2026-09-05-operational-control-plane.md",
       "sha256": "189e5a1aa55e900ec891e386239f174f946568742b415d5190527ab15b455532",
       "size": 7543
@@ -1681,6 +1687,12 @@
     },
     {
       "executable": false,
+      "path": "docs/dependencies/FULL_STACK.md",
+      "sha256": "1cb804d535dad3d73b4b9e1a14892527c0f0e46bda1df8d25e7125868e2f1ba0",
+      "size": 7707
+    },
+    {
+      "executable": false,
       "path": "docs/dependencies/HERMES_PLATFORMS.md",
       "sha256": "0a7383bc5111eb534dc7fa03e6f9c8473cf00cfc578b8c16e598162e3412dcf4",
       "size": 17114
@@ -1688,8 +1700,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "27d449ea2e63ab1005e6a8f17fcead697b5ad8fa64d935be5ace89700aebd6b5",
-      "size": 8085
+      "sha256": "cbb7a2b678dc38302daf82cf3d5d2dfa9c5c633377fc75de987dac2baf2bf49f",
+      "size": 9233
     },
     {
       "executable": false,
@@ -1904,7 +1916,7 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "c3c600f8a8d3309793169be9fef94341b10fcf27edb195dc901b381cae7a1e0e",
+      "sha256": "d7015fbf69f5116809b6643ff533d16aa0810bb7fca014fd8b16450a13d5c298",
       "size": 13929
     },
     {
@@ -3062,8 +3074,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "a31f9f315c9bad0f593f2c049d4172eea52a49ea495d37f08c47097b883afaf2",
-      "size": 11380
+      "sha256": "bd93e2bb63d0fb8a41cb4fc115ff0e6acabfd78289ae2e54c8107f7358fab7eb",
+      "size": 11938
     },
     {
       "executable": false,
@@ -3308,7 +3320,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "be1dfd07d0a9a83bebe0c13b6d1f6bca502b840df142db0c5c004e7ec7da05c3",
+      "sha256": "1ea759521c226ee0cb52aec686e3051021a51429d0073e69f1e6dcb8f78a2443",
       "size": 3188
     },
     {
@@ -6074,13 +6086,13 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "9a8309bbe318e911c8886de3e24b3df7b0cd3e025ad9ac8b1d5d1c1d72a9c466",
+      "sha256": "b03d6a49b2580572399e0e0f7b682b785f32e8fb8b5e86c7d9166eca9d288ea7",
       "size": 1064
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "5d7897d3959f084301cb39f5970b56f6ebc8159be403eaa9108713f96a933240",
+      "sha256": "5383996b8e60d9a4748a42cf64cb36cbb8187dc4de03a9237cbf83fc68294e48",
       "size": 720
     },
     {
@@ -6104,8 +6116,8 @@
     {
       "executable": false,
       "path": "resources/chatbotx/README.md",
-      "sha256": "c09d94c0bc4eed12db4a72a1e8ce36158dfe288b648c26a1289fce1f27498d47",
-      "size": 10114
+      "sha256": "28586406cab543268db482a2be7fa522d7a80e8b9587239454470a8733192d6d",
+      "size": 10478
     },
     {
       "executable": false,
@@ -6184,6 +6196,60 @@
       "path": "resources/scrapegraphai/RESOURCE.json",
       "sha256": "59501feaf703ab1f2d6c74754a13785fbae2ac52be9aeb6a3308fb870d3091ba",
       "size": 715
+    },
+    {
+      "executable": false,
+      "path": "resources/services/README.md",
+      "sha256": "1b0bf067a13bdc4a31c90e77bef7456524f52cfed8b6a4d361d6af627c88f290",
+      "size": 1166
+    },
+    {
+      "executable": false,
+      "path": "resources/services/chatbotx.json",
+      "sha256": "9267e8b66d259601ac1c176f5cd62421073d6ef83f81b226dff03303cea299f6",
+      "size": 4108
+    },
+    {
+      "executable": false,
+      "path": "resources/services/chatbotx/README.md",
+      "sha256": "8cc3848942c08474beba735ef365874040a7aa2283c5f2d34f20403ea82eeaea",
+      "size": 13286
+    },
+    {
+      "executable": false,
+      "path": "resources/services/hindsight.json",
+      "sha256": "112b1782088536973264c82d2d75eded83cdb161f318f3f7698034bcafc7c434",
+      "size": 2587
+    },
+    {
+      "executable": false,
+      "path": "resources/services/hindsight/README.md",
+      "sha256": "d45c3130ad1c10c0121d427d77a1894bcfc8b638d256f4b61c0a10c8397d572c",
+      "size": 2845
+    },
+    {
+      "executable": false,
+      "path": "resources/services/honcho.json",
+      "sha256": "b50b3b3c9327c0c5bc61c7ceca7ed0d528ec5e5ccd413231e09f5b641fd405b6",
+      "size": 2651
+    },
+    {
+      "executable": false,
+      "path": "resources/services/honcho/README.md",
+      "sha256": "3cd43c16414a01bab5c24ac7b177670a8bf09dc56be92d2ab523ff0e3462454f",
+      "size": 2889
+    },
+    {
+      "executable": false,
+      "path": "resources/services/langfuse.json",
+      "sha256": "970e50bfbb0af2bdb833fe7b95e2d8eec2eb8d09744189af783a28dc108b506c",
+      "size": 2993
+    },
+    {
+      "executable": false,
+      "path": "resources/services/langfuse/README.md",
+      "sha256": "d0441d356e77782ce96392a3750f689f37ab14a3ec6bc363ca91b64ff1d75a87",
+      "size": 2714
     },
     {
       "executable": false,
@@ -6356,8 +6422,8 @@
     {
       "executable": true,
       "path": "scripts/generate_release_metadata.py",
-      "sha256": "53fc264a41aa1c1fd0be76381a0517800fbc6ba2e2bc20e32baa236d7a7b18ec",
-      "size": 10089
+      "sha256": "c8fa2f3dedbac4d84660a81bb3082d32b130d26d0fd1020379234699d2e82439",
+      "size": 11254
     },
     {
       "executable": true,
@@ -6378,10 +6444,16 @@
       "size": 319
     },
     {
+      "executable": false,
+      "path": "scripts/station_dependency_probe.py",
+      "sha256": "d4fd24d7606e33691df48a824a3ba94fc88b226c167fc21fb2f22ec9c82bdf5c",
+      "size": 6251
+    },
+    {
       "executable": true,
       "path": "scripts/station_deps_install.sh",
-      "sha256": "95da0432ef4b817b22be1f76f7bd7379f520d63bc73970a22dc59d759150b0fa",
-      "size": 12544
+      "sha256": "d824b1f637f3ca4fd3ded6976ba958285e8342d282d04080d01dcf7591cedc95",
+      "size": 20320
     },
     {
       "executable": true,
@@ -6410,8 +6482,8 @@
     {
       "executable": true,
       "path": "scripts/station_toolchain_install.sh",
-      "sha256": "b0cc9bedae345273907b4e4eaf3c4cc2705999b37a7746a47477c568868831f4",
-      "size": 28583
+      "sha256": "c41cbabe6e5f82a274b43d5c5c3cebc47113980cae47d2038965d91ab08b616e",
+      "size": 28631
     },
     {
       "executable": false,
@@ -6548,14 +6620,14 @@
     {
       "executable": false,
       "path": "src/agentik_station/bootstrap_state.py",
-      "sha256": "eeb14bcb912f4de9fef39fb170a207a884b52138df428b2388c3c831512db917",
-      "size": 27046
+      "sha256": "0e4b661ff931c908ee3e74dff83b26c3b735334ac5cd7bc2e3d03cbb979af25e",
+      "size": 27945
     },
     {
       "executable": false,
       "path": "src/agentik_station/cli.py",
-      "sha256": "7dc4f091b1c90be20710cd6821029ecafd2fd86a4ef6bcc18256468a5addd8e7",
-      "size": 75542
+      "sha256": "f434cbb51a03ba57cfb10181fc2047784df29e826ef5dfd71265a0616bd76ccc",
+      "size": 77064
     },
     {
       "executable": false,
@@ -6566,14 +6638,14 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "5b34f624f0bb6e92a115bf5fc5ea9d3207899a0921697a580532a46d77e4f860",
+      "sha256": "cf285681993d7df470602aefe31a8b3d10b025e1e5b2c7091ab44b297db6bed0",
       "size": 1851
     },
     {
       "executable": false,
       "path": "src/agentik_station/doctor.py",
-      "sha256": "7f16e07fc16c8d4994c294ed6403b6bd178dce1e6dc7c06a421e355396b71496",
-      "size": 57868
+      "sha256": "28bbd0bf5f04b8f997439c4fe3519c2e89eab6885c58e3ec5a505c20de24f044",
+      "size": 59180
     },
     {
       "executable": false,
@@ -6586,6 +6658,12 @@
       "path": "src/agentik_station/filesystem.py",
       "sha256": "a96ffeb24ecc4e6f0ea4671e6a71efdd2431c2e2c56dbf4c255c15d15b26fe0b",
       "size": 21056
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/full_stack.py",
+      "sha256": "c4af1d0d775e573844fd16c4f783f07ad501ada1ff1509bf06a27d36b3c3548a",
+      "size": 28200
     },
     {
       "executable": false,
@@ -6757,6 +6835,12 @@
     },
     {
       "executable": false,
+      "path": "src/agentik_station/service_software.py",
+      "sha256": "009d1a39d4ca0c70a04ee1d0572471d544c56b52e0589d3231fd8970c08a4d97",
+      "size": 18882
+    },
+    {
+      "executable": false,
       "path": "src/agentik_station/strix.py",
       "sha256": "fde454e4eedd3b145280b8e485b0db6fd529f230105e28e84d24a85efd4e68a0",
       "size": 21187
@@ -6842,8 +6926,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_deps_stack.py",
-      "sha256": "e47abff3eb818ed81feb1734168a19fee821713bc154f5336cceba74b1c1b0dd",
-      "size": 7604
+      "sha256": "47f8b8963495e6d4ec603275e81940fc162e11679895607793ba48012d264f82",
+      "size": 8042
     },
     {
       "executable": false,
@@ -6932,14 +7016,26 @@
     {
       "executable": false,
       "path": "tests/security/test_bootstrap_state.py",
-      "sha256": "687be3bf3525850c55b294d18dfeb0d607c474fec5fdd72d29b46180d636953a",
-      "size": 22090
+      "sha256": "7440fed14cd19bd07fdf7b0c6150dc0a44da21c9c44f10f35358811b30c26146",
+      "size": 27686
     },
     {
       "executable": false,
       "path": "tests/security/test_bootstrap_workflow.py",
-      "sha256": "f77d9b7db1a8866220b47b322913b8a95861191f705d1cc1b1c142b271cbe6f2",
-      "size": 22297
+      "sha256": "22db05ae247fd6cf5a9a99e50c331a15329e3a1926ab3aa8adfa54b244d59d25",
+      "size": 29951
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_dependency_install_batch.py",
+      "sha256": "209d45c559c8256eae14037a968bdc7ba6fdaf79210a92ae6966d2dd119fdf0a",
+      "size": 7755
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_dependency_probe.py",
+      "sha256": "9b8b89dd4723b6979d4260053990c3ec46d398cf249132af46ea9c1b1cc04efa",
+      "size": 13499
     },
     {
       "executable": false,
@@ -6952,6 +7048,12 @@
       "path": "tests/security/test_existing_zone_identity.py",
       "sha256": "fbe5e330843fd7989b3bf5c56bb089e89f8b562f49c3a738bf25a6349ce912ef",
       "size": 10199
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_full_stack.py",
+      "sha256": "76cf181dc022ad61fa3087060e3c0c100a74ccbc06a41a8f185ebafe398cde59",
+      "size": 24449
     },
     {
       "executable": false,
@@ -6991,6 +7093,12 @@
     },
     {
       "executable": false,
+      "path": "tests/security/test_ponytail_install_gate.py",
+      "sha256": "4bc800e398e025a1fde5363125bc90eefce404d2ac4cc18f4894dac6cddff613",
+      "size": 4472
+    },
+    {
+      "executable": false,
       "path": "tests/security/test_project_creation.py",
       "sha256": "782130640470ff3ef9520651746ef8f1caeaa4bb438bc39c07abb47533b943eb",
       "size": 15060
@@ -7012,6 +7120,12 @@
       "path": "tests/security/test_safe_filesystem.py",
       "sha256": "1f4aaa15f732023445adf47cf96d407eb5ccf0010df3a5014ddf44194dc82ee5",
       "size": 2043
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_service_software.py",
+      "sha256": "1605f85acd078803312a9703fb29f9537aaf8caea0067f0af418820d013bd4ba",
+      "size": 19355
     },
     {
       "executable": false,
@@ -7172,8 +7286,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_voice_check.py",
-      "sha256": "518d5c9a448df4005a67fd155ecb6c712d2f3e41f7f1588a64c9a253cf241901",
-      "size": 9621
+      "sha256": "d419cbc00d5c8045728beb3e7eb3693259809cbb1a48d891c7946bbfdb4734ed",
+      "size": 9907
     },
     {
       "executable": false,

@@ -16,8 +16,12 @@ disables package lifecycle scripts. Do not replace this with an unpinned `npx`
 invocation or a global package installation.
 Workstation also installs the pinned Hermes `mcp` Python extra, and both
 installers require the native MCP SDK to import successfully. This is client
-software only: it does not install ChatbotX's unpublished local MCP server or
-enable the remote connection.
+software only in Workstation mode: it does not install a local MCP server or
+enable the remote connection. The **full Linux AMD64 Host** additionally installs
+the [complete nine-image application/MCP bundle](../services/chatbotx/README.md).
+Its containers are not started automatically; private deployment and account
+acceptance remain separate. `station deps service-check --component chatbotx`
+verifies those image bytes and their bound receipt, not application health.
 
 | Installation | CLI package location |
 | --- | --- |

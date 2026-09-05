@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "honcho",
+  "source": {
+    "repository": "https://github.com/plastic-labs/honcho",
+    "commit": "5d992bc65afcfbc05a5911ab4edbaa88ef64c690"
+  },
+  "platforms": ["linux/amd64"],
+  "images": [
+    {
+      "name": "server",
+      "reference": "ghcr.io/plastic-labs/honcho@sha256:1964967f2b6c2510a45246c1190abcdd15d94fa8328b507199e1d818b6d86b31",
+      "version": "3.1.1",
+      "role": "memory-api-and-separately-started-deriver-worker"
+    },
+    {
+      "name": "postgres",
+      "reference": "docker.io/pgvector/pgvector@sha256:a6579dded3ff4ed3d9565ae54ab253e2cb7ae24c5d1eb3bec8a89e73f038b68a",
+      "version": "postgres-15.19-1.pgdg12+2-pgvector-pg15",
+      "role": "memory-relational-and-vector-database"
+    },
+    {
+      "name": "redis",
+      "reference": "docker.io/library/redis@sha256:5abe7a95302345d227a38553bd066c3a3d11044ee616654de2f6471a7676fe1e",
+      "version": "8.2.9",
+      "role": "memory-cache-and-worker-coordination"
+    }
+  ],
+  "configuration_required": true,
+  "limitations": [
+    "Actual Linux AMD64 server image plus PostgreSQL/pgvector and Redis; installing the unrelated operator honcho-ai SDK is not this server software gate.",
+    "The released v3.1.1 image identifies source commit 5d992bc65afcfbc05a5911ab4edbaa88ef64c690, not the newer source-review HONCHO_COMMIT in config/versions.lock.",
+    "The same server image supplies the API and deriver; both processes, migrations, health checks, persistent storage and backups require a later explicit runtime deployment.",
+    "Upstream Compose uses trust database authentication and example passwords; it must not be started verbatim. Configure API authentication and prevent unauthenticated cross-Zone access.",
+    "LLM and embedding routes, provider credentials, budget and data-handling scope are external configuration choices, not inferred from another Hermes profile.",
+    "Pinned Hermes excludes the Honcho SDK from its all extra and pins a different SDK version; install and compatibility-test the native provider dependency in the actual Hermes runtime.",
+    "Hermes permits only one external memory provider per profile. Explicitly select Honcho, endpoint, workspace and peers; workspace names alone are not tenant authorization.",
+    "Native configuration can fall back from HERMES_HOME to Zone HOME configuration. Do not auto-adopt or copy existing accounts; keep multi-user peer identities distinct.",
+    "Readiness requires authenticated synthetic write, deriver completion, recall after restart and negative cross-Zone tests. No optional MCP server or monitoring demo is needed for Hermes native memory."
+  ]
+}

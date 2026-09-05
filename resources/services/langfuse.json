@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "langfuse",
+  "source": {
+    "repository": "https://github.com/langfuse/langfuse",
+    "commit": "70cff8078545a7cac01fea1462cd6d077d8dfa3e"
+  },
+  "platforms": ["linux/amd64"],
+  "images": [
+    {
+      "name": "web",
+      "reference": "docker.langfuse.com/langfuse/langfuse@sha256:99e599817aeb61b4b6c23bde63ca1a51d25f7d0a22d4180175736e34908cef09",
+      "version": "4.28.1",
+      "role": "observability-web-and-api"
+    },
+    {
+      "name": "worker",
+      "reference": "docker.langfuse.com/langfuse/langfuse-worker@sha256:af46e8d8f944eb80cdcc641aa3e6b8b0f65e269ecc35729cf9052692fb5dac82",
+      "version": "4.28.1",
+      "role": "observability-background-worker"
+    },
+    {
+      "name": "postgres",
+      "reference": "docker.io/library/postgres@sha256:d13db94ae661d517c5ed57c509a578d5ea64aae639871ba25294f4f42d83de28",
+      "version": "17.11-1.pgdg13+2",
+      "role": "observability-relational-database"
+    },
+    {
+      "name": "clickhouse",
+      "reference": "docker.io/clickhouse/clickhouse-server@sha256:8ecb92fa564142a2bad5fef7b39f89af7265ddbfd782693b15f002ca0f70be14",
+      "version": "25.12.11.4",
+      "role": "observability-trace-database"
+    },
+    {
+      "name": "redis",
+      "reference": "docker.io/library/redis@sha256:e2debfb7956fa12c7ddc79d7e645c8cf26b30c99a6e9161ea9bf4171e1668a5f",
+      "version": "7.4.11",
+      "role": "observability-queue-and-cache"
+    },
+    {
+      "name": "minio",
+      "reference": "cgr.dev/chainguard/minio@sha256:b53973fa7410987380f05d54c5c9220e187cc4a3bad769713ddfd74475e71500",
+      "version": "image-created-2026-09-04T22:14:13Z",
+      "role": "observability-s3-object-storage"
+    }
+  ],
+  "configuration_required": true,
+  "limitations": [
+    "Reviewed Linux AMD64 server and required infrastructure image bytes only; no containers or services are created or started.",
+    "The upstream Compose file is provenance, not an activation template: mutable tags, public ports and CHANGEME credentials must not be applied verbatim.",
+    "Activation requires an owning Zone, private secrets, scoped durable volumes, backups, capacity, internal networking and an explicitly accepted UI access route.",
+    "No organization, user, project, API key, database schema or migration is created by software installation.",
+    "Hermes requires its actual runtime Langfuse SDK plus the opt-in observability/langfuse plugin and explicit per-profile endpoint/project credentials; missing SDK or credentials silently disables tracing.",
+    "Use metadata-only capture until scoped content-export approval; sanitization is not a guarantee against client data leakage.",
+    "Readiness requires healthy dependencies and a synthetic Hermes trace visible in the correct Langfuse project after flush, plus cross-Zone denial checks.",
+    "The MinIO version field records the published image creation timestamp, not an inferred upstream semantic version; its exact image bytes are pinned by digest."
+  ]
+}

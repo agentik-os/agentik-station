@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "hindsight",
+  "source": {
+    "repository": "https://github.com/vectorize-io/hindsight",
+    "commit": "ebad478240d3171bb88201ececda5e8d9883d22d"
+  },
+  "platforms": ["linux/amd64"],
+  "images": [
+    {
+      "name": "server",
+      "reference": "ghcr.io/vectorize-io/hindsight@sha256:3b46e26ec69355422c46ceb496cd758ae226d751be4a0799b4e844251d524d46",
+      "version": "0.9.2",
+      "role": "memory-api-worker-control-plane-and-local-embedding-runtime"
+    },
+    {
+      "name": "postgres",
+      "reference": "docker.io/pgvector/pgvector@sha256:a6579dded3ff4ed3d9565ae54ab253e2cb7ae24c5d1eb3bec8a89e73f038b68a",
+      "version": "postgres-15.19-1.pgdg12+2-pgvector-pg15",
+      "role": "external-production-memory-relational-and-vector-database"
+    }
+  ],
+  "configuration_required": true,
+  "limitations": [
+    "Actual full Linux AMD64 Hindsight server image and external PostgreSQL/pgvector software, not just hindsight-client. No process, database or listener is started.",
+    "The bundled development pg0 database is not the selected production database recipe. Configure private external PostgreSQL, extension/schema migrations, durable storage and backups explicitly.",
+    "Full-image local embeddings and reranking do not provide the extraction/reflection LLM. Choose a separately deployed local inference endpoint or explicitly enroll a provider and budget.",
+    "Activation requires a Zone/principal, authenticated API and UI, private network, stable worker identity, storage ownership and measured capacity; preserve the image's supported UID mapping.",
+    "Bank names are not access control. A shared API key does not isolate multiple tenants; use separate scoped services or separately reviewed tenant authentication and cross-Zone denial checks.",
+    "Hermes must explicitly select Hindsight as its one external memory provider, with the correct endpoint and bank namespace. Its unrelated operator client venv does not satisfy native Hermes imports.",
+    "Do not rely on native setup's unpinned hindsight-all lazy installation. Pin actual Hermes runtime dependencies and prove client/server compatibility before binding.",
+    "For explicit embedded development, HERMES_HOME does not isolate the default Zone HOME/.hindsight profile; assign separate embedded profile names and never copy credentials automatically.",
+    "Readiness requires authenticated synthetic retain, completed processing, recall/reflect, restart persistence and unauthorized tenant denial. Built-in MCP is not automatically connected or authorized."
+  ]
+}

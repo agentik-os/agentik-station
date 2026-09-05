@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "chatbotx",
+  "source": {
+    "repository": "https://github.com/ChatbotXIO/ChatbotX",
+    "commit": "526ea40fd81b20d7f2e754810d16a4d9a36d9a0c"
+  },
+  "platforms": ["linux/amd64"],
+  "images": [
+    {
+      "name": "builder",
+      "reference": "ghcr.io/chatbotxio/chatbotx-builder@sha256:1f7b2ad9cf91ae4c51d4a75af97a3971b435918087aab70f0338ca29bcb2c33b",
+      "version": "1.5.0",
+      "role": "application-web-and-api"
+    },
+    {
+      "name": "worker",
+      "reference": "ghcr.io/chatbotxio/chatbotx-worker@sha256:7c490e5e26cf3703df276f2d2def820a1b12f43da33a71f6d44601c75ea423ec",
+      "version": "1.5.0",
+      "role": "application-background-workers"
+    },
+    {
+      "name": "realtime",
+      "reference": "ghcr.io/chatbotxio/chatbotx-realtime@sha256:88c8e58a674746418ca915fb54a178485164998f1c5c5c29d465f38c20a92c56",
+      "version": "1.5.0",
+      "role": "application-realtime-server"
+    },
+    {
+      "name": "javascript-executor",
+      "reference": "ghcr.io/chatbotxio/chatbotx-javascript-executor@sha256:f44e4cd89ce0137b782acdbf3406afcbf7dac21b160bddf7823c59b3af7c487c",
+      "version": "1.5.0",
+      "role": "application-isolated-flow-executor"
+    },
+    {
+      "name": "mcp",
+      "reference": "ghcr.io/chatbotxio/chatbotx-mcp@sha256:91dd315890de0f6e593a8edf9d4f3864024e0be393182e8cf683da05ca0b5ef0",
+      "version": "1.5.0",
+      "role": "application-mcp-server"
+    },
+    {
+      "name": "postgres",
+      "reference": "docker.io/timescale/timescaledb-ha@sha256:44d4f852b0f901b1e3e484f07d0060083575d70e144c27a5995ab1e995f3e355",
+      "version": "pg18.4-ts2.27.2-all",
+      "role": "application-database"
+    },
+    {
+      "name": "redis",
+      "reference": "docker.io/library/redis@sha256:cd5f3ac681c77791c6a8eaa62de876ad2be043ee5a428afb7c0095aa08246277",
+      "version": "8.8.0-alpine",
+      "role": "application-queue-and-cache"
+    },
+    {
+      "name": "filesystem",
+      "reference": "docker.io/rustfs/rustfs@sha256:7c72df8e6705aa5eb18f5fb2d9252103e897afd1533a5658935fe70929eda5ce",
+      "version": "1.0.0-beta.8",
+      "role": "application-object-storage"
+    },
+    {
+      "name": "filesystem-init",
+      "reference": "docker.io/rustfs/rc@sha256:71733d0a47d8c8816b1f54c7370be2e4908a13150a0e181aea5501ae293f81ac",
+      "version": "v0.1.22",
+      "role": "object-storage-initialization-tool-not-auto-executed"
+    }
+  ],
+  "configuration_required": true,
+  "limitations": [
+    "All references pin reviewed linux/amd64 platform manifests; ARM64 is unsupported by this bundle.",
+    "Actual image pulls and native digest/architecture readback establish software installation only; the manifest alone does not.",
+    "Installation must not create or start containers, enroll accounts, publish ports, initialize storage, migrate a database, seed users, or enable MCP.",
+    "The official standalone deployment was reviewed at ChatbotXIO/chatbotx-docker-compose commit 1b71fc4fe9e21cebbf868e1f1474e8d99a7ca27e; its unsafe defaults are not an accepted Station runtime recipe.",
+    "Production activation requires an owning Zone/principal, capacity, private secrets, persistent storage, backups, private networking, TLS, admin enrollment and separately verified provider accounts.",
+    "RUN_DB_MIGRATE and RUN_DB_SEED must remain false during normal startup; the upstream seed creates a publicly known demo administrator.",
+    "The realtime entrypoint uses unpinned pnpm dlx; a reviewed offline invocation of the bundled partykit 0.0.115 is required before activation.",
+    "Source uses S3_ENDPOINT, not the standalone compose's S3_ENPOINT typo; container service URLs and real SMTP configuration must be corrected.",
+    "Hermes remains the orchestrator. Installed MCP server software is not a configured or authorized profile connection.",
+    "ChatbotX root licensing excludes commercial enterprise code and preserves third-party licenses; community and licensed enterprise capabilities must not be conflated.",
+    "Optional Adminer and MailHog maintenance/demo images are not part of this runtime software claim."
+  ]
+}
