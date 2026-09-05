@@ -12,6 +12,37 @@ import { onboarding } from './onboarding.mjs';
 
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const shellQuote = value => `'${String(value).replaceAll("'", "'\\''")}'`;
+// Public diagnostics contain only reviewed identifiers. Never derive these
+// fields from native output, event messages, argv or arbitrary exception text.
+const INSTALL_PHASES = new Set(['arguments', 'context', 'preflight', 'confirmation', 'destination', 'lock', 'provision', 'hermes', 'rmux', 'agk', 'tool-resources', 'connector:github', 'connector:composio', 'crawl4ai', 'scrapegraphai', 'verify', 'onboarding', 'gateway', 'receipt']);
+const DIAGNOSTIC_CHECKS = new Set([
+  'arguments', 'install', 'repair', 'verify', 'platform',
+  ...['uv', 'git', 'cargo', 'curl', 'npm', 'rust-toolchain'].map(name => `prerequisite:${name}`),
+  ...['revision', 'tracked-source', 'macos-attribution-exclusion', 'imports', 'plugin:agentik_os', 'plugin:platforms/discord', 'plugin-discovery'].map(name => `hermes:${name}`),
+  ...['socket-path', 'version', 'launcher-context'].map(name => `rmux:${name}`),
+  ...['commands', 'controller', 'inventory'].map(name => `agk:${name}`),
+  ...['vercel', 'codex', 'shadcn', 'gh', 'composio'].map(name => `cli:${name}`),
+  'sdk:discord.js', 'web:crawl4ai', 'web:scrapegraphai',
+]);
+const DIAGNOSTIC_STATUSES = new Set(['verified', 'failed', 'blocked', 'not-configured', 'unavailable', 'ready-for-setup']);
+export function safeInstallPhase(value) { return INSTALL_PHASES.has(value) ? value : null; }
+export function installationDiagnostics(report, exitCode) {
+  const checks = Array.isArray(report?.checks) ? report.checks : [];
+  // A provisioning exception has no required flag; it must not disappear from
+  // CI just because native verification never reached its required checks.
+  const failures = checks.filter(check => check?.required !== false && check?.status !== 'verified');
+  return {
+    installExitCode: Number.isInteger(exitCode) && exitCode >= 0 && exitCode <= 255 ? exitCode : null,
+    installStatus: DIAGNOSTIC_STATUSES.has(report?.status) ? report.status : 'unknown',
+    installPhase: safeInstallPhase(report?.phase) || 'unknown',
+    requiredChecks: checks.filter(check => check?.required === true).length,
+    failedRequiredChecks: failures.slice(0, 32).map(check => ({
+      id: DIAGNOSTIC_CHECKS.has(check?.id) ? check.id : 'unknown-check',
+      status: DIAGNOSTIC_STATUSES.has(check?.status) ? check.status : 'unknown',
+    })),
+    omittedRequiredFailures: Math.max(0, failures.length - 32),
+  };
+}
 export function softwareStatus(checks) {
   if (!Array.isArray(checks) || !checks.some(c=>c.required===true)) return 'failed';
   if (checks.some(c=>c.status==='failed')) return 'failed';
@@ -58,6 +89,7 @@ export function parseArgs(args) {
 export async function main(args = process.argv.slice(2)) {
   let ui, unlock, ctx;
   let action;
+  let phase = 'arguments';
   let machine = args.includes('--json');
   try {
     const opts = parseArgs([...args]); action = opts.command; machine = opts.json;
@@ -73,6 +105,7 @@ export async function main(args = process.argv.slice(2)) {
       process.stdout.write(opts.json ? `${JSON.stringify(report,null,2)}\n` : `${report.steps.join('\n')}\n${report.docs}\n`);
       return action === 'plan' ? 0 : 2;
     }
+    phase = 'context';
     ctx = await createContext({ root: opts.root, sourceRoot });
     const plan = { mode: 'workstation', root: ctx.root, platform: ctx.platform, arch: ctx.arch, profile: ctx.profile,
       steps: ['Check prerequisites and private destination', 'Install pinned Hermes, AGK and reusable tools', 'Verify native binaries, imports and plugin discovery', 'Enroll model and Discord privately (optional)', 'Review and explicitly activate the gateway'],
@@ -83,14 +116,17 @@ export async function main(args = process.argv.slice(2)) {
     if (action === 'plan' || action === 'install' || action === 'repair') ui?.plan(plan);
     if (action === 'plan') return 0;
     if (['install','repair'].includes(action)) {
+      phase = 'preflight';
       if (process.getuid() === 0) throw new Error('Run Workstation as an ordinary user, without sudo.');
       const preflight = await prerequisites(ctx, { run });
       if (preflight.checks.some(c => c.status === 'blocked')) {
-        const report = {status:'blocked',checks:preflight.checks,next:['Install the missing prerequisites using your platform package manager, then rerun plan. No installation root was created.']};
+        const report = {status:'blocked',phase,checks:preflight.checks,next:['Install the missing prerequisites using your platform package manager, then rerun plan. No installation root was created.']};
         if (opts.json) process.stdout.write(`${JSON.stringify(report,null,2)}\n`); else ui?.summary(report);
         return 1;
       }
+      phase = 'confirmation';
       if (!opts.yes && !(interactive && await interactive.confirm({ message: `Install owned software in ${ctx.root}?` }))) throw new Error('No changes made. Review plan, then use --yes or an interactive terminal.');
+      phase = 'destination';
       if (action === 'install') await initialize(ctx);
       else if (!(await inspectInstallation(ctx))) throw new Error('No recognized installation to repair.');
     } else if (!(await inspectInstallation(ctx))) throw new Error('No recognized installation. Run plan, then install.');
@@ -99,11 +135,17 @@ export async function main(args = process.argv.slice(2)) {
       await run(path.join(ctx.bin,'agk'), [], { env: { PATH: process.env.PATH || '/usr/bin:/bin', HOME: ctx.home, TERM: process.env.TERM || 'xterm-256color' }, cwd: ctx.projects, interactive: true, timeoutMs: 24*60*60_000 });
       return 0;
     }
+    phase = 'lock';
     unlock = await acquireLock(ctx);
-    const emit = event => ui?.event(event);
+    const emit = event => {
+      phase = safeInstallPhase(event?.phase) || phase;
+      ui?.event(event);
+    };
     let report;
     if (['install','repair','verify'].includes(action)) {
+      phase = action === 'verify' ? 'verify' : 'provision';
       const provisioned = action === 'verify' ? null : await provision(ctx, { run, emit });
+      phase = 'verify';
       report = await verify(ctx, { run, emit });
       if (Array.isArray(report)) report = { checks: report };
       if (!report?.checks) throw new Error('Verifier did not return checks.');
@@ -114,29 +156,35 @@ export async function main(args = process.argv.slice(2)) {
       report.next = [shellQuote(path.join(ctx.bin,'agk')), ...['model','discord','activate'].map(command=>`agentik-station ${command} --root ${shellQuote(ctx.root)}`)];
       if (action==='install' && !opts.yes && interactive && report.status==='ready-for-setup') {
         ui?.summary(report);
+        phase = 'onboarding';
         report.onboarding=await onboarding(ctx,{checks:report.checks,run,interactive,emit});
         for (const stage of report.onboarding) await receipt(ctx,`onboarding-${stage.action}`,stage);
         if (report.onboarding.some(stage=>stage.status==='failed')) report.status='failed';
       }
     } else {
       if (action === 'activate') {
+        phase = 'verify';
         const health = await verify(ctx, { run, emit });
         const checks = Array.isArray(health) ? health : health.checks;
         const critical=['hermes:revision','hermes:imports','agk:controller','hermes:plugin:agentik_os','hermes:plugin:platforms/discord'];
         if (!Array.isArray(checks) || critical.some(id=>!checks.some(c=>c.id===id && c.status==='verified')) || checks.some(c => c.required === true && c.status !== 'verified')) throw new Error('Required software verification failed or is blocked; repair before activation.');
       }
+      phase = 'gateway';
       report = await gateway(ctx, { discord:'configure',model:'model',activate:'activate',status:'status' }[action], { run, interactive });
     }
     report ||= { status: 'not-configured', checks: [] };
+    if (['install','repair','verify'].includes(action)) report.phase = phase;
+    phase = 'receipt';
     report.receipt = await receipt(ctx, action, report);
     await unlock(); unlock=null;
     if (opts.json) process.stdout.write(`${JSON.stringify(report,null,2)}\n`); else ui?.summary(report);
     return ['failed','blocked'].includes(report.status) ? 1 : 0;
   } catch (error) {
     const detail = String(error.message || error).replace(/[\x00-\x1f\x7f]/g,' ');
-    if (ctx && unlock) await receipt(ctx, action, { status: 'failed', checks: [{id: action,status:'failed',detail}], next: ['Inspect this failure; use explicit repair only after addressing it.'] }).catch(() => {});
-    if (machine) process.stdout.write(`${JSON.stringify({status:'failed',checks:[{id:action || 'arguments',status:'failed',detail}]},null,2)}\n`);
-    else process.stderr.write(`Station: ${detail}\n`);
+    const failure = {status:'failed',phase,checks:[{id:action || 'arguments',status:'failed',detail}]};
+    if (ctx && unlock) await receipt(ctx, action, { ...failure, next: ['Inspect this failure; use explicit repair only after addressing it.'] }).catch(() => {});
+    if (machine) process.stdout.write(`${JSON.stringify(failure,null,2)}\n`);
+    else process.stderr.write(`Station [${phase}]: ${detail}\n`);
     return 1;
   } finally {
     try { if (unlock) await unlock(); }

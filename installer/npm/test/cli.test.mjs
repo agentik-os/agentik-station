@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createContext, initialize } from '../state.mjs';
+import { safeInstallPhase, installationDiagnostics } from '../cli.mjs';
 
 const entry = fileURLToPath(new URL('../cli.mjs', import.meta.url));
 
@@ -196,4 +197,57 @@ test('failed software checks still give safely quoted next commands for literal 
   assert.deepEqual(report.next, [quotedLauncher, ...['model', 'discord', 'activate'].map(command => `agentik-station ${command} --root ${quotedRoot}`)]);
   assert.equal(JSON.parse(await fs.readFile(report.receipt, 'utf8')).status, 'failed');
   assert.deepEqual(await fs.readdir(f.home), ['sentinel']);
+});
+
+test('provisioning failure records the fixed Hermes phase in JSON and private receipt without native stderr', { skip: process.getuid() === 0 }, async t => {
+  const f = await fixture(t);
+  const sentinel = 'SYNTHETIC_NATIVE_TOKEN_NOT_A_REAL_CREDENTIAL_0123456789';
+  await fs.writeFile(path.join(f.bin, 'git'), `#!/bin/sh\nprintf '${sentinel}\\n' >&2\nexit 97\n`, { mode: 0o700 });
+  const result = execute(f, ['install', '--yes', '--root', f.root, '--json']);
+  assert.equal(result.status, 1);
+  const report = json(result);
+  assert.equal(report.phase, 'hermes');
+  assert.equal(report.checks[0].id, 'install');
+  assert.equal(report.checks[0].status, 'failed');
+  const evidence = path.join(f.root, 'evidence');
+  const receipts = (await fs.readdir(evidence)).filter(name => name.endsWith('.json'));
+  assert.equal(receipts.length, 1);
+  const recorded = await fs.readFile(path.join(evidence, receipts[0]), 'utf8');
+  assert.equal(JSON.parse(recorded).phase, 'hermes');
+  assert.equal((result.stdout + result.stderr + recorded).includes(sentinel), false);
+  assert.deepEqual(installationDiagnostics(report, result.status).failedRequiredChecks, [{id:'install',status:'failed'}]);
+  await assert.rejects(fs.lstat(path.join(f.root, '.install.lock')), {code:'ENOENT'});
+  assert.deepEqual(await fs.readdir(f.home), ['sentinel']);
+});
+
+test('human provisioning failure names the fixed phase without exposing native output', { skip: process.getuid() === 0 }, async t => {
+  const f = await fixture(t);
+  const result = execute(f, ['install', '--yes', '--root', f.root]);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Station \[hermes\]:/);
+});
+
+test('diagnostics accept only enumerated phases, check IDs and statuses and cap failures', () => {
+  const sentinel = 'SYNTHETIC_SECRET_ID_OR_PHASE';
+  assert.equal(safeInstallPhase('connector:composio'), 'connector:composio');
+  for (const value of [sentinel, `hermes\n${sentinel}`, null, {}, ['hermes']]) assert.equal(safeInstallPhase(value), null);
+  const summary = installationDiagnostics({status:sentinel,phase:sentinel,checks:[
+    {id:'hermes:imports',status:'failed',required:true,detail:sentinel},
+    {id:sentinel,status:sentinel},
+    {id:'cli:gh',status:'verified',required:true},
+    {id:'optional',status:'blocked',required:false,detail:sentinel},
+    ...Array.from({length:40},()=>({id:'web:crawl4ai',status:'blocked',required:true})),
+  ]}, sentinel);
+  assert.equal(summary.installStatus, 'unknown');
+  assert.equal(summary.installPhase, 'unknown');
+  assert.equal(summary.installExitCode, null);
+  assert.equal(summary.requiredChecks, 42);
+  assert.equal(summary.failedRequiredChecks.length, 32);
+  assert.equal(summary.omittedRequiredFailures, 10);
+  assert.deepEqual(summary.failedRequiredChecks.slice(0, 2), [{id:'hermes:imports',status:'failed'},{id:'unknown-check',status:'unknown'}]);
+  assert.equal(JSON.stringify(summary).includes(sentinel), false);
+  assert.deepEqual(installationDiagnostics({status:'failed',phase:'hermes',checks:[{id:'install',status:'failed'}]}, 1), {
+    installExitCode:1,installStatus:'failed',installPhase:'hermes',requiredChecks:0,failedRequiredChecks:[{id:'install',status:'failed'}],omittedRequiredFailures:0,
+  });
+  assert.equal(installationDiagnostics(null, 999).installExitCode, null);
 });

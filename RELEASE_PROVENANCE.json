@@ -170,7 +170,7 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "9b7546a9faa277c0465b31bd2afe75a3630edbd2e6decc0d943a564c7a81c1bc",
+      "sha256": "cedf94a7a4039fd9c00e74cefc8cdc7cf67078fcfa16b91ede1beeb8877e3c99",
       "size": 25472
     },
     {
@@ -1556,8 +1556,8 @@
     {
       "executable": false,
       "path": "docs/audit/2026-09-05-workstation-acceptance.md",
-      "sha256": "817a212b23d68ee2f383730d771c1305a81b3290104edf6f0dc1af6d03da610c",
-      "size": 6293
+      "sha256": "3ce8ab54b9a8402eba97f77692f78cdf51b5bfc9de5b3677821aef6d44f4df46",
+      "size": 7066
     },
     {
       "executable": false,
@@ -1892,8 +1892,8 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "35a6266d776f806c8b14dabf645d2a5d0dc4a06056e0ebb4579a57d65950f312",
-      "size": 13225
+      "sha256": "5746bc098705793ed5258d697752565bf620ec1638ae28afe49d9724a724f668",
+      "size": 13467
     },
     {
       "executable": false,
@@ -2870,8 +2870,8 @@
     {
       "executable": true,
       "path": "installer/npm/cli.mjs",
-      "sha256": "05c533caea9d00ca632239825ba113076d1d13f63ad60fd1bec4cdf0886cb315",
-      "size": 10260
+      "sha256": "0f4b61d27d08ba01f37b30a6530f4ce8c5316776147abe9971673a89c73c5358",
+      "size": 13100
     },
     {
       "executable": false,
@@ -2924,8 +2924,8 @@
     {
       "executable": false,
       "path": "installer/npm/test/cli.test.mjs",
-      "sha256": "9278b86b5100a03e3c5b26d6b70cd4151b49761112f6d939819f9bb6d2af26e1",
-      "size": 8971
+      "sha256": "eea5f03ab55805c1a1301607592a3966442e6dede502e0dd6a3c1a7140388e39",
+      "size": 12354
     },
     {
       "executable": false,
@@ -2942,8 +2942,8 @@
     {
       "executable": false,
       "path": "installer/npm/test/native-install.mjs",
-      "sha256": "5a1bd83229deaeac01e1b6a17bb75b434bc66971ae39847a26119e6d49098924",
-      "size": 5142
+      "sha256": "6f14ecb16400ff38bc84bb755cfddf56db0f212df0c0b813d408375dc8444641",
+      "size": 5558
     },
     {
       "executable": false,

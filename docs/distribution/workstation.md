@@ -78,6 +78,9 @@ Declining preserves the installation; the standalone commands below resume setup
 `STATION_NO_ANIMATION=1` retains supported terminal colors without motion.
 Use `--json` for noninteractive plans and reports. Secret enrollment and gateway
 activation require an interactive terminal; tokens are not command-line flags.
+Installation failures identify a fixed phase such as `hermes` or `tool-resources`
+in the error and private receipt. Native acceptance logs expose only bounded,
+allowlisted check identifiers and statuses, never captured tool output or tokens.
 
 ### What gets installed and what remains a gate
 

@@ -18,6 +18,7 @@ activation, paid model request or client/OS-instance deployment is claimed here.
 | Process leader exit leaves descendants, or escaped pipe owners prevent settlement | Held supervisor, same-group cleanup, bounded capture drain; real success/timeout/signal/parent-death process-tree regressions |
 | Personal AGK paths and legacy actions can escape the intended installation workflow | Validated Project/runtime paths and guards around legacy install/sync/gateway/client/topology routes; no same-UID sandbox claim |
 | Default Host web-path contract loads the module outside package import context | Preserve standalone Host resolution without importing personal helpers; existing contract regression retained |
+| Native CI reports only a generic install failure and a disposable receipt path | Fixed phase in CLI errors/receipts; bounded allowlisted check IDs/statuses in CI; synthetic failure and secret-redaction regressions |
 
 ## Local verification
 
@@ -25,7 +26,7 @@ activation, paid model request or client/OS-instance deployment is claimed here.
 - AGK component pipeline: **112 Rust + 425 Python + 24 JavaScript passed**;
   two optional local Python web-library tests skipped. Format, Clippy, typechecks
   and client/server builds also passed in the isolated component test copy.
-- npm Workstation: **157 tests passed**, covering CLI, filesystem, package hooks,
+- npm Workstation: **160 tests passed**, covering CLI, filesystem, package hooks,
   process supervision, terminal presentation, onboarding, gateway, runtime,
   connectors and web health contracts.
 - Repository Doctor: **85 checks passed**; deterministic metadata checked.
@@ -76,8 +77,17 @@ The main CI workflow now runs npm regression and packed-consumer checks on both
 Ubuntu and macOS, plus a complete native Linux Workstation installation from its
 packed CLI, real TUI navigation and a synthetic session. The Linux runner's OS
 libraries are prepared explicitly by CI, not silently installed by Workstation.
-Use the [Actions run for the exact commit](https://github.com/agentik-os/agentik-station/actions/workflows/ci.yml)
-for external CI readback; local Mac success does not stand in for Linux results.
+
+Commit `023c03680b34744c09aea401afc9f7c41e520d5f` passed
+[all nine CI jobs](https://github.com/agentik-os/agentik-station/actions/runs/33967030631).
+The native Ubuntu 24.04 installation completed in 4m05s: **19 required checks**,
+native service-template verification, real TUI navigation, synthetic session
+lifecycle and no changes to the protected-file set. The extra macOS check covers
+the exact contributor-attribution sparse checkout. The runner's disposable receipt
+path is not a persisted artifact; the linked job log records the acceptance summary.
+For subsequent commits, check their own
+[Actions run](https://github.com/agentik-os/agentik-station/actions/workflows/ci.yml);
+this observed result does not certify later changes automatically.
 
 Native persistent service **templates** were verified on the exact Hermes pin;
 service activation, restart after login/reboot, Discord authorization rejection

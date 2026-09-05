@@ -9,6 +9,7 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
 import {run} from '../process.mjs';
 import {atomicJSON,createContext} from '../state.mjs';
+import {installationDiagnostics} from '../cli.mjs';
 
 const sourceRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
 if(process.getuid()===0) throw new Error('Native Workstation acceptance must run without sudo.');
@@ -37,6 +38,7 @@ try {
   const cli=path.join(prefix,'node_modules/.bin/agentik-station');
   console.log('Installing the complete default Workstation; no accounts or gateway activation...');
   const installed=await run(cli,['install','--root',root,'--yes','--json'],{cwd:base,env:{PATH:env.PATH,HOME:account,TERM:'dumb'},timeoutMs:45*60_000,allowFailure:true});
+  result.installExitCode=installed.code;
   let report;
   try {report=JSON.parse(installed.stdout);} catch {throw new Error('Native installer did not return a structured report.');}
   result.install=report;
@@ -65,5 +67,8 @@ finally {
   result.protectedFileCount=protectedFiles.length;
   if(result.changedProtectedFiles.length) {result.status='failed';process.exitCode=1;}
   await atomicJSON(path.join(base,'native-acceptance.json'),result,{exclusive:true});
-  console.log(JSON.stringify({status:result.status,root,evidence:path.join(base,'native-acceptance.json'),requiredChecks:result.install?.checks?.filter(c=>c.required===true).length,changedProtectedFiles:result.changedProtectedFiles,error:result.error},null,2));
+  // CI logs need actionable bounded identifiers even when provisioning aborts
+  // before verification. Full details remain in private retained evidence;
+  // never print arbitrary report details, exception text or native output.
+  console.log(JSON.stringify({status:result.status,root,evidence:path.join(base,'native-acceptance.json'),...installationDiagnostics(result.install,result.installExitCode),changedProtectedFiles:result.changedProtectedFiles,error:result.error?'Native acceptance failed; inspect the bounded diagnostics and retained private evidence.':undefined},null,2));
 }
