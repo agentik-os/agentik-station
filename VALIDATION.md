@@ -36,6 +36,12 @@ systemd-link policy and the privilege-dropping operator launcher. Initial
 headless-start changes also required updating two exact-argv regression
 expectations; the final complete run passed after those corrections.
 
+On the VPS, the first controls-only attempt correctly refused the operator
+checkout's `0775` source directories before changing either target. Both
+installed files matched their reviewed 11.22 hashes. The repair procedure now
+uses the published immutable release as its source; neither the guard nor the
+operator checkout permissions were weakened.
+
 ## Native profile voice provider — 11.22
 
 The published commit `266e62d0c4bcd8c948d50735f11818296fb4a2e9` subsequently

@@ -110,8 +110,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "ed374b6f30285992649e4526b4ad82ac315e3bed6acf6177d02f2e167f2164c8",
-      "size": 22238
+      "sha256": "2b4733cfb1c59cdcfb8189f602a6e2f7c87ada7c741774ac743120bdf4ad4aff",
+      "size": 22406
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "7f036c0053859d6a5a620f07c937a0d6ed8dbd80ceaab7148abe008a2dbc5a15",
-      "size": 22548
+      "sha256": "cc20d6f567193f2b4246ecce9e6e91b4ac0ae8b6a2f9f0e62fcdded8ab157a3b",
+      "size": 22898
     },
     {
       "executable": false,

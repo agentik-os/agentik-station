@@ -353,14 +353,15 @@ it never grants sudo, opens the private operator home or copies login credential
 `agk status` is noninteractive; bare `station` displays help. The TUI requires a
 real terminal (`ssh -t` for a one-command SSH launch).
 
-For a reviewed 11.22 installation with missing public `agk`, update the checkout
-to the reviewed release first, then run this targeted repair **from that checkout**:
+For a reviewed 11.22 installation with missing public `agk`, publish the reviewed
+11.23 immutable Station kernel first, preserving the Host's desired state. Then
+run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
-sudo -u agk-station -H ./components/agk-tui/install.sh \
+sudo -u agk-station -H /opt/station/current/components/agk-tui/install.sh \
   --prefix /home/agk-station/.local --without-hermes --controls-only
-sudo ./station tui-install --operator agk-station --plan
-sudo ./station tui-install --operator agk-station
+sudo station tui-install --operator agk-station --plan
+sudo station tui-install --operator agk-station
 agk status
 agk
 ```
@@ -368,8 +369,9 @@ agk
 The controls-only step updates two reviewed operator-owned launch/controller
 files, not Rust binaries, Hermes, configuration or session data. Modified local
 controls and an unrelated existing public `agk` are refused for explicit review.
-This repairs AGK entrypoints; install the new immutable Station kernel separately
-to update its Doctor/permissions behavior. Do not rerun full Host bootstrap only
+The source and target directory chains must not be group/world-writable. A normal
+Ubuntu private-group checkout can have `0775` directories: use the immutable
+release instead of weakening this check. Do not rerun full Host bootstrap only
 to repair a launcher, and do not add Zone users to `station-system`.
 
 Bootstrap synchronizes redacted
