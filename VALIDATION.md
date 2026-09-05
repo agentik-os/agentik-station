@@ -1,4 +1,17 @@
-# Agentik Station 11.29 Validation
+# Agentik Station 11.30 Validation
+
+## Native watcher receipt correction — 11.30
+
+11.29's actual Host systemd readback exposed a non-root `SafeFS` ancestor-open
+failure beneath `/var/lib/station` mode `0711`, despite 192 passing Doctor checks
+and a successful weekly discovery oneshot. The [audit plan](docs/audit/2026-09-05-coordinated-updates-plan.md)
+records the exact cause and separate 11.30 fix. Native watcher-UID and hardened
+systemd receipt writes, unchanged Zone permissions and protected-file readback
+are acceptance gates; mocked metadata checks do not substitute for them.
+The final focused suite passed 50 tests, including actual execute-only-ancestor
+traversal and root/watcher dispatch. All nine 11.29 CI jobs also passed, including
+native Linux Workstation installation and synthetic-successor update lifecycle;
+this does not erase the separate Host watcher failure recorded above.
 
 ## Coordinated updates — 11.29
 

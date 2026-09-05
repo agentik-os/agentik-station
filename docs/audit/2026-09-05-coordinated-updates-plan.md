@@ -104,3 +104,30 @@ Host deployment must be recorded separately before declaring those gates passed.
   compatibility acceptance remained false. Client/server versions are separate.
 - Native Linux installation/update lifecycle and immutable Host rollout remain
   post-publication gates, not inferred from the macOS run.
+
+## 11.29 Host readback and 11.30 corrective plan
+
+The published 11.29 release (`e7a42c8521025ec729cb6fd3d26b4b9f0552f253`)
+was applied as a new immutable Host kernel, not a bootstrap replay. Full Doctor
+passed 192 checks; native software verified 17/18 requirements with only the
+known Ponytail security block. Root's account-free Hermes check passed, and the
+actual weekly coupled-discovery oneshot completed with exit 0.
+
+The separate `station-system` watcher failed its actual systemd test:
+`SafeFS._ensure_anchor` opens each ancestor with `O_RDONLY|O_DIRECTORY`.
+`/var/lib/station` is intentionally traverse-only (`0711`) to that identity, so
+its private receipt could not be written even though ordinary path traversal
+worked. Earlier mocked/temp-fixture checks had not reproduced this ownership
+combination. This is a repository defect, not a Discord-token error.
+
+Correct it in a **new immutable 11.30**, retaining the published 11.29 evidence:
+
+1. Preserve all Zone permissions and global SafeFS behavior.
+2. After strict ancestry checks, let the non-root watcher open its own private
+   parent directly, verify directory identity/mode and write only an exclusive
+   private receipt through held no-follow directory descriptors.
+3. Test execute-only ancestors, wrong owner/modes, symlinks and collisions.
+4. Run the candidate as the real watcher UID, then the actual hardened systemd
+   oneshot after deployment. Keep its timer disabled if it was disabled.
+5. Recheck Doctor/software and all 17 protected fingerprints. No native Hermes
+   update, profile enrollment or permission widening is authorized by this fix.

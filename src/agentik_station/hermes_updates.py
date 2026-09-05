@@ -56,6 +56,62 @@ def source_observation(root: Path) -> dict[str, Any]:
         return {'state': 'SOURCE_PROVENANCE_NOT_VERIFIED', 'distribution': 'unknown', 'commit': None}
 
 
+def _write_watcher_receipt(parent: Path, serialized: str) -> Path:
+    """Write below an ancestry-validated, private watcher-owned parent.
+
+    Open that parent directly: its root-owned ancestors may grant traversal
+    without directory listing. Never create or change those ancestors.
+    """
+    expected_uid = os.geteuid()
+    directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+
+    def require_private(fd: int) -> None:
+        info = os.fstat(fd)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != expected_uid
+                or stat.S_IMODE(info.st_mode) != 0o700):
+            raise ValidationError('Unsafe private watcher evidence directory')
+
+    parent_fd = os.open(parent, directory_flags)
+    try:
+        require_private(parent_fd)
+        try:
+            leaf_fd = os.open('hermes-updates', directory_flags, dir_fd=parent_fd)
+        except FileNotFoundError:
+            try:
+                os.mkdir('hermes-updates', mode=0o700, dir_fd=parent_fd)
+            except FileExistsError:
+                pass
+            else:
+                os.fsync(parent_fd)
+            leaf_fd = os.open('hermes-updates', directory_flags, dir_fd=parent_fd)
+        try:
+            require_private(leaf_fd)
+            name = f'check-{uuid4().hex}.json'
+            file_fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                              0o600, dir_fd=leaf_fd)
+            try:
+                try:
+                    os.fchmod(file_fd, 0o600)
+                    remaining = memoryview(serialized.encode('utf-8'))
+                    while remaining:
+                        written = os.write(file_fd, remaining)
+                        if not written:
+                            raise OSError('Incomplete watcher evidence write')
+                        remaining = remaining[written:]
+                    os.fsync(file_fd)
+                finally:
+                    os.close(file_fd)
+                os.fsync(leaf_fd)
+            except BaseException:
+                os.unlink(name, dir_fd=leaf_fd)
+                raise
+        finally:
+            os.close(leaf_fd)
+    finally:
+        os.close(parent_fd)
+    return parent / 'hermes-updates' / name
+
+
 def run_check(paths: LayoutPaths, *, record: bool = False, fetch=fetch_metadata) -> dict[str, Any]:
     repo = Path(__file__).resolve().parents[2]
     pins = dict(line.split('=', 1) for line in (repo / 'config/versions.lock').read_text().splitlines()
@@ -80,7 +136,6 @@ def run_check(paths: LayoutPaths, *, record: bool = False, fetch=fetch_metadata)
             fixture_anchor = paths.varlib.parents[2]
             if fixture_anchor == Path(fixture_anchor.anchor) or LayoutPaths.under(fixture_anchor) != paths:
                 raise ValidationError('Invalid update evidence test layout')
-        fs = SafeFS(paths.allowed_roots)
         # Do not write through station-system-owned /var/lib/station/system as root.
         for parent in [root, *root.parents]:
             if parent.exists():
@@ -97,8 +152,13 @@ def run_check(paths: LayoutPaths, *, record: bool = False, fetch=fetch_metadata)
                 if (stat.S_ISLNK(info.st_mode) or info.st_uid not in {0, expected}
                         or (info.st_mode & 0o022 and not external_sticky)):
                     raise ValidationError('Unsafe update evidence ancestry')
-        fs.mkdir(root, 0o700)
-        target = root / f'check-{uuid4().hex}.json'
-        fs.write_text(target, json.dumps(payload, indent=2) + '\n', 0o600)
+        serialized = json.dumps(payload, indent=2) + '\n'
+        if not paths.test_mode and os.geteuid() != 0:
+            target = _write_watcher_receipt(root.parent, serialized)
+        else:
+            fs = SafeFS(paths.allowed_roots)
+            fs.mkdir(root, 0o700)
+            target = root / f'check-{uuid4().hex}.json'
+            fs.write_text(target, serialized, 0o600)
         payload['receipt'] = str(target)
     return payload

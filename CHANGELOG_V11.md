@@ -1,3 +1,13 @@
+## 11.30 — Native watcher receipts across traverse-only Station parents
+
+- Correct the real `station-system` watcher receipt path without broadening
+  `/var/lib/station` permissions or changing global SafeFS behavior.
+- Use validated, private same-owner directory descriptors for exclusive watcher
+  evidence; root retains its separate root-owned receipt path.
+- Add regressions for execute-only ancestors and refused directory/file
+  substitutions. Preserve 11.29's native failure evidence and deploy a new
+  immutable release rather than patching published software in place.
+
 ## 11.29 — Coupled update discovery and owned npm migration
 
 - Add whole-SBOM/version-lock update planning, public registry observations and a read-only scheduled GitHub report without new branches.

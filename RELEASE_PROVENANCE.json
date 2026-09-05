@@ -7,7 +7,7 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.29",
+  "release": "11.30",
   "schema_version": "agk-release-provenance/v1",
   "subject_count": 1223,
   "subjects": [
@@ -92,8 +92,8 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "92f285a8f3f38e59670615e97b20a2e52539f5d2e7b6299291065f0ff804b7aa",
-      "size": 8550
+      "sha256": "3c6d856f69e2155dfe82feab5dae5db008503e678f2ba1cf04fd1bd5e4059942",
+      "size": 9131
     },
     {
       "executable": false,
@@ -116,7 +116,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "f2bf7bbd0c9484b91fcc45c204781ff592614779f7bfe2fff15ef363f6ccf40b",
+      "sha256": "fe6558fc70734fe1e3cbeea96b48a2bc0b82a6cc7fcd24067d40c90abcb1e330",
       "size": 25345
     },
     {
@@ -140,7 +140,7 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "0bca5b34323c59c7f2f26832bdae425efe771cf47e6256b963559d0ddd71cde2",
+      "sha256": "a80ed7e3c49169af55d40c88745d8f84ea3371f6295f356c91121c1f275a5980",
       "size": 48179
     },
     {
@@ -152,7 +152,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "3a3d83e57f926a813bac9c0aa5b4b71ddbc1763b5e06efe6ae6b3ae18c8a3cdb",
+      "sha256": "22e917bc31dfdbefd1e5b75fcbbae647cfbbcae0b65389fb18e6989e9c491f46",
       "size": 100502
     },
     {
@@ -176,8 +176,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "950754bd3b0219ceb44fff73aa21601efd562983ff82fb386dae18a3ff9ec89f",
-      "size": 28676
+      "sha256": "d6553b5594ca09bdd75503b896a7b66e4b1081aa0a2f5a708f38b65d28dc693d",
+      "size": 29542
     },
     {
       "executable": false,
@@ -194,13 +194,13 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "0d11c28349033d163198708ae8298f994c1c26e189e41eab9e6bb4d4120ffb1e",
+      "sha256": "7fbf1f6891cc701bac77c4deb8e27a53c5a36aaf3b92a8e95a64188a6a50a56c",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "2988b0d9cc4f0652758ded0a209181be928d4872dcdb4c33078c4de99cdbf58a",
+      "sha256": "c4c7db8d94881cf2cf3f65e3480982268b0a749576185e83029b8337e23b5065",
       "size": 61945
     },
     {
@@ -1370,7 +1370,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "d5dfdca8824313dce20ccee9946f539220d0681dce294b4cf607725b5519f7e3",
+      "sha256": "48e365e1b67f8dcf3d6563b80388709d9df05f0738dc2cf3e8d6e493112fcc1b",
       "size": 2339
     },
     {
@@ -1544,8 +1544,8 @@
     {
       "executable": false,
       "path": "docs/audit/2026-09-05-coordinated-updates-plan.md",
-      "sha256": "f1fd5cd639989b1bd380d6506f4133cf09946d8cddfd1a4deb24009afe8f689f",
-      "size": 7387
+      "sha256": "4aaee8680f138392d03e19b01e9673947bfe7f6a63e79efab8a6e97c96d18129",
+      "size": 9012
     },
     {
       "executable": false,
@@ -1928,7 +1928,7 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "2cded8246e04293148a48fa82ededc5984024c507df2ae2c02531845bfcbd28f",
+      "sha256": "e5705878a15e2cb3e1785ec91ad90d324153c03855171495355d1f29243d0744",
       "size": 14163
     },
     {
@@ -3110,7 +3110,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "62359ef216e8a4a22ece6c3c0dde51dda3cc092a7662b80a1d8aacb04dc64045",
+      "sha256": "170c6867a490b2e386da702d73968e9ec664e34d2abe6e500d32f1f3804e8d5c",
       "size": 12013
     },
     {
@@ -3356,7 +3356,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "caabc00693ccfa7f3d6082bf73e236fd063cf38d417da555b68fdb20b90664e8",
+      "sha256": "59e4465a1655618949c38323a1817ac7f539134c4fdf9a0bae5083417a1c3b6f",
       "size": 3188
     },
     {
@@ -6122,13 +6122,13 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "b0348b1504200fbcb10dfbdf4db0539ffc2e75e9cf9aad796a14f4749c0793a5",
+      "sha256": "27aa1fb80d2bf9597935c5119ae21e57663e767762e44f005fa382ba014b220b",
       "size": 1064
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "341876f994d6250f888fff0fe7eda07994a06aedeb09925139c38ed92180ba2e",
+      "sha256": "143aa02eaa81e0cc7f1a70fcac0a6e6c957cde585e583b180a1609a0c585090a",
       "size": 720
     },
     {
@@ -6674,7 +6674,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "b2e7d340730f533413caceac13a72fa47cc33d9f2bd892c7fbf70a0b66b2ac18",
+      "sha256": "638a8c1befb69d6777b90fe04ea57dbdc2f9084081563063e8539533f29e9ee7",
       "size": 1851
     },
     {
@@ -6716,8 +6716,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/hermes_updates.py",
-      "sha256": "c16246da4da32d7ad3f0524ef47e03abc49d6f41bf59a4d70d17858398665f7a",
-      "size": 5816
+      "sha256": "aed861eac8d92d70cc9e2a3d45295ee5ab989d912dbb4fc5d55c15a813a78d40",
+      "size": 8227
     },
     {
       "executable": false,
@@ -7100,8 +7100,8 @@
     {
       "executable": false,
       "path": "tests/security/test_hermes_update_ancestry.py",
-      "sha256": "f53510e5e117ad5c8412d874e23f8409f45ccb4d6d0b12d33846489048b69518",
-      "size": 3812
+      "sha256": "d29b919c44362c68e2897cde471744d1856fb688d45375d110a4d943d7e135d3",
+      "size": 10824
     },
     {
       "executable": false,
