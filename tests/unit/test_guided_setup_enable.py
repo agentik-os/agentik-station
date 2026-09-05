@@ -42,6 +42,11 @@ elif name == "curl":
         if attempts <= int(os.environ.get("AGK_TEST_HEALTH_FAILURES", "0")):
             sys.exit(7)
     elif args[-1].startswith("https:"):
+        counter = Path(os.environ["AGK_TEST_ROOT"]) / "https-attempts"
+        attempts = int(counter.read_text()) + 1 if counter.exists() else 1
+        counter.write_text(str(attempts))
+        if attempts <= int(os.environ.get("AGK_TEST_HTTPS_FAILURES", "0")):
+            sys.exit(int(os.environ.get("AGK_TEST_HTTPS_TRANSIENT_CODE", "28")))
         sys.exit(int(os.environ.get("AGK_TEST_READBACK_RETURN_CODE", "0")))
 elif name == "tailscale":
     if args == ["status", "--json"]:
@@ -202,3 +207,36 @@ def test_optional_mode_does_not_hide_enrolled_tailnet_readback_failure(setup_fix
     assert result.returncode != 0
     assert not (zone_root / "hermes/.env").exists()
     assert "TAILNET_GUIDED_SETUP_CONFIGURED" not in result.stdout
+    assert (Path(env["AGK_TEST_ROOT"]) / "https-attempts").read_text() == "5"
+
+
+@pytest.mark.parametrize("code", [6, 7, 28, 35, 52, 56])
+def test_first_https_certificate_or_transport_startup_is_bounded_and_retried(setup_fixture, code):
+    _, zone_root, env = setup_fixture
+    env["AGK_TEST_HTTPS_FAILURES"] = "2"
+    env["AGK_TEST_HTTPS_TRANSIENT_CODE"] = str(code)
+    result = run_setup(setup_fixture)
+    assert result.returncode == 0, result.stderr
+    assert (Path(env["AGK_TEST_ROOT"]) / "https-attempts").read_text() == "3"
+    observed = commands(setup_fixture)
+    assert sum(call == ["sleep", "2"] for call in observed) == 2
+    assert sum(call[:2] == ["tailscale", "serve"] and "--bg" in call for call in observed) == 1
+    requests = [call for call in observed if call[0] == "curl" and call[-1].startswith("https:")]
+    assert all("--fail" in call and "--connect-timeout" in call and "--max-time" in call for call in requests)
+    assert all("--insecure" not in call and "-k" not in call for call in requests)
+    assert "STATION_SETUP_BASE_URL=https://fixture.example.ts.net/station-setup" in (zone_root / "hermes/.env").read_text()
+
+
+@pytest.mark.parametrize("code", [22, 60, 77])
+def test_https_http_or_certificate_errors_fail_without_retry_or_credential_write(setup_fixture, code):
+    _, zone_root, env = setup_fixture
+    existing = zone_root / "hermes/.env"
+    existing.write_text("EXISTING_PRIVATE_VALUE=fixture-sentinel\n")
+    env["AGK_TEST_READBACK_RETURN_CODE"] = str(code)
+    result = run_setup(setup_fixture)
+    assert result.returncode == code
+    assert (Path(env["AGK_TEST_ROOT"]) / "https-attempts").read_text() == "1"
+    assert existing.read_text() == "EXISTING_PRIVATE_VALUE=fixture-sentinel\n"
+    assert "fixture-sentinel" not in result.stdout + result.stderr
+    assert "TAILNET_GUIDED_SETUP_CONFIGURED" not in result.stdout
+    assert not list((zone_root / "hermes").glob(".env.station.*"))

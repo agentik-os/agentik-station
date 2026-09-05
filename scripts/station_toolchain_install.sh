@@ -18,6 +18,7 @@ usage: station_toolchain_install.sh [--plan|--install|--check] [--without-codex]
 Installs pinned, user-local Python, Node.js, GitHub CLI, Vercel CLI,
 Codex CLI, Composio CLI and shadcn CLI. Hermes is installed separately by bootstrap.sh.
 Also installs the pinned discord.js SDK into an isolated, non-gateway resource directory.
+Publishes verified code-only runtimes under /opt/station/tools/toolchain for Zone users.
 Account login and external connections are never performed automatically.
 USAGE
 }
@@ -66,6 +67,7 @@ Station pinned operator toolchain
   shadcn CLI:           ${SHADCN_CLI_VERSION}
 
 Install root: ${STATION_HOME}/.local
+Zone executables: root-owned /opt/station/tools/toolchain via /usr/local/bin
 Authentication: NOT PERFORMED
 EOF
 }
@@ -516,6 +518,17 @@ install_composio() {
   ln -sfn "$shared/composio" /usr/local/bin/composio
 }
 
+publish_shared_toolchain() {
+  local arguments=(--station-home "$STATION_HOME" --station-user "$STATION_USER"
+                   --node-arch "$NODE_ARCH" --lock "$LOCK")
+  if [[ "$INSTALL_CODEX" -eq 0 ]]; then
+    arguments+=(--without-codex)
+  fi
+  # Publish software only after the existing private operator installation passes
+  # its native checks. The helper never changes HOME or copies authentication.
+  /usr/bin/python3 -I -B "$ROOT/scripts/station_shared_toolchain.py" "${arguments[@]}"
+}
+
 case "$MODE" in
   plan) print_plan; exit 0;;
   check) print_plan; check_toolchain; exit $?;;
@@ -534,3 +547,4 @@ install_node_clis
 install_discord_sdk
 install_composio
 check_toolchain
+publish_shared_toolchain

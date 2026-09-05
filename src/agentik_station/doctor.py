@@ -94,6 +94,43 @@ def _check_directory(result: DoctorResult, path: Path, label: str) -> None:
     result.pass_check(label, str(path))
 
 
+def _check_zone_home_directories(
+    result: DoctorResult, state_root: Path, label: str, owner: tuple[int, int] | None
+) -> bool:
+    """Check exact managed parents, not root's ability to traverse a Zone HOME.
+
+    Stop before descending through a missing, inaccessible or unsafe parent.
+    Native Hermes/systemd readiness remains a separate, Zone-user check.
+    """
+    home = state_root / "home"
+    directories = (
+        state_root, home, home / ".config", home / ".config" / "containers",
+        home / ".local", home / ".local" / "share", home / ".local" / "share" / "containers",
+    )
+    repair = "Reconcile exact managed Zone HOME directories and ownership; do not recursively chown user data."
+    for directory in directories:
+        try:
+            st = os.lstat(directory)
+        except OSError as exc:
+            result.fail(label, f"Cannot inspect managed Zone HOME directory {directory}: {type(exc).__name__}", repair)
+            return False
+        if not stat.S_ISDIR(st.st_mode) or stat.S_ISLNK(st.st_mode):
+            result.fail(label, f"Managed Zone HOME path is not a real directory: {directory}", repair)
+            return False
+        if stat.S_IMODE(st.st_mode) != 0o700:
+            result.fail(label, f"Managed Zone HOME directory {directory} must have private owner-rwx mode 0700", repair)
+            return False
+        if owner is not None and (st.st_uid, st.st_gid) != owner:
+            result.fail(
+                label,
+                f"Managed Zone HOME directory {directory} is owned by {st.st_uid}:{st.st_gid}, expected {owner[0]}:{owner[1]}",
+                repair,
+            )
+            return False
+    result.pass_check(label, "Private managed HOME directory chain verified; native runtime not tested.")
+    return True
+
+
 def repo_doctor(repo_root: Path) -> DoctorResult:
     repo_root = Path(repo_root)
     result = DoctorResult("repository")
@@ -955,8 +992,16 @@ def station_doctor(
         _check_mode(result, binding_path, {0o640}, f"zone:{zone_id}:binding-mode")
         _check_directory(result, human / "credentials", f"zone:{zone_id}:credentials")
         _check_directory(result, state_root / "hermes", f"zone:{zone_id}:hermes-home")
-        _check_regular(result, state_root / "home" / ".config" / "containers" / "storage.conf", f"zone:{zone_id}:rootless-storage-config")
-        _check_regular(result, state_root / "home" / ".config" / "containers" / "containers.conf", f"zone:{zone_id}:rootless-container-config")
+        home_owner = (os.getuid(), os.getgid()) if paths.test_mode else None
+        if not paths.test_mode:
+            try:
+                home_owner = (pwd.getpwnam(user_name).pw_uid, grp.getgrnam(user_name).gr_gid)
+            except KeyError:
+                # The identity check below reports the missing account/group.
+                pass
+        if _check_zone_home_directories(result, state_root, f"zone:{zone_id}:home-access", home_owner):
+            _check_regular(result, state_root / "home" / ".config" / "containers" / "storage.conf", f"zone:{zone_id}:rootless-storage-config")
+            _check_regular(result, state_root / "home" / ".config" / "containers" / "containers.conf", f"zone:{zone_id}:rootless-container-config")
         _check_regular(result, state_root / "rootless" / "POLICY.json", f"zone:{zone_id}:rootless-policy")
         if (human / "credentials").exists():
             _check_mode(result, human / "credentials", {0o700}, f"zone:{zone_id}:credentials-mode")

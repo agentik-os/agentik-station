@@ -756,8 +756,12 @@ class StationInstaller:
         config = home / ".config" / "containers"
         data = home / ".local" / "share" / "containers"
         runtime = state_root / "rootless"
-        self.fs.mkdir(config, 0o700, owner)
-        self.fs.mkdir(data, 0o700, owner)
+        # SafeFS assigns ownership to the requested directory, not implicitly
+        # created parents. Reconcile each managed HOME component explicitly so
+        # the Zone can create its own native configuration and data beneath it.
+        # This changes only these exact directories, never user-owned children.
+        for directory in (home / ".config", config, home / ".local", home / ".local" / "share", data):
+            self.fs.mkdir(directory, 0o700, owner)
         self.fs.mkdir(runtime, 0o700, owner)
         self.fs.mkdir(runtime / "networks", 0o700, owner)
         self.fs.write_text(

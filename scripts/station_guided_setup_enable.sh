@@ -84,7 +84,26 @@ fi
 tailscale serve --bg --yes --https=443 --set-path=/station-setup http://127.0.0.1:8787
 tailscale serve status >/dev/null
 curl --fail --silent --show-error --max-time 3 http://127.0.0.1:8787/station-setup/health >/dev/null
-curl --fail --silent --show-error --max-time 10 "$base_url/health" >/dev/null
+# The first Serve request can wait for Tailscale's ACME certificate issuance.
+# Retry bounded transport failures without weakening TLS or accepting HTTP errors.
+tailnet_ready=0
+for attempt in {1..5}; do
+  if curl --fail --silent --show-error --connect-timeout 5 --max-time 10 "$base_url/health" >/dev/null; then
+    tailnet_ready=1
+    break
+  else
+    readback_status=$?
+  fi
+  case "$readback_status" in
+    6|7|28|35|52|56) ;; # DNS, connection, timeout or interrupted TLS/transport.
+    *) exit "$readback_status";; # Includes certificate verification and HTTP failure.
+  esac
+  if [[ "$attempt" -lt 5 ]]; then sleep 2; fi
+done
+[[ "$tailnet_ready" -eq 1 ]] || {
+  echo "ERROR: private HTTPS setup readback failed after 5 attempts; inspect Tailscale certificate/connectivity status" >&2
+  exit "$readback_status"
+}
 
 env_file=$hermes_dir/.env
 [[ ! -L "$hermes_dir" && -d "$hermes_dir" ]] || { echo "ERROR: unsafe Zone Hermes directory" >&2; exit 2; }

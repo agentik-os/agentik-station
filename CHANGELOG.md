@@ -1,5 +1,20 @@
 # Changelog
 
+## 11.20 — Real Zone execution and first private setup (2026-09-05)
+
+- explicitly reconcile private Zone HOME intermediates with their Zone owner,
+  and make Doctor detect owner/mode/type failures that root traversal concealed;
+- publish only allowlisted, verified software into an immutable shared toolchain,
+  with public launchers that retain the caller's HOME and account boundaries;
+- verify complete relocated Python runtimes and native CLI versions before
+  exposing shared commands; refuse unrelated launchers and immutable drift;
+- retry bounded transient first-certificate HTTPS failures without weakening
+  TLS validation or publishing credentials before successful readback;
+- record the native Ponytail security block and preserve the guard. Other
+  component installation is not evidence that Ponytail was installed.
+
+Native VPS evidence and outstanding live-account gates are in `VALIDATION.md`.
+
 ## 11.19 — Headless voice installation and main-only maintenance (2026-09-05)
 
 - separate VPS file/Discord audio prerequisites from local microphone/speaker

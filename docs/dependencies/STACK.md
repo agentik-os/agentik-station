@@ -2,9 +2,22 @@
 
 [`config/versions.lock`](../../config/versions.lock) is the machine-readable pin set. [`config/deps/stack.yaml`](../../config/deps/stack.yaml) describes role and maturity. Pins were checked against upstream releases on 2026-09-04.
 
+> **Observed installation blocker (2026-09-05):** native Hermes scanning blocks
+> the pinned Ponytail source. `--all` / `--with-ai-stack` consequently stops at
+> that component; it does not silently skip or bypass the decision. Independent
+> components can be installed with `--component <id>`. Ponytail remains
+> `NOT_INSTALLED` until the [upstream/security gate is resolved](../audit/2026-09-05-ponytail-native-scan.md).
+
 ## Default operator toolchain
 
 `bootstrap.sh` installs these under the dedicated `agk-station` account:
+
+Station then publishes only the allowlisted executable/package/runtime code to
+root-owned, versioned `/opt/station/tools/toolchain` and exposes checked launchers
+in `/usr/local/bin`. This gives Zone profiles executable access without access to
+the private operator home. Their own `HOME`, credentials and configuration remain
+unchanged. The discord.js resource below remains an isolated operator resource;
+Project applications declare/install their own SDK dependency.
 
 | Tool | Pin | Installation/verification |
 |---|---:|---|

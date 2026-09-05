@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1130
+Total files: 1134
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -249,6 +249,7 @@ Total files: 1130
 - `docs/assets/readme/station-os-map.svg`
 - `docs/assets/readme/station-system-map.svg`
 - `docs/audit/2026-09-05-operational-control-plane.md`
+- `docs/audit/2026-09-05-ponytail-native-scan.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/2026-09-05-vps-workflow-review.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
@@ -1019,6 +1020,7 @@ Total files: 1130
 - `scripts/station_guided_setup_enable.sh`
 - `scripts/station_hermes_update.sh`
 - `scripts/station_parakeet_transcribe.sh`
+- `scripts/station_shared_toolchain.py`
 - `scripts/station_toolchain_install.sh`
 - `scripts/station_voice_check.py`
 - `scripts/systemd/station-hermes-update.service`
@@ -1113,9 +1115,11 @@ Total files: 1130
 - `tests/security/test_project_creation.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
+- `tests/security/test_shared_toolchain.py`
 - `tests/security/test_strix_boundaries.py`
 - `tests/security/test_vps_acceptance_evidence.py`
 - `tests/security/test_zone_compilation.py`
+- `tests/security/test_zone_home_directories.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`

@@ -28,6 +28,12 @@ The bootstrap check is deliberately **headless**: it imports the server-side Pyt
 
 Local microphone/speaker access is reported as `LOCAL_AUDIO=NOT_TESTED`, not as operational. Hermes uses sounddevice/PortAudio for local CLI capture/playback; its Discord adapter uses network audio, PyNaCl, Opus, NumPy and ffmpeg. A headless VPS therefore does not need a local PulseAudio session for Discord or file-audio installation checks. An interactive Host that needs local CLI voice must separately configure and test its real audio devices. The upstream distinction is documented in [Hermes Voice Mode](https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode).
 
+The private guided-setup HTTPS readback retries transient transport failures up
+to five times while a first Tailscale certificate is being issued. HTTP failures
+and certificate-validation errors still stop immediately; TLS verification is
+never disabled. Credentials/configuration are published only after HTTPS health
+readback succeeds.
+
 The primary STT model is OpenAI `gpt-transcribe`; the default TTS model is `gpt-4o-mini-tts` with `alloy`. The Zone provides `OPENAI_API_KEY` (or the narrower Hermes-supported `VOICE_TOOLS_OPENAI_KEY`) through its mode-0600 environment or Hermes credential pool. OpenAI documents `gpt-transcribe` at $0.0045 per audio minute; actual billing and availability remain external readback, not a Station claim. See [OpenAI GPT Transcribe](https://developers.openai.com/api/docs/models/gpt-transcribe) and [OpenAI text to speech](https://developers.openai.com/api/docs/guides/text-to-speech).
 
 Parakeet is **speech-to-text**, not text-to-speech. Station pins its reviewed v0.8.0 source commit and multi-architecture int8 image digest, publishes it only on `127.0.0.1:5092`, drops container capabilities, makes the filesystem read-only, and enforces PID/memory limits. The int8 image needs about 2 GB RAM in normal operation. See [achetronic/parakeet](https://github.com/achetronic/parakeet).

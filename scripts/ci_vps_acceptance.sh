@@ -46,7 +46,11 @@ records = [record for record in records if record.get('placement') == 'local']
 assert records, 'No local Zone to verify'
 probe = '''import json, os, pathlib, sys
 zone = json.loads(sys.argv[1])
-for path in (zone['human_root'], zone['state_root'] + '/home', zone['hermes_home'], zone['log_root'], zone['runtime_root']):
+for path in (zone['human_root'], zone['state_root'] + '/home',
+             zone['state_root'] + '/home/.config', zone['state_root'] + '/home/.config/containers',
+             zone['state_root'] + '/home/.local', zone['state_root'] + '/home/.local/share',
+             zone['state_root'] + '/home/.local/share/containers',
+             zone['hermes_home'], zone['log_root'], zone['runtime_root']):
     assert os.access(path, os.R_OK | os.W_OK | os.X_OK), path
 binding = pathlib.Path('/var/lib/station/zone-bindings') / (zone['id'] + '.json')
 assert json.loads(binding.read_text()) == zone

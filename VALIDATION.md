@@ -1,4 +1,4 @@
-# Agentik Station 11.19 Validation
+# Agentik Station 11.20 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -103,9 +103,47 @@ before closure; remote readback confirmed `main` as the only remaining branch.
 No proposed dependency upgrade was silently merged. See the
 [manual update policy](docs/operations/DEPENDENCY_UPDATE_POLICY.md).
 
-Corrected full bootstrap, real named-instance installation and external
-provider/chat/recovery acceptance remain pending at this checkpoint. Source
-tests are not a successful VPS installation.
+All six 11.19 CI jobs passed. The sixth full bootstrap completed Hermes,
+toolchain, voice, AGK-TUI, immutable kernel publication and kernel readback.
+It installed all seven core Zones, then stopped at Ponytail's native dangerous
+security verdict. That failed attempt remains recorded; the guard was not
+bypassed. The [Ponytail review](docs/audit/2026-09-05-ponytail-native-scan.md)
+explains the benchmark findings and outstanding upstream resolution.
+
+Independent component installs subsequently succeeded for Langfuse source,
+Honcho/Hindsight SDKs, TigerVNC and Parakeet. No Langfuse server, authenticated
+memory backend or VNC display was started. The actual Parakeet container passed
+loopback health and readback of its pinned image, non-root UID, read-only root,
+no-new-privileges, local port binding and CPU/memory/PID/tmpfs limits. This is not
+live speech recognition or cross-Zone service isolation acceptance.
+
+A subsequent real adapter request as `z-agentik` transcribed a clear synthetic
+voice sample as “Hello, this is a test. The station is ready.” with a private
+0600 output. An earlier robotic-voice sample was poorly recognized (“I am.”),
+so this does not establish general recognition quality. No Discord upload or
+OpenAI request was used; the observed success is local HTTP/adapter transcription.
+
+The `dev/engineering` DevOps instance installed all six native Hermes profiles,
+and an unchanged-input retry preserved them. Director, Forge and Discord setup
+plans resolved the expected namespaced profile and instance Hermes root. Native
+Doctor then exposed root-owned `.config` parents inside the Zone HOME. The current
+root-level Doctor had not caught this, and local verification correctly remained
+failed. A second gap prevented Zones from seeing coding CLIs kept in the private
+operator prefix. Both require code-only/ownership repair and fresh Zone readback;
+no private home permissions or credentials were shared to hide the failures.
+
+Guided setup initially timed out while Tailscale obtained its first HTTPS
+certificate. Subsequent native TLS validation, GET `/station-setup/health` and
+a complete guided-setup retry passed on the VPS. No public Funnel was enabled;
+the current local development machine cannot resolve this private Tailnet
+hostname, so off-Host client access is not claimed. External account, Discord,
+speech and recovery acceptance remain pending.
+
+The frozen 11.20 Station/Factory suite passed **998 tests**. This includes 68
+shared-toolchain security cases, 30 Zone HOME ownership cases and 29 guided-setup
+cases. Repository Doctor, regenerated release metadata and diff hygiene passed.
+Live publication of the shared CLIs and repaired Zone parents still requires
+unprivileged VPS readback; these local tests are not that acceptance.
 
 ## Previous client-instance validation — 11.14
 

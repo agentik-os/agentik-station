@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.19
+## Supported base for Station 11.20
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.19",
+  "release_version": "11.20",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -300,6 +300,17 @@ Composio CLI
 shadcn CLI
 ```
 
+After those operator checks pass, bootstrap publishes an explicit **software-only**
+allowlist into `/opt/station/tools/toolchain/<pin-set-id>/`. Root-owned launchers
+in `/usr/local/bin` make Node/npm, Python aliases, gh, uv/uvx, Vercel, Codex and
+shadcn available through each Zone's normal PATH. Complete Python runtimes are
+relocated and checked, not symlinked through the operator's private home.
+Published bytes are immutable; unexpected existing public launchers or changed
+same-pin content require review. Failed candidates are retained for inspection
+without switching public commands. No account files, private configuration or
+operator HOME permissions are shared. Project dependencies and CLI login/cache
+state remain under the calling Zone/Project, not in the shared software tree.
+
 Bootstrap also installs at least the reviewed Tailscale stable version from its signed Ubuntu/Debian repository after verifying the archive-key checksum. It starts `tailscaled` but never invents a tailnet identity or authentication; the human owner completes `sudo tailscale up`, checks the device in the admin console, and then enables Station's private Serve path.
 
 Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Its managed Python lives under `/opt/station/tools/hermes/python`, so a Zone does not need access to the operator's private home to execute it. Runtime state never lives there. Zone-base state remains at `/var/lib/station/zones/<zone-id>/hermes`; named instances use `/var/lib/station/zones/<zone-id>/os-instances/<instance>/hermes` under that Zone's UID.
@@ -393,7 +404,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.19 publishes beside earlier releases; it never overwrites an old
+Station 11.20 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.
