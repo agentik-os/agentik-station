@@ -377,6 +377,8 @@ def open_upstream(payload: bytes, headers: dict):
 def safe_event(frame: bytes) -> bytes:
     """Keep successful inference verbatim; redact provider diagnostics inside SSE."""
     lines = frame.replace(b"\r\n", b"\n").split(b"\n")
+    if any(line and not line.startswith((b':', b'event:', b'data:', b'id:', b'retry:')) for line in lines):
+        raise BrokerError('invalid_upstream_event', 502)
     events = [line[6:].strip() for line in lines if line.startswith(b"event:")]
     event_kind = events[-1].decode("ascii", errors="replace") if events else ""
     data = b"\n".join(line[5:].lstrip(b" ") for line in lines if line.startswith(b"data:"))
@@ -585,7 +587,10 @@ class InferenceHandler(BaseHTTPRequestHandler):
             if response.status != 200:
                 status = response.status if response.status in (400, 401, 403, 429) else 502
                 raise BrokerError("upstream_request_failed", status)
-            if (response.getheader("Content-Type", "").split(";", 1)[0].strip() != "text/event-stream"
+            # The pinned Codex origin can return valid SSE without Content-Type.
+            # An absent header is not a different protocol: frames still undergo
+            # bounded SSE/JSON validation; an explicit other MIME type is refused.
+            if (response.getheader("Content-Type", "").split(";", 1)[0].strip() not in ('', "text/event-stream")
                     or response.getheader("Content-Encoding", "identity") != "identity"):
                 raise BrokerError("invalid_upstream_response", 502)
             self.close_connection = True

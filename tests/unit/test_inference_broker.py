@@ -85,7 +85,8 @@ def harness():
             state.requests.append({"path": self.path, "body": json.loads(raw),
                                    "headers": dict(self.headers.items())})
             self.send_response(state.status)
-            self.send_header("Content-Type", state.content_type)
+            if state.content_type is not None:
+                self.send_header("Content-Type", state.content_type)
             self.send_header("Connection", "close")
             self.send_header("Set-Cookie", "source-secret-cookie")
             self.send_header("Location", "https://example.invalid/secret")
@@ -163,6 +164,26 @@ def test_real_http_text_stream_has_no_source_headers(harness):
     assert harness.requests[0]["path"] == broker.UPSTREAM_PATH
     assert harness.requests[0]["body"]["model"] == "gpt-test"
     assert harness.closed >= 1
+
+
+def test_pinned_origin_can_omit_sse_content_type(harness):
+    harness.content_type = None
+    status, headers, raw = harness.request()
+    assert status == 200 and raw == TEXT + DONE
+    assert headers['Content-Type'] == 'text/event-stream'
+
+
+def test_absent_mime_never_accepts_an_html_body(harness):
+    harness.content_type = None
+    harness.chunks = [b'<html>NOT_INFERENCE</html>\n\n']
+    assert b'NOT_INFERENCE' not in harness.request()[2]
+    with pytest.raises(broker.BrokerError, match='invalid_upstream_event'):
+        broker.safe_event(harness.chunks[0])
+
+
+def test_explicit_non_sse_mime_is_still_rejected(harness):
+    harness.content_type = 'text/html'
+    assert harness.request()[0] == 502
 
 
 def test_stream_yields_first_event_before_upstream_finishes(harness):
@@ -665,6 +686,9 @@ def trust_tree(tmp_path, monkeypatch):
     # The test runner may put fixtures under world-writable /tmp; normalize
     # only ancestor metadata in this synthetic test, never managed descendants.
     original_stat = os.stat
+    original_fstat = os.fstat
+    ancestor_inodes = {(original_stat(path).st_dev, original_stat(path).st_ino)
+                       for path in tmp_path.parents}
     ancestors = set(tmp_path.parts[1:])
     def ancestor_stat(path, *args, **kwargs):
         st = original_stat(path, *args, **kwargs)
@@ -674,6 +698,14 @@ def trust_tree(tmp_path, monkeypatch):
             return os.stat_result(values)
         return st
     monkeypatch.setattr(preflight.os, "stat", ancestor_stat)
+    def ancestor_fstat(fd):
+        st = original_fstat(fd)
+        if (st.st_dev, st.st_ino) in ancestor_inodes:
+            values = list(st)
+            values[0] &= ~0o022
+            return os.stat_result(values)
+        return st
+    monkeypatch.setattr(preflight.os, 'fstat', ancestor_fstat)
     return source, python, (source, python), (0, os.getuid())
 
 

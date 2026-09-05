@@ -331,6 +331,8 @@ def inheritance_plan(paths, zone, record, role):
     role = role or next(key for key, value in record['role_profile_map'].items() if value == record['nano_director'])
     _, context, profile, profile_root, data = voice._scope(paths, zone, record['instance_id'], role)
     model = data.get('model', {})
+    if model in (None, ''):
+        model = {}
     if isinstance(model, str) and model:
         return {'state': 'EXPLICIT_MODEL_PRESERVED', 'profile': profile, 'mutates': False}
     if not isinstance(model, dict):
@@ -381,6 +383,8 @@ def enroll_profile(paths, zone, record, role=None, *, plan=False):
         voice._effective_profile(prefix, Path(intent['profile_root']))
         # Native effective reads reject dotted-key/managed-overlay ambiguity.
         current_model = voice._effective_value(prefix, 'model', {})
+        if current_model in (None, ''):
+            current_model = {}  # Native default for an unconfigured profile.
         if (not isinstance(current_model, dict) or current_model.get('provider') not in (None, '', PROVIDER)
                 or current_model.get('default') not in (None, '', MODEL)
                 or any(current_model.get(key) not in (None, '') for key in

@@ -7,7 +7,7 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.37",
+  "release": "11.38",
   "schema_version": "agk-release-provenance/v1",
   "subject_count": 1350,
   "subjects": [
@@ -92,7 +92,7 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "96b8eecf9beb1936aa1c82a079ef8d0462448b614a40790197823ad79fea6ed5",
+      "sha256": "d68f0efb3b0ad63e3a01c8620f36d9841be8c6cf78d6fdf0fe8da9b9351ebdb6",
       "size": 14926
     },
     {
@@ -116,7 +116,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "17879b9a42d69aad62032be00c1eba1ae5c3642ba4f8570742d65fa55aa1d191",
+      "sha256": "6319ef0fe9f39923df3b40416cfab27e284f2be0f0024eb339b870a9020b9e45",
       "size": 26223
     },
     {
@@ -140,7 +140,7 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "92b81a47432fbc1433080a84d142f8e39a76d442e63aafaffbe9a97fa5a5cd93",
+      "sha256": "3a612c27bc4763387d3f079ffcc1cd401436e58f07964010272bd8df2a0ce314",
       "size": 49784
     },
     {
@@ -152,7 +152,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "fe5ea3a550ed37ec717c4172a239db6d6e5603620665eb2ded2a2181187dac13",
+      "sha256": "48bce62ef4acb1878e8dc4a5b1e62a23a8c3989b580337036422ee2272f961f8",
       "size": 100502
     },
     {
@@ -176,7 +176,7 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "4c23225c6068096c91113a8d8d3a9f215cfaa1493285590851265294ff86f183",
+      "sha256": "2964eb915f1f8659e405779baf5dd81930eab3880a0229bf03a8ac80e2dee371",
       "size": 36550
     },
     {
@@ -194,13 +194,13 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "7688266b489669384043341164b2679a3cf3b2212c5973a5db087beb142494d6",
+      "sha256": "379e23bccd4eda6d9d07e695ea044d4c2108b3da5aa6f0db1ba794b6595a49dc",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "6cde3f92c4ea47600d37c7ebf44b5dbe1f76d4b828fb292a61381dfeb9adc4ff",
+      "sha256": "0b731883d194c9ad0d813e6a7340a885177f54d694e686c3cf03631b29a66bc0",
       "size": 62932
     },
     {
@@ -1388,7 +1388,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "9330240e5013a8bf2bfd8ecde66bc21ac2ee1b2512b903fd4eb41c17a5ab331c",
+      "sha256": "1ba4f782f067c4b1b4c25fdc78ffc60d8f70fc5d00e572137b149a3b7652a9fb",
       "size": 2339
     },
     {
@@ -1580,8 +1580,8 @@
     {
       "executable": false,
       "path": "docs/audit/2026-09-05-hermes-model-inheritance.md",
-      "sha256": "e8c2a05d978d2183aa68712beeafd14a608a4866a25e1805c18e3eb3317412ce",
-      "size": 4915
+      "sha256": "7423cf7d4418c0fb73ff85a60c4f2e273793ce027926eb039355b5a0c723f889",
+      "size": 5632
     },
     {
       "executable": false,
@@ -1982,7 +1982,7 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "b94f60c379014cb55893e00f41dad0cbfa9f3783df384986aa754a0aa4860a0f",
+      "sha256": "449fffe4974a1af6954774c9c62e94492555ee672d08e404f6ef17ef4ec06a37",
       "size": 14211
     },
     {
@@ -3200,7 +3200,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "902c6ea4b8fffcb86e2a5f04224fc3882e6aa569a42f808821ee805b92bdb24b",
+      "sha256": "2a0ff6ef787027692401310f5020701523b2aaaf03b74304dbd30fff0b2ffc3e",
       "size": 12250
     },
     {
@@ -3446,7 +3446,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "163b7193b04a80e39c391a10f87ffd8c293ee6dcc50f40771be7b82aec2f51ba",
+      "sha256": "f6d365f64c80cae1ded24d01f81ffccd9c365baa16e8564751bf774b93fe58ad",
       "size": 3771
     },
     {
@@ -6758,13 +6758,13 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "6501f1b89cfdd03f1c35c760f04df1350a39d2ed4e838e9ce30b6c976026cb76",
+      "sha256": "e480921074877a0945742310f4d961ae9df57fd843ea0b702bdb24acaf5ab7b8",
       "size": 1125
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "02b2d925f05cdb13511b1c40ec9d8cbb28a6adaea390888125a2ef1a1f70e83d",
+      "sha256": "6ee3162aa6398c04f378833e18bebfbbd64c86ba33044ba435781fd1450ec67c",
       "size": 720
     },
     {
@@ -7034,8 +7034,8 @@
     {
       "executable": true,
       "path": "runtime/inference/broker.py",
-      "sha256": "244974e28a3895bf8d819a6c2b5d3b58fa18deb4c2d584132c24d86e89b7ba08",
-      "size": 30623
+      "sha256": "ecf9bcd82ad6e2ac72b971464d57e352a3eed4fc6d3e670f31f505ac3dd30f77",
+      "size": 31043
     },
     {
       "executable": true,
@@ -7346,7 +7346,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "c62da3f547870230dfde491a708f250925e6df678c844a76175027061dfd9123",
+      "sha256": "50f53a761d9124db695a8367e4f47fb69637ab6d0b12f703297848dbd22296bc",
       "size": 1851
     },
     {
@@ -7406,8 +7406,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/inference.py",
-      "sha256": "7d0bfebf3ca10eefaa7c4fb1329f93ec9d249bd53fe6ed77e8833d1c63c349b5",
-      "size": 24635
+      "sha256": "86ea6a27273b4fd47c072dd6c9ff50c3b854ffd73bc1bcb1936c1b1ad770c461",
+      "size": 24800
     },
     {
       "executable": false,
@@ -8012,20 +8012,20 @@
     {
       "executable": false,
       "path": "tests/unit/test_inference_broker.py",
-      "sha256": "b32a5eb285b146cb6cb6715e0fe9a0e8313b8871ee62446d1fbda4efe220a9bb",
-      "size": 38342
+      "sha256": "b079727f87d59cff0311ccfcdf8867572598aa62e5ac7e54353d4835ec7ded10",
+      "size": 39564
     },
     {
       "executable": false,
       "path": "tests/unit/test_inference_enrollment.py",
-      "sha256": "db3d9694d70025ca989f983d282d39b906584174594b5cce38492c7685db8312",
-      "size": 24752
+      "sha256": "cc1a4bebde7d288a1c9f89257e1eb52eac535381a7886864519158dd68553ecc",
+      "size": 25246
     },
     {
       "executable": false,
       "path": "tests/unit/test_instance_cli.py",
-      "sha256": "690ba2ed1cc51e040adc70215c59543e7ef72cfaf0c3e1efc9e37e7df563021a",
-      "size": 5758
+      "sha256": "bc1e2b3f90420dfda7368ece798ee649ee94e206b8dce9028970229afaa0fa36",
+      "size": 6958
     },
     {
       "executable": false,
@@ -8048,8 +8048,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_orchestration_cli.py",
-      "sha256": "f62d6b49262568c5da929116be6dd645cccbe374cfb6c0071cca687d98542bf3",
-      "size": 12820
+      "sha256": "e117dddbbc1fa56b6e3480825b4c56d5e9775f35e1d64af527c1d1d50803a987",
+      "size": 12937
     },
     {
       "executable": false,
@@ -8060,8 +8060,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_platform_activation_verification.py",
-      "sha256": "6f442d944d8ef83bc7703f1c7569b249c88954b00d64e123b2a7c089e204e348",
-      "size": 8029
+      "sha256": "6d3c1cb609d8f0e27312b23b5c78a00afcefd449479e6e3f56dd8f37f8246eae",
+      "size": 8223
     },
     {
       "executable": false,

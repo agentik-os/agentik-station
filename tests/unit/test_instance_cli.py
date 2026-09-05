@@ -51,6 +51,26 @@ def test_worker_provider_setup_resolves_canonical_role_not_raw_profile(instance_
     assert result["role"] == "forge"
 
 
+def test_granted_instance_setup_preserves_native_inherited_selection(instance_gateway, monkeypatch, capsys):
+    from agentik_station import inference
+    calls = []
+    def enroll(paths, zone, record, role, *, plan):
+        calls.append((record['instance_id'], role, plan))
+        return {'state': 'INHERITED', 'operational': False}
+    monkeypatch.setattr(inference, 'enroll_profile', enroll)
+    assert cli.main(['os', 'instance', 'setup', '--zone', 'example-dev', '--instance', 'engineering', '--plan']) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result['model_inheritance']['state'] == 'INHERITED'
+    assert result['operational'] is False and calls == [('engineering', None, True)]
+
+
+def test_explicit_provider_wizard_bypasses_inheritance(instance_gateway, monkeypatch, capsys):
+    from agentik_station import inference
+    monkeypatch.setattr(inference, 'enroll_profile', lambda *a, **k: pytest.fail('Explicit provider wizard was intercepted'))
+    assert cli.main(['os', 'instance', 'setup', '--zone', 'example-dev', '--instance', 'engineering', '--choose-provider', '--plan']) == 0
+    assert json.loads(capsys.readouterr().out)['argv'][-2:] == ['setup', 'model']
+
+
 def test_optional_worker_bot_routes_only_declared_team_role(instance_gateway, capsys):
     zone, record, _ = instance_gateway
     assert cli.main(["platform", "setup", "--zone", zone["id"], "--instance", "engineering", "--role", "forge", "--platform", "discord", "--plan"]) == 0

@@ -1,4 +1,4 @@
-## 11.37 — Reuse Hermes inference across explicitly granted OS teams
+## 11.38 — Reuse Hermes inference across explicitly granted OS teams
 
 - Add a source-owned loopback Codex inference transport and Zone-local capability,
   preserving source OAuth ownership and each OS's memory/tools/workspace.

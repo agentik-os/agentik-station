@@ -80,3 +80,13 @@ Factory tests passed (23 platform-specific skips), 529 AGK component tests passe
 (2 unavailable library skips), 263 npm tests passed, and packed-consumer install
 verification passed. Final ancestry and release checks must run again, followed
 by real model acceptance; these baseline counts alone do not prove live inference.
+
+The next native pass found the empty-string native model default and a valid
+Codex SSE response without a Content-Type header. Release 11.38 treats an empty
+model as unconfigured and accepts omitted MIME only with bounded SSE/JSON frame
+validation; explicit other MIME types remain rejected. CI also caught the OS
+catalog release label and Linux fixtures touching the runner's real `/opt`/`/tmp`;
+the label and fixture isolation were corrected without weakening Host validation.
+An existing Builder Director produced the expected fresh-session test response;
+its explicit native model/auth setup is preserved, not overwritten by inference
+sharing. Team-route and tool-roundtrip readback remain separate final gates.

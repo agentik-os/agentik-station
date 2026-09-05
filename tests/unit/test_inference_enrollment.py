@@ -131,6 +131,20 @@ def test_grant_plan_has_no_token_creation_or_policy_mutation(enrollment):
     assert enrollment.config_path.read_bytes() == before
 
 
+@pytest.mark.parametrize('empty', ['', None])
+def test_native_empty_default_is_not_an_explicit_provider(enrollment, empty):
+    enrollment.grant()
+    enrollment.effective['model'] = empty
+    assert enrollment.enroll()['state'] == 'INHERITED'
+
+
+@pytest.mark.parametrize('empty', ['', None])
+def test_raw_empty_model_inherits(enrollment, empty):
+    enrollment.grant()
+    enrollment.profiles['alpha-director']['model'] = empty
+    assert enrollment.plan()['state'] == 'INHERITANCE_PREPARED'
+
+
 def test_grant_publishes_binding_before_network_authority(enrollment, monkeypatch):
     writes = []
     original = inference._save

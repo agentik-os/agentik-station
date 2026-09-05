@@ -54,6 +54,8 @@ def test_project_create_cli_preserves_scoped_plan(monkeypatch, capsys):
 
 @pytest.fixture
 def gateway(monkeypatch, tmp_path):
+    from agentik_station import inference
+    monkeypatch.setattr(inference, 'enroll_profile', lambda *a, **k: None)
     binaries = {}
     for name in ("hermes", "runuser"):
         binary = tmp_path / name

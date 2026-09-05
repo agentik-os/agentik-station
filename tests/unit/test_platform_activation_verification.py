@@ -22,6 +22,9 @@ SELECTORS = {
 
 @pytest.fixture
 def activation(monkeypatch):
+    from agentik_station import inference
+    # This fixture tests gateway gates, never this CI machine's actual /opt.
+    monkeypatch.setattr(inference, 'enroll_profile', lambda *a, **k: None)
     zone = {"id": "example-dev", "unix_user": "z-org-example-dev",
             "state_root": "/var/lib/station/zones/example-dev",
             "hermes_home": "/var/lib/station/zones/example-dev/hermes"}
