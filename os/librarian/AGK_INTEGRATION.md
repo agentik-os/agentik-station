@@ -1,6 +1,6 @@
 # AGK / Station integration
 
-The upstream Librarian v3 Universal Knowledge package is canonical inside Station 11.12.
+The canonical Librarian package is version 3.0.1 in Station 11.32. Its upstream v3.0.0 Universal Knowledge provenance remains unchanged; corrected profile distributions use a new immutable package version, not an overwrite of deployed bundles.
 
 Primary research lanes include:
 - `/research --deep`

@@ -84,9 +84,13 @@ def _instance_routing(destination: Path, mapping: dict[str, str], *, zone_id: st
               f"OS instance: {instance_id}; Zone: {zone_id}. Native working directory: {workspace_root}.\n"
               "This instance owns OS coordination work, not its client's Project repositories.\n"
               "Canonical role names in source prose are labels only, never native profile selectors.\n"
-              "For every delegation use the exact native profile below in this instance's HERMES_HOME; "
-              "never route by a bare role, another instance, or the Zone default profile. "
-              "If a required role is absent, stop rather than invent a worker. Hermes remains the sole orchestrator.\n\n"
+              "Native delegate_task creates transient children in the parent's context; it has no profile selector. "
+              "It does not execute the persistent specialists listed below. For an authorized persistent-role task, "
+              "use the exact mapped native profile in this instance's HERMES_HOME through the native CLI, "
+              "or its explicitly configured role dispatcher; see the station-orchestration skill. "
+              "Never substitute a bare role, another instance or the Zone default profile. "
+              "If that role is not enrolled, prepare a scoped handoff and continue independent permitted work. "
+              "Hermes remains the sole execution engine.\n\n"
               + "\n".join(f"- {role}: `{profile}`" for role, profile in mapping.items())
               + "\n\nDeclared allowed Projects: " + (", ".join(allowed_project_ids) or "none")
               + ". This declaration is not a Unix isolation boundary; same-Zone profiles share a UID. "

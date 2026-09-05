@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "builder-os",
-  "version": "11.12",
+  "version": "11.13",
   "source": "canonical",
   "runtime_target": "Hermes",
   "contract": "AGK OS v2"

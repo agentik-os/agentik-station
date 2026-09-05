@@ -1,6 +1,6 @@
 id: librarian-os
 name: "Librarian OS — Universal Knowledge"
-version: "3.0.0"
+version: "3.0.1"
 contract: AGK OS v2
 nano_director: oracle
 purpose: "Universal knowledge engine for source-backed books, web, scholarly, official, technical, community, expert, contrarian, freshness, triangulation, learning, and Builder handoff."

@@ -12,7 +12,7 @@ Linux machine. It does not reset the computer or run the privileged Host kernel.
 | Identity | Your ordinary Unix user | Independent identities per Zone |
 | Main location | Chosen private `station/` directory | Canonical Station FHS directories |
 | Client separation | No multi-client isolation claim | Organization-owned environment Zones |
-| OS instances | Not enrolled by this installer | Canonical instance ledger and mapped teams |
+| OS teams | Stepper, Builder and Librarian as private Hermes profiles; no Host instance ledger | Canonical instance ledger and mapped teams |
 | Privilege | Never sudo | Explicit reviewed privileged bootstrap |
 | Existing accounts | Never copied or adopted | Explicit Zone/profile enrollment |
 
@@ -46,9 +46,9 @@ dedicated directory whose parent exists. Existing directories, including empty
 unmanaged ones, are refused rather than adopted. Keep the path short enough for
 RMUX's native Unix socket limit. Paths containing spaces are supported.
 
-The repository prepares `@agentik-os/station` version `11.31.0`; this documentation
+The repository prepares `@agentik-os/station` version `11.32.0`; this documentation
 does **not** claim that npm publication has happened. After an authorized registry
-publication, `npx @agentik-os/station@11.31.0` can launch the same installer.
+publication, `npx @agentik-os/station@11.32.0` can launch the same installer.
 The package has no dependencies or npm lifecycle installation scripts: npm
 install alone never installs Hermes, modifies the OS or starts a gateway.
 The npm package/cache itself lives in npm's chosen prefix/cache; Station-managed

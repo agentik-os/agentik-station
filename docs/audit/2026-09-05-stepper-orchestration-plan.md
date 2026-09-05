@@ -65,7 +65,7 @@ not to unverified version, pricing or configuration claims.
 - [x] Native profile/CLI checks provide concrete readback where
       available; paid models, live chat, external users and schedules are reported
       separately if not exercised.
-- [ ] Targeted VPS release/default-team installation and final installed Doctor.
+- [x] Targeted 11.31 VPS release/default-team installation and final installed Doctor.
 
 ## Evidence and limits
 
@@ -97,6 +97,23 @@ not to unverified version, pricing or configuration claims.
   enrolled profiles remain intact pending a reviewed migration.
 
 ## Tool availability
+
+### Final native-routing correction — 11.32
+
+An additional source-level review found that the pinned `delegate_task` schema
+has no persistent-profile selector; its child delegation capability is derived
+from depth, not the old explicit role hint. Correct the compiled instance SOUL
+and shared skill to distinguish temporary children from scoped native CLI role
+tasks. This is a new immutable release, not a rewrite of deployed 11.31. Add a
+compiled-profile regression. Verify only software/CLI behavior without external
+model calls, and inspect a hash-guarded prompt-only correction for the 29 fresh
+Factory profiles created during this task. Installed readback also binds prompt
+bytes to the immutable bundle, so a prompt-only overlay would violate the
+contract and must not be used. Inspect whether these three just-created teams
+are still unused/unenrolled; only then use a backed-up, explicit retirement of
+our new state followed by the normal installer with new OS versions. Preserve
+old immutable bundles. Existing accounts and the older DevOps team remain
+outside automatic migration.
 
 Local repository and ZIP are readable. Unified exec currently reports EMFILE;
 the general Node REPL with bounded `execFile` is available as the CLI transport.

@@ -1,6 +1,6 @@
 id: stepper-os
 name: Stepper OS
-version: "0.1.0"
+version: "0.1.1"
 contract: AGK OS v2
 nano_director: map-steward
 purpose: Sequence user-visible thin slices through mapping, shaping and explicit release decisions.

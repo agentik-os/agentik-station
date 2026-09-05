@@ -1,4 +1,20 @@
-# Agentik Station 11.31 Validation
+# Agentik Station 11.32 Validation
+
+## Native role-routing semantics — 11.32
+
+The final 11.31 local run passed 1,983 Station/Factory tests (21 Linux-only skips),
+and all nine GitHub jobs passed, including native Linux Workstation installation
+and update lifecycle. The VPS installed 29 default-team profiles, passed all 18
+Stepper evals as its Zone identity and all 192 full Doctor checks; 17 protected
+files and the tracked services remained unchanged. Builder selection passed
+under the real operator UID after a six-file, recoverably backed-up repair.
+
+A later source review identified stale role-routing guidance, not a failed
+installer: native transient children do not select persistent role profiles.
+11.32 corrects the generated SOUL/shared skill and publishes new default OS
+package versions without overwriting immutable 11.31 bundles. Its initial
+focused compiler/defaults regression passed 49 tests. Live paid-model and
+role-to-role task acceptance remain separate, unexercised gates.
 
 ## Stepper and native orchestration — 11.31
 

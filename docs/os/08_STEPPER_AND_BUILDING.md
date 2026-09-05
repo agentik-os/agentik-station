@@ -36,6 +36,12 @@ instances and Projects remain siblings under the owning Zone; neither is the
 container of the client. Hermes uses the installed `role_profile_map`, not a
 guessed bare role such as `master-os-builder` from another instance.
 
+Native `delegate_task` creates temporary children in the parent's context; it
+does **not** select a persistent specialist profile. Named roles use an explicitly
+scoped native Hermes CLI task or a separately configured native dispatcher. The
+shared orchestration skill specifies that route. Without that role's model/account
+enrollment, prepare a handoff artifact; do not imply that another team executed it.
+
 ## Installation and first use
 
 Fresh full/core Host bootstrap prepares `stepper`, `builder` and `librarian`

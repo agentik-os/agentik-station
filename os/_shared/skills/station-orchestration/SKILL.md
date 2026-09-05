@@ -58,7 +58,8 @@ not require model judgment.
 | One bounded action | A normal turn or one-shot invocation in the resolved profile |
 | Independent side investigation | `/bg` with its own complete prompt and scope |
 | Redirect active work / follow up later | `/steer` / `/queue`; neither grants wider scope |
-| Independent branches needed for this answer | `delegate_task`, normally leaf children |
+| Independent branches needed for this answer | Transient `delegate_task` children in the parent's context, bounded by native depth/concurrency |
+| A task requiring a persistent specialist's profile | Explicit scoped native one-shot invocation of its mapped profile, after enrollment |
 | One outcome needing repeated turns | `/goal` with explicit criteria and deterministic gates |
 | Durable handoffs, dependencies or review by named roles | A Kanban board and scoped cards |
 | A recurring or event-triggered routine | Prepare native cron/webhook configuration; activation is a separate authorized action |
@@ -71,6 +72,13 @@ identity. Route domain work to its installed Director and specialists using
 their declared capability contracts; do not create a persistent profile for
 every small task.
 
+`delegate_task` has no profile selector. Its task fields are `goal`, `context`
+and optional `output_schema`; naming a mapped role in the task does not load
+that role's configuration, SOUL, skills, memory or accounts. Use this tool only
+when a child in the parent's inherited context is the intended executor. Do not
+invent a `profile` field or report that a persistent specialist ran merely
+because a transient child was given its title.
+
 A child assignment must contain: objective, relevant context, exact owned
 files/responsibility, allowed inputs and outputs, forbidden side effects,
 verification criterion and return format. Tell coding children they are not
@@ -80,15 +88,52 @@ investigation merely because it was delegated.
 
 Honor the resolved native concurrency, depth and iteration limits. The reviewed
 Station example is 3 children, depth 2 and 50 child iterations, but inspect the
-installed configuration rather than assuming those values. Use `role=leaf` by
-default; select `role=orchestrator` only for a real bounded subtree. Do not
-increase limits or enable automatic approval to get past a failure.
+installed configuration rather than assuming those values. Hermes derives
+further-delegation capability from child depth, `max_spawn_depth` and
+`orchestrator_enabled`; the legacy `role` argument is ignored. At depth 2 with
+the switch enabled, first-level children can delegate. A task instruction is
+not an enforcement mechanism for making a child a leaf. Do not increase limits
+or enable automatic approval to get past a failure.
 
 Native children inherit the parent's permitted tools and provider context;
 an assignment is not an access-control boundary. Keep sensitive work in the
 correct Zone/profile. Parent completion requires integrating child results and
 checking their evidence. Background child execution is not a durable worker
 service: after interruption/crash, read state and reconcile before retrying.
+
+For a persistent mapped-role task, first confirm the selected instance/OS home,
+owning Unix identity, native profile, provider enrollment, approved workspace,
+task authority and applicable budget. Resolve the reviewed native Hermes
+executable directly; a convenience launcher that fixes a Director is not a
+general specialist selector. This schematic argv uses the pinned native parser:
+
+```text
+hermes --profile <mapped-native-profile> chat --oneshot --query-file /absolute/owning-workspace/task.md
+```
+
+Replace placeholders only from the trusted instance record and exact role map.
+Use the owning private `HOME`, selected instance's base `HERMES_HOME`, and owning
+workspace as process cwd. Native selection can rewrite `HERMES_HOME` to the
+effective profile directory; do not reuse that value as the base. Resolve the
+base from trusted runtime evidence. In Workstation mode consult its private
+`OS_INSTALL.json`/`PERSONAL.json`; do not append another `--profile` to a
+`stepper`, `builder` or `librarian` launcher. Keep the task file absolute, scoped
+and nonsecret; do not put credentials in argv or copy `.env`, auth, memory or
+provider stores to make another profile work.
+
+The pinned parser accepts an optional `--max-turns N`, a per-conversation-turn
+tool-iteration bound forwarded by the native consumer. Choose a positive bound
+only within the authorized task budget; never increase an applicable limit or
+start repeated profile invocations to bypass an exhausted budget. This is not
+a USD or mission-wide cap. Keep output/evidence in the owning workspace and
+verify the actual selected profile and result before claiming a role handoff.
+
+If a peer is unenrolled, its scope is unknown, or the permitted invocation path
+is unavailable, produce a scoped handoff artifact with the missing selection or
+acceptance and continue independent authorized work. Do not switch to another
+account, bypass the legacy AGK identity guard, activate a dispatcher, or start a
+new service as an implicit fallback. Named-role and cross-OS live orchestration
+remain NOT_VERIFIED until an enrolled bounded task roundtrip is accepted.
 
 ## 4. Use goals for iteration, gates for truth
 
@@ -202,3 +247,9 @@ the Station pin changes. In a Station checkout, see
 immutable source links, and `rules/STATION_AGENT_RULES.md` for the governing
 cross-provider contract. This skill is operational guidance, not a replacement
 for native permissions, Station's runtime ledger or live acceptance.
+
+Pinned execution contracts: [delegate task schema](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/tools/delegate_tool.py#L5088),
+[depth-derived child capability](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/tools/delegate_tool.py#L1738),
+[profile selection](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/main.py#L516),
+[one-shot query and turn options](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/_parser.py#L353),
+[turn-bound consumer](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/main.py#L3481).

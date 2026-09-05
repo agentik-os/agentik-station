@@ -21,7 +21,7 @@ the implementation, the pinned parser, defaults and consumer code take priority.
 | 3. Background and busy input | `/bg`, `/steer`, `/queue` and `/model` exist. `/bg` starts a separate conversation without the foreground history. `display.busy_input_mode` supports `interrupt`, `queue`, `steer`; upstream defaults to `interrupt`. [Command registry][commands], [CLI][cli] | Use native interaction controls; no second Station background scheduler. Give `/bg` its own complete scope and output contract. Test steering/queuing and cancellation before unattended use. The current registry does not register `/background`. |
 | 4. Skills and hubs | Native skills, bundles, discovery, hub installation and security scans exist. [Skills][skills] | Canonical OS skills come from `os/`; the shared operational package is `os/_shared/skills/station-orchestration/`. Review external skill provenance and scanner findings before installation. No automatic per-SKILL.md `model:` routing was verified; use supported profile, delegation or cron model configuration instead. |
 | 5. MCP and Tool Search | A reviewed MCP catalog and deferred tool discovery exist. `tools.tool_search.threshold_pct` defaults to **5**, not 10; it bounds the injected listing. `auto` currently enables the bridge whenever deferrable tools exist. [MCP][mcp], [Tool Search][tool-search] | The SDK and a disabled ChatbotX example are delivered separately from account enrollment. Review source/bootstrap commands, configure one profile, select exact tools and test identity/readback. Keep resources, prompts, sampling and elicitation closed unless explicitly needed. A catalog install can execute third-party code. |
-| 6. Delegation | `delegate_task`, background results and leaf/orchestrator roles exist. Executed defaults are **10 concurrent children, 250 child iterations, depth 1**. Some upstream prose still says 3/50. [Defaults][delegation-defaults], [consumer][delegate-source] | Station can deliberately select 3 children, 50 iterations and depth 2; those are Station bounds, not upstream defaults. Native children inherit the parent's credential/tool context, with child restrictions. Use independent worktrees for concurrent edits and explicit file ownership. Background completion records do not make in-process child execution crash-durable. |
+| 6. Delegation | `delegate_task` spawns transient children; its schema has no profile selector. Child delegation capability is depth-derived; the legacy `role` argument is ignored. Executed defaults are **10 concurrent children, 250 child iterations, depth 1**. Some upstream prose still says 3/50. [Defaults][delegation-defaults], [schema][delegate-schema], [depth resolution][delegate-depth] | Station can deliberately select 3 children, 50 iterations and depth 2; those are Station bounds, not upstream defaults. Children inherit the parent's credential/tool context, with child restrictions; they do not load a mapped specialist profile merely because its name appears in the task. Persistent roles require a separate scoped native invocation or accepted dispatcher. Use independent worktrees and explicit ownership. In-process children are not crash-durable workers. |
 | 7. Goals, cron and checkpoints | `/goal`, `/subgoal`, a judge and deterministic goal gates exist; the default goal budget is 20 continuation turns. Cron's default tick is 60 seconds; `no_agent`, script `wakeAgent` gates and `context_from` are supported. Checkpoints are opt-in, disabled by default. [Goals][goals], [cron][cron], [checkpoints][checkpoints] | Use explicit criteria, evidence and stop conditions. A goal does not create a Kanban card. Prepare schedules without activation; enable only an authorized routine after reviewing scope, principal, workdir and delivery. Checkpoints are partial file recovery, not database backups or rollback of external actions. |
 | 8. Profiles | Profiles separate Hermes configuration, credentials and state, but are not OS sandboxes. Native clone flows can copy credentials. [Profiles][profiles] | Station's hard boundary is the Zone's Unix identity. Namespaced instance roles resolve to native profiles; compiled tools also use `terminal.home_mode: profile`. Roles within a Zone still share its UID. Never clone accounts across Zones or treat a different profile name as a filesystem access barrier. |
 | 9. Wiki and Obsidian | Bundled `llm-wiki` and `obsidian` skills use `WIKI_PATH` and `OBSIDIAN_VAULT_PATH`. They operate on files, not a newly installed knowledge server. [Wiki][wiki], [Obsidian][obsidian] | Bind a reviewed absolute Project/OS knowledge path. Do not silently use the upstream home-directory fallbacks. Resolve variables before file-tool calls; preserve source provenance, contradictions and links. Verify retrieval and owner permissions using nonsecret material. |
@@ -42,6 +42,12 @@ the implementation, the pinned parser, defaults and consumer code take priority.
 - **Default drift is real.** At this pin, the delegation documentation's 3/50
   examples disagree with the executed 10/250 defaults. Depth is 1. Set intended
   Station bounds explicitly and verify the resolved native values.
+- **A role map is not a dispatcher.** `delegate_task` has no profile selector.
+  Its legacy `role` argument cannot enforce leaf/orchestrator behavior: Hermes
+  derives that capability from child depth, `max_spawn_depth` and
+  `orchestrator_enabled`. Mapped-profile and cross-OS execution require their
+  own scoped invocation and acceptance; a task naming a specialist is not proof
+  that the specialist's profile ran.
 - **Tool Search is not triggered at 10% of context.** Its current 5% setting is
   a catalog-listing budget, further bounded by `listing_max_tokens`.
 - **A skill is not a model router.** Keep route intent in the OS provider policy
@@ -57,6 +63,48 @@ the implementation, the pinned parser, defaults and consumer code take priority.
   for [raft.build][raft]: `RAFT_PROFILE` activates a wake bridge. It requires a
   Raft CLI, an authenticated External Agent and a workspace. It is not Raft
   consensus, not a replacement orchestrator, and not an enrolled Station service.
+
+## Transient children versus persistent roles
+
+Use `delegate_task` for bounded cognitive branches in the current parent's
+context. Its advertised task fields are `goal`, `context` and optional
+`output_schema`; live controls are separate. Do not invent `profile` or rely on
+`role` to select a persistent identity or restrict further delegation. At the
+Station depth-2 example, first-level children can delegate when the native
+orchestrator switch is enabled. [Schema][delegate-schema],
+[effective child capability][delegate-depth].
+
+For work that must execute as an installed specialist, resolve the exact
+role-to-profile map and owning runtime first. The following is schematic native
+argv, not a command to run with unresolved placeholders:
+
+```text
+hermes --profile <mapped-native-profile> chat --oneshot --query-file /absolute/owning-workspace/task.md
+```
+
+Resolve `hermes` to the reviewed native executable, not a convenience launcher
+that already fixes a Director. Run as the owning Unix identity, with its approved
+private `HOME`, the selected OS instance's **base** `HERMES_HOME`, and the owning
+workspace as process cwd. Native profile selection can rewrite `HERMES_HOME`
+to the effective profile directory: resolve the base from trusted runtime
+evidence, not by reusing that current process value. In Workstation mode, take the home/workspace/role
+binding from its private `OS_INSTALL.json`/`PERSONAL.json`; do not append another
+`--profile` to `stepper`, `builder` or `librarian` to select a specialist. The task
+file must be an authorized, nonsecret, absolute scoped input. No credential
+copying or ambient-account fallback is implied. [Profile pre-parser][profile-parser],
+[one-shot query parser][chat-parser].
+
+The pinned chat parser also accepts `--max-turns N`; the consumer forwards it
+as the per-conversation-turn tool-iteration bound. Use an explicitly authorized
+positive bound, without increasing an existing applicable limit. It is not a
+shared mission or USD cap. Repeated invocations must not evade budgets.
+[Flag][chat-turns], [consumer][chat-consumer].
+
+If the peer is unenrolled, its ownership is unknown, or no permitted invocation
+surface is available, prepare a scoped handoff artifact and report the missing
+acceptance instead of launching another identity. Only an enrolled role/task
+roundtrip proves named-role or cross-OS execution. Native installation, help,
+metadata readback and a generated role map do not.
 
 ## Proposed bounded configuration for a new profile
 
@@ -128,8 +176,10 @@ Quote `"on"` in YAML so it remains a string rather than a YAML boolean.
    new distributions. Preserve existing provider/account configuration; existing
    instances need an explicit reviewed update and readback, not silent adoption.
 3. Prove configuration with the native consumer, not just YAML parsing. Test
-   independent child results, goal pause/stop, bounded concurrency and a failed
-   deterministic gate. Keep synthetic tests account-free where possible.
+   transient child results separately from a mapped-profile task roundtrip;
+   also test goal pause/stop, bounded concurrency and a failed deterministic
+   gate. Keep synthetic tests account-free where possible. Leave named-role and
+   cross-OS orchestration NOT_VERIFIED until that distinct acceptance succeeds.
 4. Deliver wiki recipes and scoped knowledge paths. Do not copy a vault, memory
    or credential store from another Zone to make a demonstration work.
 5. Audit ACP and native browser dependencies separately from source/Chromium
@@ -155,6 +205,12 @@ Station implementation references: `src/agentik_station/os_runtime.py`
 [tool-search]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/website/docs/user-guide/features/tool-search.md#L90
 [delegation-defaults]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/config_defaults.py#L2086
 [delegate-source]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/tools/delegate_tool.py#L903
+[delegate-schema]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/tools/delegate_tool.py#L5088
+[delegate-depth]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/tools/delegate_tool.py#L1738
+[profile-parser]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/main.py#L516
+[chat-parser]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/_parser.py#L353
+[chat-turns]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/_parser.py#L524
+[chat-consumer]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/main.py#L3481
 [goals]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/website/docs/user-guide/features/goals.md
 [cron]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/website/docs/user-guide/features/cron.md
 [checkpoints]: https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/website/docs/user-guide/checkpoints-and-rollback.md#L88

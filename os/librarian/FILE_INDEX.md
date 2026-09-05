@@ -1,4 +1,4 @@
-# Librarian OS v3.0.0 — File Index
+# Librarian OS v3.0.1 — File Index
 
 Canonical Station source. Integrity is established through versioned provenance, Doctor, tests, and release evidence.
 

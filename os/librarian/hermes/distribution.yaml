@@ -1,5 +1,5 @@
 name: librarian-os
-version: "3.0.0"
+version: "3.0.1"
 description: "Universal knowledge engine for source-backed books, web, scholarly, official, technical, community, expert, contrarian, freshness, triangulation, learning, and Builder handoff."
 profile_id: oracle
 skills_dir: ../skills

@@ -1,3 +1,13 @@
+## 11.32 — Correct native delegation semantics
+
+- Distinguish transient Hermes children from persistent named-profile tasks in
+  compiled SOUL and orchestration guidance. The pinned delegate tool has no
+  profile selector and ignores the old explicit leaf/orchestrator role hint.
+- Document the verified native oneshot/query-file route for authorized mapped
+  roles; retain explicit ownership, account enrollment and task acceptance.
+- Preserve 11.31 as an immutable release; do not replace existing profiles or
+  infer successful role-to-role execution from a green installation check.
+
 ## 11.31 — Stepper, native OS teams and evidence-driven orchestration
 
 - Integrate the supplied Stepper package as canonical OS source: three roles,

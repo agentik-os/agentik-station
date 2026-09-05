@@ -1,4 +1,4 @@
-# Librarian OS v3.0.0 — UNIVERSAL KNOWLEDGE
+# Librarian OS v3.0.1 — UNIVERSAL KNOWLEDGE
 
 Librarian OS is no longer primarily a book-analysis system.
 

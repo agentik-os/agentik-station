@@ -101,6 +101,22 @@ def _personal_helper():
     return module
 
 
+def test_instance_prompt_distinguishes_transient_children_from_persistent_roles(tmp_path):
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    output = tmp_path / "compiled"
+    result = compile_os_to_hermes(ROOT / "os/stepper", output, workspace_root=workspace,
+                                  zone_id="os", instance_id="stepper")
+    for profile in result["profiles"]:
+        soul = (output / "profiles" / profile / "SOUL.md").read_text()
+        assert "delegate_task creates transient children" in soul
+        assert "it has no profile selector" in soul
+        assert "For every delegation use the exact native profile" not in soul
+        skill = (output / "profiles" / profile / "skills/station-orchestration/SKILL.md").read_text()
+        assert "--oneshot" in skill and "--query-file" in skill
+        assert "role=leaf" not in skill and "role=orchestrator" not in skill
+
+
 @pytest.mark.skipif(os.geteuid() == 0, reason="Personal deployment deliberately requires a non-root UID")
 def test_personal_compiler_namespaces_complete_team_and_readback_detects_drift(tmp_path):
     root = tmp_path / "station"

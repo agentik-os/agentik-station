@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "librarian-os",
   "name": "Librarian OS",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "source": "canonical",
   "runtime_target": "Hermes",
   "contract": "AGK OS v2",

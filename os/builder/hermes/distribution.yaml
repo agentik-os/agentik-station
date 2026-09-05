@@ -1,5 +1,5 @@
 name: builder-os
-version: "11.12"
+version: "11.13"
 description: "Compile verified domain knowledge and AGK contracts into complete, installable, testable, recoverable Operative Systems."
 profile_id: master-os-builder
 skills_dir: ../skills

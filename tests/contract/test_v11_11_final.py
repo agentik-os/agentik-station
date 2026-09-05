@@ -20,7 +20,9 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_real_librarian_v3_is_canonical() -> None:
     manifest = json.loads((ROOT / "os/librarian/MANIFEST.json").read_text())
     assert manifest["name"] == "Librarian OS"
-    assert manifest["version"] == "3.0.0"
+    contract = json.loads((ROOT / "os/librarian/CONTRACT.json").read_text())
+    entry = next(package for package in load_os_catalog(ROOT / "os/CATALOG.json")["packages"] if package["id"] == "librarian-os")
+    assert manifest["version"] == contract["version"] == entry["version"]
     agents = [p for p in (ROOT / "os/librarian/skills/book/agents").iterdir() if p.is_file() and p.suffix == ".md"]
     assert len(agents) == 15
     commands = (ROOT / "os/librarian/discord/COMMANDS.yaml").read_text()

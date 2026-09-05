@@ -7,7 +7,7 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.31",
+  "release": "11.32",
   "schema_version": "agk-release-provenance/v1",
   "subject_count": 1314,
   "subjects": [
@@ -92,8 +92,8 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "5fcd9476dc71140599a2f23b482715363805a6081d2a1445874f468aeaeda740",
-      "size": 10496
+      "sha256": "98b55393c5196cecfff8441f69237d263a5974c9c5bab2475c8f930c3f185684",
+      "size": 11086
     },
     {
       "executable": false,
@@ -116,7 +116,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "338a7ff85741d1e344ac8bcbc915965dc7d2d42b010f42fbe39b2eafd25b261c",
+      "sha256": "809b1fe188252e85863898a753e414660c7b0bb098ace4d862301084b112a901",
       "size": 25933
     },
     {
@@ -140,7 +140,7 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "c719e19536cdd3ef72ae3478a4e186b9a15c1074332f5f510cba9176615f570b",
+      "sha256": "bfed828fbf0b3552bf167a95f33f80af077970a141baea5195324e090001a094",
       "size": 49352
     },
     {
@@ -152,7 +152,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "5669811e0545981bafc85b5573f525ddcc6bb86cbca236faf147664666382419",
+      "sha256": "fbff7349fe1d83bb8137c9625b4c981cfc3607b1b5a3b3e32863ce65490d212f",
       "size": 100502
     },
     {
@@ -176,8 +176,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "0486f82e57e4a0b671c1fc879a033b96a3e13fe1da926e253d0d4d0f635cde46",
-      "size": 30495
+      "sha256": "26442645da2ab7971c02932fa2480ec54b3b23b0b88d359092ffac09b003db81",
+      "size": 31459
     },
     {
       "executable": false,
@@ -194,13 +194,13 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "3d8b8c29fb1043a666b0e724954429495c766d07d4092206e069f984693a2b70",
+      "sha256": "945b140090ceb3390aaaea4fd25bffe2b57c724bbbd346a1410491ac36ff8a2f",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "957300fe16dac1c1ab085f5615bd3cc99dd5085f93274009858bf26d97c214a0",
+      "sha256": "fa845e92890b58b8e6217674577cb15a89c9d35f841eaac336340f46cf35512a",
       "size": 62598
     },
     {
@@ -1382,7 +1382,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "9aa13715be17832473660e30e7ca369e98e1bd72c1387bac61fa5713d89efcb6",
+      "sha256": "03b0df299ec54fd8a6be22aa8c6080992e3723a203357e88fac0996618d5c3e2",
       "size": 2339
     },
     {
@@ -1592,8 +1592,8 @@
     {
       "executable": false,
       "path": "docs/audit/2026-09-05-stepper-orchestration-plan.md",
-      "sha256": "fe1bf55a962f7fb35923c0b3e2f025fefc6662968c52244f5cc6e531b3ebd8d6",
-      "size": 6393
+      "sha256": "8bbfe39826a59847517586ed9b43e8e87c825311b4edc1d9601174d8000f819b",
+      "size": 7494
     },
     {
       "executable": false,
@@ -1946,8 +1946,8 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "6a19e7cfcc8cb5909caaca4203db5b75d7cf577000a49726a3352d6d66cebafc",
-      "size": 14163
+      "sha256": "ee653a55c461fed12cd6a8be574a0369fbecf422ebc4b4f79c8537964eeea3fa",
+      "size": 14211
     },
     {
       "executable": false,
@@ -2210,8 +2210,8 @@
     {
       "executable": false,
       "path": "docs/hermes/16_CAPABILITY_LADDER.md",
-      "sha256": "4dc838e2c2bcc879e9b14a46650a39afde33ac417a72f5c6da39f15db1496a0c",
-      "size": 18585
+      "sha256": "851b3854f6cbfc99b84aa09007e18f69f29509d3902dafe0b260352d8c9614fc",
+      "size": 22653
     },
     {
       "executable": false,
@@ -2630,8 +2630,8 @@
     {
       "executable": false,
       "path": "docs/os/08_STEPPER_AND_BUILDING.md",
-      "sha256": "e84f73281da7f5d25a1d7a5d688bc30505ada6ba4d813cd2a14e017938b0d52f",
-      "size": 7241
+      "sha256": "9e41d277d46a58e81a381fac56d9a20bb5f46b08ab368b84a66ffbc48643aa0a",
+      "size": 7650
     },
     {
       "executable": false,
@@ -3158,7 +3158,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "57b47c3613b4f63cc0786e3c6dcebb49ff9de5eab847a65f6f61fdbc51ddff09",
+      "sha256": "2aed57f88ac0221f0c52fb4990ca288ffa57a2a2e15b1b3f660ac1f20b0abe4c",
       "size": 12013
     },
     {
@@ -3404,14 +3404,14 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "b0d7f62be07c1d45b6f65524e0dda522de19af0eed40dba0de8df25e701b91d3",
+      "sha256": "627b4708bce625ef1e8467e2f6744b78b136790bdbad0cd9b3f12dcd5e5fae92",
       "size": 3771
     },
     {
       "executable": false,
       "path": "os/_shared/skills/station-orchestration/SKILL.md",
-      "sha256": "481983c0470091512a4d00f4aa8bc22f5604fe4b563e077cc1ae5cf423ce1a83",
-      "size": 11561
+      "sha256": "c954fac19d224d617fc5b2e87533e5bc169cb18bf9dfd15a5a4f03673f0acaf4",
+      "size": 15285
     },
     {
       "executable": false,
@@ -3656,7 +3656,7 @@
     {
       "executable": false,
       "path": "os/builder/CONTRACT.json",
-      "sha256": "a84cddde8fbb49c399a9732a5c62fad5fcb3ba805d4322ee72094b1b0e179cfb",
+      "sha256": "a850cfc8319e5018ea1430d4b6a10dbbbe3c0765cc9153c54185e8fe545b69d6",
       "size": 978
     },
     {
@@ -3668,7 +3668,7 @@
     {
       "executable": false,
       "path": "os/builder/MANIFEST.json",
-      "sha256": "5b89eac80b43441c16e2c1666e1aaf9a1425abb3b4ee9df998f4e1aeabe0ae57",
+      "sha256": "105df8df48a07b0ea0e5841d758ea0326279203cb934410adabd93e036459508",
       "size": 152
     },
     {
@@ -3686,7 +3686,7 @@
     {
       "executable": false,
       "path": "os/builder/OS.yaml",
-      "sha256": "3896c0634742effad61f409b8becbf712d9e1a93f734956440c4d30a9153b344",
+      "sha256": "6867a25d098fd86b5f4d91ede2977b8a1242423722abbfa61136530c1139a07f",
       "size": 236
     },
     {
@@ -3848,7 +3848,7 @@
     {
       "executable": false,
       "path": "os/builder/hermes/distribution.yaml",
-      "sha256": "c4dd444f8dc7b6ab16e15a8bc6adc93182b229bf23bbc778f26de0d070e8cb46",
+      "sha256": "db39376065e90c58776c9a277e29d185e5f59ce52372b6e9398a05e1041ceecd",
       "size": 222
     },
     {
@@ -4994,8 +4994,8 @@
     {
       "executable": false,
       "path": "os/librarian/AGK_INTEGRATION.md",
-      "sha256": "d120182b14826872f3f81f697ff5b452e48b5455e204dc2880c254f7cbc1a93d",
-      "size": 737
+      "sha256": "aab14f51bcf20de1366b85850094a546fa43f75f7f3647a50582710f107cbdad",
+      "size": 892
     },
     {
       "executable": false,
@@ -5012,13 +5012,13 @@
     {
       "executable": false,
       "path": "os/librarian/CONTRACT.json",
-      "sha256": "ad06efbab6114b6b2a2a3dfbb41c0dca4a2f01d5afc836bac6ea4f0f41d7280c",
+      "sha256": "210297473ea52d612b94dd493572da088fc62227c2bf2b6858eaa5b82fd6dec2",
       "size": 1059
     },
     {
       "executable": false,
       "path": "os/librarian/FILE_INDEX.md",
-      "sha256": "034ad1d26508b5c750b28dfc6080b8f4b19ff4e7ac81e568ef80b0d340657850",
+      "sha256": "b76e248d26797c5485b62658f1ab70fdc785ebb7d4029527b6c8a285e8d4c158",
       "size": 6009
     },
     {
@@ -5030,7 +5030,7 @@
     {
       "executable": false,
       "path": "os/librarian/MANIFEST.json",
-      "sha256": "e83129ee84e896e5ab49abecc5761e29543b08759a4c5f12d42421f0ec79167b",
+      "sha256": "f810ffb3d91ff877afaa25e2921202c94f32beeb6744dd3adf8e69dc56705206",
       "size": 1201
     },
     {
@@ -5042,7 +5042,7 @@
     {
       "executable": false,
       "path": "os/librarian/OS.yaml",
-      "sha256": "e7fb8f9dc4b75b342512be76a314c263560a9f2fe3f93494f76d5197b9b188cf",
+      "sha256": "5af471fc1f9ec3af17c9b33f406953b124937428447473b69ae0190d0e061bb5",
       "size": 309
     },
     {
@@ -5054,7 +5054,7 @@
     {
       "executable": false,
       "path": "os/librarian/README.md",
-      "sha256": "eef494f4cba6d90282a6e4bc290915c2a7ca5969132b07047ff93d2136e384e1",
+      "sha256": "1700f67b4375098fd91e9fa17dacd72c5ca7bcb54e79d958468d3165a5a1cd46",
       "size": 1189
     },
     {
@@ -5156,7 +5156,7 @@
     {
       "executable": false,
       "path": "os/librarian/hermes/distribution.yaml",
-      "sha256": "c4f7a7c2671443b20697b2024d54ac21d1a8f2002a6d6d0e87e305141de11ad1",
+      "sha256": "fd2b97f0573ebf98e9d090a926859e0530fd3226f2331aa7f9fe09aab8fd230e",
       "size": 269
     },
     {
@@ -6188,13 +6188,13 @@
     {
       "executable": false,
       "path": "os/stepper/CONTRACT.json",
-      "sha256": "9d3d5b5f02812f6eb344208a55413fdaeacf9728089d05954d6d0d22c51ffa36",
+      "sha256": "def817e1842663ee4d0ef26b59e4d328cf385f1ffa4a5afa4f710284d806137c",
       "size": 741
     },
     {
       "executable": false,
       "path": "os/stepper/MANIFEST.json",
-      "sha256": "71baa8a0ea8b0e66a40205489b1a0958e56b32a0af864239cc45248047c5a203",
+      "sha256": "4cae862eeef90bbe637951b71d5b7eb09f74a0506c16d3b80c1275f13ec079ad",
       "size": 362
     },
     {
@@ -6206,7 +6206,7 @@
     {
       "executable": false,
       "path": "os/stepper/OS.yaml",
-      "sha256": "dc17e71f8e56c348b9e8f87206d578ebf7b6802c3d8b82b8fb7dd10aee3cc015",
+      "sha256": "816f97f2c259acde3bcdcf46ecff197d49f32e90dc004733eb0ab838a46f2302",
       "size": 196
     },
     {
@@ -6362,7 +6362,7 @@
     {
       "executable": false,
       "path": "os/stepper/hermes/distribution.yaml",
-      "sha256": "d1fd405978812c2a27304b07a06f6d4f47291576075a466002e321bcf1dc80f4",
+      "sha256": "722647b9e531a2b189b5ccdc07ba40a7cecb5317fca8d9bb9accc5afbd58475f",
       "size": 158
     },
     {
@@ -6608,7 +6608,7 @@
     {
       "executable": false,
       "path": "os/stepper/update/MIGRATIONS.yaml",
-      "sha256": "c4d235293ab02141e9e79c7198a288d8b64b275b96c405aca8deb9dc3d353e40",
+      "sha256": "17a2f56bbbf51a5e7f2fdfff94233df94f903b76a39f83f9f2a5f52d09ca6957",
       "size": 184
     },
     {
@@ -6632,13 +6632,13 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "19e52604e377cabe1d1e41b8a14826638b269e1d014b5c6f1238bfe8338393bf",
+      "sha256": "d5ff8197013f26e2469b11bb8e0a49919bf3b23e6b10c6a61e5fd3ea2f12ebd9",
       "size": 1125
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "ddf042219f86c2bde219b1af5859a3db7cf19522e81345a524a22abf27e140fd",
+      "sha256": "aa2075217dffdb3f949e8007b0d181b7a15e5c49cac0b4c2c457feacad5c8f2e",
       "size": 720
     },
     {
@@ -7190,7 +7190,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "78290d63ae1e86c03b4c4bc9e8615ee5dca2fb859c1e865567ddb767a90e7a84",
+      "sha256": "515eddcfdc540e0a8561e641e6ac5ac68a541e20cc6ef98ba795d2db38decad9",
       "size": 1851
     },
     {
@@ -7316,8 +7316,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/os_runtime.py",
-      "sha256": "87d8789b02c8f49fff4d1e8bd4fd8b08275123bbd7501871888d830193584daf",
-      "size": 25426
+      "sha256": "26cee3658630b16cb6f1cb6b81fcb8feb10c59d8d064b0543a7069a3cbbef369",
+      "size": 25819
     },
     {
       "executable": false,
@@ -7520,8 +7520,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_os_orchestration.py",
-      "sha256": "3efe023e3fe952c9e7d20165fe20745b670767956c01b0a998bea756a00f7fa5",
-      "size": 6592
+      "sha256": "da0fb31b03fc18aee87f56ef5474c8fe3d39078a51d7172eb7e21c1e96067083",
+      "size": 7491
     },
     {
       "executable": false,
@@ -7556,8 +7556,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_stepper_os.py",
-      "sha256": "16db6d7a933bf95a4375656fcbd2a740b531b1b5de298ef3379f151c6819c7a8",
-      "size": 12625
+      "sha256": "14a7098c7ee55406e455c4e03266e6b9eaf0bb982a0cd1f5fedae32653776afd",
+      "size": 12650
     },
     {
       "executable": false,
@@ -7568,8 +7568,8 @@
     {
       "executable": false,
       "path": "tests/contract/test_v11_11_final.py",
-      "sha256": "7c09dabec307fd5f1f378fd4a97c9d843b56353ad8eea0d30ff2bbb065aa1578",
-      "size": 6658
+      "sha256": "f20176ca761eb9c7a11cbe764af7ac8b8c6c0529f3faf1cd9cbdfed2ac0c67a3",
+      "size": 6897
     },
     {
       "executable": false,

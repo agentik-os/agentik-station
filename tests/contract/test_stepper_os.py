@@ -52,7 +52,7 @@ def test_stepper_is_complete_canonical_source_with_three_native_identities(runne
 def test_catalog_and_factory_default_deliver_stepper_without_implying_installation():
     packages = load_os_catalog(ROOT / "os/CATALOG.json")["packages"]
     entry = next(item for item in packages if item["id"] == "stepper-os")
-    assert (entry["path"], entry["version"], entry["runtime_state"]) == ("os/stepper", "0.1.0", "NOT_INSTALLED")
+    assert (entry["path"], entry["version"], entry["runtime_state"]) == ("os/stepper", read("CONTRACT.json")["version"], "NOT_INSTALLED")
     defaults = json.loads((ROOT / "config/station.default.json").read_text())
     factory = next(zone for zone in defaults["roles"]["core"]["zones"] if zone["category"] == "FACTORY")
     assert {"stepper-os", "builder-os", "librarian-os", "devops-os"} <= set(factory["requested_os"])
