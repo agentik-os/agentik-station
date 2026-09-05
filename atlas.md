@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.17`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.18`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Visual companion:** the [README system maps](README.md#the-whole-system) explain
 the full topology, VPS install, OS factory, chat enrollment, filesystem and evidence
@@ -851,7 +851,7 @@ Every cron, trigger or persistent bot starts disabled. Run a fresh session using
 
 ## 17. Hermes and dependency updates
 
-Hermes is pinned to a reviewed release/commit. The updater is backup- and Doctor-gated:
+Initial Hermes installation is pinned to a reviewed release/commit. The separate updater requests a native backup and records Doctor/gateway results:
 
 ```bash
 station hermes check
@@ -865,13 +865,13 @@ The weekly timer is enabled by bootstrap unless explicitly skipped. Update flow:
 check upstream
 → record candidate
 → pre-update backup
-→ apply reviewed update
+→ apply native upstream update
 → Hermes Doctor and gateway observation
 → receipt
-→ keep candidate or request restore on failure
+→ keep candidate or require reviewed state/code recovery on failure
 ```
 
-Automatic update does not automatically promote every OS or dependency. OS migrations, plugins, messaging platforms and external applications keep their own compatibility/readback gates. Version changes belong in `config/versions.lock` and resource recipes only after review.
+The timer can advance Hermes beyond the initial repository pin; it is not a canary approval workflow. There is no supported automatic state-restore CLI in the pinned Hermes release. Automatic update does not automatically promote every OS or dependency. OS migrations, plugins, messaging platforms and external applications keep their own compatibility/readback gates. Version changes belong in `config/versions.lock` and resource recipes only after review.
 
 Station releases themselves are immutable:
 

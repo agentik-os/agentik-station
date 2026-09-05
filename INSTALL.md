@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.17
+## Supported base for Station 11.18
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.17",
+  "release_version": "11.18",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -365,7 +365,7 @@ station deps toolchain-check
 sudo ./scripts/station_deps_install.sh --all   # optional; installs/stages, then awaits configuration/readback
 ```
 
-`station hermes update` always requests an upstream backup, runs Hermes Doctor, observes gateway status and writes a receipt under the owning `HERMES_HOME`. Bootstrap enables the weekly timer by default; pass `--skip-hermes-auto-update` to opt out. A failed Doctor restores the pre-update Hermes state when upstream supports it and returns non-zero; code compatibility still requires operator review.
+`station hermes update` requests an upstream backup, runs Hermes Doctor after a successful update, observes gateway status and writes a receipt under the owning `HERMES_HOME`. Bootstrap enables the weekly timer by default; pass `--skip-hermes-auto-update` to opt out. A failed update or Doctor returns non-zero with a repair action. The pinned Hermes CLI has no supported automatic state-restore command: preserve its native backup and review state/code recovery explicitly. Station does not claim that a backup was restored or that code compatibility was recovered.
 
 Multi-platform bots are executed under the owning Zone identity:
 
@@ -393,7 +393,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.17 publishes beside earlier releases; it never overwrites an old
+Station 11.18 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

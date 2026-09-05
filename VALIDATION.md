@@ -1,4 +1,4 @@
-# Agentik Station 11.17 Validation
+# Agentik Station 11.18 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -47,6 +47,27 @@ The 11.17 full Station/Factory suite passed **830 tests**. Its focused launcher
 suite passed **29 tests**, including complete offline
 native npm installation and rollback on native failure, invalid package and
 SIGTERM. Recovery restores launcher links, not arbitrary npm package contents.
+
+All six 11.17 CI jobs passed. The fourth bootstrap installed the complete operator
+toolchain but exposed the obsolete `hermes version` check. The corrected exact
+check subsequently passed on the VPS: Python 3.14.7/3.13.15, Node 24.20.0,
+npm 12.0.2, uv 0.12.9, GitHub CLI 2.100.0, Vercel 59.11.2, Codex 0.153.2,
+Composio 0.4.0, shadcn 4.21.0, discord.js 14.27.0 and native Hermes.
+
+ScrapeGraphAI 2.2.2 and Crawl4AI 0.9.3 were independently installed in their shared
+immutable runtimes and passed actual Chromium launch on Ubuntu 26.04. Native
+`--help` readback also
+proved that the updater's proposed restore command was unsupported; 11.18
+removes that invocation and records manual recovery instead. No Hermes update,
+restore or provider login was performed during these read-only CLI probes.
+
+Strix 1.6.1 was installed and its native version command passed; no Docker access,
+image pull, cloud connection or security scan was granted/performed. The 11.18
+Station/Factory suite passed **856 tests**, including 31 toolchain and 24 updater
+cases; independent review, repository Doctor and release metadata checks passed.
+An initial custom macOS fixture root inherited group `wheel` and correctly
+triggered 42 ownership refusals. Recreating that test-only base with the test
+account's group produced the passing run; no production guard was weakened.
 
 Corrected full bootstrap, real named-instance installation and external
 provider/chat/recovery acceptance remain pending at this checkpoint. Source

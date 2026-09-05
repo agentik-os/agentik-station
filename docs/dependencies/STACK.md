@@ -92,7 +92,7 @@ station hermes update
 sudo station deps enable-auto-update
 ```
 
-The update wrapper requests a pre-update backup, runs Hermes Doctor, observes the gateway, stores a receipt in `$HERMES_HOME/station-update-receipts`, and exits non-zero on failed validation. Bootstrap enables the weekly timer by default; `--skip-hermes-auto-update` opts out. If Doctor fails, Station asks Hermes to restore the `pre-update` state and reports that code compatibility still needs review.
+The update wrapper requests a pre-update backup, runs Hermes Doctor after a successful update, observes the gateway, stores a receipt in `$HERMES_HOME/station-update-receipts`, and exits non-zero on failed validation. Bootstrap enables the weekly timer by default; `--skip-hermes-auto-update` opts out. The pinned Hermes CLI does not expose a supported automatic state-restore command. On failure, preserve its native backup and follow the receipt's explicit state/code recovery action; Station never reports an unperformed restore as successful.
 
 Upstream references: [Hermes updating](https://hermes-agent.nousresearch.com/docs/getting-started/updating), [Codex CLI](https://developers.openai.com/codex/cli), [Composio CLI](https://docs.composio.dev/docs/cli), [Vercel CLI](https://vercel.com/docs/cli), [GitHub CLI](https://cli.github.com/manual/).
 

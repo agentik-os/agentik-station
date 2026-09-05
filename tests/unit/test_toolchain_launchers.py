@@ -366,3 +366,34 @@ for name in ('npm', 'npx'):
 
 def test_script_has_valid_shell_syntax():
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True)
+
+
+@pytest.mark.parametrize("tool_exit", [0, 17])
+def test_toolchain_uses_native_hermes_version_flag_and_preserves_exit_status(layout, tool_exit):
+    home, bins, _ = layout
+    hermes = bins / "hermes"
+    hermes.write_text("#!/usr/bin/python3\nimport sys\n"
+                      "assert sys.argv[1:] == ['--version']\n"
+                      "print('Hermes Agent fixture')\n"
+                      "for _ in range(2000): print('SECONDARY_VERSION_DETAIL')\n"
+                      f"raise SystemExit({tool_exit})\n")
+    hermes.chmod(0o755)
+    node = bins / "node"
+    node.write_text("#!/bin/sh\nprintf '14.27.0'\n")
+    node.chmod(0o755)
+    sdk = home / ".local/share/station-sdk/discord-js/node_modules/discord.js/package.json"
+    sdk.parent.mkdir(parents=True)
+    sdk.write_text('{}')
+    source = SCRIPT.read_text()
+    checks = source[source.index("check_tool() {"):source.index("\nlinux_arches() {")]
+    body = ("set -Eeo pipefail\nas_station() { \"$@\"; }\n" + checks
+            + "\ncheck_pinned_tool() { :; }\ncheck_toolchain\n")
+    result = subprocess.run(["bash", "-c", body], cwd=home, capture_output=True, text=True,
+                            timeout=15, env={**os.environ, "STATION_HOME": str(home),
+                                            "tool_path": str(bins), "INSTALL_CODEX": "0",
+                                            "CHECK_HERMES": "1", "DISCORD_JS_VERSION": "14.27.0",
+                                            "PATH": str(bins) + ":/usr/bin:/bin"})
+    assert result.returncode == (0 if tool_exit == 0 else 1), result.stderr
+    assert ("READY   hermes" if tool_exit == 0 else "FAILED  hermes") in result.stdout
+    assert "Hermes Agent fixture" in result.stdout
+    assert "SECONDARY_VERSION_DETAIL" not in result.stdout

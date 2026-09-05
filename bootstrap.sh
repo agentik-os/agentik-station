@@ -452,6 +452,9 @@ fi
 # Apply the exact reviewed spec using the already authorized bootstrap identity.
 # This must not depend on the newly created operator having a sudo password.
 bootstrap_checkpoint kernel-apply running
+# External builds run after preflight. Recheck the exact source inventory before
+# publishing it as an immutable release; do not hide generated files with broad exclusions.
+"$REPO_DIR/station" doctor --repo
 "$REPO_DIR/station" apply --spec "$bootstrap_spec"
 bootstrap_checkpoint kernel-apply success
 bootstrap_checkpoint kernel-readback running

@@ -1,5 +1,18 @@
 # Changelog
 
+## 11.18 — Native Hermes CLI and failure receipts (2026-09-05)
+
+- use Hermes' actual `--version` option in toolchain checks and the updater;
+  retain native exit status without truncating its process through `head`;
+- remove an unsupported restore command; failed validation records explicit
+  manual state/code recovery guidance and never claims a restore occurred;
+- preserve an update receipt even when version probing fails before or after
+  the attempted update;
+- recheck repository Doctor after external builds and before kernel publication.
+
+The full operator toolchain and ScrapeGraphAI/Chromium have been exercised on the
+live VPS. Full bootstrap and OS/account acceptance remain separate recorded gates.
+
 ## 11.17 — Complete native npm handoff (2026-09-05)
 
 - reserve only recognized predecessor npm/npx launchers while the complete

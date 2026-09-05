@@ -79,10 +79,12 @@ check_tool() {
     return 1
   fi
   local output
-  output="$(as_station "$binary" "$@" 2>&1 | head -1)" || {
+  output="$(as_station "$binary" "$@" 2>&1)" || {
+    output="${output%%$'\n'*}"
     printf 'FAILED  %-12s %s\n' "$label" "$output"
     return 1
   }
+  output="${output%%$'\n'*}"
   printf 'READY   %-12s %s\n' "$label" "$output"
 }
 
@@ -96,10 +98,12 @@ check_pinned_tool() {
     return 1
   fi
   local output
-  output="$(as_station "$binary" "$@" 2>&1 | head -1)" || {
+  output="$(as_station "$binary" "$@" 2>&1)" || {
+    output="${output%%$'\n'*}"
     printf 'FAILED  %-12s %s\n' "$label" "$output"
     return 1
   }
+  output="${output%%$'\n'*}"
   if [[ "$output" != *"$expected"* ]]; then
     printf 'DRIFT   %-12s expected=%s observed=%s\n' "$label" "$expected" "$output"
     return 1
@@ -137,7 +141,7 @@ check_toolchain() {
   fi
   if [[ "$CHECK_HERMES" -eq 1 ]]; then
     if command -v hermes >/dev/null 2>&1 || [[ -x "$tool_path/hermes" ]]; then
-      check_tool hermes "$(command -v hermes 2>/dev/null || printf '%s' "$tool_path/hermes")" version \
+      check_tool hermes "$(command -v hermes 2>/dev/null || printf '%s' "$tool_path/hermes")" --version \
         || failures=$((failures + 1))
     else
       printf 'MISSING %-12s install through bootstrap.sh\n' hermes

@@ -439,3 +439,12 @@ def test_hermes_venv_sanity_rejects_private_operator_interpreter(shell, hermes_r
     assert result.returncode != 0
     assert "reviewed shared Python" in result.stderr
     assert "STAGE_SUCCESS" not in result.stdout
+
+
+def test_bootstrap_rechecks_source_after_external_builds_before_kernel_publication():
+    source = (ROOT / "bootstrap.sh").read_text()
+    build = source.index("bootstrap_checkpoint agk-tui success")
+    apply_stage = source.index("bootstrap_checkpoint kernel-apply running", build)
+    doctor = source.index('"$REPO_DIR/station" doctor --repo', apply_stage)
+    apply = source.index('"$REPO_DIR/station" apply --spec "$bootstrap_spec"', doctor)
+    assert build < apply_stage < doctor < apply
