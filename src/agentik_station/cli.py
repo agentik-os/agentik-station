@@ -819,6 +819,18 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         # selection guard separate from verification so ordinary instance chat
         # does not acquire an unrelated full-team VERIFIED requirement.
         source_selection = require_current_runtime(repository_root(), runtime)
+    model_inheritance = None
+    if (instance_id and runtime and args.platform_command in {"chat", "configure"}
+            and not getattr(args, "choose_provider", False)):
+        from .inference import enroll_profile
+        model_inheritance = enroll_profile(LayoutPaths.live(), zone, runtime, role, plan=args.plan)
+        if args.platform_command == "configure" and model_inheritance is not None:
+            print(json.dumps({"zone_id": args.zone, "instance_id": instance_id,
+                              "model_inheritance": model_inheritance, "operational": False,
+                              "claim": "PREPARED_NOT_RUN" if args.plan else "LOCAL_MODEL_SELECTION",
+                              "next_action": "Verify the complete OS team, then its live model path. Use --choose-provider only to explicitly change providers."},
+                             indent=2, sort_keys=True))
+            return 0
     if runtime and runtime["state"] != "VERIFIED" and args.platform_command in {"install", "start", "restart"}:
         # The trusted reader downgrades stale verification to CONFIGURED. Both
         # fresh and changed teams must pass current full-team verification;
@@ -875,6 +887,7 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         "compiled_distribution": runtime.get("compiled_distribution") if runtime else None,
         "installed_version": runtime.get("os_version") if runtime else None,
         "canonical_source_selection": source_selection,
+        "model_inheritance": model_inheritance,
         "platform": requested_platform,
         "platform_selection": "operator-intent-only; actions target the selected profile's whole gateway",
         "action": args.platform_command,
@@ -1171,6 +1184,39 @@ def cmd_voice_setup(args: argparse.Namespace) -> int:
         raise StationError("Voice enrollment could not read or execute the selected profile safely; inspect its native state before retrying.") from None
     print(json.dumps(result, indent=2, sort_keys=True))
     return 1 if result.get("state") == "INCOMPLETE" else 0
+
+
+def cmd_model(args: argparse.Namespace) -> int:
+    """Explicit source inference grants; no provider credentials in CLI output."""
+    from . import inference
+    from .os_instances import load_os_instance_record
+
+    paths = LayoutPaths.live()
+    if os.geteuid() != 0:
+        raise StationError("Model sharing requires the authorized Station operator")
+    if args.model_command == "enable":
+        result = inference.enable(repository_root(), paths, plan=args.plan)
+    else:
+        zone = _load_zone_record(args.zone)
+        result = inference.grant(paths, zone, getattr(args, "instance", []), plan=args.plan,
+                                  revoke=args.model_command == "revoke")
+        if args.model_command == "grant" and not args.plan:
+            outcomes = []
+            for instance_id in result['instances']:
+                record = load_os_instance_record(paths, zone=zone, instance_id=instance_id, require_configured=True)
+                for role in record['role_profile_map']:
+                    try:
+                        outcome = inference.enroll_profile(paths, zone, record, role)
+                        outcomes.append({'instance': instance_id, 'role': role,
+                                         'state': outcome['state'] if outcome else 'INCOMPLETE'})
+                    except (StationError, OSError, ValueError, subprocess.SubprocessError):
+                        outcomes.append({'instance': instance_id, 'role': role, 'state': 'INCOMPLETE'})
+            result['profiles'] = outcomes
+            result['verification_required'] = True
+            if any(row['state'] == 'INCOMPLETE' for row in outcomes):
+                result['state'] = 'INCOMPLETE'
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 1 if result.get('state') == 'INCOMPLETE' else 0
 
 
 def cmd_strix(args: argparse.Namespace) -> int:
@@ -1597,6 +1643,8 @@ def build_parser() -> argparse.ArgumentParser:
         if action in {"setup", "chat"}:
             command.add_argument("--plan", action="store_true")
             command.add_argument("--role", help="Configure this canonical team role; default is the Director")
+        if action == "setup":
+            command.add_argument("--choose-provider", action="store_true", help="Explicit model/provider reconfiguration instead of inherited Hermes inference")
         command.set_defaults(handler=cmd_os_instance)
 
     rootless = sub.add_parser("rootless")
@@ -1703,7 +1751,20 @@ def build_parser() -> argparse.ArgumentParser:
         selector.add_argument("--instance", help="Installed OS instance Director; never inferred from a package name")
         command.add_argument("--role", help="Explicit instance team role; requires --instance and a justified external bot topology")
         command.add_argument("--plan", action="store_true")
+        if action == "configure":
+            command.add_argument("--choose-provider", action="store_true", help="Explicitly open model selection instead of preserving/inheriting the granted Hermes route")
         command.set_defaults(handler=cmd_platform_gateway)
+
+    model = sub.add_parser("model", help="Reuse authorized Hermes inference without copying its accounts or memory")
+    model_sub = model.add_subparsers(dest="model_command", required=True)
+    for action in ("enable", "grant", "revoke"):
+        command = model_sub.add_parser(action)
+        command.add_argument("--plan", action="store_true")
+        if action != "enable":
+            command.add_argument("--zone", required=True)
+        if action == "grant":
+            command.add_argument("--instance", action="append", required=True, help="Intended existing OS instance; repeat for its complete team")
+        command.set_defaults(handler=cmd_model)
 
     voice = sub.add_parser("voice", help="Explicit profile-scoped native speech transcription")
     voice_sub = voice.add_subparsers(dest="voice_command", required=True)

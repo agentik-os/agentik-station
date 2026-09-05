@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1344
+Total files: 1353
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -266,6 +266,7 @@ Total files: 1344
 - `docs/audit/2026-09-05-chatbotx-install-plan.md`
 - `docs/audit/2026-09-05-coordinated-updates-plan.md`
 - `docs/audit/2026-09-05-full-stack-install-plan.md`
+- `docs/audit/2026-09-05-hermes-model-inheritance.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-os-installation-improvement-plan.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
@@ -415,6 +416,7 @@ Total files: 1344
 - `docs/operations/04_DISCORD_DRIFT_RECONCILIATION.md`
 - `docs/operations/05_ENGINEERING_EPISODE_MODEL.md`
 - `docs/operations/06_FIRST_MISSION.md`
+- `docs/operations/11_MODEL_INHERITANCE.md`
 - `docs/operations/COORDINATED_UPDATES.md`
 - `docs/operations/DEPENDENCY_UPDATE_POLICY.md`
 - `docs/orchestration/01_STATION_ORCHESTRATION_CONTRACT.md`
@@ -1173,6 +1175,10 @@ Total files: 1344
 - `runtime/hermes-station/hermes/plugins/station-voice/plugin.yaml`
 - `runtime/hermes-station/hooks/station_context_injector.py`
 - `runtime/hermes-station/hooks/station_policy_guard.py`
+- `runtime/inference/broker.py`
+- `runtime/inference/preflight.py`
+- `runtime/inference/profile_check.py`
+- `runtime/inference/token.py`
 - `runtime/programs/discord_experience_worker.py`
 - `runtime/programs/orchestration_state.py`
 - `runtime/systemd/station-doctor.service`
@@ -1231,6 +1237,7 @@ Total files: 1344
 - `src/agentik_station/hermes_updates.py`
 - `src/agentik_station/identifiers.py`
 - `src/agentik_station/identity.py`
+- `src/agentik_station/inference.py`
 - `src/agentik_station/installer.py`
 - `src/agentik_station/maturity.py`
 - `src/agentik_station/models.py`
@@ -1331,6 +1338,8 @@ Total files: 1344
 - `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_hermes_update_receipt.py`
 - `tests/unit/test_identifiers.py`
+- `tests/unit/test_inference_broker.py`
+- `tests/unit/test_inference_enrollment.py`
 - `tests/unit/test_instance_cli.py`
 - `tests/unit/test_instance_onboarding.py`
 - `tests/unit/test_models.py`

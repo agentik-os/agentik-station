@@ -1,3 +1,14 @@
+## 11.36 — Reuse Hermes inference across explicitly granted OS teams
+
+- Add a source-owned loopback Codex inference transport and Zone-local capability,
+  preserving source OAuth ownership and each OS's memory/tools/workspace.
+- Enroll all roles of named instances; reuse missing model preferences at launch
+  without repeating provider selection. Preserve explicit models and endpoints.
+- Validate native named-provider resolution, stream inference/function tools, and
+  revoke network authorization even when enrollment metadata needs repair.
+- Scope: Linux Host, exact pinned Hermes Codex adapter and persisted source model.
+  Route configuration is not live inference acceptance or a universal-provider claim.
+
 ## 11.35 — Complete Builder Suite and canonical instance selection
 
 - Export Builder, Librarian and Stepper together from exact committed Station

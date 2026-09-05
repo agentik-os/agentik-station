@@ -99,3 +99,14 @@ Do not skip directly from generated output to a completion claim. Preserve the d
 - Run Station Doctor and provider-specific Doctor/readback.
 - Keep every unexercised external integration below `OPERATIONAL`.
 - Report exact limitations and the next action needed to advance readiness.
+
+## Model continuity for persistent OS teams
+
+When launching an installed Builder, Stepper or other OS, inspect its existing
+model route first. For a Zone with an explicit Station inference grant, use the
+native inherited `hermes-default` route for missing preferences; do not ask the
+user to choose a provider again. Preserve explicit profile overrides. Reuse
+inference, never the source Hermes home, OAuth files, memory or tool accounts.
+Follow `docs/operations/11_MODEL_INHERITANCE.md`; do not turn an absent grant into
+permission to access another client's account. Report unavailable authentication
+or quota accurately, without requesting credentials in chat.

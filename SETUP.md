@@ -101,6 +101,11 @@ returns the exact scoped `station os instance verify` (or legacy `os verify`)
 command. Provider/platform setup and observation remain available for repair;
 the separate Zone-default bot route keeps its native Doctor sequence.
 
+To reuse the operator Hermes model without repeated provider selection, follow
+[model inheritance](docs/operations/11_MODEL_INHERITANCE.md). An explicit Zone
+inference grant enrolls missing model preferences for the complete named OS teams;
+it never copies the operator's account, memory or tools. Explicit choices remain.
+
 Configure a worker's provider only when its role needs separate enrollment; the
 canonical role is resolved through the trusted map, not a guessed native name:
 

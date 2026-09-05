@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.35.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.36.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -74,6 +74,12 @@ Projects share a UID; the dotted work-scope relation is **not a filesystem ACL**
 ### Why Hermes is the central brain
 
 Hermes turns a scoped brief into executable work: it loads the OS profile, uses the selected model provider, delegates to specialists, calls available tools, maintains sessions and returns results. Station supplies the surrounding operating contracts: **where execution belongs, which identity owns it, what requires approval, and what evidence must survive it.**
+
+**One model connection, separate OS contexts.** On a Linux Host, explicitly granted
+Builder/Stepper teams can reuse the operator's persisted Hermes/Codex model through
+an inference-only local transport. New unconfigured roles stop asking which
+provider to choose; existing overrides remain. No OAuth, client memory or tool
+account is copied. See [model continuity and its supported scope](docs/operations/11_MODEL_INHERITANCE.md).
 
 “Central” means **one execution model**, not one omnipotent process holding every client's secrets. Each Zone gets its own Hermes home and runtime context. A model or CLI change must preserve the same [agent rules](rules/STATION_AGENT_RULES.md), Project paths and verification gates.
 

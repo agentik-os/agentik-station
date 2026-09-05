@@ -1,4 +1,11 @@
-# Agentik Station 11.35 Validation
+# Agentik Station 11.36 Validation
+
+## Scoped Hermes model inheritance — 11.36
+
+See the [mission and acceptance record](docs/audit/2026-09-05-hermes-model-inheritance.md)
+and [supported runtime scope](docs/operations/11_MODEL_INHERITANCE.md). Configuration,
+native runtime resolution, live provider acceptance and mission completion are
+separate evidence levels. Canonical OS packages are unchanged by this release.
 
 ## Complete Builder suite and canonical runtime selection — 11.35
 
