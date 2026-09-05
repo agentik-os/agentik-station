@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.21.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.22.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -355,6 +355,8 @@ Prefer Telegram, Slack or another supported platform? Use the [Hermes platform s
 ### Voice follows the same ownership rules
 
 The default setup installs Hermes voice/messaging support, configures OpenAI audio defaults and prepares local Parakeet. Transcription becomes input to the same scoped Hermes session; text-to-speech turns its response into audio. OpenAI keys, local service health, actual Discord audio delivery and the return trip remain separate setup checks. Installing the libraries is not evidence that a bot can hear and speak in your guild.
+
+For an installed OS role, [`station voice setup`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md#enroll-one-os-role) explicitly selects the native OpenAI → Parakeet provider. It covers voice notes and other native STT in that profile, without replacing the OS bundle or changing other profiles. The plugin passes through Hermes' normal security scan; existing conflicting settings are refused, not overwritten.
 
 The first human enrollment remains unavoidable. Afterwards, guided links and provider-native authentication can make routine setup chat-led. **An administrator bot is not an unrestricted sudo endpoint**; broad operator sudo is a current security concern, not a model permission to execute any incoming message.
 

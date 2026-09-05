@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.21",
+  "release": "11.22",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -158,9 +158,9 @@
     {
       "id": "parakeet",
       "maturity": "INSTALLABLE",
-      "claim": "The reviewed Parakeet int8 image is digest-pinned, loopback-only and wired as a Hermes command-STT provider plus Discord audio failover; live transcription acceptance remains pending on each Host.",
+      "claim": "The reviewed Parakeet int8 image is digest-pinned and loopback-only. Explicit station voice setup enrolls one OS role's native OpenAI-to-Parakeet STT provider, including voice notes. The older AGK operator hook remains channel-only; live provider/chat acceptance is separate.",
       "binary_probes": ["podman", "ffmpeg"],
-      "next_repair_action": "Install with station deps install --component parakeet, verify /health, then transcribe a synthetic Discord voice note in the owning Zone."
+      "next_repair_action": "Verify the local service, explicitly enroll the intended role through station voice setup, rerun instance verification, then prove native fallback and actual voice-note/channel delivery."
     },
     {
       "id": "tigervnc",

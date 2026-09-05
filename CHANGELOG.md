@@ -1,5 +1,12 @@
 # Changelog
 
+## 11.22 — Explicit native voice-note fallback (2026-09-05)
+
+- Add the profile-scoped native Hermes `station-openai-parakeet` provider: OpenAI primary, bounded local Parakeet fallback on failure, and no retry of successful silence.
+- Add explicit, one-role `station voice setup` enrollment through the normal pinned native plugin installer and security guard. Refuse occupied names, disabled scanning/STT and conflicting settings; preserve immutable OS bundles and other profiles.
+- Document profile-wide STT scope, upstream compatibility seams, native optional recovery and outstanding live-chat/paid-provider acceptance.
+- Record final 11.21 VPS acceptance and the still-blocked Ponytail upstream recheck; no guard bypass or dependency pin changes.
+
 ## 11.21 — Governed native caches and post-execution readback (2026-09-05)
 
 - preserve the successful full 11.20 VPS bootstrap and all six native DevOps

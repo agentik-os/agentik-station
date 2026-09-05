@@ -45,6 +45,16 @@ Important boundaries remain:
 - The gateway rewrite helper returns "not denied" when gateway/event/access-checker/source context is missing, although checker exceptions deny access. It must not be treated as an independent fail-closed authorization boundary.
 - Enablement must be scoped to the intended engineering principals, with native gateway slash-command access controls verified. Upstream's [post-install instructions](https://raw.githubusercontent.com/DietrichGebert/ponytail/0a4dd63ad4541f4f655c4108a295916f3c1d8fda/after-install.md) explicitly warn about shared gateways and process-local mode.
 
+## Upstream recheck — 2026-09-05
+
+A subsequent read-only review found no published, reviewed fix for this installation blocker:
+
+- The [latest release](https://github.com/DietrichGebert/ponytail/releases) remains `v4.9.0` at Station's pinned `0a4dd63ad4541f4f655c4108a295916f3c1d8fda`. Its [assets](https://github.com/DietrichGebert/ponytail/releases/expanded_assets/v4.9.0) remain full-source ZIP/tar archives, not a Hermes-specific distribution.
+- Upstream `main` was read back at [`974d940a1c5344210874150b98ff0d2c861fab6a`](https://github.com/DietrichGebert/ponytail/commit/974d940a1c5344210874150b98ff0d2c861fab6a). The [six commits since v4.9.0](https://github.com/DietrichGebert/ponytail/compare/v4.9.0...974d940a1c5344210874150b98ff0d2c861fab6a) concern other host adapters and README badges, not a Hermes scanner/distribution repair. Both traversal examples remain in the independently read [benchmark README](https://raw.githubusercontent.com/DietrichGebert/ponytail/974d940a1c5344210874150b98ff0d2c861fab6a/benchmarks/agentic/README.md) and [task source](https://raw.githubusercontent.com/DietrichGebert/ponytail/974d940a1c5344210874150b98ff0d2c861fab6a/benchmarks/agentic/tasks.py) at that revision.
+- Official-repository issues [#781](https://github.com/DietrichGebert/ponytail/issues/781) and [#783](https://github.com/DietrichGebert/ponytail/issues/783) remained open, with no linked repair or maintainer resolution visible. Their reporter records **93 findings at `2ed6c52c9d7e5e56942508591085fd45dea277d3`**; that is not Station's independently observed **90 findings at `0a4dd63…`**. The proposed minimal Hermes distribution is a request, not an available release.
+
+This recheck changed no pin, installation or security setting and did not rerun the scanner. The retained triggering content supports keeping the blocker open; it is not a newly measured verdict for upstream `main` or a clearance of the remaining findings.
+
 ## Permitted next action
 
 The reviewed [v4.9.0 release assets](https://github.com/DietrichGebert/ponytail/releases/expanded_assets/v4.9.0) expose only complete source ZIP and tar archives, not a separate reviewed Hermes distribution.

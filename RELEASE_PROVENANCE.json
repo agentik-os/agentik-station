@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.21",
+  "release": "11.22",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1134,
+  "subject_count": 1142,
   "subjects": [
     {
       "executable": false,
@@ -80,8 +80,8 @@
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "9883a3a881c3197d06fc323894e56dcabc841e1b818563fe5efc871928f31bbc",
-      "size": 14987
+      "sha256": "103799650aea15c14dcefba437e55a0fdd90fac517f86e910f5685091725533e",
+      "size": 15741
     },
     {
       "executable": false,
@@ -110,7 +110,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "26b51ed5daf9abe7104b5a307cf5ab97c63da00bf6ba54fec09d18e3aaad6cb2",
+      "sha256": "ea0c98c3541c496d28319e3943713432726c16f1049463bb6b4e77f9235be6c9",
       "size": 20672
     },
     {
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "7f6b66636be1d3e6fa54f6b69bca250fe00b5931957d0598f03d522b62a06643",
-      "size": 42806
+      "sha256": "1af4ecd9fadd9311e726b84ee833ed37ba7e1a1b062672c52ed98b300e459af1",
+      "size": 43217
     },
     {
       "executable": false,
@@ -146,7 +146,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "c9fbac2078264c5fc7e917f3b8c8de2f3e427c7c818b56cb1746f30ce9fe3f9f",
+      "sha256": "02f44a8dfe66d105066e30ff6e2a0e12b892ecd7fa3b32757fea3c714f397723",
       "size": 83216
     },
     {
@@ -158,8 +158,8 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "06bb8bde30c1c373e091de2f4427d370e4a7e4683bed2505bc5743dd953fc21c",
-      "size": 14462
+      "sha256": "f92f06fc7c7788c93c356685555aac51a4fdd5d5ed512940c39766c90330c334",
+      "size": 14565
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "c37e1cbc24c85ee1c84e6a79e34dd958f946af6dce709981d058eedb796e1292",
-      "size": 16164
+      "sha256": "c13ec6d10450665f4d454e0ae913b99e878f5ce4b89fb9cc2a60e8ad44a2ec8e",
+      "size": 19430
     },
     {
       "executable": false,
@@ -188,14 +188,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "6a7566ce5bb3c8b59a8ce8085b50898abe862ecba31206907a7c565c1d0f6558",
+      "sha256": "31a64c7693e0fa4f5ef0222a463c84b00d66971c585e0151e85b402cd29770cf",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "4993e3a3eb62e4376d5f24b8c5a52d005bb607fc11f2878949085bf696470292",
-      "size": 59610
+      "sha256": "80276ac7fb75d3fdd050787631d1808378dab3a369eff259f543692bcf263f51",
+      "size": 59861
     },
     {
       "executable": true,
@@ -1058,8 +1058,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "806afded37933abec6f83482ecb704fca52303666a39938dd51da7f7883e0191",
-      "size": 6017
+      "sha256": "07144cb962e2b338904d3fcebc4ac8a95dd7c8220012a938ac9493a2e98e8340",
+      "size": 6141
     },
     {
       "executable": false,
@@ -1316,7 +1316,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "a0627bdf2154df16a60c3311b8ce5cc6ac001ec803b681681d201b280119c3e3",
+      "sha256": "15936d6108cb2c02edcffc9b45d21db162586403c4f6d7125272a2d5485125fd",
       "size": 2339
     },
     {
@@ -1478,8 +1478,8 @@
     {
       "executable": false,
       "path": "docs/audit/2026-09-05-ponytail-native-scan.md",
-      "sha256": "c93d94d1b4ae6e449cbf0772f050d9bd50d51cb4e29628cb66b2722af9dafe7b",
-      "size": 5689
+      "sha256": "2c24d8891402d2a473dcdbd84faf8dedfe23fa458f11678b5a7c29c05d3ff47d",
+      "size": 7635
     },
     {
       "executable": false,
@@ -1616,8 +1616,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/VOICE_AND_GUIDED_SETUP.md",
-      "sha256": "02d65d54ca2a664d595ff92859e07e1e7a5d74e8223cda81fbe6477943309b9d",
-      "size": 8828
+      "sha256": "fc107aad74e0af0ef415036edc753f7d59c86001506b586899254aa492a54b7f",
+      "size": 12387
     },
     {
       "executable": false,
@@ -1712,8 +1712,8 @@
     {
       "executable": false,
       "path": "docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd",
-      "sha256": "5f07ec42439acdd07e85aca76b138d0701cf1c0ab18d1abdc11e51d658df73c2",
-      "size": 1040
+      "sha256": "a92bf303aca02e22d7f2694b5b5cb3dd0618989bf505f2297e10bf085194f72c",
+      "size": 1132
     },
     {
       "executable": false,
@@ -2810,8 +2810,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "603b5983cd0f6709eb2ff9ac21430fad13d5777c4e99f8602f4c6d183a346c7e",
-      "size": 10642
+      "sha256": "6d4c7718c523e889786c5f8b646f5f3b92c84dc6a6805504250016bb46ce27f9",
+      "size": 10769
     },
     {
       "executable": false,
@@ -3056,7 +3056,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "65ca0402140a2e8332e12d132739cec5b97a3a6827f2a50ff6e3803032ffbe23",
+      "sha256": "c5c2aea46614dae287358fa982d8c9bb44d0b3725e7b7baebf2fc9781ba848f5",
       "size": 3188
     },
     {
@@ -5822,7 +5822,7 @@
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "12784b2cab93a6400e019011f2962b0f0558653c5e770c417cbe7d138d8231ba",
+      "sha256": "beb03f5ed42bd72419538c05a49dbcb01dccd8de61f770f1b48abe4a4de07c0e",
       "size": 720
     },
     {
@@ -5980,6 +5980,24 @@
       "path": "runtime/hermes-station/hermes/plugins/station-discord-experience/tools.py",
       "sha256": "12b1de3a10fa917b8dd8c4771d8be713e7bf292b27a89843f911c77601f4071a",
       "size": 4615
+    },
+    {
+      "executable": false,
+      "path": "runtime/hermes-station/hermes/plugins/station-voice/README.md",
+      "sha256": "8fb96ac1f2e3393bc31fcf3ddf68b5b5dea92d09888793e42497ff7bf1b4bfca",
+      "size": 4839
+    },
+    {
+      "executable": false,
+      "path": "runtime/hermes-station/hermes/plugins/station-voice/__init__.py",
+      "sha256": "8693e32d7ee3fb5a7c78be53a1bd0b1f5929a5ba94aa31fbed9cd71231b2fb90",
+      "size": 9915
+    },
+    {
+      "executable": false,
+      "path": "runtime/hermes-station/hermes/plugins/station-voice/plugin.yaml",
+      "sha256": "1b149fe5b0e0251f4cd9772d6f8345b68d178c6c6f8107bb40b23dffac638c16",
+      "size": 257
     },
     {
       "executable": true,
@@ -6248,8 +6266,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/cli.py",
-      "sha256": "b0e46898a49cfddbaf641c394571dbfaf3b8eea5de918d7da4d75d5bbc0e073b",
-      "size": 72036
+      "sha256": "b25d21e40466ae3680e652f071e1682bc15f4f25f70741fed6202be4345acb84",
+      "size": 73777
     },
     {
       "executable": false,
@@ -6260,7 +6278,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "632e1df731d5d8f200d986bd12e3ff124321d2fc36c782d3bf902f510a90756b",
+      "sha256": "4b06e271c5da21a5809a1a1c483a17236550e6d9817cddbc7a608f3084b700cb",
       "size": 1851
     },
     {
@@ -6328,6 +6346,12 @@
       "path": "src/agentik_station/models.py",
       "sha256": "5e2214d2dcb3781fb5f8b04cef8001494fd80ea5d416e20bddfe1ab96ecb69ce",
       "size": 9128
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/native_process.py",
+      "sha256": "0993df652caaeefc3d3db81fd01909713d3465a174db0abf84483c76a9699dad",
+      "size": 6982
     },
     {
       "executable": false,
@@ -6448,6 +6472,12 @@
       "path": "src/agentik_station/strix.py",
       "sha256": "fde454e4eedd3b145280b8e485b0db6fd529f230105e28e84d24a85efd4e68a0",
       "size": 21187
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/voice.py",
+      "sha256": "550dda2f034a996aa7add7059e32161fe916edda594b7cd7cec0294b6d6ac501",
+      "size": 16912
     },
     {
       "executable": true,
@@ -6631,6 +6661,12 @@
     },
     {
       "executable": false,
+      "path": "tests/security/test_native_process.py",
+      "sha256": "3962d1b16165d7c57240ac1c3374b72d75dc6c5230d35f6590033dd5d726f495",
+      "size": 9375
+    },
+    {
+      "executable": false,
       "path": "tests/security/test_organizations.py",
       "sha256": "b99e41e58b384e5c8fecbf770cd5fdbe1eaa51bc691f5e9bc884bdb2de1239ac",
       "size": 9205
@@ -6799,6 +6835,12 @@
     },
     {
       "executable": false,
+      "path": "tests/unit/test_station_voice_provider.py",
+      "sha256": "76feccd0b2ad991d3bc41884a71529533b5b96e180c1fb7650625b772f522f9a",
+      "size": 22600
+    },
+    {
+      "executable": false,
       "path": "tests/unit/test_tailscale_readiness.py",
       "sha256": "c768bcda5b61329c6df95591a3457d8d17848f2fcc28bc692049f8e6bfa4bfaa",
       "size": 927
@@ -6814,6 +6856,12 @@
       "path": "tests/unit/test_voice_check.py",
       "sha256": "518d5c9a448df4005a67fd155ecb6c712d2f3e41f7f1588a64c9a253cf241901",
       "size": 9621
+    },
+    {
+      "executable": false,
+      "path": "tests/unit/test_voice_enrollment.py",
+      "sha256": "7d504c14e1a9fa94d7518d93f49393b6c3909444cc84ca266997ff749ddc288f",
+      "size": 21329
     }
   ]
 }

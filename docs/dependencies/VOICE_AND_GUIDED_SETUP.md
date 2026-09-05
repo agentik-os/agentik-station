@@ -2,35 +2,88 @@
 
 Hermes remains the single runtime brain. Station adds two host capabilities around it:
 
-1. a reviewed voice path with OpenAI audio as primary and local Parakeet ASR as Discord voice-channel failover;
+1. a reviewed, explicitly enrolled native voice provider with OpenAI audio as primary and local Parakeet ASR as failover;
 2. a one-time setup-link broker that lets an authorized bot show a short Tailnet-only button instead of asking a human to manipulate the terminal or paste a secret into chat.
 
-Every bot still runs as the owning Zone Unix user with that Zone's `HERMES_HOME`. Parakeet is a shared, unauthenticated loopback service accessible to local Zones, not a per-Zone ASR service or tenant-isolated boundary.
+Every bot still runs as the owning Zone Unix user. Canonical OS profiles use their instance's dedicated `HERMES_HOME` and retain the Zone's shared Unix `HOME`. Parakeet is a shared, unauthenticated loopback service accessible to local Zones, not a per-Zone ASR service or tenant-isolated boundary.
 
 Diagram source: [`docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd`](../diagrams/15_GUIDED_SETUP_AND_VOICE.mmd).
 
-## Default voice topology
+## Explicitly enrolled voice topology
 
 ```text
-Discord voice-channel input
+Native voice note / voice-channel input
   → owning Hermes gateway/profile
+  → native authorization and message handling
+  → selected station-openai-parakeet STT provider
   → OpenAI gpt-transcribe (primary)
-  → if native channel STT fails: 127.0.0.1:5092 Parakeet (local fallback)
+  → on valid failure: 127.0.0.1:5092 Parakeet (local fallback)
   → transcript enters the same Hermes session
   → Hermes central reasoning + OS team/tools
   → OpenAI gpt-4o-mini-tts, voice alloy
   → voice response on the originating Hermes surface
 ```
 
-The shipped Parakeet hook is in the Discord adapter's PCM voice-channel path
-(`_process_voice_input`). Uploaded voice notes/attachments use Hermes' separate
-message-transcription path; Station does not currently wire that path to
-Parakeet. The channel hook runs only after native transcription returns failure,
-not necessarily after the first OpenAI failure if Hermes recovers internally.
-Do not claim voice-note Parakeet fallback from an HTTP health check or direct
-adapter test. Extending it needs a reviewed adapter/OS release and live acceptance.
+The `station-voice` plugin registers a native `TranscriptionProvider`; it does
+not intercept messages, run before authorization or patch the gateway. Explicit
+selection applies to **all native STT in that profile**, including native voice
+notes and channel audio on applicable Hermes surfaces. It is not Discord-only.
+Ordinary `AUDIO` attachments are not automatically treated as `VOICE` messages.
+Successful silence does not trigger a retry. Native gateway recovery may still
+try another local backend after both stages fail.
+
+The older AGK shared-operator Discord adapter has a separate PCM channel-only
+fallback (`_process_voice_input`); canonical OS bundles do not ship that override.
+Do not combine both fallback mechanisms in one profile without reviewing duplicate
+retries. Neither an HTTP health check nor a synthetic dispatcher test establishes
+real Discord voice-note delivery.
 
 Bootstrap installs Hermes' explicit `voice` and `messaging` extras plus `ffmpeg`, Opus and PortAudio. It seeds new Zone configs from [`config/hermes/voice.default.yaml`](../../config/hermes/voice.default.yaml), but never overwrites an existing `config.yaml`.
+
+### Enroll one OS role
+
+After installing the OS instance, review its exact role and a published Station
+commit containing this plugin. Run from that reviewed checkout:
+
+```bash
+station_revision="$(git rev-parse HEAD)"
+sudo station voice setup --zone dev --instance engineering --role atlas \
+  --revision "$station_revision" --plan
+sudo station voice setup --zone dev --instance engineering --role atlas \
+  --revision "$station_revision"
+sudo station os instance verify --zone dev --instance engineering
+```
+
+The command resolves the role through the trusted instance ledger, switches to
+the owning Unix identity and invokes the native pinned Git plugin installer.
+The normal security scan, plugin Doctor and enablement run before selecting
+`stt.station-openai-parakeet.model=gpt-transcribe` and, last,
+`stt.provider=station-openai-parakeet`. No secret is supplied in these arguments.
+Native command output is withheld from enrollment evidence.
+
+Execution reads back the narrow **effective** native settings, including managed
+configuration overlays; the pure `--plan` only reads Station authority and local
+profile configuration. Ambiguous literal dotted keys are refused. Linux native
+commands have bounded captured output and supervised process-group cleanup on
+timeout/cancellation. This is trusted-command supervision, not a hostile-process
+sandbox or a guarantee against supervisor SIGKILL.
+
+Enrollment refuses an occupied plugin name, disabled scanning/STT, conflicting
+STT provider or a same-name command provider. It does not force replacement or
+silently adopt a partial earlier install. A failed step returns `INCOMPLETE`;
+inspect the exact profile and repair through native Hermes before retrying.
+It is a sequence of native operations, not a transactional rollback. Keep an
+approved private profile backup before making configuration changes. Native
+configuration changes invalidate prior instance verification; rerun the full-team
+verify command. Existing immutable OS bundles and other profiles are not changed.
+
+Repeat explicitly for another intended role, not every profile by default.
+Restart an already-running gateway through its instance-aware Station command
+after verification, then prove live delivery. The selected custom provider uses
+the profile's direct OpenAI credentials, not managed Nous credit fallback.
+Native `cloud_trim_silence` does not automatically apply to a custom provider.
+The narrow private OpenAI helper is pinned and must be revalidated after Hermes
+updates; details and limits are in the [plugin contract](../../runtime/hermes-station/hermes/plugins/station-voice/README.md).
 
 The bootstrap check is deliberately **headless**: it imports the server-side Python dependencies, exercises PyNaCl `Aead`, verifies the installed sounddevice package and its PortAudio library binding without initializing audio devices, and runs synthetic Discord Opus and ffmpeg PCM/Opus round-trips. Missing or broken required dependencies still fail installation. It does not connect a Discord bot, call an audio provider, download a speech model, or start an audio daemon.
 
@@ -67,6 +120,12 @@ The current external-readback claim is deliberately narrower: the Discord button
 A Discord bot cannot create its own Discord application or mint its own token. A human server owner must create/authorize the first application and enter its token through Hermes' secure Zone setup. Temporary Administrator may be granted only for an explicit topology bootstrap window and must be removed and read back afterward.
 
 Once that first gateway and Tailscale are enrolled, routine provider setup can move into the bot experience.
+
+The current broker writes the **Zone-base** Hermes credential location; it does
+not enroll an OS instance's dedicated profile automatically. For an instance
+Director, use `station os instance setup --zone <zone> --instance <instance>`
+and the native scoped credential flow. Never copy credentials between these
+homes to make a voice or gateway check pass.
 
 ## Enable the protected setup broker
 
@@ -109,6 +168,6 @@ Installation proves only `INSTALLABLE`/`READY_FOR_SETUP`. Before claiming voice 
 2. setup link expiry, one-time use, wrong-principal delivery prevention and absence of secrets in chat/log/session/evidence;
 3. provider login or key readback from the owning Zone;
 4. OpenAI STT and TTS round-trip;
-5. forced native channel-transcription failure followed by successful Parakeet transcription;
+5. explicit role enrollment, then forced primary failure followed by successful Parakeet transcription through the native dispatcher;
 6. Discord voice note and voice-channel reply;
 7. gateway restart/reboot persistence and least-privilege guild permissions.

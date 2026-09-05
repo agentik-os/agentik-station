@@ -1,4 +1,37 @@
-# Agentik Station 11.21 Validation
+# Agentik Station 11.22 Validation
+
+## Native profile voice provider — 11.22
+
+This release adds opt-in, one-role enrollment of a native Hermes transcription
+provider. It leaves independently versioned OS bundles and other profiles intact.
+OpenAI success, silence, failures, compatibility errors, fixed local execution
+and adversarial filesystem cases have separate unit coverage. Native installation,
+dispatcher/audio readback and full release gates must pass before VPS acceptance;
+none of these substitutes for an authenticated OpenAI or live Discord round-trip.
+
+Before publication, the corrected plugin payload passed the VPS's pinned native
+Hermes security guard with a `SAFE` verdict (one medium subprocess-use finding,
+allowed by the normal policy) and native plugin Doctor's import/registration
+checks. No scan setting, trust exception or force flag was used. A direct native
+provider-ABC call, with OpenAI failure deliberately simulated, invoked the real
+loopback Parakeet adapter as `z-agentik` and matched the clear synthetic fixture.
+The native OpenAI helper signature was checked without making a paid request.
+This staged check is not installed-profile dispatcher or Discord acceptance.
+
+Independent review caught and corrected cross-UID audio-path substitution,
+raw-versus-managed configuration ambiguity, native subprocess timeout cleanup
+and a cancellation race during child creation. Real VPS `runuser --user`
+readback confirmed the child retains the supervisor's new session/process group.
+The bounded command supervisor deliberately supports the Linux Host target only;
+macOS skips its real Linux process tests, which require CI/VPS execution. It is
+not containment for hostile daemons that create another session, or for a
+supervisor killed with SIGKILL.
+
+The complete 11.22 Station/Factory suite passed **1,345 tests**, with **15
+Linux-only process cases skipped on macOS**. Focused coverage includes 116 voice
+provider, 108 enrollment and 17 locally executable supervisor cases. Repository
+Doctor and deterministic release metadata checks passed. Real Linux process
+tests, installed-profile dispatch and deployment readback remain separate gates.
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -198,6 +231,23 @@ publication. Independent review found and corrected an immutable-directory
 permission check before final validation. Repository Doctor, deterministic
 metadata, shell syntax and diff checks passed. Live cache-policy and post-probe
 acceptance readback are required before accepting the new deployment.
+
+The final 11.21 commit, `534bba5fe52377911584dba4b8c4406342cde25a`, then passed
+all six GitHub Actions jobs. The eighth actual VPS bootstrap,
+`op-20260905-040517-17806b86`, completed **19/19 stages**, publishing immutable
+11.21 beside 11.20. Full VPS acceptance passed all nine gates and the final fresh
+Doctor: **188 checks, zero issues**. Evidence is retained at
+`/tmp/station-vps-acceptance.20260905-11-21.json` on that VPS; its claim is
+`VERIFIED_INSTALL_READY_FOR_EXTERNAL_SETUP`, with external accounts explicitly
+false. A later read-only Doctor rerun again passed all 188 checks.
+
+All six `dev/engineering` native profile Doctors and local readback passed again;
+the ledger is `VERIFIED`, not operational. Its immutable DevOps OS 11.12 bundle
+remained unchanged. A fresh direct Parakeet adapter request again transcribed the
+clear synthetic sample successfully with private output. No paid audio request,
+Discord delivery, Hermes update/restore or off-Host recovery was executed.
+Ponytail remains security-blocked; its dated upstream recheck found no installable
+fix and did not bypass or rerun the blocked installation.
 
 ## Previous client-instance validation — 11.14
 

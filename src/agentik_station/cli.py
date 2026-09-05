@@ -1069,6 +1069,26 @@ def cmd_os_instance(args: argparse.Namespace) -> int:
     return 0 if record["state"] in ({"VERIFIED"} if args.instance_command == "verify" else {"CONFIGURED", "VERIFIED"}) else 1
 
 
+def cmd_voice_setup(args: argparse.Namespace) -> int:
+    """Explicit, native-plugin enrollment for one trusted OS instance role."""
+    from .voice import enroll_voice_profile, prepare_voice_enrollment
+
+    hermes, runuser = shutil.which("hermes"), shutil.which("runuser")
+    if not hermes or not runuser:
+        raise StationError("Hermes and runuser must be installed before voice enrollment")
+    action = prepare_voice_enrollment if args.plan else enroll_voice_profile
+    try:
+        result = action(
+            LayoutPaths.live(), zone=_load_zone_record(args.zone),
+            instance_id=args.instance, role=args.role, revision=args.revision,
+            hermes_binary=hermes, runuser_binary=runuser,
+        )
+    except (OSError, ValueError, subprocess.SubprocessError):
+        raise StationError("Voice enrollment could not read or execute the selected profile safely; inspect its native state before retrying.") from None
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 1 if result.get("state") == "INCOMPLETE" else 0
+
+
 def cmd_strix(args: argparse.Namespace) -> int:
     try:
         return _cmd_strix(args)
@@ -1561,6 +1581,16 @@ def build_parser() -> argparse.ArgumentParser:
         command.add_argument("--role", help="Explicit instance team role; requires --instance and a justified external bot topology")
         command.add_argument("--plan", action="store_true")
         command.set_defaults(handler=cmd_platform_gateway)
+
+    voice = sub.add_parser("voice", help="Explicit profile-scoped native speech transcription")
+    voice_sub = voice.add_subparsers(dest="voice_command", required=True)
+    voice_setup = voice_sub.add_parser("setup", help="Enroll one instance role: OpenAI then local Parakeet")
+    voice_setup.add_argument("--zone", required=True)
+    voice_setup.add_argument("--instance", required=True)
+    voice_setup.add_argument("--role", required=True)
+    voice_setup.add_argument("--revision", required=True, help="Reviewed immutable Station Git commit (40 hex characters)")
+    voice_setup.add_argument("--plan", action="store_true")
+    voice_setup.set_defaults(handler=cmd_voice_setup)
 
     return parser
 

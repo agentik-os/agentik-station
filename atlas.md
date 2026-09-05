@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.21`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.22`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Visual companion:** the [README system maps](README.md#the-whole-system) explain
 the full topology, VPS install, OS factory, chat enrollment, filesystem and evidence
@@ -652,11 +652,11 @@ Voice is an input/output transport, not a second agent brain. Station installs H
 
 ```text
 STT primary: OpenAI gpt-transcribe
-STT Discord voice-channel failover: local Parakeet v0.8.0 on 127.0.0.1:5092
+Opt-in profile-wide STT failover: local Parakeet v0.8.0 on 127.0.0.1:5092
 TTS: OpenAI gpt-4o-mini-tts, voice alloy
 ```
 
-The OpenAI key stays in the owning Zone. Parakeet is local ASR/STT, not TTS; its reviewed int8 image is pinned by digest, read-only, capability-dropped and resource-limited. It is a shared unauthenticated loopback service, not tenant-isolated ASR. The shipped hook retries a Discord voice-channel sample through Parakeet only when native transcription returns failure. Uploaded voice notes use a separate Hermes path that is not currently connected to this hook. The resulting transcript enters the same Hermes session, OS Director and mission graph as text. Voice becomes `OPERATIONAL` only after applicable paid OpenAI STT/TTS, forced channel fallback, Discord voice-note/channel and restart readback pass; voice-note Parakeet fallback still requires implementation in a reviewed adapter/OS release.
+The OpenAI key stays in the owning profile. Parakeet is local ASR/STT, not TTS; its reviewed int8 image is pinned by digest, read-only, capability-dropped and resource-limited. It is a shared unauthenticated loopback service, not tenant-isolated ASR. Explicit [`station voice setup`](docs/dependencies/VOICE_AND_GUIDED_SETUP.md#enroll-one-os-role) enrollment adds the native `station-openai-parakeet` provider to one instance role: OpenAI first, Parakeet on a valid failure, no retry for successful silence. This covers native voice-note and channel STT in that profile, not every arbitrary audio attachment. Existing immutable OS bundles and other profiles remain unchanged. The older AGK operator adapter has a separate channel-only fallback and should not be combined with this provider without reviewing duplicate retries. The transcript enters the same Hermes session, OS Director and mission graph as text. Voice becomes `OPERATIONAL` only after paid OpenAI STT/TTS, forced fallback, real Discord voice-note/channel and restart readback pass.
 
 ## 14. DevOps OS team map
 
@@ -988,7 +988,7 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - [ ] Messaging passes inbound, outbound, unauthorized-user and restart tests.
 - [ ] Tailscale setup links are private, expire/consume once, and leave no credential in chat, argv, logs, session state or evidence.
 - [ ] OpenAI `gpt-transcribe` and `gpt-4o-mini-tts` pass a real Zone-scoped round-trip.
-- [ ] Forced native Discord voice-channel transcription failure proves channel fallback to local Parakeet; uploaded voice notes are tested separately.
+- [ ] Explicit role enrollment and forced primary failure prove local Parakeet fallback; real Discord voice-note and channel delivery are tested separately.
 - [ ] DevOps work passes Architect → Forge → Sentinel → Release → SRE gates as applicable.
 - [ ] Every client has a complete `.client/operations.yaml`; Blocked records contain all five fields and correction loops preserve their original context.
 - [ ] Composio Discord is bound to the exact Zone principal, passes an approved read-only probe and cannot select another Zone account.

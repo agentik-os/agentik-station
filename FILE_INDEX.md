@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1137
+Total files: 1145
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -1000,6 +1000,9 @@ Total files: 1137
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/schemas.py`
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/state.py`
 - `runtime/hermes-station/hermes/plugins/station-discord-experience/tools.py`
+- `runtime/hermes-station/hermes/plugins/station-voice/README.md`
+- `runtime/hermes-station/hermes/plugins/station-voice/__init__.py`
+- `runtime/hermes-station/hermes/plugins/station-voice/plugin.yaml`
 - `runtime/hermes-station/hooks/station_context_injector.py`
 - `runtime/hermes-station/hooks/station_policy_guard.py`
 - `runtime/programs/discord_experience_worker.py`
@@ -1058,6 +1061,7 @@ Total files: 1137
 - `src/agentik_station/installer.py`
 - `src/agentik_station/maturity.py`
 - `src/agentik_station/models.py`
+- `src/agentik_station/native_process.py`
 - `src/agentik_station/onboarding.py`
 - `src/agentik_station/organizations.py`
 - `src/agentik_station/os_contract.py`
@@ -1078,6 +1082,7 @@ Total files: 1137
 - `src/agentik_station/resources.py`
 - `src/agentik_station/runtime_links.py`
 - `src/agentik_station/strix.py`
+- `src/agentik_station/voice.py`
 - `station`
 - `station.sh`
 - `station.yaml.example`
@@ -1108,6 +1113,7 @@ Total files: 1137
 - `tests/security/test_bootstrap_workflow.py`
 - `tests/security/test_doctor_boundaries.py`
 - `tests/security/test_existing_zone_identity.py`
+- `tests/security/test_native_process.py`
 - `tests/security/test_organizations.py`
 - `tests/security/test_os_compiler_boundaries.py`
 - `tests/security/test_os_instances.py`
@@ -1136,6 +1142,8 @@ Total files: 1137
 - `tests/unit/test_onboarding.py`
 - `tests/unit/test_orchestration_cli.py`
 - `tests/unit/test_release_generation.py`
+- `tests/unit/test_station_voice_provider.py`
 - `tests/unit/test_tailscale_readiness.py`
 - `tests/unit/test_toolchain_launchers.py`
 - `tests/unit/test_voice_check.py`
+- `tests/unit/test_voice_enrollment.py`

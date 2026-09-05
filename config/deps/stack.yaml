@@ -15,7 +15,7 @@ hermes:
     schedule: weekly
     note: Enabled by bootstrap unless --skip-hermes-auto-update; updates run as agk-station, with backup, Doctor and receipt.
 voice:
-  policy: OpenAI audio is the reviewed primary path; local Parakeet is installed as the Discord failover and a selectable Hermes command provider.
+  policy: OpenAI audio is primary; local Parakeet is installed as a selectable command provider. Explicit station voice setup enrolls one OS role's native OpenAI-to-Parakeet provider for voice notes and other native STT; the older AGK operator hook remains channel-only.
   hermes_extras: [voice, messaging]
   system_packages: [ffmpeg, libopus0, portaudio19-dev]
   stt:

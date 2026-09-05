@@ -1,0 +1,9 @@
+name: station-voice
+version: 1.0.0
+description: Profile-selected OpenAI speech transcription with bounded local Station Parakeet fallback.
+author: Agentik OS
+kind: backend
+entrypoint: __init__:register
+requires_env: []
+provides_tools: []
+provides_hooks: []

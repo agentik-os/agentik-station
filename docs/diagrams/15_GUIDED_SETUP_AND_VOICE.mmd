@@ -16,8 +16,9 @@ flowchart LR
     BROKER -->|allowlisted redirect| AUTH[Hermes / Composio / device auth]
 
     AUDIO[Voice input / Discord audio] --> GATEWAY
-    GATEWAY -->|primary STT| OPENAI_STT[OpenAI gpt-transcribe]
-    GATEWAY -->|voice-channel native STT failure only| PARAKEET[Shared local Parakeet<br/>127.0.0.1:5092]
+    GATEWAY -->|authorized native STT in enrolled profile| STT[station-openai-parakeet<br/>explicit role selection]
+    STT -->|primary| OPENAI_STT[OpenAI gpt-transcribe]
+    OPENAI_STT -->|valid failure only| PARAKEET[Shared local Parakeet<br/>127.0.0.1:5092]
     OPENAI_STT --> BRAIN
     PARAKEET --> BRAIN
     BRAIN -->|TTS| OPENAI_TTS[OpenAI gpt-4o-mini-tts]
