@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.16
+## Supported base for Station 11.17
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.16",
+  "release_version": "11.17",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -393,7 +393,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.16 publishes beside earlier releases; it never overwrites an old
+Station 11.17 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

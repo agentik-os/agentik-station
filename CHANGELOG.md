@@ -1,5 +1,16 @@
 # Changelog
 
+## 11.17 — Complete native npm handoff (2026-09-05)
+
+- reserve only recognized predecessor npm/npx launchers while the complete
+  native package installation runs; restore them on failure and publish only
+  after validating the requested npm package;
+- cover the extraction/reification path that executes before npm's rebuild
+  phase, including preserved unrelated files and interrupted handoff state.
+
+The failed 11.16 live attempt exposed this missing path despite green source/CI
+tests. The actual VPS reproduction and remaining gates are in `VALIDATION.md`.
+
 ## 11.16 — Native installer retry correctness (2026-09-05)
 
 - disable lifecycle scripts specifically during npm self-upgrade, together with

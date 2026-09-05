@@ -1,4 +1,4 @@
-# Agentik Station 11.16 Validation
+# Agentik Station 11.17 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -28,9 +28,29 @@ installation to the reviewed commit. Its complete Station/Factory suite passed
 **825 tests**, including native npm Arborist and real-Git retry regressions.
 The three GitHub Actions dependencies now use verified immutable Node 24-based
 release pins; jobs, permissions, gates and the Python matrix are unchanged.
-Corrected full bootstrap, real named-instance
-installation and external provider/chat/recovery acceptance remain pending at
-this checkpoint. Source tests are not a successful VPS installation.
+All six 11.16 CI jobs passed. A third live attempt preserved the exact Hermes
+commit and all three pre-existing private configuration files byte-for-byte,
+but the complete npm install still hit `EEXIST` in Arborist's earlier extraction
+phase. The rebuild-only regression did not cover that path.
+
+A separate, disposable VPS prefix reproduced this with actual Node 24.20.0 and
+bundled npm 11.19.0. Reserving only its two synthetic predecessor symlinks allowed
+the complete npm 12.0.2 installation and version readback to succeed. This is
+evidence for the handoff strategy. The revised, exact production helper was then
+executed in a second disposable VPS prefix with a copy of that same native Node
+bundle: installation, repeat installation, version readback, both launcher
+targets and absence of leftover reservations passed. The real operator prefix
+was not modified by these fixtures. The failed attempt and private configuration
+backup remain.
+
+The 11.17 full Station/Factory suite passed **830 tests**. Its focused launcher
+suite passed **29 tests**, including complete offline
+native npm installation and rollback on native failure, invalid package and
+SIGTERM. Recovery restores launcher links, not arbitrary npm package contents.
+
+Corrected full bootstrap, real named-instance installation and external
+provider/chat/recovery acceptance remain pending at this checkpoint. Source
+tests are not a successful VPS installation.
 
 ## Previous client-instance validation — 11.14
 

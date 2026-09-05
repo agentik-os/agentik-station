@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 
 import pytest
 
@@ -113,7 +114,7 @@ check({bin:'npm',path:process.argv[2],top:true,global:true,force:false})
 
 @pytest.mark.parametrize("kind", ["bundled", "hermes"])
 def test_native_arborist_requires_both_flags_to_skip_global_bin_conflict(layout, kind):
-    """Real rebuild queue reproduces the live failure that check-bin missed."""
+    """Rebuild alone skips checks; this does NOT prove full reify is safe."""
     npm_root, node = native_npm()
     arborist = npm_root / "node_modules/@npmcli/arborist"
     if not arborist.is_dir():
@@ -153,6 +154,66 @@ const arb = new Arborist({path:process.argv[2],global:true,binLinks:false,
     assert handoff.returncode == 0, handoff.stderr
     for name in before:
         assert os.readlink(layout[1] / name) == f"../lib/node_modules/npm/bin/{name}-cli.js"
+
+
+@pytest.mark.parametrize("kind", ["bundled", "hermes"])
+def test_complete_native_npm_install_requires_reserving_predecessors(layout, kind):
+    """Exercise real npm install/reify from an offline, bundled local tarball."""
+    npm_root, node = native_npm()
+    npm_cli = npm_root / "bin/npm-cli.js"
+    if not npm_cli.is_file():
+        pytest.skip("native npm CLI unavailable")
+    home, bins, bundle = layout
+    seed_links(layout, kind)
+    package = home / "fixture-package"
+    (package / "bin").mkdir(parents=True)
+    (package / "node_modules/station-fixture-dep").mkdir(parents=True)
+    marker = home / "lifecycle-must-not-run"
+    (package / "package.json").write_text(json.dumps({
+        "name": "npm", "version": NPM_VERSION,
+        "bin": {name: f"bin/{name}-cli.js" for name in ("npm", "npx")},
+        "scripts": {"install": f"touch {marker}"},
+        "dependencies": {"station-fixture-dep": "1.0.0"},
+        "bundledDependencies": ["station-fixture-dep"],
+    }))
+    (package / "node_modules/station-fixture-dep/package.json").write_text(
+        json.dumps({"name": "station-fixture-dep", "version": "1.0.0"}))
+    for name in ("npm", "npx"):
+        (package / "bin" / f"{name}-cli.js").write_text("#!/bin/sh\nexit 0\n")
+    archive = home / "npm-fixture.tgz"
+    with tarfile.open(archive, "w:gz") as tar:
+        tar.add(package, arcname="package")
+    isolated = {"HOME": str(home), "NPM_CONFIG_PREFIX": str(home / ".local"),
+                "NPM_CONFIG_CACHE": str(home / "npm-cache"),
+                "NPM_CONFIG_USERCONFIG": str(home / "empty-npmrc"),
+                "NPM_CONFIG_GLOBALCONFIG": str(home / "empty-global-npmrc")}
+    flags = ["install", "--global", "--ignore-scripts", "--bin-links=false",
+             "--offline", "--no-audit", "--no-fund"]
+    before = {name: (os.readlink(bins / name), (bins / name).lstat().st_ino) for name in ("npm", "npx")}
+    failed = subprocess.run([node, str(npm_cli), *flags, str(archive)],
+                            env={**os.environ, **isolated}, cwd=home,
+                            capture_output=True, text=True, timeout=45)
+    assert failed.returncode != 0 and "EEXIST" in failed.stderr, failed.stderr
+    assert before == {name: (os.readlink(bins / name), (bins / name).lstat().st_ino) for name in before}
+    # Only substitute the registry spec with a local tarball; the production
+    # reservation helper and the entire actual npm CLI/reify path still execute.
+    wrapper = """#!/usr/bin/python3
+import os, subprocess, sys
+assert sys.argv[2:] == ['install','--global','--ignore-scripts','--bin-links=false','npm@12.0.2']
+assert all(not os.path.lexists(os.path.join(os.environ['STATION_HOME'], '.local/bin', name)) for name in ('npm','npx'))
+os.environ.update(ISOLATED)
+raise SystemExit(subprocess.run([NODE, CLI, *FLAGS, ARCHIVE], check=False).returncode)
+""".replace("ISOLATED", repr(isolated)).replace("NODE", repr(node)).replace("CLI", repr(str(npm_cli)))
+    wrapper = wrapper.replace("FLAGS", repr(flags)).replace("ARCHIVE", repr(str(archive)))
+    (bundle / "bin/node").write_text(wrapper)
+    result = run_shell(layout, 'manage_node_launchers "$BUNDLE" npm-install')
+    assert result.returncode == 0, result.stderr
+    actual = json.loads((home / ".local/lib/node_modules/npm/package.json").read_text())
+    assert (actual["name"], actual["version"]) == ("npm", NPM_VERSION)
+    for name in before:
+        assert os.readlink(bins / name) == f"../lib/node_modules/npm/bin/{name}-cli.js"
+    assert not marker.exists()
+    assert not list(bins.glob(".station-npm-handoff-*"))
 
 
 def test_fresh_node_does_not_seed_conflicting_or_missing_launchers(layout):
@@ -250,33 +311,57 @@ def test_corepack_is_optional_and_cannot_escape_bundle(layout):
     assert not os.path.lexists(layout[1] / "corepack")
 
 
-@pytest.mark.parametrize("failure", [False, True])
-def test_npm_bootstrap_uses_bundle_with_bin_publication_disabled(layout, failure):
+@pytest.mark.parametrize("failure", ["success", "native", "invalid-package", "signal", "replacement"])
+def test_npm_reservation_success_and_failure_restoration(layout, failure):
     seed_links(layout, "hermes")
     home, bins, bundle = layout
     bootstrap = bundle / "bin/node"
     bootstrap.write_text("""#!/usr/bin/python3
-import json, os, pathlib, sys
+import json, os, pathlib, signal, sys
 home = pathlib.Path(os.environ['STATION_HOME'])
 (home / 'bootstrap-argv.json').write_text(json.dumps(sys.argv[1:]))
-if os.environ.get('FAIL_NPM') == '1':
+assert all(not os.path.lexists(home / '.local/bin' / name) for name in ('npm', 'npx'))
+reserved = list((home / '.local/bin').glob('.station-npm-handoff-*'))
+assert len(reserved) == 1 and all((reserved[0] / name).is_symlink() for name in ('npm', 'npx'))
+failure = os.environ['FAIL_NPM']
+if failure == 'replacement':
+    (home / '.local/bin/npm').write_text('unrelated replacement; keep me')
+if failure == 'signal':
+    os.kill(os.getppid(), signal.SIGTERM)
+    sys.exit(23)
+if failure in ('native', 'replacement'):
     sys.exit(23)
 root = home / '.local/lib/node_modules/npm'
 (root / 'bin').mkdir(parents=True, exist_ok=True)
-(root / 'package.json').write_text(json.dumps({'name':'npm','version':os.environ['NPM_VERSION']}))
+(root / 'package.json').write_text(json.dumps({'name':'npm','version':'0.0.0' if failure == 'invalid-package' else os.environ['NPM_VERSION']}))
 for name in ('npm', 'npx'):
     path = root / 'bin' / (name + '-cli.js')
     path.write_text('#!/bin/sh\\nexit 0\\n')
     path.chmod(0o755)
 """)
-    before = os.readlink(bins / "npm")
-    result = run_shell(layout, "install_node_clis", extra_env={"FAIL_NPM": "1" if failure else "0"})
+    before = {name: (os.readlink(bins / name), (bins / name).lstat().st_ino) for name in ("npm", "npx")}
+    result = run_shell(layout, "install_node_clis", extra_env={"FAIL_NPM": failure})
     assert json.loads((home / "bootstrap-argv.json").read_text()) == [
         str(bundle / "lib/node_modules/npm/bin/npm-cli.js"),
         "install", "--global", "--ignore-scripts", "--bin-links=false", f"npm@{NPM_VERSION}",
     ]
-    assert result.returncode == (23 if failure else 0), result.stderr
-    assert os.readlink(bins / "npm") == (before if failure else "../lib/node_modules/npm/bin/npm-cli.js")
+    assert result.returncode == {"success": 0, "native": 23, "invalid-package": 1,
+                                 "signal": 143, "replacement": 1}[failure], result.stderr
+    reservations = list(bins.glob(".station-npm-handoff-*"))
+    if failure == "replacement":
+        assert (bins / "npm").read_text() == "unrelated replacement; keep me"
+        assert len(reservations) == 1
+        assert (os.readlink(reservations[0] / "npm"), (reservations[0] / "npm").lstat().st_ino) == before["npm"]
+        assert (os.readlink(bins / "npx"), (bins / "npx").lstat().st_ino) == before["npx"]
+        retry = run_shell(layout, 'manage_node_launchers "$BUNDLE" check')
+        assert retry.returncode != 0 and "unfinished npm launcher reservation" in retry.stderr
+    else:
+        assert not reservations
+        for name, identity in before.items():
+            if failure == "success":
+                assert os.readlink(bins / name) == f"../lib/node_modules/npm/bin/{name}-cli.js"
+            else:
+                assert (os.readlink(bins / name), (bins / name).lstat().st_ino) == identity
 
 
 def test_script_has_valid_shell_syntax():

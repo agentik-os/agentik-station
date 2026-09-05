@@ -179,7 +179,9 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import stat
+import subprocess
 import sys
 import uuid
 
@@ -241,6 +243,7 @@ def recognized(fd, binary):
         raise ValueError("refusing unrelated existing launcher: " + binary)
     with directory(str(Path(target).parent), missing=True):
         pass
+    return target
 
 def publish(fd, binary, target):
     recognized(fd, binary)
@@ -260,6 +263,78 @@ def publish(fd, binary, target):
         except FileNotFoundError:
             pass
 
+def publish_npm(fd):
+    with directory(bins) as current:
+        if (os.fstat(current).st_dev, os.fstat(current).st_ino) != (os.fstat(fd).st_dev, os.fstat(fd).st_ino):
+            raise ValueError("Node launcher directory changed during installation")
+    for name in ("package.json", "bin/npm-cli.js", "bin/npx-cli.js"):
+        regular(npm_root + "/" + name)
+    with open(npm_root + "/package.json", encoding="utf-8") as source:
+        package = json.load(source)
+    if package.get("name") != "npm" or package.get("version") != version:
+        raise ValueError("global npm package does not match the requested pin")
+    for binary in ("npm", "npx"):
+        publish(fd, binary, "../lib/node_modules/npm/bin/" + binary + "-cli.js")
+
+def install_npm(fd):
+    # Reify checks global bins before extraction, even when both lifecycle and
+    # bin publication are disabled. Reserve ONLY known conflicting predecessors.
+    # The private directory also preserves links after an uncatchable shutdown;
+    # later invocations stop for reviewed recovery instead of deleting evidence.
+    regular(bundle + "/bin/node")
+    regular(bundle + "/lib/node_modules/npm/bin/npm-cli.js")
+    reservation = ".station-npm-handoff-" + uuid.uuid4().hex
+    os.mkdir(reservation, mode=0o700, dir_fd=fd)
+    backup_fd = os.open(reservation, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+    moved = {}
+    succeeded = False
+    try:
+        for binary in ("npm", "npx"):
+            target = recognized(fd, binary)
+            if target is None or target == npm_root + "/bin/" + binary + "-cli.js":
+                continue
+            original = os.stat(binary, dir_fd=fd, follow_symlinks=False)
+            link = os.readlink(binary, dir_fd=fd)
+            os.rename(binary, binary, src_dir_fd=fd, dst_dir_fd=backup_fd)
+            moved[binary] = (original.st_dev, original.st_ino, link)
+        completed = subprocess.run([
+            bundle + "/bin/node", bundle + "/lib/node_modules/npm/bin/npm-cli.js",
+            "install", "--global", "--ignore-scripts", "--bin-links=false", "npm@" + version,
+        ], check=False)
+        if completed.returncode:
+            raise SystemExit(completed.returncode if completed.returncode > 0 else 128 - completed.returncode)
+        publish_npm(fd)
+        succeeded = True
+    finally:
+        failures = []
+        for binary, identity in moved.items():
+            try:
+                saved = os.stat(binary, dir_fd=backup_fd, follow_symlinks=False)
+                if (not stat.S_ISLNK(saved.st_mode)
+                        or (saved.st_dev, saved.st_ino, os.readlink(binary, dir_fd=backup_fd)) != identity):
+                    raise ValueError("reserved launcher changed")
+                if succeeded:
+                    os.unlink(binary, dir_fd=backup_fd)
+                else:
+                    current = recognized(fd, binary)
+                    if current is not None:
+                        if current != npm_root + "/bin/" + binary + "-cli.js":
+                            raise ValueError("launcher was replaced during npm installation")
+                        os.unlink(binary, dir_fd=fd)
+                    os.rename(binary, binary, src_dir_fd=backup_fd, dst_dir_fd=fd)
+            except (OSError, ValueError):
+                failures.append(binary)
+        os.close(backup_fd)
+        if failures:
+            raise ValueError("npm launcher recovery requires review; preserved " + ",".join(failures)
+                             + " in " + bins + "/" + reservation)
+        os.rmdir(reservation, dir_fd=fd)
+
+def interrupted(signum, frame):
+    raise SystemExit(128 + signum)
+
+signal.signal(signal.SIGTERM, interrupted)
+
 try:
     for path in (home, prefix, bins, prefix + "/lib", bundle, bundle + "/bin",
                  bundle + "/lib/node_modules/npm/bin", npm_root + "/bin"):
@@ -271,6 +346,9 @@ try:
     regular(bundle + "/lib/node_modules/npm/bin/npm-cli.js", missing=True)
     with directory(bins, missing=action == "check") as fd:
         if fd is not None:
+            if any(name.startswith(".station-npm-handoff-") for name in os.listdir(fd)):
+                raise ValueError("unfinished npm launcher reservation in " + bins
+                                 + "; review and restore its preserved links before retrying")
             for binary in ("node", "npm", "npx", "corepack"):
                 recognized(fd, binary)
         if action == "node":
@@ -284,14 +362,9 @@ try:
                 regular(corepack)
                 publish(fd, "corepack", bundle + "/bin/corepack")
         elif action == "npm":
-            for name in ("package.json", "bin/npm-cli.js", "bin/npx-cli.js"):
-                regular(npm_root + "/" + name)
-            with open(npm_root + "/package.json", encoding="utf-8") as source:
-                package = json.load(source)
-            if package.get("name") != "npm" or package.get("version") != version:
-                raise ValueError("global npm package does not match the requested pin")
-            for binary in ("npm", "npx"):
-                publish(fd, binary, "../lib/node_modules/npm/bin/" + binary + "-cli.js")
+            publish_npm(fd)
+        elif action == "npm-install":
+            install_npm(fd)
         elif action != "check":
             raise ValueError("unknown Node launcher action")
 except (OSError, ValueError) as exc:
@@ -394,13 +467,9 @@ verify_npm_integrity() {
 install_node_clis() {
   local dest="$STATION_HOME/.local/lib/node-v${NODE_VERSION#v}-linux-${NODE_ARCH}"
   manage_node_launchers "$dest" check
-  # Bootstrap through the immutable bundle, not a launcher npm will replace.
-  # Arborist checks existing global bins even with --bin-links=false unless
-  # lifecycle scripts are also disabled. npm self-install needs neither; leave
-  # predecessor links intact until success, then safely hand off exact links.
-  as_station "$dest/bin/node" "$dest/lib/node_modules/npm/bin/npm-cli.js" \
-    install --global --ignore-scripts --bin-links=false "npm@${NPM_VERSION}"
-  manage_node_launchers "$dest" npm
+  # One operator process owns reservation, native install, validation and either
+  # publication or failure restoration. Never use --force to bypass npm checks.
+  manage_node_launchers "$dest" npm-install
   verify_npm_integrity vercel "$VERCEL_CLI_VERSION" "$VERCEL_CLI_INTEGRITY"
   verify_npm_integrity shadcn "$SHADCN_CLI_VERSION" "$SHADCN_CLI_INTEGRITY"
   as_station "$tool_path/npm" install --global "vercel@${VERCEL_CLI_VERSION}"
