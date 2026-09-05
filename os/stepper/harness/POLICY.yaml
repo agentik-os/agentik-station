@@ -1,0 +1,8 @@
+plan_first: true
+evidence_before_claims: true
+input_schema_required: true
+output_schema_required: true
+role_permissions_are_not_a_sandbox: true
+network_default: deny
+require_owner_context: true
+refuse: [undeclared-privileges, copyrighted-book-ingest, velocity-guarantees, horizontal-layer-slices]

@@ -61,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.30 Host
+## Supported base for Station 11.31 Host
 
 The current safe-kernel provider supports:
 
@@ -86,6 +86,15 @@ cd agentik-station
 `plan` must be reviewed before mutation. It compiles the same typed `InstallSpec` and canonical `config/station.default.json` used by `apply`.
 
 ## Core Host
+
+Release 11.31 full/core bootstrap additionally installs the native Stepper,
+Builder and Librarian teams in the existing Factory `os` Zone after kernel
+readback. Team bootstrap uses its declared Organization Zone. This is profile
+software installation, not account enrollment or gateway activation. The
+standalone typed kernel still stops at desired declarations. For an existing
+reviewed Host use `sudo station os defaults --plan`, then `sudo station os
+defaults`; existing instances are preserved, not force-upgraded. See
+[the OS cooperation guide](docs/os/08_STEPPER_AND_BUILDING.md).
 
 ```bash
 sudo ./install \
@@ -161,7 +170,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.30",
+  "release_version": "11.31",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -374,7 +383,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22–11.25 installation needing the current controls, publish the
-11.30 immutable Station kernel first, preserving the Host's desired state. Then
+11.31 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -490,7 +499,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.30 publishes beside earlier releases; it never overwrites an old
+Station 11.31 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

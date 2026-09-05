@@ -1,0 +1,34 @@
+# Reviewed against Hermes 29112bef / 0.21.0. New compiled profiles only.
+# Turn/concurrency bounds are not monetary caps. Credentials remain unenrolled.
+agent:
+  max_turns: 64
+delegation:
+  max_concurrent_children: 3
+  max_spawn_depth: 2
+  max_iterations: 50
+  orchestrator_enabled: true
+  subagent_auto_approve: false
+goals:
+  max_turns: 20
+display:
+  busy_input_mode: steer
+tools:
+  tool_search:
+    enabled: "on"
+    threshold_pct: 5
+    listing: auto
+    listing_max_tokens: 4000
+    search_default_limit: 5
+    max_search_limit: 25
+browser:
+  use_real_profile: false
+platforms:
+  api_server:
+    enabled: false
+kanban:
+  max_in_progress: 3
+  max_in_progress_per_profile: 1
+  dispatch_interval_seconds: 60
+  dispatch_in_gateway: false
+  auto_decompose: false
+  review_dispatch: false

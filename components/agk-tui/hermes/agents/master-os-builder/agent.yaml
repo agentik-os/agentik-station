@@ -4,6 +4,7 @@ version: 1.0.1
 description: Designs, researches, builds, validates, packages, and evolves Agentik Operative Systems.
 scope:
   - operator
+  - agk-station
   - agentik
   - mission
   - private

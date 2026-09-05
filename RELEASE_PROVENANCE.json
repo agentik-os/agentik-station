@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.30",
+  "release": "11.31",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1223,
+  "subject_count": 1314,
   "subjects": [
     {
       "executable": false,
@@ -92,8 +92,8 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "3c6d856f69e2155dfe82feab5dae5db008503e678f2ba1cf04fd1bd5e4059942",
-      "size": 9131
+      "sha256": "5fcd9476dc71140599a2f23b482715363805a6081d2a1445874f468aeaeda740",
+      "size": 10496
     },
     {
       "executable": false,
@@ -116,8 +116,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "fe6558fc70734fe1e3cbeea96b48a2bc0b82a6cc7fcd24067d40c90abcb1e330",
-      "size": 25345
+      "sha256": "338a7ff85741d1e344ac8bcbc915965dc7d2d42b010f42fbe39b2eafd25b261c",
+      "size": 25933
     },
     {
       "executable": false,
@@ -140,8 +140,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "a80ed7e3c49169af55d40c88745d8f84ea3371f6295f356c91121c1f275a5980",
-      "size": 48179
+      "sha256": "c719e19536cdd3ef72ae3478a4e186b9a15c1074332f5f510cba9176615f570b",
+      "size": 49352
     },
     {
       "executable": false,
@@ -152,7 +152,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "22e917bc31dfdbefd1e5b75fcbbae647cfbbcae0b65389fb18e6989e9c491f46",
+      "sha256": "5669811e0545981bafc85b5573f525ddcc6bb86cbca236faf147664666382419",
       "size": 100502
     },
     {
@@ -164,8 +164,8 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "c532689ce94972f468fa9cfdb833f80744006c13a403b08fbfd1782fdbea2b5d",
-      "size": 19655
+      "sha256": "9d428f296acbff33873176c1cb485997cb7a598c641eaf62b85590155c31ab99",
+      "size": 20268
     },
     {
       "executable": false,
@@ -176,8 +176,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "d6553b5594ca09bdd75503b896a7b66e4b1081aa0a2f5a708f38b65d28dc693d",
-      "size": 29542
+      "sha256": "0486f82e57e4a0b671c1fc879a033b96a3e13fe1da926e253d0d4d0f635cde46",
+      "size": 30495
     },
     {
       "executable": false,
@@ -194,14 +194,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "7fbf1f6891cc701bac77c4deb8e27a53c5a36aaf3b92a8e95a64188a6a50a56c",
+      "sha256": "3d8b8c29fb1043a666b0e724954429495c766d07d4092206e069f984693a2b70",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "c4c7db8d94881cf2cf3f65e3480982268b0a749576185e83029b8337e23b5065",
-      "size": 61945
+      "sha256": "957300fe16dac1c1ab085f5615bd3cc99dd5085f93274009858bf26d97c214a0",
+      "size": 62598
     },
     {
       "executable": true,
@@ -212,8 +212,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "6071a9f90675934a3f4a4df1bd284bc8c47dc1e2bb7c1eef1dcbff8510728c88",
-      "size": 31711
+      "sha256": "2b17a0eb867234ef7c92dc39bdb814ec565bfd9ba6996a73e59cc43b1a476849",
+      "size": 32059
     },
     {
       "executable": false,
@@ -590,8 +590,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/agents/master-os-builder/agent.yaml",
-      "sha256": "3be5ac0c7b845af611ec502c5e96fc6a5d3ade646dbdbee5aa26f57f613eab29",
-      "size": 297
+      "sha256": "29382f1f5c63f9248a6deee9a142d6eaaf20c4be23a6c43ced7ca39734d772a4",
+      "size": 313
     },
     {
       "executable": false,
@@ -620,8 +620,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/agent_registry.py",
-      "sha256": "65fa73d45743ca4ff246acc8e0d8e0a52557b3410c86c931b158ba459ae49c46",
-      "size": 8760
+      "sha256": "e48d609d88727a6f2c27d0adf69b6ff5917ded14776aa94caf5e13ebfcc9a3c8",
+      "size": 8770
     },
     {
       "executable": false,
@@ -740,8 +740,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/workstation.py",
-      "sha256": "2492e634b39354ac46013622eb726085aba49bd13b71009a054e4b21a49d2b9d",
-      "size": 3589
+      "sha256": "4e0d1124966f6946c78461159dfaaf711803335cf2c73fbb43d4241d4da74a03",
+      "size": 5309
     },
     {
       "executable": false,
@@ -824,8 +824,8 @@
     {
       "executable": true,
       "path": "components/agk-tui/scripts/agk_control.py",
-      "sha256": "447478f253cfefdb9bc788453412e9db418ebe9840096539659c5a4cde413c09",
-      "size": 73465
+      "sha256": "e12560e812fb40f52c5e535d9f5699f4b0ddd3761a2f8837c99835e33b13e561",
+      "size": 74090
     },
     {
       "executable": true,
@@ -943,6 +943,12 @@
     },
     {
       "executable": false,
+      "path": "components/agk-tui/tests/test_agent_scope.py",
+      "sha256": "89713f712ad7af847512cde74d4773cc8be91c8de5033bf9202c4188ea8c416c",
+      "size": 8029
+    },
+    {
+      "executable": false,
       "path": "components/agk-tui/tests/test_agentik_dashboard_plugin.py",
       "sha256": "9f48994bb18dfa077be5b84b57f312e2dea3b3c275a185cfdf61a3478adda0bd",
       "size": 12723
@@ -956,8 +962,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/tests/test_agk_control.py",
-      "sha256": "237368477a93ea72d29697f68478d33112d6b319fd4a86469a03c84d28f028f9",
-      "size": 28327
+      "sha256": "8f2ae98b21974f9d4414bfb6930b9f4a6509b034c45c5268f948d27df6859c47",
+      "size": 28658
     },
     {
       "executable": false,
@@ -986,8 +992,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/tests/test_controls_refresh.py",
-      "sha256": "61afca06f2595b4ba0c8a3f69f515be7c4cbfbcd418ccd2b8861e3bbd362768f",
-      "size": 17346
+      "sha256": "87997d15ee15e248402c751dce7bf5408a91b14e2b1522fd4b7255e0a28fa9fe",
+      "size": 18046
     },
     {
       "executable": false,
@@ -1303,6 +1309,12 @@
     },
     {
       "executable": false,
+      "path": "config/hermes/orchestration.default.yaml",
+      "sha256": "9a0bb22e8ad28c00aca4e8a54d7c5fe9ed69f61a7f115e384be99284ce0d9d99",
+      "size": 788
+    },
+    {
+      "executable": false,
       "path": "config/hermes/voice.default.yaml",
       "sha256": "d76bb6e41ffb6af447f7beb55f7b3663948e864f31361cc63273f22c2dd694cc",
       "size": 787
@@ -1340,8 +1352,8 @@
     {
       "executable": false,
       "path": "config/station.default.json",
-      "sha256": "2e33c52b9978312df42b937bd3e2fa6745d6c8d5e7e8cd424d9140aa6bdea18c",
-      "size": 4760
+      "sha256": "298553486f45b8beca97524e1b886200e0379bed4355d61a33c18c72873efaef",
+      "size": 4786
     },
     {
       "executable": false,
@@ -1370,7 +1382,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "48e365e1b67f8dcf3d6563b80388709d9df05f0738dc2cf3e8d6e493112fcc1b",
+      "sha256": "9aa13715be17832473660e30e7ca369e98e1bd72c1387bac61fa5713d89efcb6",
       "size": 2339
     },
     {
@@ -1576,6 +1588,12 @@
       "path": "docs/audit/2026-09-05-station-deep-audit.md",
       "sha256": "c549e9d0920177651ec9f88c7984a2429c2d8829444c46bb62682598af3ad973",
       "size": 19407
+    },
+    {
+      "executable": false,
+      "path": "docs/audit/2026-09-05-stepper-orchestration-plan.md",
+      "sha256": "fe1bf55a962f7fb35923c0b3e2f025fefc6662968c52244f5cc6e531b3ebd8d6",
+      "size": 6393
     },
     {
       "executable": false,
@@ -1928,7 +1946,7 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "e5705878a15e2cb3e1785ec91ad90d324153c03855171495355d1f29243d0744",
+      "sha256": "6a19e7cfcc8cb5909caaca4203db5b75d7cf577000a49726a3352d6d66cebafc",
       "size": 14163
     },
     {
@@ -2188,6 +2206,12 @@
       "path": "docs/hermes/13_BOT_MODE_AND_AGENT_TEAMS.md",
       "sha256": "49e74084f0962f31ddfa04445cc70c58cb4a7b822ded71b71e54981a9defa4a8",
       "size": 782
+    },
+    {
+      "executable": false,
+      "path": "docs/hermes/16_CAPABILITY_LADDER.md",
+      "sha256": "4dc838e2c2bcc879e9b14a46650a39afde33ac417a72f5c6da39f15db1496a0c",
+      "size": 18585
     },
     {
       "executable": false,
@@ -2605,6 +2629,12 @@
     },
     {
       "executable": false,
+      "path": "docs/os/08_STEPPER_AND_BUILDING.md",
+      "sha256": "e84f73281da7f5d25a1d7a5d688bc30505ada6ba4d813cd2a14e017938b0d52f",
+      "size": 7241
+    },
+    {
+      "executable": false,
       "path": "docs/os/09_BUILDER_OS.md",
       "sha256": "bb580d5118f9da972a3899a69d114133d4079615a13ba38bde772f37e23fecfe",
       "size": 595
@@ -2912,8 +2942,8 @@
     {
       "executable": true,
       "path": "installer/npm/cli.mjs",
-      "sha256": "73a68ed45e24d23dd9ed904bdaba980d54cf19d96afdeb65eebce213822eeb4e",
-      "size": 15026
+      "sha256": "14645d972e943f1336ec9df4122dc5211d7d9f044848f8af0a8684e08f234305",
+      "size": 15255
     },
     {
       "executable": false,
@@ -2935,6 +2965,12 @@
     },
     {
       "executable": false,
+      "path": "installer/npm/os.mjs",
+      "sha256": "76526ea99cd5ab989a53dfed69a5db7fc2dabb3ca5acae1b131585fba6c113de",
+      "size": 18618
+    },
+    {
+      "executable": false,
       "path": "installer/npm/process.mjs",
       "sha256": "4b7ded53a6bbdf6945fa87600ccd5e51783771adf177835ca3ef347386ca4f46",
       "size": 3759
@@ -2948,8 +2984,8 @@
     {
       "executable": false,
       "path": "installer/npm/runtime.mjs",
-      "sha256": "a93e674b2c9db95d470871819de6e8ae38d2a44638e76bbe915262a1bd7a2b41",
-      "size": 32295
+      "sha256": "c1f8dc75242b4bd8bdb6ee8576f39ee98bbb9c4ab0a0837bc19880296dfc69c4",
+      "size": 32440
     },
     {
       "executable": false,
@@ -3025,6 +3061,18 @@
     },
     {
       "executable": false,
+      "path": "installer/npm/test/os-update.test.mjs",
+      "sha256": "4d6f8088e6e3a8ae0041baee082ce3b30ff454ddba96ed8870a752a0a7b38627",
+      "size": 10120
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/os.test.mjs",
+      "sha256": "8c7ec6b64a1e8b99167d8d3f80574be17634d78aba1f80907500f605be5220c2",
+      "size": 22753
+    },
+    {
+      "executable": false,
       "path": "installer/npm/test/pack-smoke.mjs",
       "sha256": "65abbd0d99a90cd63b67eb9d6f5c60c32acc20df961d714b76c56ded0d182da4",
       "size": 3004
@@ -3086,8 +3134,8 @@
     {
       "executable": false,
       "path": "installer/npm/update.mjs",
-      "sha256": "00abb5137304896f87b0afda80f7634986cda12e332f428e2d417e6277e69a94",
-      "size": 19780
+      "sha256": "56c3ab54dbf401aab0934d6193123574560d0bdec0337a8698392a546f2007be",
+      "size": 24471
     },
     {
       "executable": false,
@@ -3110,7 +3158,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "170c6867a490b2e386da702d73968e9ec664e34d2abe6e500d32f1f3804e8d5c",
+      "sha256": "57b47c3613b4f63cc0786e3c6dcebb49ff9de5eab847a65f6f61fdbc51ddff09",
       "size": 12013
     },
     {
@@ -3356,8 +3404,14 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "59e4465a1655618949c38323a1817ac7f539134c4fdf9a0bae5083417a1c3b6f",
-      "size": 3188
+      "sha256": "b0d7f62be07c1d45b6f65524e0dda522de19af0eed40dba0de8df25e701b91d3",
+      "size": 3771
+    },
+    {
+      "executable": false,
+      "path": "os/_shared/skills/station-orchestration/SKILL.md",
+      "sha256": "481983c0470091512a4d00f4aa8bc22f5604fe4b563e077cc1ae5cf423ce1a83",
+      "size": 11561
     },
     {
       "executable": false,
@@ -4318,6 +4372,12 @@
       "path": "os/devops/programs/runner.py",
       "sha256": "5f3f1cdd80cb4ed98ff184447a91f84b45c6a910a6a802cf8bbc1023779c0be3",
       "size": 8630
+    },
+    {
+      "executable": false,
+      "path": "os/devops/prompts/FEATURE_AUDIT.md",
+      "sha256": "5b4e2329ac3157a6da1b940b237280e79050e4ec1ecce56d37764b9d5b666bae",
+      "size": 4942
     },
     {
       "executable": false,
@@ -6121,14 +6181,464 @@
     },
     {
       "executable": false,
+      "path": "os/stepper/1_MASTER/README.md",
+      "sha256": "18976716cbc9da238a6268d63a40c913a96b96574623e8946662f80ed14e100d",
+      "size": 780
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/CONTRACT.json",
+      "sha256": "9d3d5b5f02812f6eb344208a55413fdaeacf9728089d05954d6d0d22c51ffa36",
+      "size": 741
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/MANIFEST.json",
+      "sha256": "71baa8a0ea8b0e66a40205489b1a0958e56b32a0af864239cc45248047c5a203",
+      "size": 362
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/MATURITY.json",
+      "sha256": "29e3098d23557b6fa7674758063b83e2525fb40a7e8ec1dcb7bde3e051cdf2e6",
+      "size": 285
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/OS.yaml",
+      "sha256": "dc17e71f8e56c348b9e8f87206d578ebf7b6802c3d8b82b8fb7dd10aee3cc015",
+      "size": 196
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/README.md",
+      "sha256": "ba895016d7548fd0d0f6b876f4d34c5a2b6eb41e61c28991abbf96e77224ab3e",
+      "size": 2812
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/adapters/ADAPTERS.md",
+      "sha256": "8c140be71caf834465261296727aee9b44e13e9402155728bcad908d52dfcf25",
+      "size": 640
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/automations/AUTOMATIONS.yaml",
+      "sha256": "7526de535da8f5fe45c33e3cb635ac6823de9e77eed8f4da90819f90560e7fa5",
+      "size": 90
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/capabilities/CAPABILITIES.yaml",
+      "sha256": "f7f4381b4734a612a4161f3cfa66f0c98d641ab1668799827727ae7fc3c51075",
+      "size": 152
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/data/SCHEMA.json",
+      "sha256": "0fde59d7e2e01efbb8d66cabfe80a0180c16780f2903289fa29f05c7fc997d58",
+      "size": 865
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/deployment/DEPLOYMENT.yaml",
+      "sha256": "0e74d40e202fbc092b5d60ffba10cedade0165e4c70151de786ed9bc07138658",
+      "size": 193
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/director/PROFILE.md",
+      "sha256": "a9f60336c80b9ec7da7944bfc356c8ec487c7334dab0955347fc5704985ec322",
+      "size": 2170
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/discord/BOT.yaml",
+      "sha256": "2757134bb6693280f2a3c03b1c40b7eace701055f45b0c810d17fa8fccd804e6",
+      "size": 146
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/discord/COMMANDS.yaml",
+      "sha256": "3c6ab400221e1f68b2245e44794ca7235e921cb5a61b5328a8c50546aec90c84",
+      "size": 306
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/discord/EXPERIENCE.yaml",
+      "sha256": "afec54f318f950623676887696f4255035f8db415282b9ed5e333620bf6e7d33",
+      "size": 234
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/doctor/DOCTOR.yaml",
+      "sha256": "f1e3cdce0d8a1fbb54850bc8d9fb2e932b85a419f2d425c7d4633f5948f218c3",
+      "size": 311
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/evals/BEHAVIOR.md",
+      "sha256": "926dcdac6eab235940a7aaff50b70e99170702e49efd194edfad3f750dbeb26a",
+      "size": 679
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/evals/CASES.json",
+      "sha256": "4a7d259e901161535ea8575fec4ea59570427838e533c3aa67157a2ca33ffb60",
+      "size": 27039
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/evals/EVALS.yaml",
+      "sha256": "d494f6fb1ed78506382822c3e97c3e9e3240beeab883087c8738f1d2c20ecb88",
+      "size": 194
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/evidence/SCHEMA.json",
+      "sha256": "07023fad59e8423ff65e23b0f2306696e6bd9569852be9f6f472e3486095d55a",
+      "size": 1063
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/README.md",
+      "sha256": "d1f99edcd33bf74f2c6fbe0c9e7cc7cd3ef2ed883000bab4e4887bbcc91e0bd2",
+      "size": 337
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/sequence-releases.json",
+      "sha256": "8cb24663caa798ce2ecd19af429f7145e3041bd75024462d0c5fe04373a29104",
+      "size": 404
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/shape-bet.json",
+      "sha256": "be2bea7ff9ff1e659df172d66b1ea11c723b445e676144557b14ae36e979f989",
+      "size": 557
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/slice-thin.json",
+      "sha256": "430d399478484db74e273cd950da2e492dac9923f044bb083615f2897547b3e6",
+      "size": 643
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/step-loop.json",
+      "sha256": "f390527a0582fb43e3c610680b70979a671aa711450f8255eb6f6e3677c298d6",
+      "size": 3237
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/story-map.json",
+      "sha256": "fdf4101e5e25708878d19f21a4fbf2f2d9463544032f1af9c4c80a1e29ebc305",
+      "size": 1041
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/examples/unwedge.json",
+      "sha256": "1ded8922c50a9f4d32b592471b8d6e71c2c68c4f84c06d9991cf9b52aecd2cc9",
+      "size": 1321
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/governance/POLICY.yaml",
+      "sha256": "c71d55902a655c5dfb8e71aa5f69503611dd17c5d54c14f6a25f4010827f32de",
+      "size": 186
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/harness/POLICY.yaml",
+      "sha256": "a75c63a359b6231c7d15790855517f1fea86798c7305d0d31b949548f38ed1f4",
+      "size": 297
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/hermes/config.template.yaml",
+      "sha256": "ce91f19bc8c1f8b307554bd245c93e3bdbedc6cae339d3574b56fb1dc63952e1",
+      "size": 157
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/hermes/distribution.yaml",
+      "sha256": "d1fd405978812c2a27304b07a06f6d4f47291576075a466002e321bcf1dc80f4",
+      "size": 158
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/integrations/INTEGRATIONS.yaml",
+      "sha256": "ed6428cf5121f89aaf838c3348f0410caea6fefc7f56fc23dcd0386de8343ffa",
+      "size": 257
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/BOOKS.json",
+      "sha256": "a7a82077894a988267764dea059f92597de6971998b6e1c75a195448a051111f",
+      "size": 38216
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/CONTRADICTIONS.json",
+      "sha256": "001772b41b085b85d06e7182683b6fafb8601f4f9f20ac434ab0f787ae6beaea",
+      "size": 1900
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/ONTOLOGY.json",
+      "sha256": "a5526761f59f3b9c198807e4117677c714d54717f281c430e409220d5e3a3344",
+      "size": 1096
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/PRACTICES.json",
+      "sha256": "6c41cd25565fc981f3945236cb311b9bc1d99b32fbda921b34705a45d08add13",
+      "size": 206994
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/PRINCIPLES.md",
+      "sha256": "faa175cd5ea469ff4046c3f153535a48cf91907aa1a8533ce6c8c9c47c927371",
+      "size": 1182
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/RESEARCH.md",
+      "sha256": "bd5ad69b154b4abcf3c7e2cb39455ff45b2c97e6d111a7804bd381a14e2cb828",
+      "size": 1176
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/knowledge/SCOPE.yaml",
+      "sha256": "61d8f1c1922bf8d97637ca5284699f677f184731c27c579524ac72af61379d5c",
+      "size": 260
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/librarian/14_BUILDER_HANDOFF.md",
+      "sha256": "e9e2d03dc84cc2f50e36a94d1e9fe2207cb156b4f023c0f938cfc3205b66faf7",
+      "size": 563
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/librarian/INPUTS.json",
+      "sha256": "f41889d597843eb4df879b184c768a7a5c0e23ccbc6d08e0e0a07e7ca0fc0f09",
+      "size": 6671
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/memory/SCOPE.yaml",
+      "sha256": "22b9ca8753654245e87b961a54ef55c24a8a50cf9100dc528a61e7c649544de2",
+      "size": 185
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/memory/SEED.json",
+      "sha256": "aa152fbd082759d446c6eeca4c95123d9a1484fa90ad6843be8b5020756d8a6b",
+      "size": 519
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/missions/MISSION_SCHEMA.json",
+      "sha256": "d15455802799bd2c47c54b95e95ce4a94fabf6475483060dcf9129ab1e8a3b67",
+      "size": 1518
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/orchestration/ACCEPTANCE.md",
+      "sha256": "54ac68fdcbe8ff23905fdf186ecff32159912f46c7fc57e6b44efd03473a7bdf",
+      "size": 371
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/orchestration/ORCHESTRATION.yaml",
+      "sha256": "ffe5a50450876b5814c3e769673e9cddeee5f53795e3076e8aa36ec2f1a1853f",
+      "size": 242
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/profiles/sequencer/PROFILE.md",
+      "sha256": "6a02d10e6baeec801b43b0a94ddb1a0dab86cf59bd0f0da12da679006f3afe9f",
+      "size": 1854
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/profiles/shaper/PROFILE.md",
+      "sha256": "9660edde3041c464e643f9ffc1bfc6f78d00400cdeada7a73f3e9793a4b11b66",
+      "size": 1835
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/programs/PROGRAMS.yaml",
+      "sha256": "7779f79fcfb718b6d93939698191c590cd43328ee0f3dcf2faa89e0c20daabf3",
+      "size": 871
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/programs/runner.py",
+      "sha256": "22e1062688a8e33898abb9fac53b5082b291ddaaaeec45a04a1972536bb2d5df",
+      "size": 11883
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/provenance/IMPORT.json",
+      "sha256": "6b965a148900f46ce897b5f3beddae4bebca0f2d410be9f22e2d8cc50c855c7f",
+      "size": 14884
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/providers/ROUTES.yaml",
+      "sha256": "b584deb65754a33ab9f69e9102ab2f6694483d8355540dcdeda84c4eac8cae47",
+      "size": 392
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/recovery/RECOVERY.yaml",
+      "sha256": "f0a1de73975e5d6b1ad711a11495f960b6a0391d60faaf0982be2924319645b8",
+      "size": 209
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/rollback/ROLLBACK.yaml",
+      "sha256": "523d7668080f69fa437fc618f63c7ed68397941c883949b5effe6c9d70dc6e0a",
+      "size": 147
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/routing/ROUTING.json",
+      "sha256": "d284b5203ae45eeabc8208e635700fcd8ff467efd8938c4e52cfe5108f4f15b4",
+      "size": 1389
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/self_improvement/POLICY.yaml",
+      "sha256": "ae12c08d3e95abe0307931feacd781dd792dfb3fc96df406ebbdd8f934b23a63",
+      "size": 200
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/semantics/CONTRACT.json",
+      "sha256": "9eede13e52f1d78d07333abfff143074f94f62028c5ed961b213f7decf7870c6",
+      "size": 2914
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/ORDER.yaml",
+      "sha256": "70ca1f5a19490e7de63e2506d8cf1a20336b0dcca8437144cfb794f6ec4cb5b6",
+      "size": 103
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/sequence-releases/SKILL.md",
+      "sha256": "3db9d587341d2806255a54f957da0f702eb4e9290debb81b30f1b1380edff534",
+      "size": 2558
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/sequence-releases/input.schema.json",
+      "sha256": "ca95e36f8ae8a22651336b141a48a1d893b2ed1d146a7ebb3bc145d1ef422ca8",
+      "size": 2092
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/sequence-releases/output.schema.json",
+      "sha256": "6910f40d0e6cd9da16dadf66a2b5e91c93d50b8b3f3c4b184617f90ad3005ea3",
+      "size": 2297
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/shape-bet/SKILL.md",
+      "sha256": "e308b3322998521f9f2383cf96bf6dd265347f32353a5c78d974d96c94e410a9",
+      "size": 2545
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/shape-bet/input.schema.json",
+      "sha256": "7dfe162896610f7861692b237c2e58b4f5f6d8bfa4ceae6b68bf54c5dfee50ae",
+      "size": 671
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/shape-bet/output.schema.json",
+      "sha256": "0369d7d0b1b46466208d58f953b49b2b5c616111aa296e31c92f9cb119f91f92",
+      "size": 2241
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/slice-thin/SKILL.md",
+      "sha256": "ce720fcb9ca06a29926e59a9b19344d5b36c9bc46766a9e2c75f3c810810f223",
+      "size": 2592
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/slice-thin/input.schema.json",
+      "sha256": "75130940afbaafcdf4745c7352595e185413cd10a9a6844c8cf83f7c57528d29",
+      "size": 2368
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/slice-thin/output.schema.json",
+      "sha256": "5b7f31984ede6ef5c1220f7dbbce02a27af2c93aec63313ed9bb159f1fd6f67a",
+      "size": 2523
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/story-map/SKILL.md",
+      "sha256": "93455525cdae5a871157bd8b2e9ca16239b2f41d31e05fde4c6a66f9ea711807",
+      "size": 2566
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/story-map/input.schema.json",
+      "sha256": "881753699fa681b26e8af3de1af554af9857d740395f171e70ee6f40b6659a36",
+      "size": 371
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/skills/story-map/output.schema.json",
+      "sha256": "507c6c149fbc06b54932347353893b7f3201470df079af1c2f035da0eb22e287",
+      "size": 3019
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/team/TEAM.yaml",
+      "sha256": "1e3e0578113e66f63faf725ab1b2d8f2b4e486a66689046fda509632436cd807",
+      "size": 101
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/update/MIGRATIONS.yaml",
+      "sha256": "c4d235293ab02141e9e79c7198a288d8b64b275b96c405aca8deb9dc3d353e40",
+      "size": 184
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/views/VIEWS.yaml",
+      "sha256": "97234164134e3a80d538088399e9e30b131dc6165799b4426f695d2d3c9a1723",
+      "size": 249
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/workflows/WORKFLOWS.json",
+      "sha256": "3df010c649ad6b41a5518073a684df33f81e16ae38a7f17a1aa166b8affe8862",
+      "size": 1971
+    },
+    {
+      "executable": false,
+      "path": "os/stepper/workflows/WORKFLOWS.yaml",
+      "sha256": "16bfa19f18a444c03bf6a2b96188151f78217f3dc52a632d1a259068c423f209",
+      "size": 331
+    },
+    {
+      "executable": false,
       "path": "package.json",
-      "sha256": "27aa1fb80d2bf9597935c5119ae21e57663e767762e44f005fa382ba014b220b",
-      "size": 1064
+      "sha256": "19e52604e377cabe1d1e41b8a14826638b269e1d014b5c6f1238bfe8338393bf",
+      "size": 1125
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "143aa02eaa81e0cc7f1a70fcac0a6e6c957cde585e583b180a1609a0c585090a",
+      "sha256": "ddf042219f86c2bde219b1af5859a3db7cf19522e81345a524a22abf27e140fd",
       "size": 720
     },
     {
@@ -6529,6 +7039,12 @@
     },
     {
       "executable": false,
+      "path": "scripts/station_workstation_os.py",
+      "sha256": "78e7c46dbee956f275e6034edb22d1703df63064e9b52faec6d90dc1097921d7",
+      "size": 8777
+    },
+    {
+      "executable": false,
       "path": "scripts/systemd/station-hermes-update.service",
       "sha256": "1ea0d8b23740acebc9316fd6af3e37317166d7f46554327a5556ac9de4230236",
       "size": 505
@@ -6656,14 +7172,14 @@
     {
       "executable": false,
       "path": "src/agentik_station/bootstrap_state.py",
-      "sha256": "0e4b661ff931c908ee3e74dff83b26c3b735334ac5cd7bc2e3d03cbb979af25e",
-      "size": 27945
+      "sha256": "10c3ccb23ad08e7c55f7d55edfe5cf96214728e3451b7d537ff092b92afdbfde",
+      "size": 28306
     },
     {
       "executable": false,
       "path": "src/agentik_station/cli.py",
-      "sha256": "af79f4020b0bb12bf094e0ba4e77d449ecee141af110a14ab1b50102d9836eaf",
-      "size": 78619
+      "sha256": "6ed09994d1455bcab8d13a57e61634ace96c5b2d143e4b8c437fc73f0a8683de",
+      "size": 81183
     },
     {
       "executable": false,
@@ -6674,7 +7190,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "638a8c1befb69d6777b90fe04ea57dbdc2f9084081563063e8539533f29e9ee7",
+      "sha256": "78290d63ae1e86c03b4c4bc9e8615ee5dca2fb859c1e865567ddb767a90e7a84",
       "size": 1851
     },
     {
@@ -6710,8 +7226,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/hermes_platforms.py",
-      "sha256": "4c0b4aa506156efb0fa856d51600bf4a6246225d9f2e76458c9d6e0193a7b59d",
-      "size": 5966
+      "sha256": "644f97d8e69eecf87b7592493711b7ea877e1cff2492f8fa54e2e3db03a2f99d",
+      "size": 6456
     },
     {
       "executable": false,
@@ -6770,8 +7286,20 @@
     {
       "executable": false,
       "path": "src/agentik_station/os_contract.py",
-      "sha256": "b9a677f916c98b1e8f231a622928098a30700039710254387c2efdc848f68b63",
-      "size": 14406
+      "sha256": "9532a4425c456bf5fd2601fbbd228805ebe9d2b98b6ef2f68c145432dd40a32e",
+      "size": 17333
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/os_defaults.py",
+      "sha256": "85412135fe2cbf8d9deb5347aee50989e8b4c317c0082120d969fcea2c487021",
+      "size": 11743
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/os_discovery.py",
+      "sha256": "cedcd63ec214452d467baf08fcc7de38d123db037942f7af2d24c250d7743c9a",
+      "size": 3669
     },
     {
       "executable": false,
@@ -6788,8 +7316,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/os_runtime.py",
-      "sha256": "9ac463aee27801b08010ec940885344b973213760a681134ec6e7828c0b74629",
-      "size": 22307
+      "sha256": "87d8789b02c8f49fff4d1e8bd4fd8b08275123bbd7501871888d830193584daf",
+      "size": 25426
     },
     {
       "executable": false,
@@ -6991,6 +7519,12 @@
     },
     {
       "executable": false,
+      "path": "tests/contract/test_os_orchestration.py",
+      "sha256": "3efe023e3fe952c9e7d20165fe20745b670767956c01b0a998bea756a00f7fa5",
+      "size": 6592
+    },
+    {
+      "executable": false,
       "path": "tests/contract/test_plan.py",
       "sha256": "fd28d32c8408a9c7060de45875cc4b55fb04311d87775524d06ca700368f2054",
       "size": 1554
@@ -7018,6 +7552,12 @@
       "path": "tests/contract/test_station_bash.py",
       "sha256": "30310b8ce77a436cc9741c1d83040d82922eacf70a220eb3e1381c293c85ea9b",
       "size": 964
+    },
+    {
+      "executable": false,
+      "path": "tests/contract/test_stepper_os.py",
+      "sha256": "16db6d7a933bf95a4375656fcbd2a740b531b1b5de298ef3379f151c6819c7a8",
+      "size": 12625
     },
     {
       "executable": false,
@@ -7058,8 +7598,8 @@
     {
       "executable": false,
       "path": "tests/security/test_bootstrap_state.py",
-      "sha256": "7440fed14cd19bd07fdf7b0c6150dc0a44da21c9c44f10f35358811b30c26146",
-      "size": 27686
+      "sha256": "0907f0749456b52ee715c6ace35cfa3e33aad9019df3fde9e1a06e974badee0c",
+      "size": 28292
     },
     {
       "executable": false,
@@ -7120,6 +7660,12 @@
       "path": "tests/security/test_os_compiler_boundaries.py",
       "sha256": "9489657d4c874be929b75f1c69fed4a26b6a19de3b1752202f2f501dabfa3bc2",
       "size": 2335
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_os_defaults.py",
+      "sha256": "dfc2eb31c7bb49685e93a98239347c9251f9ef993316dbfe32695ff008d2f176",
+      "size": 12979
     },
     {
       "executable": false,
@@ -7256,8 +7802,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_hermes_platforms.py",
-      "sha256": "a6b74ae1964dac6cb7f43de9afcc8fdfb3cb820d80ef8ab49ec03a7ead9dfb65",
-      "size": 6227
+      "sha256": "ba83f1fb172069ec5e0178b83fdd1ec67de80d78c7bb7d832d9cdac788ac2921",
+      "size": 6806
     },
     {
       "executable": false,

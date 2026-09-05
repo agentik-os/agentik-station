@@ -1,6 +1,6 @@
 {
   "name": "@agentik-os/station",
-  "version": "11.30.0",
+  "version": "11.31.0",
   "description": "Agentik Station — a reviewed, personal macOS/Linux AI workstation installer and Linux Host guide",
   "type": "module",
   "engines": { "node": ">=22.14.0" },
@@ -11,7 +11,7 @@
   "scripts": { "test": "node --test installer/npm/test/*.test.mjs" },
   "files": [
     "installer/npm/*.mjs", "components/agk-tui/", "config/", "resources/",
-    "rules/", "scripts/station_voice_check.py", "os/", "VERSION", "LICENSE.md", "THIRD_PARTY.md", "docs/distribution/workstation.md"
+    "rules/", "scripts/station_voice_check.py", "scripts/station_workstation_os.py", "src/agentik_station/", "os/", "VERSION", "LICENSE.md", "THIRD_PARTY.md", "docs/distribution/workstation.md"
   ],
   "repository": { "type": "git", "url": "git+https://github.com/agentik-os/agentik-station.git" },
   "homepage": "https://github.com/agentik-os/agentik-station",

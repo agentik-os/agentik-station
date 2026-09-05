@@ -1,0 +1,4 @@
+scope: reviewed-package-version
+artifacts: retain-new-and-old-with-content-hashes
+account_rollback: forbidden
+automatic_profile_replacement: false

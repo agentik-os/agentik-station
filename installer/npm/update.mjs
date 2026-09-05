@@ -9,6 +9,7 @@ const SNAPSHOT = '.station-software.json';
 const PENDING = '.station-update.json';
 const EXCLUDED = new Set(['.git', '__pycache__', '.pytest_cache', '.DS_Store']);
 const MAX_ENTRIES = 200000;
+const NEW_OS_ROOTS = ['stepper-os', 'builder-os', 'librarian-os'].map(id => `personal/home/os/${id}`);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const exists = async target => { try { return await fs.lstat(target); } catch (e) { if (e.code === 'ENOENT') return null; throw e; } };
@@ -19,13 +20,13 @@ export function updateRoots(ctx) {
     `${profile}/plugins/platforms/discord`, `${profile}/dashboard-themes`, `${profile}/agents`];
 }
 
-async function readRecord(ctx, name) {
+async function readRecord(ctx, name, maximumBytes = 64 * 1024 * 1024) {
   const target = path.join(ctx.root, name);
   await assertSafePath(target, { allowMissing: false });
   const handle = await fs.open(target, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
   try {
     const info = await handle.stat();
-    if (!info.isFile() || info.uid !== process.getuid() || info.nlink !== 1 || info.mode & 0o077 || info.size > 64 * 1024 * 1024) throw new Error('Unsafe update evidence.');
+    if (!info.isFile() || info.uid !== process.getuid() || info.nlink !== 1 || info.mode & 0o077 || info.size > maximumBytes) throw new Error('Unsafe update evidence.');
     return JSON.parse(await handle.readFile('utf8'));
   } finally { await handle.close(); }
 }
@@ -130,10 +131,52 @@ export async function updatePlan(ctx) {
     legacyBaseline: 'required', operational: false, rollback: 'update-recover --yes while an update is pending' };
 }
 
+async function recordedOSProfiles(ctx) {
+  // Read only exact private installation receipts. Directory names, native
+  // configs and credentials are never adopted as service-selection authority.
+  const profiles = [], object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const identifier = /^[a-z][a-z0-9-]{0,62}$/;
+  const invalid = () => { throw new Error('Invalid or unrecorded personal OS installation; inspect before migration.'); };
+  for (const relative of NEW_OS_ROOTS) {
+    const root = path.join(ctx.root, relative);
+    await assertSafePath(root);
+    const info = await exists(root);
+    if (!info) continue;
+    if (!info.isDirectory() || info.uid !== process.getuid() || info.mode & 0o077) invalid();
+    const record = await readRecord(ctx, `${relative}/OS_INSTALL.json`, 65536);
+    const c = record?.compiled, id = path.basename(relative);
+    if (!object(record) || record.schema_version !== 1 || record.root !== ctx.root
+        || record.workstation_profile !== ctx.profile || record.uid !== process.getuid()
+        || !object(record.profiles) || !object(c) || c.schema_version !== 4 || c.os_id !== id
+        || c.boundary !== 'personal-same-uid' || c.claim !== 'COMPILED_NOT_INSTALLED'
+        || c.workspace_root !== path.join(ctx.root, 'personal/os', id, 'workspace')
+        || c.hermes_home !== path.join(root, 'hermes')
+        || typeof c.os_version !== 'string' || !/^[0-9][a-zA-Z0-9.+-]{0,63}$/.test(c.os_version)
+        || typeof c.inputs_sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(c.inputs_sha256)
+        || typeof c.artifacts_sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(c.artifacts_sha256)
+        || !object(c.role_profile_map) || !Array.isArray(c.profiles)
+        || !c.profiles.length || c.profiles.length > 64) invalid();
+    const expected = Object.keys(c.role_profile_map).map(role => {
+      if (!identifier.test(role)) invalid();
+      const suffix = digest([ctx.root, ctx.profile, id, role].join('\0')).slice(0, 16);
+      const name = `w-${suffix}-${role.slice(0, 25).replace(/-+$/, '')}`;
+      if (c.role_profile_map[role] !== name) invalid();
+      return name;
+    }).sort();
+    if (!equal([...c.profiles].sort(), expected) || new Set(expected).size !== expected.length
+        || !expected.includes(c.nano_director) || !equal(Object.keys(record.profiles).sort(), expected)
+        || Object.values(record.profiles).some(status => !['planned', 'pending', 'installed'].includes(status))) invalid();
+    profiles.push(...expected);
+  }
+  return profiles;
+}
+
 export async function assertIdle(ctx, { run }) {
-  const label = `ai.hermes.gateway-${ctx.profile}`, unit = `hermes-gateway-${ctx.profile}.service`;
-  const definitions = [path.join(ctx.accountHome, 'Library/LaunchAgents', `${label}.plist`),
-    path.join(ctx.accountHome, '.config/systemd/user', unit), path.join(ctx.home, '.config/systemd/user', unit)];
+  const osProfiles = await recordedOSProfiles(ctx), profiles = [ctx.profile, ...osProfiles];
+  const services = profiles.map(profile => ({ label: `ai.hermes.gateway-${profile}`, unit: `hermes-gateway-${profile}.service` }));
+  const definitions = services.flatMap(({ label, unit }) => [
+    path.join(ctx.accountHome, 'Library/LaunchAgents', `${label}.plist`), path.join(ctx.home, 'Library/LaunchAgents', `${label}.plist`),
+    path.join(ctx.accountHome, '.config/systemd/user', unit), path.join(ctx.home, '.config/systemd/user', unit)]);
   for (const target of definitions) if (await exists(target)) throw new Error('An owned gateway definition exists. Stop and explicitly remove that service binding before migration; no service was changed.');
   const env = { PATH: '/usr/bin:/bin', HOME: ctx.home, XDG_RUNTIME_DIR: `/run/user/${process.getuid()}`,
     DBUS_SESSION_BUS_ADDRESS: `unix:path=/run/user/${process.getuid()}/bus` };
@@ -150,8 +193,9 @@ export async function assertIdle(ctx, { run }) {
   const ancestors = new Set(); let cursor = process.pid;
   if (!rows.some(row => row.pid === cursor)) throw new Error('Incomplete process inventory; update refused.');
   while (cursor && !ancestors.has(cursor)) { ancestors.add(cursor); cursor = rows.find(row => row.pid === cursor)?.parent; }
-  if (rows.some(row => !ancestors.has(row.pid) && row.args.includes(ctx.root))) throw new Error('Another process references this Station root. Wait for its completion before migration or recovery; no process was stopped.');
-  for (const domain of ctx.platform === 'darwin' ? ['gui', 'user'] : ['user']) {
+  const selectors = osProfiles.map(profile => new RegExp(`(?:^|\\s)(?:--profile(?:=|\\s+)|-p\\s+)["']?${profile}(?:["']?(?:\\s|$))`));
+  if (rows.some(row => !ancestors.has(row.pid) && (row.args.includes(ctx.root) || selectors.some(selector => selector.test(row.args))))) throw new Error('Another process references this Station root or a recorded OS profile. Wait for its completion before migration or recovery; no process was stopped.');
+  for (const { label, unit } of services) for (const domain of ctx.platform === 'darwin' ? ['gui', 'user'] : ['user']) {
     const state = ctx.platform === 'darwin'
       ? await run('/bin/launchctl', ['print', `${domain}/${process.getuid()}/${label}`], { env, cwd: ctx.root, allowFailure: true, timeoutMs: 10000 })
       : await run('/usr/bin/systemctl', ['--user', 'show', unit, '--property=LoadState', '--value'], { env, cwd: ctx.root, allowFailure: true, timeoutMs: 10000 });
@@ -166,11 +210,31 @@ async function protectedFiles(ctx) {
   const profile = `personal/home/.hermes/profiles/${ctx.profile}`;
   const entries = [];
   for (const relative of ['personal/home/.hermes/.env', 'personal/home/.hermes/config.yaml',
-    `${profile}/.env`, `${profile}/config.yaml`, 'personal/home/.composio', 'personal/home/.config']) {
+    `${profile}/.env`, `${profile}/config.yaml`, 'personal/home/.composio', 'personal/home/.config', 'personal/home/os']) {
     await assertSafePath(path.dirname(path.join(ctx.root, relative)));
     await tree(ctx, relative, entries, { optional: true, protectedState: true });
   }
   return entries;
+}
+
+/** Existing state must match exactly. Only explicitly absent bundled OS roots
+ * may be created by the new installer, and only after their native checks pass.
+ */
+export function protectedStatePreserved(before, after, newOSRoots, checks) {
+  if (!Array.isArray(newOSRoots) || newOSRoots.some(root => !NEW_OS_ROOTS.includes(root))) return false;
+  const old = new Map(before.map(entry => [entry[0], entry]));
+  if (before.some(entry => newOSRoots.some(root => entry[0] === root || entry[0].startsWith(`${root}/`)))) return false;
+  const remaining = [];
+  for (const entry of after) {
+    if (old.has(entry[0])) { remaining.push(entry); continue; }
+    if (entry[0] === 'personal/home/os' && entry[1] === 'dir' && entry[2] === 0o700 && newOSRoots.length) continue;
+    const root = newOSRoots.find(candidate => entry[0] === candidate || entry[0].startsWith(`${candidate}/`));
+    if (!root) return false;
+    const id = root.split('/').at(-1);
+    if (!['distribution', 'native-profiles'].every(kind => checks.some(check => check.id === `os:${id}:${kind}`
+        && check.required === true && check.status === 'verified'))) return false;
+  }
+  return equal(before, remaining);
 }
 
 function validateJournal(ctx, journal) {
@@ -262,6 +326,11 @@ export async function applyUpdate(ctx, { run, provision, verify, emit = () => {}
     softwareChanged: false, reason: 'already at the target immutable release', operational: false };
   await assertIdle(ctx, { run });
   const before = await protectedFiles(ctx);
+  const newOSRoots = [];
+  for (const relative of NEW_OS_ROOTS) {
+    await assertSafePath(path.join(ctx.root, relative));
+    if (!await exists(path.join(ctx.root, relative))) newOSRoots.push(relative);
+  }
   const id = `update-${randomUUID()}`, transaction = path.join(ctx.evidence, id);
   await assertSafePath(transaction); await fs.mkdir(transaction, { mode: 0o700 });
   await atomicJSON(path.join(transaction, 'baseline.json'), await readRecord(ctx, SNAPSHOT), { exclusive: true });
@@ -281,11 +350,12 @@ export async function applyUpdate(ctx, { run, provision, verify, emit = () => {}
     const checks = Array.isArray(checked) ? checked : checked.checks;
     if (!Array.isArray(checks) || !checks.some(c => c.required === true)
         || checks.some(c => c.required === true && c.status !== 'verified')) throw new Error('Target software verification failed.');
-    if (!equal(before, await protectedFiles(ctx))) throw new Error('Protected configuration changed during native verification; inspect preserved evidence.');
+    if (!protectedStatePreserved(before, await protectedFiles(ctx), newOSRoots, checks)) throw new Error('Protected configuration changed during native verification; inspect preserved evidence.');
     const snapshot = await softwareSnapshot(ctx);
     await atomicJSON(path.join(ctx.root, SNAPSHOT), snapshot);
     const report = { status: 'ready-for-setup', from: plan.from, to: plan.to, checks,
-      evidence: transaction, servicesRestarted: false, accountsMigrated: false, operational: false };
+      evidence: transaction, servicesRestarted: false, accountsMigrated: false,
+      newlyPreparedOS: newOSRoots.map(root => root.split('/').at(-1)), operational: false };
     await atomicJSON(path.join(transaction, 'completed.json'), report);
     await fs.unlink(path.join(ctx.root, PENDING));
     return report;

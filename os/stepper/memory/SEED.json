@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "evidence_state": "REPORTED",
+  "facts": [
+    {
+      "id": "thin",
+      "statement": "A slice must be end-to-end and user-recognizable.",
+      "confidence": "A"
+    },
+    {
+      "id": "queue",
+      "statement": "Invisible WIP dominates lead time.",
+      "confidence": "A"
+    }
+  ],
+  "notes": "# Working notes — stepper-os\n\nName is stepping, not Circle. Hand construction to builder-os and path-to-prod to devops-os.\n",
+  "promotion": "explicit-verifier-and-owner-acceptance"
+}

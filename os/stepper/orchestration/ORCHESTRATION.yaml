@@ -1,0 +1,6 @@
+director: map-steward
+team: [shaper, sequencer]
+native_profile_routing: exact-generated-instance-map
+workflows: workflows/WORKFLOWS.json
+handoff_to: [librarian-os, builder-os, devops-os]
+unauthorized_or_missing_target: return-blocked-handoff

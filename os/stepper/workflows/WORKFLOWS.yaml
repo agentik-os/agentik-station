@@ -1,0 +1,7 @@
+workflows:
+  - id: step-loop
+    graph: intake -> story-map -> slice-thin -> shape-bet -> sequence-releases -> validate -> human-acceptance
+  - id: unwedge
+    graph: intake -> sequence-releases -> slice-thin -> validate -> human-acceptance
+contract: workflows/WORKFLOWS.json
+on_failure: preserve-artifacts-and-report-blocked-step

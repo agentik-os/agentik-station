@@ -1,0 +1,23 @@
+{
+  "pitch": {
+    "problem": "Recall work is a feature pile rather than a usable path",
+    "appetite": {
+      "amount": 2,
+      "unit": "weeks"
+    },
+    "solution": "One record, one template, fake send log, one confirmation",
+    "rabbit_holes": [
+      "Carrier integration"
+    ],
+    "success_signal": "Owner recognizes one complete synthetic journey"
+  },
+  "no_gos": [
+    "No real patient contact",
+    "No platform rebuild"
+  ],
+  "confidence": "C",
+  "evidence": [],
+  "assumptions": [
+    "Two-week appetite provided by exercise owner"
+  ]
+}

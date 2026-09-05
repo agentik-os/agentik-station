@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "stepper-os",
+  "version": "0.1.0",
+  "source": "canonical-adaptation",
+  "runtime_target": "Hermes",
+  "contract": "AGK OS v2",
+  "semantic_contract": "semantics/CONTRACT.json",
+  "deterministic_entrypoint": "programs/runner.py",
+  "upstream_archive_sha256": "febc6254ddfd7496ba20ce1e26db951ba5e1705d1086fddffa2891264c42a5ad"
+}

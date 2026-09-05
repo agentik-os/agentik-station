@@ -187,12 +187,23 @@ fi
         relative = str(src.relative_to(source))
         new = (ROOT / relative).read_bytes()
         old = new
+        if relative == "scripts/agk_control.py":
+            # Remove the later identity-aware specialist policy as well; keep
+            # the fixture bound to actual 11.24/11.25 bytes, not today's source.
+            helper_start = old.index(b"def specialist_environment(")
+            helper_end = old.index(b"def specialist_definition(", helper_start)
+            old = old[:helper_start] + old[helper_end:]
+            old = old.replace(
+                b"    environment, policy_scope = specialist_environment(env)\n"
+                b"    if not {environment, policy_scope}.intersection(scope):\n",
+                b'    if env.name != "operator" and env.name not in scope:\n',
+            )
         if relative in removed:
             delta = removed[relative].encode()
-            assert new.count(delta) == 1
+            assert old.count(delta) == 1
             replacement = (b"        if cwd != allowed and allowed not in cwd.parents:\n"
                            if relative == "scripts/agk_control.py" else b"")
-            old = new.replace(delta, replacement)
+            old = old.replace(delta, replacement)
             assert hashlib.sha256(old).hexdigest() == expected[relative]
         src.write_bytes(new)
         dst.write_bytes(old)

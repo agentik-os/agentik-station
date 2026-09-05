@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "pitch": {
+      "type": "object",
+      "properties": {
+        "problem": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "appetite": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "unit": {
+              "enum": [
+                "days",
+                "weeks"
+              ]
+            }
+          },
+          "required": [
+            "amount",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        "solution": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rabbit_holes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "success_signal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "problem",
+        "appetite",
+        "solution",
+        "rabbit_holes",
+        "success_signal"
+      ],
+      "additionalProperties": false
+    },
+    "no_gos": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "confidence": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 0,
+      "maxItems": 100
+    }
+  },
+  "required": [
+    "pitch",
+    "no_gos",
+    "confidence",
+    "evidence",
+    "assumptions"
+  ],
+  "additionalProperties": false
+}

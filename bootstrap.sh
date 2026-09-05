@@ -160,6 +160,7 @@ Additional bootstrap operations (outside the kernel InstallSpec)
   mode:         ${MODE}
   installation: $([[ $MINIMAL -eq 1 ]] && echo minimal-partial || echo full-stack)
   Hermes:       $([[ $INSTALL_HERMES -eq 1 ]] && echo install || echo skip)
+  Default OS:   $([[ $INSTALL_HERMES -eq 1 ]] && echo ' Stepper, Builder, Librarian native teams in the declared default Zone; no accounts or gateway activation' || echo skip)
   Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly coupled dependency discovery' || echo ' disabled')
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
   Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
@@ -496,6 +497,12 @@ bootstrap_checkpoint kernel-readback running
 "$REPO_DIR/station" status
 "$REPO_DIR/station" setup
 bootstrap_checkpoint kernel-readback success
+
+if [[ "$INSTALL_HERMES" -eq 1 ]]; then
+  bootstrap_checkpoint os-defaults running
+  /opt/station/current/station os defaults
+  bootstrap_checkpoint os-defaults success
+fi
 
 # Runtime services are installed only after Station has reconciled the
 # canonical Zones and systemd units. The full stack is the default; explicit

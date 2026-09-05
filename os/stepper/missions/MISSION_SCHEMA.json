@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,47}$",
+      "maxLength": 48
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "verifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "workspace": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "allowed_project_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{0,47}$",
+        "maxLength": 48
+      },
+      "minItems": 0,
+      "maxItems": 100,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "mission_id",
+    "goal",
+    "constraints",
+    "acceptance_criteria",
+    "owner",
+    "verifier",
+    "workspace",
+    "allowed_project_ids"
+  ],
+  "additionalProperties": false
+}

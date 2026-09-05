@@ -88,6 +88,8 @@ LEGACY_FULL_STAGES = [
 AGGREGATE_FULL_STAGES = [stage for stage in LEGACY_FULL_STAGES
                          if stage not in {"scrapegraphai", "crawl4ai", "voice"}]
 AGGREGATE_FULL_STAGES.insert(AGGREGATE_FULL_STAGES.index("hermes-update-timer"), "full-stack-verify")
+DEFAULT_OS_FULL_STAGES = AGGREGATE_FULL_STAGES.copy()
+DEFAULT_OS_FULL_STAGES.insert(DEFAULT_OS_FULL_STAGES.index("ai-stack"), "os-defaults")
 
 
 @pytest.mark.parametrize("version", ["10.99", "11.9", "11.27", "11.27.9", "legacy-label"])
@@ -95,14 +97,21 @@ def test_legacy_full_graph_preserves_original_web_and_voice_gates(version):
     assert selected_stages(full_options(), version) == LEGACY_FULL_STAGES
 
 
-@pytest.mark.parametrize("version", ["11.28", "11.28.0", "11.100", "12.0"])
+@pytest.mark.parametrize("version", ["11.28", "11.28.0", "11.30"])
 def test_full_graph_defers_web_and_voice_to_one_aggregate_stage(version):
     assert selected_stages(full_options(), version) == AGGREGATE_FULL_STAGES
 
 
 def test_default_graph_uses_current_product_release():
     assert selected_stages(full_options()) == selected_stages(full_options(), PRODUCT_VERSION)
-    assert selected_stages(full_options()) == AGGREGATE_FULL_STAGES
+    assert selected_stages(full_options()) == DEFAULT_OS_FULL_STAGES
+
+
+@pytest.mark.parametrize("version", ["11.31", "11.31.0", "11.100", "12.0"])
+def test_default_os_native_teams_precede_optional_stack_and_preserve_old_graphs(version):
+    assert selected_stages(full_options(), version) == DEFAULT_OS_FULL_STAGES
+    assert "os-defaults" not in selected_stages({**full_options(), "hermes": False}, version)
+    assert "os-defaults" in selected_stages({**full_options(), "ai_stack": False}, version)
 
 
 @pytest.mark.parametrize("version", ["11.27", "11.28"])
@@ -114,6 +123,7 @@ def test_minimal_graph_keeps_independent_web_voice_and_parakeet_gates(version):
 
 @pytest.mark.parametrize("version,expected", [
     ("11.27", LEGACY_FULL_STAGES), ("11.28", AGGREGATE_FULL_STAGES),
+    ("11.31", DEFAULT_OS_FULL_STAGES),
 ])
 def test_begin_and_receipt_readback_use_recorded_release_graph(fixture, version, expected):
     fixture.options.update(full_options())
@@ -160,7 +170,7 @@ def test_receipt_rejects_wrong_release_graph_and_reordered_stages(fixture, versi
 def test_failed_full_verification_preserves_installer_success_but_blocks_completion(fixture):
     fixture.options.update(full_options())
     attempt = fixture.begin()
-    for stage in AGGREGATE_FULL_STAGES[:AGGREGATE_FULL_STAGES.index("full-stack-verify")]:
+    for stage in DEFAULT_OS_FULL_STAGES[:DEFAULT_OS_FULL_STAGES.index("full-stack-verify")]:
         fixture.state.checkpoint(attempt, stage, "running")
         fixture.state.checkpoint(attempt, stage, "success")
     fixture.state.checkpoint(attempt, "full-stack-verify", "running")

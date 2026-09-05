@@ -1,0 +1,5 @@
+scope: owning-instance-only
+seed: memory/SEED.json
+mutable_notes: owning-workspace-memory
+promotion_requires: [source, confidence, verifier, acceptance]
+shared_client_memory: forbidden

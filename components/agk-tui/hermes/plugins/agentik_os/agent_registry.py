@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import pwd
 import re
 import shutil
 import sqlite3
@@ -13,7 +14,7 @@ from pathlib import Path
 import yaml
 
 from tools.registry import tool_error, tool_result
-from .workstation import agk_executable
+from .workstation import agent_environment, agk_executable
 
 
 _ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,79}$")
@@ -75,8 +76,9 @@ def agent_router_prompt(_session_info: dict | None = None) -> str:
     )
 
 
-def _environment() -> str:
-    return os.environ.get("AGENTIK_ENVIRONMENT") or os.environ.get("USER") or "agentik"
+def _environment() -> tuple[str, str]:
+    selected = os.environ.get("AGENTIK_ENVIRONMENT") or os.environ.get("USER") or pwd.getpwuid(os.geteuid()).pw_name
+    return agent_environment(selected, Path.home())
 
 
 def _runtime_row(name: str) -> dict | None:
@@ -139,12 +141,11 @@ def handle_agent(args: dict, **_kwargs) -> str:
         definition = _definition(agent_id)
         if not definition:
             return tool_error(f"unknown Agentik agent: {agent_id}")
-        environment = _environment()
-        # Operator is AGK's global administrative control plane. It may launch
-        # any installed specialized agent, but the runtime still stays inside
-        # Operator's own Linux home; this grants orchestration authority without
-        # crossing into another environment's private state.
-        if environment != "operator" and environment not in set(definition.get("scope") or []):
+        environment, policy_scope = _environment()
+        scope = definition.get("scope")
+        if not isinstance(scope, list) or any(not isinstance(item, str) for item in scope):
+            return tool_error(f"agent {agent_id} has an invalid scope")
+        if not {environment, policy_scope}.intersection(scope):
             return tool_error(f"agent {agent_id} is not allowed in {environment}")
         session = f"{environment}-{agent_id}"
         row = _runtime_row(session)

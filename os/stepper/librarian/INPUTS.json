@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "count": 15,
+  "evidence_state": "REPORTED",
+  "inputs": [
+    {
+      "id": "stepper-book-1",
+      "title": "User Story Mapping: Discover the Whole Story, Build the Right Product",
+      "authors": [
+        "Jeff Patton"
+      ],
+      "year": 2014,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "story-map",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-2",
+      "title": "User Stories Applied: For Agile Software Development",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2004,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-3",
+      "title": "Shape Up: Stop Running in Circles and Ship Work that Matters",
+      "authors": [
+        "Ryan Singer"
+      ],
+      "year": 2019,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "shape-bet",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-4",
+      "title": "The Principles of Product Development Flow: Second Generation Lean Product Development",
+      "authors": [
+        "Donald G. Reinertsen"
+      ],
+      "year": 2009,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "sequence-releases",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-5",
+      "title": "Agile Estimating and Planning",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2005,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-6",
+      "title": "Succeeding with Agile: Software Development Using Scrum",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2009,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-7",
+      "title": "Extreme Programming Explained: Embrace Change",
+      "authors": [
+        "Kent Beck",
+        "Cynthia Andres"
+      ],
+      "year": 2004,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-8",
+      "title": "Lean Software Development: An Agile Toolkit",
+      "authors": [
+        "Mary Poppendieck",
+        "Tom Poppendieck"
+      ],
+      "year": 2003,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-9",
+      "title": "Implementing Lean Software Development: From Concept to Cash",
+      "authors": [
+        "Mary Poppendieck",
+        "Tom Poppendieck"
+      ],
+      "year": 2006,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-10",
+      "title": "Kanban: Successful Evolutionary Change for Your Technology Business",
+      "authors": [
+        "David J. Anderson"
+      ],
+      "year": 2010,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-11",
+      "title": "Accelerate: The Science of Lean Software and DevOps",
+      "authors": [
+        "Nicole Forsgren",
+        "Jez Humble",
+        "Gene Kim"
+      ],
+      "year": 2018,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-12",
+      "title": "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation",
+      "authors": [
+        "Jez Humble",
+        "David Farley"
+      ],
+      "year": 2010,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-13",
+      "title": "Escaping the Build Trap: How Effective Product Management Creates Real Value",
+      "authors": [
+        "Melissa Perri"
+      ],
+      "year": 2018,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-14",
+      "title": "Inspired: How to Create Tech Products Customers Love",
+      "authors": [
+        "Marty Cagan"
+      ],
+      "year": 2018,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    },
+    {
+      "id": "stepper-book-15",
+      "title": "Team Topologies",
+      "authors": [
+        "Matthew Skelton",
+        "Manuel Pais"
+      ],
+      "year": 2019,
+      "source_url": null,
+      "verification": "NOT_VERIFIED",
+      "decision": "retain-as-candidate",
+      "mapped_to": "slice-thin",
+      "limitation": "Archive attribution only; publisher and applicability verification pending."
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { provisionWeb, verifyWeb } from './web.mjs';
 import { provisionConnectors, verifyConnectors } from './connectors.mjs';
+import { provisionOS, verifyOS } from './os.mjs';
 
 const RMUX_HASHES = Object.freeze({
   'darwin-arm64': 'aac857519071f680be53aa9a328dc0cd04c2abe66ec726f78aa9e26337c5ef7b',
@@ -391,6 +392,7 @@ export async function provision(ctx, { run, emit = () => {} }) {
   }
   await provisionConnectors(ctx, { run, emit, found: prerequisite.found });
   await provisionWeb(ctx, { run, emit, uv: prerequisite.found.uv, env: privateEnv(ctx) });
+  await provisionOS(ctx, { run, emit });
   return { checks: prerequisite.checks };
 }
 
@@ -434,6 +436,7 @@ export async function verify(ctx, { run, emit = () => {} }) {
   }
   checks.push(...await verifyConnectors(ctx, { run, emit }));
   checks.push(...await verifyWeb(ctx, { run, emit, env }));
+  checks.push(...await verifyOS(ctx, { run, emit }));
   for (const [id, detail] of [
     ['gateway', 'Software prepared; enroll the exact profile and explicitly activate. No Discord or other chat readback has occurred.'],
     ['accounts', 'Hermes model, GitHub, Vercel, Codex and Composio identities require separate enrollment; no personal credentials were copied.'],

@@ -871,6 +871,9 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
     }
     if args.platform_command == "setup":
         payload["setup_guidance"] = list(platform_setup_guidance(requested_platform))
+    if args.platform_command == "chat":
+        payload["platform_selection"] = "interactive instance CLI; no messaging gateway activation"
+        payload["next_repair_action"] = "Configure the selected role's model if needed, then verify its mission artifacts; CLI exit is not acceptance."
     if args.plan:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
@@ -895,11 +898,11 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
                 raise StationError(f"Could not {label} within its time limit; inspect Host service logs before retrying") from None
             if prerequisite.returncode != 0:
                 raise StationError(f"Could not {label}; inspect Host service logs before retrying")
-    interactive = args.platform_command in {"setup", "configure"}
+    interactive = args.platform_command in {"setup", "configure", "chat"}
     try:
-        # Wizards retain the human's TTY. Service actions have no interactive
-        # input and must clean up the runuser child group on timeout/cancel.
-        completed = (subprocess.run(argv, check=False) if interactive
+        # Interactive sessions use runuser's separate PTY across the UID boundary.
+        # Service actions clean up their child group on timeout/cancel.
+        completed = (subprocess.run(argv, check=False, **({"cwd": runtime["workspace_root"]} if args.platform_command == "chat" and instance_id else {})) if interactive
                      else run_bounded_native(argv, timeout=300))
         returncode = completed.returncode
     except subprocess.TimeoutExpired:
@@ -988,6 +991,35 @@ def cmd_os_catalog(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_os_resolve(args: argparse.Namespace) -> int:
+    from .os_discovery import bind_instance, resolve_package
+    result = resolve_package(repository_root(), args.name)
+    if bool(args.zone) != bool(args.instance):
+        raise ValidationError("OS routing needs both --zone and --instance, or neither for package discovery")
+    if args.zone:
+        from .os_instances import load_os_instance_record
+        zone = _load_zone_record(args.zone)
+        record = load_os_instance_record(LayoutPaths.live(), zone=zone, instance_id=args.instance, require_configured=True)
+        result = bind_instance(result, record)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+def cmd_os_defaults(args: argparse.Namespace) -> int:
+    from .os_defaults import install_default_os, plan_default_os
+    if os.geteuid() != 0:
+        raise StationError("Default OS planning/installation needs trusted Host and Zone records; use an authorized Station operator")
+    if args.plan:
+        result = plan_default_os(repository_root(), LayoutPaths.live())
+    else:
+        hermes, runuser = shutil.which("hermes"), shutil.which("runuser")
+        if not hermes or not runuser:
+            raise StationError("Hermes and runuser are required for native OS team installation")
+        result = install_default_os(repository_root(), LayoutPaths.live(), hermes_binary=hermes, runuser_binary=runuser)
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result.get("ok", True) else 1
+
+
 def _load_zone_record(zone_id: str) -> dict[str, Any]:
     from .os_lifecycle import read_runtime_json
 
@@ -1072,9 +1104,9 @@ def cmd_os_setup(args: argparse.Namespace) -> int:
 
 def cmd_os_instance(args: argparse.Namespace) -> int:
     """Resolve an instance explicitly; a reusable package is never a tenant."""
-    if args.instance_command == "setup":
+    if args.instance_command in {"setup", "chat"}:
         args.os = None
-        args.platform_command = "configure"
+        args.platform_command = "configure" if args.instance_command == "setup" else "chat"
         return cmd_platform_gateway(args)
     from .os_instances import install_os_instance, load_os_instance_record, verify_os_instance
 
@@ -1501,6 +1533,14 @@ def build_parser() -> argparse.ArgumentParser:
     os_catalog = os_sub.add_parser("catalog")
     os_catalog.add_argument("--json", action="store_true")
     os_catalog.set_defaults(handler=cmd_os_catalog)
+    os_resolve = os_sub.add_parser("resolve", help="Resolve Stepper/Builder aliases and an explicit installed instance without launching it")
+    os_resolve.add_argument("--name", required=True)
+    os_resolve.add_argument("--zone")
+    os_resolve.add_argument("--instance")
+    os_resolve.set_defaults(handler=cmd_os_resolve)
+    os_defaults = os_sub.add_parser("defaults", help="Prepare the default Stepper/Builder/Librarian native teams; no accounts or services")
+    os_defaults.add_argument("--plan", action="store_true")
+    os_defaults.set_defaults(handler=cmd_os_defaults)
     os_doctor = os_sub.add_parser("doctor")
     group = os_doctor.add_mutually_exclusive_group(required=True)
     group.add_argument("--id")
@@ -1529,7 +1569,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     os_instance = os_sub.add_parser("instance", help="First-class Zone-owned OS teams; no mandatory owning Project")
     instance_sub = os_instance.add_subparsers(dest="instance_command", required=True)
-    for action in ("install", "setup", "verify", "show"):
+    for action in ("install", "setup", "chat", "verify", "show"):
         command = instance_sub.add_parser(action)
         command.add_argument("--zone", required=True)
         command.add_argument("--instance", required=True)
@@ -1537,7 +1577,7 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--id", required=True, help="Reusable OS package id")
             command.add_argument("--organization", help="Required for an ORGANIZATIONS Zone")
             command.add_argument("--allow-project", action="append", default=[], help="Explicit Project scope; repeat to authorize multiple existing Projects")
-        if action == "setup":
+        if action in {"setup", "chat"}:
             command.add_argument("--plan", action="store_true")
             command.add_argument("--role", help="Configure this canonical team role; default is the Director")
         command.set_defaults(handler=cmd_os_instance)

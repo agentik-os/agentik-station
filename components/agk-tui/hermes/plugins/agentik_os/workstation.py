@@ -8,9 +8,40 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import pwd
 import stat
 import sys
 from pathlib import Path
+
+
+def agent_environment(environment: str, home: Path) -> tuple[str, str]:
+    """Resolve legacy agent scope from the real identity, never an env-only alias.
+
+    ``agk-station`` is the dedicated Host operator's session namespace; existing
+    agent catalogs call its policy role ``operator``. Neither spelling grants
+    access to another Unix identity, arbitrary agents, or canonical OS instances.
+    Personal Workstation enrollment has a separate, validated private namespace.
+    """
+    uid = os.geteuid()
+    if uid == 0 or os.getuid() != uid:
+        raise ValueError("Specialized agents require their non-root owning identity")
+    account = pwd.getpwuid(uid)
+    if Path.home() != home:
+        raise ValueError("Specialized agent HOME differs from its runtime owner")
+    if os.environ.get("STATION_WORKSTATION_ROOT"):
+        if workstation_root() is None or environment != "private":
+            raise ValueError("Workstation specialized agents require the private environment")
+        return "private", "private"
+    expected_home = Path("/home") / account.pw_name
+    if home != expected_home or Path(account.pw_dir) != expected_home:
+        raise ValueError("Specialized agent HOME is not the canonical account home")
+    if account.pw_name == "agk-station":
+        if environment not in {"agk-station", "operator"}:
+            raise ValueError("Specialized agent environment differs from the Station operator")
+        return "agk-station", "operator"
+    if account.pw_name not in {"operator", "agentik", "mission", "private"} or environment != account.pw_name:
+        raise ValueError("Specialized agent environment differs from its owning account")
+    return environment, environment
 
 
 def workstation_root() -> Path | None:

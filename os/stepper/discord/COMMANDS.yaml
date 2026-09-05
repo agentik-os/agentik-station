@@ -1,0 +1,15 @@
+commands:
+  - name: map
+    skill: story-map
+    role: map-steward
+  - name: slice
+    skill: slice-thin
+    role: map-steward
+  - name: shape
+    skill: shape-bet
+    role: shaper
+  - name: seq
+    skill: sequence-releases
+    role: sequencer
+entrypoint: director
+authorization: owning-instance-allowlist

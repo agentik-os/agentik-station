@@ -1,0 +1,5 @@
+name: stepper-os
+version: "0.1.0"
+profile_id: map-steward
+skills_dir: ../skills
+description: Typed journey mapping, slices, shaped bets and release sequence.

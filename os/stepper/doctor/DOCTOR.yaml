@@ -1,0 +1,5 @@
+checks: [station-os-source-contract, semantic-package-validation, typed-schemas, deterministic-evals, complete-native-team, exact-instance-role-map]
+program: programs/runner.py
+source_command: validate-package
+runtime: native-hermes-profile-and-plugin-doctor
+live_acceptance: authorized-user-artifact-roundtrip

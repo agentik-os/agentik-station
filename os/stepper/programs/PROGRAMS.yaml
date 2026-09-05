@@ -1,0 +1,28 @@
+programs:
+  - id: validate-artifact
+    entrypoint: programs/runner.py
+    command: validate
+    authority: read-only
+    deterministic: true
+    inputs: [skill-id, typed-json]
+    outputs: [validation-receipt]
+    idempotency: same-canonical-json-same-sha256
+    recovery: correct-rejected-fields-and-rerun
+  - id: validate-workflow
+    entrypoint: programs/runner.py
+    command: workflow
+    authority: read-only
+    deterministic: true
+    inputs: [workflow-json]
+    outputs: [workflow-validation-receipt]
+    idempotency: same-input-same-result
+    recovery: preserve-artifacts-and-correct-bindings
+  - id: evaluate
+    entrypoint: programs/runner.py
+    command: evaluate
+    authority: read-only
+    deterministic: true
+    inputs: [synthetic-fixtures]
+    outputs: [case-results]
+    idempotency: same-package-same-result
+    recovery: repair-package-and-repeat

@@ -1,0 +1,3 @@
+restore_rehearsal_required_for_operational: true
+steps: [inspect-failure, preserve-artifacts, validate-last-accepted-input, rebuild-derived-artifact, independent-readback]
+no_automatic_external_rollback: true

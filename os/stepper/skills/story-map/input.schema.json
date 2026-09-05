@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "journey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    }
+  },
+  "required": [
+    "journey",
+    "role"
+  ],
+  "additionalProperties": false
+}

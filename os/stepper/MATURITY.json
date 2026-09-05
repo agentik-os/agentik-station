@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "source_maturity": "INSTALLABLE",
+  "runtime_state": "NOT_INSTALLED",
+  "claim": "Canonical source, typed artifacts and local deterministic evaluation are installable; model execution, actual user acceptance and instance enrollment remain separate gates."
+}

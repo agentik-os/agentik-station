@@ -1,3 +1,23 @@
+## 11.31 — Stepper, native OS teams and evidence-driven orchestration
+
+- Integrate the supplied Stepper package as canonical OS source: three roles,
+  four typed skills, two workflows, deterministic positive/negative cases and
+  provenance; imported research remains reported rather than falsely verified.
+- Install Stepper/Builder/Librarian native teams in the full/core Factory or
+  explicit team seed Zone, and personal npm namespaces; preserve existing teams.
+- Resolve OS aliases to packages and explicitly selected trusted instances.
+  Add interactive instance chat without starting a gateway.
+- Correct the dedicated `agk-station` Builder scope across the AGK registry,
+  controller and TUI manifest, with identity-aware negative tests.
+- Compile shared Hermes orchestration guidance and reviewed native defaults;
+  deliver the feature-audit system protocol to every new DevOps team profile.
+- Document the fifteen native capabilities against the pinned implementation,
+  including incorrect article commands/defaults and unaccepted external gates.
+- Verify newly added personal OS state during npm upgrades while preserving all
+  pre-existing accounts/profile state; never force-update enrolled OS profiles.
+- Isolate interactive Zone entry with a separate runuser PTY and include every
+  recorded personal OS role in update-idle service/process checks.
+
 ## 11.30 — Native watcher receipts across traverse-only Station parents
 
 - Correct the real `station-system` watcher receipt path without broadening

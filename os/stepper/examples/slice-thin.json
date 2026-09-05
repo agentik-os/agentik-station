@@ -1,0 +1,28 @@
+{
+  "slice": {
+    "id": "recall-skeleton",
+    "outcome": "One test record walks selection through confirmation",
+    "activity_ids": [
+      "find",
+      "send",
+      "confirm"
+    ],
+    "strategy": "walking-skeleton",
+    "acceptance_checks": [
+      "Test operator can see selected record, simulated send and confirmation"
+    ],
+    "demo": "Complete one synthetic recall using a fake send log",
+    "dependencies": []
+  },
+  "out_of_scope": [
+    "campaigns",
+    "analytics",
+    "role administration",
+    "real messaging"
+  ],
+  "confidence": "C",
+  "evidence": [],
+  "assumptions": [
+    "Carrier integration is unverified"
+  ]
+}

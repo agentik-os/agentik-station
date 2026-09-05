@@ -1,0 +1,4 @@
+director: map-steward
+members: [shaper, sequencer]
+parallelism: bounded
+external_bots: director-only

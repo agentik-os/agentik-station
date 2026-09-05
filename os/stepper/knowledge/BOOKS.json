@@ -1,0 +1,885 @@
+{
+  "schema_version": 1,
+  "evidence_state": "REPORTED",
+  "independently_verified": false,
+  "book_count": 49,
+  "selected_count": 15,
+  "limitations": [
+    "Supplied bibliography has no source URLs/ISBN verification receipts.",
+    "README says32 but machine lists49; canonical count49.",
+    "Imported verified:true flags are historical assertions, not current verification."
+  ],
+  "books": [
+    {
+      "rank": 1,
+      "title": "User Story Mapping: Discover the Whole Story, Build the Right Product",
+      "authors": [
+        "Jeff Patton"
+      ],
+      "year": 2014,
+      "publisher": "O'Reilly Media",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "O'Reilly 2014; backbone plus slices.",
+      "practices": [
+        "Tell the user's journey left to right before you prioritize down.",
+        "A flat backlog hides the product; a map restores the whole story.",
+        "Slice a walking skeleton that is end-to-end thin, not a layer cake of plumbing.",
+        "Stories are invitations to a conversation, not mini specifications.",
+        "Release slices should be valuable to a real user, not only internally complete.",
+        "Do not map features; map activities and tasks the person already does.",
+        "Shared understanding beats signed documents as the output of mapping.",
+        "Split by stepping through the journey, not by splitting nouns into CRUD.",
+        "The map goes stale; redraw when the journey changes.",
+        "This is stepping, not a promise of velocity."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 2,
+      "title": "User Stories Applied: For Agile Software Development",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2004,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2004; INVEST-style stories and roles.",
+      "practices": [
+        "Write stories as valuable increments with a user role and a reason.",
+        "Independent, negotiable, valuable, estimable, small, testable is a hygiene check, not a religion.",
+        "Gather stories from roles, not only from a single proxy.",
+        "Acceptance tests belong with the story or the story is unfinished as a step.",
+        "Epics are placeholders; they are not work.",
+        "Do not treat 'as a user' as a template zombie; name the role.",
+        "Split when the story hides multiple steps or multiple users.",
+        "Estimates are for sequencing conversations, not for contracts.",
+        "Stories that only the database can love are not user stories.",
+        "Pair with mapping so the pile of cards still has a plot."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 3,
+      "title": "Shape Up: Stop Running in Circles and Ship Work that Matters",
+      "authors": [
+        "Ryan Singer"
+      ],
+      "year": 2019,
+      "publisher": "Basecamp",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Basecamp 2019; six-week bets and shaping.",
+      "practices": [
+        "Shape work before you bet: problem, appetite, solution outline, rabbit holes, no-gos.",
+        "Appetite is a time budget, not a feature tax.",
+        "A pitch is a bet, not a backlog forever-item.",
+        "Fixed time, variable scope inside the appetite.",
+        "Cool-down exists so the next bet is shaped, not improvised.",
+        "Do not start a cycle with unshaped wishes.",
+        "Hill charts show unknown-to-known, not percent-complete theater.",
+        "Circuit breakers: if the bet cannot land in the appetite, cut scope or stop.",
+        "Shaping is not a 200-page spec; it is a boundary with fat marker strokes.",
+        "Refuse circles of status meetings that replace shipping steps."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 4,
+      "title": "The Principles of Product Development Flow: Second Generation Lean Product Development",
+      "authors": [
+        "Donald G. Reinertsen"
+      ],
+      "year": 2009,
+      "publisher": "Celeritas Publishing",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Celeritas 2009; queues, batch size, WIP, cost of delay.",
+      "practices": [
+        "Watch queues; invisible work-in-process is delay.",
+        "Smaller batches reduce variability and feedback time.",
+        "Cost of delay should sequence steps, not HiPPO urgency.",
+        "WIP limits are a stepping tool, not a punishment.",
+        "Cadence and synchronization beat heroic integration weeks.",
+        "Do not optimize utilization of people at the expense of flow.",
+        "Decentralize control where information is local; centralize where it is not.",
+        "Variability is not always waste; some of it is the search.",
+        "Measure flow time of a slice, not only story points burned.",
+        "This is economics of stepping, not a new ceremony brand."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 5,
+      "title": "Agile Estimating and Planning",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2005,
+      "publisher": "Prentice Hall",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Prentice Hall 2005.",
+      "practices": [
+        "Read Agile Estimating and Planning as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Agile Estimating and Planning into a domain it did not study.",
+        "Write one disagreement you have with Agile Estimating and Planning so the book cannot become a guru.",
+        "Pair Agile Estimating and Planning with a contradictory title on this same ranked list before you act.",
+        "If a claim in Agile Estimating and Planning is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Agile Estimating and Planning into a next action, a stop rule, and a review date.",
+        "Refuse to sell Agile Estimating and Planning as a weekend transformation or a paid identity.",
+        "Cite Agile Estimating and Planning with author and year; do not invent a method the book does not contain.",
+        "Use Agile Estimating and Planning to name a trade-off, not to maximize every good at once.",
+        "Stop using Agile Estimating and Planning when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 6,
+      "title": "Succeeding with Agile: Software Development Using Scrum",
+      "authors": [
+        "Mike Cohn"
+      ],
+      "year": 2009,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2009.",
+      "practices": [
+        "Read Succeeding with Agile: Software Development Using Scrum as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Succeeding with Agile: Software Development Using Scrum into a domain it did not study.",
+        "Write one disagreement you have with Succeeding with Agile: Software Development Using Scrum so the book cannot become a guru.",
+        "Pair Succeeding with Agile: Software Development Using Scrum with a contradictory title on this same ranked list before you act.",
+        "If a claim in Succeeding with Agile: Software Development Using Scrum is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Succeeding with Agile: Software Development Using Scrum into a next action, a stop rule, and a review date.",
+        "Refuse to sell Succeeding with Agile: Software Development Using Scrum as a weekend transformation or a paid identity.",
+        "Cite Succeeding with Agile: Software Development Using Scrum with author and year; do not invent a method the book does not contain.",
+        "Use Succeeding with Agile: Software Development Using Scrum to name a trade-off, not to maximize every good at once.",
+        "Stop using Succeeding with Agile: Software Development Using Scrum when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 7,
+      "title": "Extreme Programming Explained: Embrace Change",
+      "authors": [
+        "Kent Beck",
+        "Cynthia Andres"
+      ],
+      "year": 2004,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "2nd ed. 2004; small releases.",
+      "practices": [
+        "Read Extreme Programming Explained: Embrace Change as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Extreme Programming Explained: Embrace Change into a domain it did not study.",
+        "Write one disagreement you have with Extreme Programming Explained: Embrace Change so the book cannot become a guru.",
+        "Pair Extreme Programming Explained: Embrace Change with a contradictory title on this same ranked list before you act.",
+        "If a claim in Extreme Programming Explained: Embrace Change is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Extreme Programming Explained: Embrace Change into a next action, a stop rule, and a review date.",
+        "Refuse to sell Extreme Programming Explained: Embrace Change as a weekend transformation or a paid identity.",
+        "Cite Extreme Programming Explained: Embrace Change with author and year; do not invent a method the book does not contain.",
+        "Use Extreme Programming Explained: Embrace Change to name a trade-off, not to maximize every good at once.",
+        "Stop using Extreme Programming Explained: Embrace Change when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 8,
+      "title": "Lean Software Development: An Agile Toolkit",
+      "authors": [
+        "Mary Poppendieck",
+        "Tom Poppendieck"
+      ],
+      "year": 2003,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2003.",
+      "practices": [
+        "Read Lean Software Development: An Agile Toolkit as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Lean Software Development: An Agile Toolkit into a domain it did not study.",
+        "Write one disagreement you have with Lean Software Development: An Agile Toolkit so the book cannot become a guru.",
+        "Pair Lean Software Development: An Agile Toolkit with a contradictory title on this same ranked list before you act.",
+        "If a claim in Lean Software Development: An Agile Toolkit is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Lean Software Development: An Agile Toolkit into a next action, a stop rule, and a review date.",
+        "Refuse to sell Lean Software Development: An Agile Toolkit as a weekend transformation or a paid identity.",
+        "Cite Lean Software Development: An Agile Toolkit with author and year; do not invent a method the book does not contain.",
+        "Use Lean Software Development: An Agile Toolkit to name a trade-off, not to maximize every good at once.",
+        "Stop using Lean Software Development: An Agile Toolkit when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 9,
+      "title": "Implementing Lean Software Development: From Concept to Cash",
+      "authors": [
+        "Mary Poppendieck",
+        "Tom Poppendieck"
+      ],
+      "year": 2006,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2006.",
+      "practices": [
+        "Read Implementing Lean Software Development: From Concept to Cash as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Implementing Lean Software Development: From Concept to Cash into a domain it did not study.",
+        "Write one disagreement you have with Implementing Lean Software Development: From Concept to Cash so the book cannot become a guru.",
+        "Pair Implementing Lean Software Development: From Concept to Cash with a contradictory title on this same ranked list before you act.",
+        "If a claim in Implementing Lean Software Development: From Concept to Cash is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Implementing Lean Software Development: From Concept to Cash into a next action, a stop rule, and a review date.",
+        "Refuse to sell Implementing Lean Software Development: From Concept to Cash as a weekend transformation or a paid identity.",
+        "Cite Implementing Lean Software Development: From Concept to Cash with author and year; do not invent a method the book does not contain.",
+        "Use Implementing Lean Software Development: From Concept to Cash to name a trade-off, not to maximize every good at once.",
+        "Stop using Implementing Lean Software Development: From Concept to Cash when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 10,
+      "title": "Kanban: Successful Evolutionary Change for Your Technology Business",
+      "authors": [
+        "David J. Anderson"
+      ],
+      "year": 2010,
+      "publisher": "Blue Hole Press",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Blue Hole 2010.",
+      "practices": [
+        "Read Kanban: Successful Evolutionary Change for Your Technology Business as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Kanban: Successful Evolutionary Change for Your Technology Business into a domain it did not study.",
+        "Write one disagreement you have with Kanban: Successful Evolutionary Change for Your Technology Business so the book cannot become a guru.",
+        "Pair Kanban: Successful Evolutionary Change for Your Technology Business with a contradictory title on this same ranked list before you act.",
+        "If a claim in Kanban: Successful Evolutionary Change for Your Technology Business is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Kanban: Successful Evolutionary Change for Your Technology Business into a next action, a stop rule, and a review date.",
+        "Refuse to sell Kanban: Successful Evolutionary Change for Your Technology Business as a weekend transformation or a paid identity.",
+        "Cite Kanban: Successful Evolutionary Change for Your Technology Business with author and year; do not invent a method the book does not contain.",
+        "Use Kanban: Successful Evolutionary Change for Your Technology Business to name a trade-off, not to maximize every good at once.",
+        "Stop using Kanban: Successful Evolutionary Change for Your Technology Business when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 11,
+      "title": "Accelerate: The Science of Lean Software and DevOps",
+      "authors": [
+        "Nicole Forsgren",
+        "Jez Humble",
+        "Gene Kim"
+      ],
+      "year": 2018,
+      "publisher": "IT Revolution",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "IT Revolution 2018; delivery performance.",
+      "practices": [
+        "Read Accelerate: The Science of Lean Software and DevOps as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Accelerate: The Science of Lean Software and DevOps into a domain it did not study.",
+        "Write one disagreement you have with Accelerate: The Science of Lean Software and DevOps so the book cannot become a guru.",
+        "Pair Accelerate: The Science of Lean Software and DevOps with a contradictory title on this same ranked list before you act.",
+        "If a claim in Accelerate: The Science of Lean Software and DevOps is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Accelerate: The Science of Lean Software and DevOps into a next action, a stop rule, and a review date.",
+        "Refuse to sell Accelerate: The Science of Lean Software and DevOps as a weekend transformation or a paid identity.",
+        "Cite Accelerate: The Science of Lean Software and DevOps with author and year; do not invent a method the book does not contain.",
+        "Use Accelerate: The Science of Lean Software and DevOps to name a trade-off, not to maximize every good at once.",
+        "Stop using Accelerate: The Science of Lean Software and DevOps when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 12,
+      "title": "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation",
+      "authors": [
+        "Jez Humble",
+        "David Farley"
+      ],
+      "year": 2010,
+      "publisher": "Addison-Wesley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2010.",
+      "practices": [
+        "Read Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation into a domain it did not study.",
+        "Write one disagreement you have with Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation so the book cannot become a guru.",
+        "Pair Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation with a contradictory title on this same ranked list before you act.",
+        "If a claim in Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation into a next action, a stop rule, and a review date.",
+        "Refuse to sell Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation as a weekend transformation or a paid identity.",
+        "Cite Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation with author and year; do not invent a method the book does not contain.",
+        "Use Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation to name a trade-off, not to maximize every good at once.",
+        "Stop using Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 13,
+      "title": "Escaping the Build Trap: How Effective Product Management Creates Real Value",
+      "authors": [
+        "Melissa Perri"
+      ],
+      "year": 2018,
+      "publisher": "O'Reilly Media",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "O'Reilly 2018.",
+      "practices": [
+        "Read Escaping the Build Trap: How Effective Product Management Creates Real Value as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Escaping the Build Trap: How Effective Product Management Creates Real Value into a domain it did not study.",
+        "Write one disagreement you have with Escaping the Build Trap: How Effective Product Management Creates Real Value so the book cannot become a guru.",
+        "Pair Escaping the Build Trap: How Effective Product Management Creates Real Value with a contradictory title on this same ranked list before you act.",
+        "If a claim in Escaping the Build Trap: How Effective Product Management Creates Real Value is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Escaping the Build Trap: How Effective Product Management Creates Real Value into a next action, a stop rule, and a review date.",
+        "Refuse to sell Escaping the Build Trap: How Effective Product Management Creates Real Value as a weekend transformation or a paid identity.",
+        "Cite Escaping the Build Trap: How Effective Product Management Creates Real Value with author and year; do not invent a method the book does not contain.",
+        "Use Escaping the Build Trap: How Effective Product Management Creates Real Value to name a trade-off, not to maximize every good at once.",
+        "Stop using Escaping the Build Trap: How Effective Product Management Creates Real Value when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 14,
+      "title": "Inspired: How to Create Tech Products Customers Love",
+      "authors": [
+        "Marty Cagan"
+      ],
+      "year": 2018,
+      "publisher": "Wiley",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "2nd ed. 2018.",
+      "practices": [
+        "Read Inspired: How to Create Tech Products Customers Love as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Inspired: How to Create Tech Products Customers Love into a domain it did not study.",
+        "Write one disagreement you have with Inspired: How to Create Tech Products Customers Love so the book cannot become a guru.",
+        "Pair Inspired: How to Create Tech Products Customers Love with a contradictory title on this same ranked list before you act.",
+        "If a claim in Inspired: How to Create Tech Products Customers Love is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Inspired: How to Create Tech Products Customers Love into a next action, a stop rule, and a review date.",
+        "Refuse to sell Inspired: How to Create Tech Products Customers Love as a weekend transformation or a paid identity.",
+        "Cite Inspired: How to Create Tech Products Customers Love with author and year; do not invent a method the book does not contain.",
+        "Use Inspired: How to Create Tech Products Customers Love to name a trade-off, not to maximize every good at once.",
+        "Stop using Inspired: How to Create Tech Products Customers Love when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 15,
+      "title": "Team Topologies",
+      "authors": [
+        "Matthew Skelton",
+        "Manuel Pais"
+      ],
+      "year": 2019,
+      "publisher": "IT Revolution",
+      "selected": true,
+      "reported_confidence": "A",
+      "reported_reason": "Team cognitive load and flow.",
+      "practices": [
+        "Read Team Topologies as a map of mechanisms, not as an oracle or a promised outcome.",
+        "Keep the author's actual object of study; do not port Team Topologies into a domain it did not study.",
+        "Write one disagreement you have with Team Topologies so the book cannot become a guru.",
+        "Pair Team Topologies with a contradictory title on this same ranked list before you act.",
+        "If a claim in Team Topologies is contested, drop confidence and do not enforce it on others.",
+        "Translate one idea from Team Topologies into a next action, a stop rule, and a review date.",
+        "Refuse to sell Team Topologies as a weekend transformation or a paid identity.",
+        "Cite Team Topologies with author and year; do not invent a method the book does not contain.",
+        "Use Team Topologies to name a trade-off, not to maximize every good at once.",
+        "Stop using Team Topologies when the live case is outside this OS boundary."
+      ],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 16,
+      "title": "The Goal: A Process of Ongoing Improvement",
+      "authors": [
+        "Eliyahu M. Goldratt",
+        "Jeff Cox"
+      ],
+      "year": 2004,
+      "publisher": "North River Press",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Revised novel; bottlenecks. First 1984.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 17,
+      "title": "The Phoenix Project: A Novel about IT, DevOps, and Helping Your Business Win",
+      "authors": [
+        "Gene Kim",
+        "Kevin Behr",
+        "George Spafford"
+      ],
+      "year": 2018,
+      "publisher": "IT Revolution",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Revised 2018.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 18,
+      "title": "Agile Software Development: The Cooperative Game",
+      "authors": [
+        "Alistair Cockburn"
+      ],
+      "year": 2006,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "2nd ed. 2006.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 19,
+      "title": "Crystal Clear: A Human-Powered Methodology for Small Teams",
+      "authors": [
+        "Alistair Cockburn"
+      ],
+      "year": 2004,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2004.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 20,
+      "title": "Specification by Example: How Successful Teams Deliver the Right Software",
+      "authors": [
+        "Gojko Adzic"
+      ],
+      "year": 2011,
+      "publisher": "Manning",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Manning 2011.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 21,
+      "title": "Impact Mapping: Making a Big Impact with Software Products and Projects",
+      "authors": [
+        "Gojko Adzic"
+      ],
+      "year": 2012,
+      "publisher": "Provoking Thoughts",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": 2012,
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 22,
+      "title": "Fifty Quick Ideas to Improve Your User Stories",
+      "authors": [
+        "Gojko Adzic",
+        "David Evans"
+      ],
+      "year": 2014,
+      "publisher": "Neuri Consulting",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": 2014,
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 23,
+      "title": "The Art of Agile Development",
+      "authors": [
+        "James Shore",
+        "Shane Warden"
+      ],
+      "year": 2021,
+      "publisher": "O'Reilly Media",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "2nd ed. 2021.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 24,
+      "title": "Project to Product: How to Survive and Thrive in the Age of Digital Disruption with the Flow Framework",
+      "authors": [
+        "Mik Kersten"
+      ],
+      "year": 2018,
+      "publisher": "IT Revolution",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "IT Revolution 2018.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 25,
+      "title": "Making Work Visible: Exposing Time Theft to Optimize Work & Flow",
+      "authors": [
+        "Dominica DeGrandis"
+      ],
+      "year": 2017,
+      "publisher": "IT Revolution",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "IT Revolution 2017.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 26,
+      "title": "This is Lean: Resolving the Efficiency Paradox",
+      "authors": [
+        "Niklas Modig",
+        "Par Ahlstrom"
+      ],
+      "year": 2012,
+      "publisher": "Rheologica",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": 2012,
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 27,
+      "title": "The Mythical Man-Month: Essays on Software Engineering",
+      "authors": [
+        "Frederick P. Brooks Jr."
+      ],
+      "year": 1995,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Anniversary ed. 1995.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 28,
+      "title": "Peopleware: Productive Projects and Teams",
+      "authors": [
+        "Tom DeMarco",
+        "Timothy Lister"
+      ],
+      "year": 2013,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "3rd ed. 2013.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 29,
+      "title": "Slack: Getting Past Burnout, Busywork, and the Myth of Total Efficiency",
+      "authors": [
+        "Tom DeMarco"
+      ],
+      "year": 2001,
+      "publisher": "Broadway Books",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": 2001,
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 30,
+      "title": "Managing the Design Factory: A Product Developer's Toolkit",
+      "authors": [
+        "Donald G. Reinertsen"
+      ],
+      "year": 1997,
+      "publisher": "Free Press",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Free Press 1997.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 31,
+      "title": "Agile Testing: A Practical Guide for Testers and Agile Teams",
+      "authors": [
+        "Lisa Crispin",
+        "Janet Gregory"
+      ],
+      "year": 2009,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Addison-Wesley 2009.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 32,
+      "title": "How to Measure Anything: Finding the Value of Intangibles in Business",
+      "authors": [
+        "Douglas W. Hubbard"
+      ],
+      "year": 2014,
+      "publisher": "Wiley",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "3rd ed. 2014; measuring a step's value.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 33,
+      "title": "Actionable Agile Metrics for Predictability: An Introduction",
+      "authors": [
+        "Daniel S. Vacanti"
+      ],
+      "year": 2015,
+      "publisher": "ActionableAgile Press",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Cycle time and flow metrics.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 34,
+      "title": "Agile Retrospectives: Making Good Teams Great",
+      "authors": [
+        "Esther Derby",
+        "Diana Larsen"
+      ],
+      "year": 2006,
+      "publisher": "Pragmatic Bookshelf",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Stepping the process, not only the backlog.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 35,
+      "title": "Clean Agile: Back to Basics",
+      "authors": [
+        "Robert C. Martin"
+      ],
+      "year": 2019,
+      "publisher": "Prentice Hall",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Values restatement; historical XP lens.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 36,
+      "title": "Coaching Agile Teams: A Companion for ScrumMasters, Agile Coaches, and Project Managers in Transition",
+      "authors": [
+        "Lyssa Adkins"
+      ],
+      "year": 2010,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Coaching stance; not a process police kit.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 37,
+      "title": "Essential Scrum: A Practical Guide to the Most Popular Agile Process",
+      "authors": [
+        "Kenneth S. Rubin"
+      ],
+      "year": 2012,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Scrum mechanics without cargo-cult roles.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 38,
+      "title": "Large-Scale Scrum: More with LeSS",
+      "authors": [
+        "Craig Larman",
+        "Bas Vodde"
+      ],
+      "year": 2016,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Descaling; pair against SAFe merch.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 39,
+      "title": "Planning Extreme Programming",
+      "authors": [
+        "Kent Beck",
+        "Martin Fowler"
+      ],
+      "year": 2000,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "XP planning game; historical.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 40,
+      "title": "Scrum: The Art of Doing Twice the Work in Half the Time",
+      "authors": [
+        "Jeff Sutherland"
+      ],
+      "year": 2014,
+      "publisher": "Crown Business",
+      "selected": false,
+      "reported_confidence": "C",
+      "reported_reason": "Popular Scrum; promised-productivity tone. Map, not a law.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 41,
+      "title": "The Nature of Software Development: Keep It Simple, Make It Valuable, Build It Piece by Piece",
+      "authors": [
+        "Ron Jeffries"
+      ],
+      "year": 2015,
+      "publisher": "Pragmatic Bookshelf",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Value-first slicing.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 42,
+      "title": "Waltzing with Bears: Managing Risk on Software Projects",
+      "authors": [
+        "Tom DeMarco",
+        "Timothy Lister"
+      ],
+      "year": 2003,
+      "publisher": "Dorset House",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Risk as a first-class step, not a register leftover.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 43,
+      "title": "Agile Project Management: Creating Innovative Products",
+      "authors": [
+        "Jim Highsmith"
+      ],
+      "year": 2009,
+      "publisher": "Addison-Wesley (2nd ed.)",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Adaptive steering; historical.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 44,
+      "title": "Kanban from the Inside: Understand the Kanban Method, connect it to what you already know, introduce it with impact",
+      "authors": [
+        "Mike Burrows"
+      ],
+      "year": 2014,
+      "publisher": "Blue Hole Press",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Values-first Kanban; not a board template.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 45,
+      "title": "Rapid Development: Taming Wild Software Schedules",
+      "authors": [
+        "Steve McConnell"
+      ],
+      "year": 1996,
+      "publisher": "Microsoft Press",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Schedule risk when stepping work.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 46,
+      "title": "Software Estimation: Demystifying the Black Art",
+      "authors": [
+        "Steve McConnell"
+      ],
+      "year": 2006,
+      "publisher": "Microsoft Press",
+      "selected": false,
+      "reported_confidence": "A",
+      "reported_reason": "Estimates as forecasts.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 47,
+      "title": "The Fifth Discipline: The Art and Practice of the Learning Organization",
+      "authors": [
+        "Peter M. Senge"
+      ],
+      "year": 1990,
+      "publisher": "Doubleday",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Learning loops as stepping the system.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 48,
+      "title": "The Professional Product Owner: Leveraging Scrum as a Competitive Advantage",
+      "authors": [
+        "Don McGreal",
+        "Ralph May"
+      ],
+      "year": 2018,
+      "publisher": "Addison-Wesley",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "PO as steward of value slices.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    },
+    {
+      "rank": 49,
+      "title": "The Toyota Way: 14 Management Principles from the World's Greatest Manufacturer",
+      "authors": [
+        "Jeffrey K. Liker"
+      ],
+      "year": 2004,
+      "publisher": "McGraw-Hill",
+      "selected": false,
+      "reported_confidence": "B",
+      "reported_reason": "Flow and respect; do not cargo-cult a factory tour.",
+      "practices": [],
+      "verification": "NOT_VERIFIED"
+    }
+  ]
+}

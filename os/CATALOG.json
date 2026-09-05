@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "release": "11.30",
+  "release": "11.31",
   "contract": "AGK OS v2",
   "source_root": "os",
   "packages": [
@@ -48,6 +48,15 @@
       "runtime_state": "NOT_INSTALLED",
       "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
       "next_repair_action": "Compile into the target Zone, configure integrations/credentials, run module Doctor and fresh-session acceptance before raising runtime state."
+    },
+    {
+      "id": "stepper-os",
+      "path": "os/stepper",
+      "version": "0.1.0",
+      "maturity": "INSTALLABLE",
+      "runtime_state": "NOT_INSTALLED",
+      "claim": "Canonical three-profile Hermes package with four typed skills, two workflows and deterministic artifact/evaluation programs. Provider, instance and live user acceptance remain separate gates.",
+      "next_repair_action": "Compile and enroll the complete team in the existing owning context, validate domain artifacts and run an authorized fresh-session acceptance before claiming runtime readiness."
     },
     {
       "id": "devops-os",

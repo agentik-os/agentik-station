@@ -1,0 +1,3 @@
+# Behavioral acceptance (not automatically passed)
+
+The archive rubric weights schema/evidence at0.20 and routing/safety/usefulness/non-copy at0.15. Those weights are advisory, not a quality91 claim. A human verifier must observe: rejecting CRUD layer tickets as a delivery plan; refusing guaranteed doubled velocity even when phrased inside free text; producing an actionable clinic recall map from synthetic data; requiring appetite/no-gos for unshaped work. Deterministic schema checks cannot recognize all semantic lies. Record actual case input/output, refusal or correction, independent rationale and owner acceptance; do not infer a90% behavior pass from static fixtures.

@@ -1,0 +1,5 @@
+source: os/stepper
+mode: complete-native-hermes-profile-distributions
+profiles: [map-steward, shaper, sequencer]
+instances: explicit-owner-enrollment
+accounts_and_services: separate-acceptance

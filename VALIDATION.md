@@ -1,4 +1,21 @@
-# Agentik Station 11.30 Validation
+# Agentik Station 11.31 Validation
+
+## Stepper and native orchestration — 11.31
+
+Implementation and acceptance are tracked in
+`docs/audit/2026-09-05-stepper-orchestration-plan.md`. New gates cover Stepper's
+typed artifacts and negative cases, compiled Director/team assets, personal
+native OS installation, the dedicated operator's Builder route and native
+Hermes configuration. The historical results below are not a new live
+acceptance claim for these changes.
+
+The extracted npm artifact installed and read back 29 native profiles across
+Stepper, Builder and Librarian; all three dedicated launchers passed native
+help checks. The npm regression run passed 263 tests, and AGK passed 461 tests
+with two local native-web skips. The Station/Factory run passed 1,975 tests with
+21 Linux-only skips; another 93 focused checks passed after interactive terminal
+hardening. Live accounts, model calls, chat admission and existing enrolled-profile
+migration remain distinct acceptance gates.
 
 ## Native watcher receipt correction — 11.30
 

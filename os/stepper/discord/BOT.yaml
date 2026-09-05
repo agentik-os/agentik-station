@@ -1,0 +1,5 @@
+identity: dedicated
+profile: map-steward
+application_creation: external-human-owned
+activation: explicit
+specialists: internal-no-public-bot-loop

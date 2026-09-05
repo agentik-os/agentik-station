@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.30.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.31.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -306,6 +306,29 @@ Production or destructive actions require the policy-defined human authorization
 **The whole model in one line:** Station governs → Hermes orchestrates → OS instances operate domains → instances and Projects retain owned state/evidence → verification feeds the next decision.
 
 ## Operative Systems
+
+### Shape it. Build it. Prove it.
+
+**Stepper is bundled with Station.** Its Map Steward, Shaper and Sequencer turn
+an idea into a story map, a thin end-to-end slice, a shaped bet and release order.
+Librarian verifies the uncertain inputs. Builder constructs reusable **OS
+packages**; DevOps builds and tests **project software**. Hermes runs the teams
+in their owning context; clients and memories are never merged by an OS name.
+
+Fresh full/core Host bootstrap, team bootstrap with an explicit Organization
+seed, and the personal npm installer prepare
+the Stepper, Builder and Librarian teams without enrolling accounts or starting
+bots. Existing instances are preserved. Every new DevOps profile receives the
+feature-by-feature audit protocol: inventory → reproduce → fix → retest → evidence.
+
+```bash
+station os resolve --name stepper
+sudo station os defaults --plan
+sudo station os resolve --name builder --zone os --instance builder
+```
+
+[How the four OS cooperate, where they live, and who can use them →](docs/os/08_STEPPER_AND_BUILDING.md)
+ · [15 native Hermes capabilities, verified against our pinned runtime →](docs/hermes/16_CAPABILITY_LADDER.md)
 
 An **Operative System (OS)** is a governed domain operating capability, not another Linux distribution or merely a bot team. Its four planes are **definition**, **Hermes runtime**, **connected capabilities**, and **state/evidence/interfaces**. It includes durable domain schemas, views, processes, workflows, governance and recovery alongside its Director and specialists. The reusable package is not the client's configured instance.
 

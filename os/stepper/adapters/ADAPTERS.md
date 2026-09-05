@@ -1,0 +1,3 @@
+# Runtime adapters
+
+Hermes is the implemented target: three profiles, four discoverable skills, typed schemas and a read-only deterministic validator. AGK discovers this package through Station catalog/context routing; commands are projected through the Director. No standalone MCP server or ChatGPT/Claude plugin is shipped. The six input adapters were explicitly stub contracts: their useful context ordering (Station policy → domain principles → active skill/schema → scoped knowledge → mission artifact), least privilege and validation rules are incorporated into profiles/skills. Do not claim an external adapter is connected.

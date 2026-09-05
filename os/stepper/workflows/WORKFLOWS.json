@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "workflows": [
+    {
+      "id": "step-loop",
+      "goal": "Map, slice, shape, sequence.",
+      "requires": [
+        "journey",
+        "actor",
+        "problem",
+        "appetite",
+        "constraints"
+      ],
+      "steps": [
+        {
+          "id": "story-map",
+          "role": "map-steward",
+          "skill": "story-map",
+          "on_fail": "abort"
+        },
+        {
+          "id": "slice-thin",
+          "role": "map-steward",
+          "skill": "slice-thin",
+          "on_fail": "abort"
+        },
+        {
+          "id": "shape-bet",
+          "role": "shaper",
+          "skill": "shape-bet",
+          "on_fail": "abort"
+        },
+        {
+          "id": "sequence-releases",
+          "role": "sequencer",
+          "skill": "sequence-releases",
+          "on_fail": "handoff"
+        }
+      ],
+      "bindings": [
+        "slice.activity_ids are declared map activities",
+        "sequence includes the selected slice",
+        "shape appetite is supplied, not inferred"
+      ],
+      "compensation": "Preserve partial artifacts; return a failure receipt. No external rollback."
+    },
+    {
+      "id": "unwedge",
+      "goal": "Make queued work visible and select a smaller next delivery.",
+      "requires": [
+        "existing-map",
+        "slices",
+        "constraints",
+        "owner-approval"
+      ],
+      "steps": [
+        {
+          "id": "sequence-releases",
+          "role": "sequencer",
+          "skill": "sequence-releases",
+          "on_fail": "abort"
+        },
+        {
+          "id": "slice-thin",
+          "role": "map-steward",
+          "skill": "slice-thin",
+          "on_fail": "handoff"
+        }
+      ],
+      "bindings": [
+        "selected slice occurs in the release sequence",
+        "source map is supplied alongside the queue"
+      ],
+      "compensation": "Preserve existing sequence and proposed smaller slice separately; no tracker mutation."
+    }
+  ]
+}

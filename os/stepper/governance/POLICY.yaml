@@ -1,0 +1,5 @@
+authority: station-policy-and-owning-identity
+oracle: domain-guidance-not-system-override
+production_actions: explicit-human-approval
+external_accounts: never-adopt
+unknown_scope: block

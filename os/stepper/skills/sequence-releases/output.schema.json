@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sequence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slice_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,47}$",
+            "maxLength": 48
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "kind": {
+            "enum": [
+              "walking-skeleton",
+              "end-to-end"
+            ]
+          },
+          "delay": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "risk": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,47}$",
+              "maxLength": 48
+            },
+            "minItems": 0,
+            "maxItems": 100,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "slice_id",
+          "position",
+          "kind",
+          "delay",
+          "risk",
+          "depends_on"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "stop_rule": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "wip_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "confidence": {
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000
+      },
+      "minItems": 0,
+      "maxItems": 100
+    }
+  },
+  "required": [
+    "sequence",
+    "stop_rule",
+    "wip_limit",
+    "confidence",
+    "evidence",
+    "assumptions"
+  ],
+  "additionalProperties": false
+}

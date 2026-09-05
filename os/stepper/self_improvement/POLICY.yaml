@@ -1,0 +1,4 @@
+promotion: proposed-change-only
+requires: [failure-evidence, source-review, adversarial-evaluation, independent-approval]
+update_immutable_source: reviewed-release-only
+no_self_modifying_policy: true

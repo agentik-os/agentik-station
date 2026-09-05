@@ -32,6 +32,9 @@ SUPPORTED_PLATFORMS = (
 )
 
 GATEWAY_ACTIONS = {
+    # Reuse the same trusted identity/profile selection for an interactive OS CLI.
+    # This does not install or start any messaging gateway.
+    "chat": ("chat",),
     # The full native setup wizard can install/start the gateway, even when
     # messaging is skipped. Keep provider enrollment in its native model section.
     "configure": ("setup", "model"),
@@ -119,8 +122,12 @@ def build_gateway_argv(
         raise ValidationError("Zone runtime uid must be non-negative")
     profile = validate_identifier(director_profile, "OS Director profile") if director_profile is not None else "default"
     runtime_dir = Path("/run/user") / str(runtime_uid)
+    interactive = action in {"chat", "configure", "setup"}
     return [
         str(runuser_binary),
+        # Never share a privileged caller's controlling terminal with Zone code.
+        # util-linux runuser(1) documents --pty for interactive UID boundaries.
+        *(["--pty"] if interactive else []),
         "--user",
         unix_user,
         "--",
@@ -131,6 +138,7 @@ def build_gateway_argv(
         f"XDG_RUNTIME_DIR={runtime_dir}",
         f"DBUS_SESSION_BUS_ADDRESS=unix:path={runtime_dir / 'bus'}",
         "PATH=/usr/local/bin:/usr/bin:/bin",
+        *(["TERM=xterm-256color"] if interactive else []),
         str(hermes_binary),
         "--profile",
         profile,

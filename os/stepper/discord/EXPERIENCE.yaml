@@ -1,0 +1,5 @@
+entrypoint: dedicated-nano-director
+response: concise-summary-plus-typed-artifact-and-next-step
+accessibility: text-first-no-color-only-meaning
+unknown_membership: refuse-with-setup-guidance
+notifications: owner-selected-channel-only

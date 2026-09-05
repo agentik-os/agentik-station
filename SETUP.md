@@ -6,6 +6,15 @@ The Host/Zone instructions below do not apply to a same-user Workstation namespa
 
 A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 
+Fresh 11.31 full/core and team bootstrap prepares the native Stepper, Builder
+and Librarian instances without accounts or bots. Select them with
+`station os resolve --name stepper` and, on Host, explicit `--zone`/`--instance`.
+The equivalent personal npm installation keeps the teams under its own private
+`station` root. See [first use and OS cooperation](docs/os/08_STEPPER_AND_BUILDING.md).
+No existing provider enrollment, profile or approved dispatcher is overwritten
+by those defaults. New compiled teams start with dispatch/API inactive until
+their selected work, accounts and delivery path are accepted.
+
 For the 11.14 client-owned instance sequence, follow [the first-mission guide](docs/operations/06_FIRST_MISSION.md).
 Start with `sudo station setup --json`. This is a read-only local report of the
 bootstrap, Organization/Zone/instance and Project evidence and the next ordered

@@ -1,0 +1,11 @@
+views:
+  - id: journey
+    source: story-map
+  - id: next-slice
+    source: thin-slice
+  - id: bet
+    source: shaped-bet
+  - id: release-order
+    source: release-sequence
+rendering: text-and-json
+not_provisioned: external-databases-and-dashboards

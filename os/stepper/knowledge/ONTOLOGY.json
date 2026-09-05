@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "entities": [
+    {
+      "id": "StorySlice",
+      "label": "Story slice",
+      "definition": "User-recognizable end-to-end increment with acceptance checks and exclusions."
+    },
+    {
+      "id": "StoryMap",
+      "label": "Story map",
+      "definition": "Ordered user activities and tasks; separates existing capability from gaps."
+    },
+    {
+      "id": "WIPLimit",
+      "label": "WIP limit",
+      "definition": "Explicit limit on simultaneous unfinished work."
+    },
+    {
+      "id": "CostOfDelay",
+      "label": "Cost of delay",
+      "definition": "Qualitative or evidenced economic consequence of deferring a slice."
+    },
+    {
+      "id": "Forecast",
+      "label": "Forecast",
+      "definition": "Conditional prediction, never a velocity commitment."
+    }
+  ],
+  "relations": [
+    {
+      "id": "chooses",
+      "from": "StoryMap",
+      "to": "StorySlice"
+    },
+    {
+      "id": "protects",
+      "from": "WIPLimit",
+      "to": "StorySlice"
+    },
+    {
+      "id": "ranks",
+      "from": "CostOfDelay",
+      "to": "Forecast"
+    }
+  ]
+}

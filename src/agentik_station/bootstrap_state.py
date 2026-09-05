@@ -47,6 +47,7 @@ REPAIR = {
     "agk-tui": "Inspect the AGK/RMUX installation and preserve existing sessions, launchers and user configuration.",
     "kernel-apply": "Inspect the separate kernel receipt and full Doctor before reapplying the desired state.",
     "kernel-readback": "Read the kernel receipt, status and full Doctor; a successful apply does not prove bootstrap complete.",
+    "os-defaults": "Inspect each default OS instance ledger; preserve existing instances and repair incomplete native teams explicitly, without copying accounts or starting gateways.",
     "ai-stack": "Inspect each required component and its state; do not blindly repeat the entire stack.",
     "parakeet": "Inspect the pinned image, service and loopback health; preserve existing service configuration.",
     "guided-setup": "Inspect the Zone broker, Tailnet enrollment and private Serve path before retrying setup.",
@@ -69,6 +70,9 @@ def selected_stages(options: dict[str, Any], release_version: str = PRODUCT_VERS
                if options[name] and name not in deferred]
     stages = ["agk-tui" if name == "agk_tui" else name for name in stages]
     stages += ["kernel-apply", "kernel-readback"]
+    if (options["hermes"] and all(part.isdecimal() for part in version_parts)
+            and tuple(map(int, version_parts)) >= (11, 31)):
+        stages.append("os-defaults")
     if options["ai_stack"]:
         stages.append("ai-stack")
     elif options["voice"]:

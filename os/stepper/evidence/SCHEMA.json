@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,47}$",
+      "maxLength": 48
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "stage": {
+      "enum": [
+        "PREPARED",
+        "OBSERVED",
+        "REPORTED",
+        "VERIFIED",
+        "READ_BACK",
+        "ACCEPTED"
+      ]
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "verifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "external_acceptance": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mission_id",
+    "artifact_sha256",
+    "stage",
+    "actor",
+    "verifier",
+    "claim",
+    "external_acceptance"
+  ],
+  "additionalProperties": false
+}

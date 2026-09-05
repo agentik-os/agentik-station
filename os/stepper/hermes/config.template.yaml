@@ -1,0 +1,10 @@
+profile:
+  id: map-steward
+terminal:
+  cwd: __PROJECT_ROOT__
+memory:
+  memory_enabled: true
+security:
+  redact_secrets: true
+kanban:
+  review_dispatch: true

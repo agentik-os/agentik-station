@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "source_kind": "user-supplied-archive",
+  "archive_name": "stepper-os-v0.1.0 (2).zip",
+  "archive_sha256": "febc6254ddfd7496ba20ce1e26db951ba5e1705d1086fddffa2891264c42a5ad",
+  "archive_bytes": 40608,
+  "archive_redistributed": false,
+  "archive_execution": false,
+  "archive_extracted": false,
+  "members": [
+    {
+      "path": "stepper-os/manifest.yaml",
+      "bytes": 595,
+      "sha256": "d0a8432fc83ba026d99a0fe2828a5d648d16e21b1a75fe8d23397e72e0a4ef29",
+      "adapted_to": [
+        "CONTRACT.json",
+        "OS.yaml",
+        "provenance/IMPORT.json"
+      ]
+    },
+    {
+      "path": "stepper-os/README.md",
+      "bytes": 356,
+      "sha256": "f153871c45397461ad4b5f942f9f1cc6a79ea0f3c8882d38b680a70da2f0dd9f",
+      "adapted_to": [
+        "README.md",
+        "1_MASTER/README.md"
+      ]
+    },
+    {
+      "path": "stepper-os/OS.md",
+      "bytes": 1004,
+      "sha256": "c1411408a645e97d3b61c919350869fcdf36686a7cee29aab86fb7c02bd74600",
+      "adapted_to": [
+        "README.md",
+        "1_MASTER/README.md"
+      ]
+    },
+    {
+      "path": "stepper-os/routing/intents.yaml",
+      "bytes": 540,
+      "sha256": "5c91fa01d33a378d89eabf016c86d5672b0ab1448437eef8426e1ee4f86fb0ae",
+      "adapted_to": [
+        "routing/ROUTING.json"
+      ]
+    },
+    {
+      "path": "stepper-os/research/methodology.md",
+      "bytes": 665,
+      "sha256": "1725bc193aeb8ac48e82a7c3409f7f11576a42eefce41d475f6c8be87bc42639",
+      "adapted_to": [
+        "knowledge/RESEARCH.md"
+      ]
+    },
+    {
+      "path": "stepper-os/research/sources.yaml",
+      "bytes": 14844,
+      "sha256": "c41d736b61f51d63cf7673529b23113322045d69abaa2686b8bcaed5172c7b6d",
+      "adapted_to": [
+        "knowledge/BOOKS.json",
+        "librarian/INPUTS.json"
+      ]
+    },
+    {
+      "path": "stepper-os/research/books-ranked.yaml",
+      "bytes": 35251,
+      "sha256": "b35a1c7a164e5560a6ad63407b6f3ec49bc5594ec0ff1b603e9ef801fb6531d7",
+      "adapted_to": [
+        "knowledge/BOOKS.json",
+        "librarian/INPUTS.json"
+      ]
+    },
+    {
+      "path": "stepper-os/research/extraction.yaml",
+      "bytes": 187685,
+      "sha256": "a04fbd6117fe0e910e9791f4617d6a40d6901a2bfa0b95edac33b55b2ce5f0fe",
+      "adapted_to": [
+        "knowledge/PRACTICES.json"
+      ]
+    },
+    {
+      "path": "stepper-os/research/synthesis.md",
+      "bytes": 1517,
+      "sha256": "30bdbccac3915eca4640286cd173020845cea97bd9ba17038de1dac2e863971d",
+      "adapted_to": [
+        "knowledge/RESEARCH.md"
+      ]
+    },
+    {
+      "path": "stepper-os/examples/recall-skeleton.md",
+      "bytes": 290,
+      "sha256": "9cca152920df805089f47c0b099066b31bc241bd40f5e01e8e017b8ca6662edd",
+      "adapted_to": [
+        "examples/README.md",
+        "examples/story-map.json",
+        "examples/slice-thin.json",
+        "examples/shape-bet.json",
+        "examples/sequence-releases.json"
+      ]
+    },
+    {
+      "path": "stepper-os/oracle/ORACLE.md",
+      "bytes": 471,
+      "sha256": "002572a820cf0a25aa8cf65e5880ca67368d6cae79fae95de9c53f8900ee1584",
+      "adapted_to": [
+        "harness/POLICY.yaml",
+        "governance/POLICY.yaml",
+        "director/PROFILE.md"
+      ]
+    },
+    {
+      "path": "stepper-os/workflows/step-loop.yaml",
+      "bytes": 440,
+      "sha256": "2e8bc98eb1cbb68058903c789c828d5e55e4772bcbb26afc9dfee8aaca0112ab",
+      "adapted_to": [
+        "workflows/WORKFLOWS.json"
+      ]
+    },
+    {
+      "path": "stepper-os/workflows/unwedge.yaml",
+      "bytes": 274,
+      "sha256": "b82969d9e631dbaadadc1a9cf34dabe17f1b90bd6572972bc1ec86f77218ccc0",
+      "adapted_to": [
+        "workflows/WORKFLOWS.json"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/contradictions.yaml",
+      "bytes": 1519,
+      "sha256": "707e7e5fcf5a95cc896438faac440b7211a0a0d4bdf318e6eb51933d704bbefb",
+      "adapted_to": [
+        "knowledge/CONTRADICTIONS.json"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/first-principles.md",
+      "bytes": 536,
+      "sha256": "939c70f08363c0a0de80895c912a4566b95609f862f9591da0df2e81287ea4c5",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/index.yaml",
+      "bytes": 206,
+      "sha256": "c96eb4847dfd8a388386c1ea74c6d03226225296c565c1e5483078a0c3fac362",
+      "adapted_to": [
+        "knowledge/SCOPE.yaml"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/ontology.yaml",
+      "bytes": 798,
+      "sha256": "75b82a4929dbe887ca66e60677ae3baeff175c7edbd3a8bb651c921375dfe724",
+      "adapted_to": [
+        "knowledge/ONTOLOGY.json"
+      ]
+    },
+    {
+      "path": "stepper-os/memory/working-notes.md",
+      "bytes": 126,
+      "sha256": "2259139ae759d69d1e1b43f90c23a93ff9ecaf67bf70a380be2564c0a37d14e6",
+      "adapted_to": [
+        "memory/SEED.json",
+        "memory/SCOPE.yaml"
+      ]
+    },
+    {
+      "path": "stepper-os/memory/seed.yaml",
+      "bytes": 214,
+      "sha256": "c1c335f41ead207874f7de51316c29ac30ba4005d558ae056e066b79973e3e09",
+      "adapted_to": [
+        "memory/SEED.json",
+        "memory/SCOPE.yaml"
+      ]
+    },
+    {
+      "path": "stepper-os/playbooks/no-circles.md",
+      "bytes": 98,
+      "sha256": "573f010ee7cafecc79f73d6007c718e5a1a7ec6c4bba4face6ed0622e65f38be",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/playbooks/walking-skeleton.md",
+      "bytes": 115,
+      "sha256": "1502932f5daf61b8c8c33b37c9c4bfc3be6a729901774a0228bfd616c7f33f89",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/commands/shape.md",
+      "bytes": 161,
+      "sha256": "e0da41acf796f90c7276275aa32f0abdcc876c5ca182ec2f6a5b630bf57e3f48",
+      "adapted_to": [
+        "discord/COMMANDS.yaml",
+        "routing/ROUTING.json"
+      ]
+    },
+    {
+      "path": "stepper-os/commands/seq.md",
+      "bytes": 180,
+      "sha256": "70d046787e125ae6f9c52f87a5e9cf184d58cba4796845f8f1ab2d9b55a69ca1",
+      "adapted_to": [
+        "discord/COMMANDS.yaml",
+        "routing/ROUTING.json"
+      ]
+    },
+    {
+      "path": "stepper-os/commands/slice.md",
+      "bytes": 149,
+      "sha256": "6d57cdfb2a820c0a42ad46338d05cc5f7ea6e3027cd84f8177a8d729e33659a8",
+      "adapted_to": [
+        "discord/COMMANDS.yaml",
+        "routing/ROUTING.json"
+      ]
+    },
+    {
+      "path": "stepper-os/commands/map.md",
+      "bytes": 152,
+      "sha256": "be45489db112e7c494bce359344b4315f511b5127471002ee34c1102f11bb8c6",
+      "adapted_to": [
+        "discord/COMMANDS.yaml",
+        "routing/ROUTING.json"
+      ]
+    },
+    {
+      "path": "stepper-os/evals/rubric.yaml",
+      "bytes": 677,
+      "sha256": "7a39e724bbb5b383cf511cf03352b9808dfa07fdc8bd7c25471224bb092a7f88",
+      "adapted_to": [
+        "evals/CASES.json",
+        "evals/BEHAVIOR.md"
+      ]
+    },
+    {
+      "path": "stepper-os/evals/suite.yaml",
+      "bytes": 713,
+      "sha256": "70602b55e9b7ccc1f7a870e2f0e57149001432b28286c813f1bdb2b97fb4e729",
+      "adapted_to": [
+        "evals/CASES.json",
+        "evals/BEHAVIOR.md"
+      ]
+    },
+    {
+      "path": "stepper-os/agents/map-steward.md",
+      "bytes": 439,
+      "sha256": "4d4d2735fc14313f60322350165082529cb3e59ef51b6125c2c34520e8c2cc85",
+      "adapted_to": [
+        "director/PROFILE.md"
+      ]
+    },
+    {
+      "path": "stepper-os/agents/sequencer.md",
+      "bytes": 423,
+      "sha256": "108234201eb496fe7ef0a8ea1aad6a1ce89b32623ae4db854c20fe2135cec70b",
+      "adapted_to": [
+        "profiles/sequencer/PROFILE.md"
+      ]
+    },
+    {
+      "path": "stepper-os/agents/shaper.md",
+      "bytes": 405,
+      "sha256": "799cbe64e6a02a262a7b2380e1ab1f972cf0536b66dee32cbbd2b7e9a182c6f1",
+      "adapted_to": [
+        "profiles/shaper/PROFILE.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/agk/ADAPTER.md",
+      "bytes": 782,
+      "sha256": "4e883284b2697a0eecf4160958d166df521aea92e8327daa5ebcc574c1cccbdc",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/mcp/ADAPTER.md",
+      "bytes": 781,
+      "sha256": "ff9c066d00ecf3277fe0f992fd31a2cb1839ba7ef5da3d26298f1a34cecbabdf",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/hermes/ADAPTER.md",
+      "bytes": 798,
+      "sha256": "d9e7776bb5fa831f5891fb9fe2c3177993b61365ca89ec2f89cb404819a6232f",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/claude/ADAPTER.md",
+      "bytes": 757,
+      "sha256": "e6ec95a2adeddf03c8276699e7f751d35c16a7f4e13d291d26619a7640d3cf0f",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/generic-llm/ADAPTER.md",
+      "bytes": 851,
+      "sha256": "fcaff3f1e647998ae8c1b6d0e86c5dc81ab7988083cc4e8916b0b78a8395bb24",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/adapters/chatgpt/ADAPTER.md",
+      "bytes": 768,
+      "sha256": "5d5806b333291e00020350c6ef73f0b4693cddd6f9d42ae6a591a115e467bda9",
+      "adapted_to": [
+        "adapters/ADAPTERS.md"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/sequence-releases/output.schema.json",
+      "bytes": 389,
+      "sha256": "82d72c75f6b1e5621c856d811dfc42738fde564d1e17c779e6fa9a52ade1050d",
+      "adapted_to": [
+        "skills/sequence-releases/output.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/sequence-releases/SKILL.md",
+      "bytes": 483,
+      "sha256": "1d90433a33d5119a539199a3bc0b28440eaad10f378d6cb8f6d321aebb6f96a0",
+      "adapted_to": [
+        "skills/sequence-releases/SKILL.md"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/sequence-releases/input.schema.json",
+      "bytes": 320,
+      "sha256": "e98f464c05fd45ba870551e4667ed88cb41141b7ed49be3cf73ff003032dc645",
+      "adapted_to": [
+        "skills/sequence-releases/input.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/shape-bet/output.schema.json",
+      "bytes": 377,
+      "sha256": "ee7cfe2167fffbec8209fe20ac723071914a0c44890c121064b74f0b92e62ad2",
+      "adapted_to": [
+        "skills/shape-bet/output.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/shape-bet/SKILL.md",
+      "bytes": 510,
+      "sha256": "68e2b69345748a19a3eddbf057997aefbf998b9db6206448c04f1f4a37ce4991",
+      "adapted_to": [
+        "skills/shape-bet/SKILL.md"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/shape-bet/input.schema.json",
+      "bytes": 285,
+      "sha256": "63c5e765c9d1bd4b07f02c908851dbe3c86a9bd160d1741d443e136577692182",
+      "adapted_to": [
+        "skills/shape-bet/input.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/slice-thin/output.schema.json",
+      "bytes": 389,
+      "sha256": "0b5ab33de5c8d01e0ed471b8ef9f0aa59d3a9e659b6c0a513262272f22162e36",
+      "adapted_to": [
+        "skills/slice-thin/output.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/slice-thin/SKILL.md",
+      "bytes": 542,
+      "sha256": "70c2b1fe7afae3acd2966216cfbe71abe5f1331d3589f95740dca940a46b0f8a",
+      "adapted_to": [
+        "skills/slice-thin/SKILL.md"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/slice-thin/input.schema.json",
+      "bytes": 260,
+      "sha256": "941a02e1172b5dfff5283c34e31caa6076ab2b11d8f7b858366596ae59f39433",
+      "adapted_to": [
+        "skills/slice-thin/input.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/story-map/output.schema.json",
+      "bytes": 371,
+      "sha256": "a5ca091da6baa4542d9f93c81ec3675ec8e3c8d68045951a18c645e5a8bf7559",
+      "adapted_to": [
+        "skills/story-map/output.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/story-map/SKILL.md",
+      "bytes": 515,
+      "sha256": "2a5bd383a2bcae3be6287c6b830278e9e0a53601eabf40550b28ba7ce28e5d32",
+      "adapted_to": [
+        "skills/story-map/SKILL.md"
+      ]
+    },
+    {
+      "path": "stepper-os/skills/story-map/input.schema.json",
+      "bytes": 265,
+      "sha256": "aa61b7a589b0bf914fa86e0171cb8f67ab49535126ba21be081730eb850565e2",
+      "adapted_to": [
+        "skills/story-map/input.schema.json"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/frameworks/invest.md",
+      "bytes": 53,
+      "sha256": "320a909cee41c09cbe3f90d2d8389248084c644679ac3352e07455eae669db71",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/frameworks/cod.md",
+      "bytes": 66,
+      "sha256": "1c6e0fe93df56cd01439e582db983e8d7ce28bab3c7214d80b3b52373eebec31",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/mental-models/appetite.md",
+      "bytes": 81,
+      "sha256": "b41c70aafc0365d0a71d51f18cb3fd4f2490a04eb70c23fa3af90f70137c2bbf",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    },
+    {
+      "path": "stepper-os/knowledge/mental-models/map.md",
+      "bytes": 83,
+      "sha256": "e9895990617a2f9c0b4401ae91472332e6c312063a2fefdc29fc503319f97a77",
+      "adapted_to": [
+        "knowledge/PRINCIPLES.md"
+      ]
+    }
+  ],
+  "license": {
+    "present_in_archive": false,
+    "grant_inferred": false,
+    "note": "No license is invented. Original archive is not redistributed; supplied material is adapted under the user-authorized integration, not a new upstream license grant."
+  },
+  "reported_manifest": {
+    "id": "stepper-os",
+    "title": "Stepper OS",
+    "version": "0.1.0",
+    "wave": 3,
+    "purpose": "Sequence valuable thin slices — maps, splits, shaped bets, release steps — so work walks instead of circling.",
+    "depends_on": [
+      "research-os",
+      "evaluation-os"
+    ],
+    "provides": [
+      "story-map",
+      "thin-slice",
+      "shaped-bet",
+      "release-sequence"
+    ],
+    "confidence": "A",
+    "oracle": "oracle/ORACLE.md",
+    "routing": "routing/intents.yaml",
+    "quality": {
+      "overall": 91,
+      "categories": {
+        "layout": 10,
+        "schemas": 9,
+        "knowledge": 9,
+        "research": 9,
+        "agents_skills": 9,
+        "workflows": 9,
+        "evals": 8,
+        "adapters": 8,
+        "evidence": 9,
+        "packaging": 9
+      }
+    }
+  },
+  "accepted_quality_score": null,
+  "research_verification": "NOT_VERIFIED",
+  "changes": [
+    "Canonical AGK OS v2 contract and three native Hermes profiles",
+    "Preserve four skills and two workflow meanings; add strict typed artifacts and deterministic checks",
+    "Repair escaped ontology labels and reconcile49-book/150-practice machine counts",
+    "Replace unresolved research/evaluation/release package names with explicit Librarian/Builder/DevOps handoffs",
+    "Do not treat imported oracle precedence, score91, verified flags or stub adapters as runtime authority"
+  ]
+}

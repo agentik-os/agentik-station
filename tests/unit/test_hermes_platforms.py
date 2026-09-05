@@ -49,6 +49,17 @@ def test_gateway_command_rejects_cross_zone_hermes_home() -> None:
 
 
 @pytest.mark.parametrize("action", GATEWAY_ACTIONS)
+def test_interactive_uid_switch_isolates_the_callers_terminal(action):
+    argv = build_gateway_argv(_zone(), action, runtime_uid=12001,
+                              hermes_binary=Path("/usr/local/bin/hermes"))
+    interactive = action in {"chat", "configure", "setup"}
+    assert ("--pty" in argv[:argv.index("--")]) is interactive
+    assert ("TERM=xterm-256color" in argv) is interactive
+    assert "--preserve-environment" not in argv
+    assert argv[argv.index("--") + 1:argv.index("--") + 3] == ["/usr/bin/env", "-i"]
+
+
+@pytest.mark.parametrize("action", GATEWAY_ACTIONS)
 def test_all_actions_explicitly_route_to_accepted_director(action):
     argv = build_gateway_argv(_zone(), action, runtime_uid=12001,
                               hermes_binary=Path("/usr/local/bin/hermes"), director_profile="forge")

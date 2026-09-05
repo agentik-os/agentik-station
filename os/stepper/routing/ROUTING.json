@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "package": "stepper-os",
+  "director": "map-steward",
+  "roles": {
+    "map-steward": [
+      "story-map",
+      "slice-thin"
+    ],
+    "shaper": [
+      "shape-bet"
+    ],
+    "sequencer": [
+      "sequence-releases"
+    ]
+  },
+  "commands": {
+    "map": "story-map",
+    "slice": "slice-thin",
+    "shape": "shape-bet",
+    "seq": "sequence-releases"
+  },
+  "intents": [
+    {
+      "id": "map",
+      "match": "story map|lost the plot|user journey backlog",
+      "route": "skill:story-map",
+      "min_confidence": 0.6
+    },
+    {
+      "id": "slice",
+      "match": "thin slice|walking skeleton|split this story",
+      "route": "skill:slice-thin",
+      "min_confidence": 0.6
+    },
+    {
+      "id": "shape",
+      "match": "shape this bet|appetite|pitch for a cycle",
+      "route": "skill:shape-bet",
+      "min_confidence": 0.6
+    },
+    {
+      "id": "seq",
+      "match": "what ships first|sequence releases|cost of delay",
+      "route": "skill:sequence-releases",
+      "min_confidence": 0.6
+    }
+  ],
+  "context_required": [
+    "owning-identity",
+    "installation-context",
+    "exact-native-role-map"
+  ],
+  "membership": "not-inferred-from-role-name",
+  "external_mutation": "denied",
+  "handoffs": {
+    "research-os": "librarian-os",
+    "evaluation-os": "builder-os",
+    "builder-os": "builder-os",
+    "release-os": "devops-os"
+  }
+}

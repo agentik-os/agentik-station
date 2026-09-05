@@ -1,0 +1,4 @@
+scope: immutable-domain-knowledge
+sources: [knowledge/BOOKS.json, knowledge/PRACTICES.json, knowledge/PRINCIPLES.md, knowledge/CONTRADICTIONS.json, knowledge/ONTOLOGY.json]
+imported_verification: reported-not-independently-verified
+no_book_or_pdf_ingest: true

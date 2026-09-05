@@ -222,6 +222,17 @@ def agent_catalog_path(home: Path) -> Path:
     )
 
 
+def specialist_environment(env: Environment) -> tuple[str, str]:
+    # Read the same stdlib-only identity policy used by the Hermes plugin,
+    # without importing the plugin package or a configured Hermes runtime.
+    import importlib.util
+    helper = Path(__file__).resolve().parents[1] / "hermes/plugins/agentik_os/workstation.py"
+    spec = importlib.util.spec_from_file_location("agk_specialist_scope", helper)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.agent_environment(env.name, env.home)
+
+
 def specialist_definition(env: Environment, agent_id: str) -> dict[str, object]:
     if not NAME_RE.fullmatch(agent_id):
         raise ValueError("specialist id must use the canonical name grammar")
@@ -238,7 +249,8 @@ def specialist_definition(env: Environment, agent_id: str) -> dict[str, object]:
     scope = document.get("scope") or []
     if not isinstance(scope, list) or any(not isinstance(item, str) for item in scope):
         raise RuntimeError(f"specialist scope is invalid: {agent_id}")
-    if env.name != "operator" and env.name not in scope:
+    environment, policy_scope = specialist_environment(env)
+    if not {environment, policy_scope}.intersection(scope):
         raise PermissionError(f"specialist {agent_id} is not allowed in {env.name}")
     prompt_value = str(document.get("prompt") or "prompt.md")
     prompt = (manifest.parent / prompt_value).resolve()

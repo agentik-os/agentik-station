@@ -1,0 +1,19 @@
+{
+  "sequence": [
+    {
+      "slice_id": "recall-skeleton",
+      "position": 1,
+      "kind": "walking-skeleton",
+      "delay": "medium",
+      "risk": "low",
+      "depends_on": []
+    }
+  ],
+  "stop_rule": "Stop if carrier integration consumes the appetite; keep the fake send log",
+  "wip_limit": 1,
+  "confidence": "C",
+  "evidence": [],
+  "assumptions": [
+    "Qualitative delay/risk only"
+  ]
+}

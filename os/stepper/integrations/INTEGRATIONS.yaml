@@ -1,0 +1,9 @@
+integrations: []
+policy: no-required-external-account
+handoffs:
+  research-os: librarian-os
+  evaluation-os: builder-os
+  builder-os: builder-os
+  release-os: devops-os
+resolution: explicit-existing-instance-and-owner-authorization
+cross_zone_default: deny

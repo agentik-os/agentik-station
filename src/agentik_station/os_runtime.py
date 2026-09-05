@@ -198,8 +198,20 @@ def _profile_distribution(
     # Generated distribution duplication is intentional and disposable; canonical source remains under os/.
     if (source / "skills").is_dir():
         shutil.copytree(source / "skills", destination / "skills", symlinks=False)
+    shared_skill = source.parent / "_shared/skills/station-orchestration"
+    SafeFS._assert_existing_absolute_chain(shared_skill)
+    for entry in shared_skill.iterdir():
+        if entry.is_symlink() or not entry.is_file() or entry.stat().st_nlink != 1:
+            raise ValidationError("Shared orchestration skill must contain only regular source files")
+    shutil.copytree(shared_skill, destination / "skills/station-orchestration", symlinks=False)
     if (source / "research_fabric").is_dir():
         shutil.copytree(source / "research_fabric", destination / "research_fabric", symlinks=False)
+    # Stepper's skills invoke its deterministic programs and typed domain inputs.
+    # Deliver these actual dependencies, not merely a prompt pointing to absent files.
+    domain_assets = ("programs", "knowledge", "workflows", "routing", "evals", "data", "examples") if os_id == "stepper-os" else ()
+    for asset in domain_assets:
+        if (source / asset).is_dir():
+            shutil.copytree(source / asset, destination / asset, symlinks=False)
 
     distribution = (
         f'name: {profile_id}\n'
@@ -217,8 +229,23 @@ def _profile_distribution(
         '  - plugins/station-web/\n'
         '  - distribution.yaml\n'
     )
+    distribution += ''.join(f'  - {asset}/\n' for asset in domain_assets if (source / asset).is_dir())
+    from .os_discovery import resolve_package
+    routing = resolve_package(source.parents[1], os_id)
+    (destination / "OS_ROUTING.json").write_text(json.dumps(routing, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    distribution += '  - OS_ROUTING.json\n'
     config_template = (source / "hermes/config.template.yaml").read_text(encoding="utf-8")
     config = _profile_config(config_template, profile_id, project_root)
+    defaults_path = source.parents[1] / "config/hermes/orchestration.default.yaml"
+    SafeFS._assert_existing_absolute_chain(defaults_path.parent)
+    if defaults_path.is_symlink() or not defaults_path.is_file() or defaults_path.stat().st_nlink != 1:
+        raise ValidationError("Missing or unsafe canonical Hermes orchestration defaults")
+    defaults = _unique_config_yaml(defaults_path.read_text(encoding="utf-8"))
+    config = _merge_defaults(defaults, config)
+    # Dispatch is enrollment, not source compilation. Never inherit the old
+    # template's review_dispatch=true into an otherwise unconfigured team.
+    config["kanban"].update(dispatch_in_gateway=False, auto_decompose=False, review_dispatch=False)
+    config["platforms"]["api_server"]["enabled"] = False
     if os_id == "devops-os":
         security_target = destination / "plugins/station-strix"
         security_target.mkdir(parents=True)
@@ -234,6 +261,10 @@ def _profile_distribution(
         config["plugins"]["entries"]["station-strix"] = {"allow_tool_override": False}
         distribution += '  - plugins/station-strix/\n  - STRIX_TEAM.json\n'
         shutil.copyfile(source / "team/STRIX.json", destination / "STRIX_TEAM.json")
+        audit_source = source / "prompts/FEATURE_AUDIT.md"
+        if audit_source.is_symlink() or not audit_source.is_file():
+            raise ValidationError("Missing canonical DevOps feature audit system prompt")
+        profile_text += "\n\n" + audit_source.read_text(encoding="utf-8")
 
     # Ship only the governed web tools, not the operator's runtime/router/Discord plugin.
     plugin_source = source.parents[1] / "components/agk-tui/hermes/plugins/agentik_os"
@@ -254,6 +285,14 @@ def _profile_distribution(
     (destination / "config.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     soul = (
         profile_text.rstrip()
+        + "\n\n## OS selection and cooperation\n\n"
+        + "Read OS_ROUTING.json and the station-orchestration skill. Stepper shapes and slices product work; "
+          "Librarian supplies verified domain research; Builder builds reusable OS packages; DevOps builds, "
+          "tests and delivers project software. These are different capabilities, not interchangeable clients. "
+          "Use INSTANCE.json for this instance's native role map. A missing peer requires scoped enrollment "
+          "or a handoff artifact, never silently switching to another client's profile. A package/role name "
+          "does not grant a human chat admission or production authority. Keep doing independent authorized "
+          "work when an external branch is unavailable.\n"
         + "\n\n## Station universal agent rules\n\n"
         + "The following rules are mandatory for this profile and every delegated executor.\n\n"
         + station_rules.strip()

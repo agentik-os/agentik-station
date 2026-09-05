@@ -1,0 +1,2 @@
+ordered_skills: [story-map, slice-thin, shape-bet, sequence-releases]
+verification: programs/runner.py

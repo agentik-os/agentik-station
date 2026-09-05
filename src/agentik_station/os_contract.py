@@ -213,6 +213,44 @@ def _doctor_devops_semantics(path: Path, result: OSDoctorResult) -> None:
         )
 
 
+def _doctor_stepper_semantics(path: Path, result: OSDoctorResult) -> None:
+    """Inspect typed artifacts only; Doctor never executes an OS-supplied program."""
+    skills = ("story-map", "slice-thin", "shape-bet", "sequence-releases")
+    try:
+        semantics = _safe_json(path / "semantics/CONTRACT.json", path)
+        if (semantics.get("schema_version") != "station-stepper-semantics/v1"
+                or semantics.get("skills") != list(skills)
+                or semantics.get("profiles") != ["map-steward", "shaper", "sequencer"]):
+            raise ValueError("Stepper must declare its three roles and four canonical skills")
+        required = ["programs/runner.py", "knowledge/PRINCIPLES.md", "knowledge/BOOKS.json",
+                    "knowledge/PRACTICES.json", "routing/ROUTING.json", "workflows/WORKFLOWS.json",
+                    "evals/CASES.json", "provenance/IMPORT.json", "profiles/shaper/PROFILE.md",
+                    "profiles/sequencer/PROFILE.md"]
+        required += [f"skills/{skill}/{name}" for skill in skills
+                     for name in ("SKILL.md", "input.schema.json", "output.schema.json")]
+        for relative in required:
+            if not _safe_regular(path / relative, path):
+                raise ValueError(f"Missing or unsafe Stepper semantic asset: {relative}")
+        for skill in skills:
+            for kind in ("input", "output"):
+                schema = _safe_json(path / f"skills/{skill}/{kind}.schema.json", path)
+                if (schema.get("type") != "object" or schema.get("additionalProperties") is not False
+                        or not schema.get("required") or not schema.get("properties")):
+                    raise ValueError("Stepper artifacts require strict typed object schemas")
+        workflows = _safe_json(path / "workflows/WORKFLOWS.json", path)
+        if {flow["id"] for flow in workflows["workflows"]} != {"step-loop", "unwedge"}:
+            raise ValueError("Stepper requires both end-to-end workflows")
+        cases = _safe_json(path / "evals/CASES.json", path)["cases"]
+        if (not isinstance(cases, list) or len(cases) < 4
+                or any(not isinstance(case, dict) or type(case.get("valid")) is not bool for case in cases)
+                or not any(case["valid"] is False for case in cases)
+                or not any(case["valid"] is True for case in cases)):
+            raise ValueError("Stepper requires positive and negative executable evaluation fixtures")
+        result.passed("semantic:stepper", "three roles, four typed skills, two workflows and negative evaluation fixtures; no model/runner executed")
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        result.failed("semantic:stepper", str(exc), "Restore Stepper source assets and run its deterministic evaluator, then native profile acceptance.")
+
+
 def doctor_os_source(path: Path, expected_id: str | None = None) -> OSDoctorResult:
     path = Path(path)
     if path.is_symlink() or not path.is_dir():
@@ -278,5 +316,7 @@ def doctor_os_source(path: Path, expected_id: str | None = None) -> OSDoctorResu
 
     if result.os_id == "devops-os":
         _doctor_devops_semantics(path, result)
+    elif result.os_id == "stepper-os":
+        _doctor_stepper_semantics(path, result)
 
     return result

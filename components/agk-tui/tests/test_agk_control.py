@@ -100,6 +100,9 @@ def test_openrouter_sessions_pin_the_supported_model(monkeypatch):
 
 
 def test_specialist_start_binds_catalog_profile_and_durable_rmux(tmp_path, monkeypatch):
+    # Native identity validation is covered separately; this fixture exercises
+    # a synthetic mission workspace, not an actual /home/mission account.
+    monkeypatch.setattr(agk, "specialist_environment", lambda env: (env.name, env.name))
     catalog = tmp_path / "catalog"
     definition = catalog / "kitchen-agent"
     definition.mkdir(parents=True)
@@ -149,6 +152,7 @@ def test_specialist_start_binds_catalog_profile_and_durable_rmux(tmp_path, monke
 
 
 def test_specialist_scope_is_enforced_outside_operator(tmp_path, monkeypatch):
+    monkeypatch.setattr(agk, "specialist_environment", lambda env: (env.name, env.name))
     definition = tmp_path / "catalog/operator-agent"
     definition.mkdir(parents=True)
     (definition / "agent.yaml").write_text(

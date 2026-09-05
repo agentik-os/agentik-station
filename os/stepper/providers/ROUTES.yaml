@@ -1,0 +1,13 @@
+routes:
+  - role: map-steward
+    purpose: journey-and-slice-reasoning
+    provider: owning-profile-route
+  - role: shaper
+    purpose: appetite-and-scope
+    provider: owning-profile-route
+  - role: sequencer
+    purpose: dependency-and-delay-tradeoffs
+    provider: owning-profile-route
+budget: explicit-mission-limit
+fallback: stop-and-request-reviewed-route
+credentials: never-in-package

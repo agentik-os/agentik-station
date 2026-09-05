@@ -1,0 +1,6 @@
+runner: programs/runner.py
+command: evaluate
+cases: evals/CASES.json
+required: all-deterministic-cases-pass
+model_behavior: separate-fresh-session-acceptance
+no_self_awarded_quality_score: true

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "problem": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "appetite": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365
+        },
+        "unit": {
+          "enum": [
+            "days",
+            "weeks"
+          ]
+        }
+      },
+      "required": [
+        "amount",
+        "unit"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "problem",
+    "appetite"
+  ],
+  "additionalProperties": false
+}

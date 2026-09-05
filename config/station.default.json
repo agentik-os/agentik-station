@@ -60,6 +60,7 @@
           "requested_os": [
             "builder-os",
             "librarian-os",
+            "stepper-os",
             "devops-os"
           ]
         },

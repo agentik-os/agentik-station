@@ -1,0 +1,3 @@
+capabilities: [story-map, thin-slice, shaped-bet, release-sequence]
+default_authority: read-owned-inputs-and-return-artifacts
+external_mutation: denied

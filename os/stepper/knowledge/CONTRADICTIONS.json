@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "evidence_state": "REPORTED",
+  "items": [
+    {
+      "id": "story-vs-task",
+      "claim_a": "Stories are mini specs.",
+      "claim_b": "Stories are useless.",
+      "stance": "Placeholder for a conversation plus a thin slice.",
+      "confidence": "A"
+    },
+    {
+      "id": "points-vs-flow",
+      "claim_a": "Velocity is output.",
+      "claim_b": "Never estimate.",
+      "stance": "Forecasts and flow metrics. No point contracts.",
+      "confidence": "A"
+    },
+    {
+      "id": "framework-vs-slice",
+      "claim_a": "The framework is the method.",
+      "claim_b": "No process.",
+      "stance": "Slice value. Use the smallest process that keeps flow.",
+      "confidence": "A"
+    },
+    {
+      "id": "map-vs-oracle",
+      "claim_a": "The top book is law.",
+      "claim_b": "Popular books are useless.",
+      "stance": "Maps with confidence grades.",
+      "confidence": "A"
+    },
+    {
+      "id": "verify-vs-fill",
+      "claim_a": "Ship 50 titles even if shaky.",
+      "claim_b": "Only three classics matter.",
+      "stance": "Verify or omit. Honest gaps beat fabricated completeness.",
+      "confidence": "A"
+    },
+    {
+      "id": "tool-vs-identity",
+      "claim_a": "Become the kind of operator the book names.",
+      "claim_b": "Never let a book touch practice.",
+      "stance": "Use tools. Refuse identity merch.",
+      "confidence": "B"
+    },
+    {
+      "id": "individual-vs-system",
+      "claim_a": "The person is the unit of change.",
+      "claim_b": "Only systems change work.",
+      "stance": "Person, artifact, and environment. Do not weaponize the pack.",
+      "confidence": "A"
+    },
+    {
+      "id": "speed-vs-honesty",
+      "claim_a": "Always ship faster.",
+      "claim_b": "Never ship until complete.",
+      "stance": "Small honest batches. Empty products beat invented ones.",
+      "confidence": "B"
+    }
+  ]
+}

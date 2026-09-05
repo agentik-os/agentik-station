@@ -1,0 +1,4 @@
+version: "0.1.0"
+strategy: immutable-package-and-reviewed-instance-migration
+automatic_account_migration: false
+preserve: [existing-artifacts, credentials, profile-identity, evidence]

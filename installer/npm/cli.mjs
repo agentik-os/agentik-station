@@ -16,6 +16,7 @@ const shellQuote = value => `'${String(value).replaceAll("'", "'\\''")}'`;
 // Public diagnostics contain only reviewed identifiers. Never derive these
 // fields from native output, event messages, argv or arbitrary exception text.
 const INSTALL_PHASES = new Set(['arguments', 'context', 'preflight', 'confirmation', 'destination', 'lock', 'provision', 'hermes', 'rmux', 'agk', 'tool-resources', 'connector:github', 'connector:composio', 'crawl4ai', 'scrapegraphai', 'verify', 'onboarding', 'gateway', 'receipt']);
+for (const id of ['stepper-os', 'builder-os', 'librarian-os']) INSTALL_PHASES.add(`os:${id}`);
 const DIAGNOSTIC_CHECKS = new Set([
   'arguments', 'install', 'repair', 'verify', 'platform',
   ...['uv', 'git', 'cargo', 'curl', 'npm', 'rust-toolchain'].map(name => `prerequisite:${name}`),
@@ -24,6 +25,7 @@ const DIAGNOSTIC_CHECKS = new Set([
   ...['commands', 'controller', 'inventory'].map(name => `agk:${name}`),
   ...['vercel', 'codex', 'shadcn', 'gh', 'composio', 'chatbotx'].map(name => `cli:${name}`),
   'sdk:discord.js', 'web:crawl4ai', 'web:scrapegraphai',
+  ...['stepper-os', 'builder-os', 'librarian-os'].flatMap(id => ['distribution', 'native-profiles'].map(kind => `os:${id}:${kind}`)),
 ]);
 const DIAGNOSTIC_STATUSES = new Set(['verified', 'failed', 'blocked', 'not-configured', 'unavailable', 'ready-for-setup']);
 export function safeInstallPhase(value) { return INSTALL_PHASES.has(value) ? value : null; }
