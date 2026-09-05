@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 README = ROOT / "README.md"
@@ -52,14 +54,24 @@ def test_readme_has_accessible_progressive_disclosure() -> None:
     assert "LICENSE.md" in text
 
 
-def test_readme_svg_is_self_contained_and_motion_optional() -> None:
-    path = ROOT / "docs/assets/readme/station-mission-control.svg"
+@pytest.mark.parametrize("name", [
+    "station-mission-control", "station-system-map", "station-install-flow",
+    "station-os-map", "station-chat-map", "station-filesystem-map",
+    "station-evidence-loop",
+])
+def test_readme_svg_is_self_contained_and_motion_optional(name: str) -> None:
+    path = ROOT / f"docs/assets/readme/{name}.svg"
+    assert str(path.relative_to(ROOT)) in README.read_text()
     assert path.stat().st_size < 20_000
     root = ET.fromstring(path.read_text())
     tags = {element.tag.rsplit("}", 1)[-1] for element in root.iter()}
     assert {"title", "desc", "animateMotion"} <= tags
     assert not {"script", "foreignObject", "image", "iframe"} & tags
-    assert root.attrib["viewBox"] == "0 0 1280 700"
+    if name == "station-mission-control":
+        assert root.attrib["viewBox"] == "0 0 1280 700"
+    else:
+        _, _, width, height = map(float, root.attrib["viewBox"].split())
+        assert width == 800 and height >= width
     assert root.attrib["role"] == "img"
     ids = {element.attrib.get("id") for element in root.iter()}
     assert set(root.attrib["aria-labelledby"].split()) <= ids
@@ -67,8 +79,25 @@ def test_readme_svg_is_self_contained_and_motion_optional() -> None:
         for key, value in element.attrib.items():
             assert not key.lower().startswith("on"), key
             assert not key.endswith("href"), value
+        if element.tag.rsplit("}", 1)[-1] in {"animateMotion", "animate"}:
+            assert element.attrib.get("repeatCount", "1") == "1"
+            assert 0 < float(element.attrib["dur"].removesuffix("s")) <= 5
     style = "".join(root.itertext())
     assert "prefers-reduced-motion: reduce" in style
     assert ".motion { display: none; }" in style
     assert "@import" not in style
-    assert "not live telemetry" in style
+    assert "not live telemetry" in style or "not live status" in style.lower()
+
+
+def test_readme_preserves_system_explanation_and_readiness_boundaries() -> None:
+    text = README.read_text()
+    assert {
+        "the-whole-system", "quickstart", "operative-systems", "the-toolchain",
+        "discord-is-the-cockpit", "clean-by-construction",
+        "readiness-without-the-fine-print",
+    } <= _anchors(text)
+    assert "./bootstrap.sh --mode full --with-ai-stack --plan" in text
+    assert "Current activation limits" in text
+    assert "Zone-scoped profile names" in text
+    assert "not automatically the intended OS Director" in text
+    assert "Project repository" in text

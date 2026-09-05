@@ -13,6 +13,10 @@ fi
 agent_target=$hermes_home/agents/master-os-builder
 resolve_executable() {
   local path=$1 target
+  if [ ! -f "$path" ] || [ ! -x "$path" ]; then
+    echo "Hermes executable must resolve to a regular executable file" >&2
+    return 1
+  fi
   while [ -L "$path" ]; do
     target=$(readlink "$path")
     case "$target" in
@@ -23,12 +27,25 @@ resolve_executable() {
   printf '%s/%s\n' "$(cd "$(dirname "$path")" && pwd -P)" "$(basename "$path")"
 }
 
-hermes_bin=$(resolve_executable "$(command -v hermes)")
+hermes_command=$(command -v hermes) || {
+  echo "Hermes executable not found on PATH" >&2
+  exit 1
+}
+hermes_bin=$(resolve_executable "$hermes_command")
 
+mkdir -p "$HOME/.local/bin"
+hermes_launcher=$(cd "$HOME/.local/bin" && pwd -P)/hermes
+if [ -d "$hermes_launcher" ]; then
+  echo "Hermes launcher path must not be a directory" >&2
+  exit 1
+fi
+# Bootstrap may already have installed the executable at this exact path.
+# Replacing it with a link to itself destroys the launcher before config migrate.
+if [ "$hermes_bin" != "$hermes_launcher" ]; then
+  ln -sfn "$hermes_bin" "$hermes_launcher"
+fi
 mkdir -p "$hermes_home/plugins" "$hermes_home/agents" \
   "$hermes_home/dashboard-themes"
-mkdir -p "$HOME/.local/bin"
-ln -sfn "$hermes_bin" "$HOME/.local/bin/hermes"
 hermes config migrate >/dev/null
 # AGK owns lifecycle health centrally. Routine stop/start chatter is disabled
 # on every messaging adapter; the external watchdog emits one Discord #general

@@ -92,6 +92,7 @@ def sbom_payload() -> dict[str, Any]:
         ("Parakeet", "application", pins["PARAKEET_RELEASE"], "https://github.com/achetronic/parakeet"),
         ("setuptools", "library", "84.0.0", "https://pypi.org/project/setuptools/84.0.0/"),
         ("pytest", "library", "8.4.2", "https://pypi.org/project/pytest/8.4.2/"),
+        ("Pillow", "library", "12.3.0", "https://pypi.org/project/Pillow/12.3.0/"),
         ("PyYAML", "library", "6.0.3", "https://pypi.org/project/PyYAML/6.0.3/"),
         ("jsonschema", "library", "4.25.1", "https://pypi.org/project/jsonschema/4.25.1/"),
     ]

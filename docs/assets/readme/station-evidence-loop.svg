@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1110" viewBox="0 0 800 1110" role="img" aria-labelledby="title description">
+  <title id="title">Evidence closes the loop</title>
+  <desc id="description">A mission proceeds through an explicit plan, scoped execution, verification, external readback and human acceptance. A failed gate returns to repair and repeat verification. Executor reports remain claims until the relevant evidence has been observed and accepted. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .lime { fill: #c5f277; }
+      .card { fill: #101b23; stroke: #3c4e5c; stroke-width: 1.5; }
+      .route { fill: none; stroke: #91aa77; stroke-width: 2; marker-end: url(#arrow); }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 7 4 1 7" fill="none" stroke="#c5f277" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="800" height="1110" fill="#0b1117"/>
+  <rect x=".75" y=".75" width="798.5" height="1108.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
+  <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
+  <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">Evidence closes the loop</text>
+  <text x="32" y="144" class="muted" font-size="22">A report is a claim. Acceptance needs observed proof.</text>
+  <rect class="card" x="120" y="180" width="584" height="108" rx="12"/>
+  <circle cx="61" cy="218" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="46" y="225" font-size="22" class="mono lime">01</text>
+  <text x="144" y="223" font-size="31" font-weight="700">Plan</text>
+  <text x="144" y="262" font-size="22" class="muted">Scope · owner · actions · acceptance criteria</text>
+  <path class="route" d="M61 241V342"/>
+  <rect class="card" x="120" y="327" width="584" height="108" rx="12"/>
+  <circle cx="61" cy="365" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="46" y="372" font-size="22" class="mono lime">02</text>
+  <text x="144" y="370" font-size="31" font-weight="700">Execute</text>
+  <text x="144" y="409" font-size="22" class="muted">Hermes works within the declared Zone + Project</text>
+  <path class="route" d="M61 388V489"/>
+  <path d="M704 381H744" fill="none" stroke="#657b54" stroke-width="1.5"/>
+  <rect class="card" x="120" y="474" width="584" height="108" rx="12"/>
+  <circle cx="61" cy="512" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="46" y="519" font-size="22" class="mono lime">03</text>
+  <text x="144" y="517" font-size="31" font-weight="700">Verify</text>
+  <text x="144" y="556" font-size="22" class="muted">Tests · Doctor · review · independent checks</text>
+  <path class="route" d="M61 535V636"/>
+  <path d="M704 528H744" fill="none" stroke="#657b54" stroke-width="1.5"/>
+  <rect class="card" x="120" y="621" width="584" height="108" rx="12"/>
+  <circle cx="61" cy="659" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="46" y="666" font-size="22" class="mono lime">04</text>
+  <text x="144" y="664" font-size="31" font-weight="700">Read back</text>
+  <text x="144" y="703" font-size="22" class="muted">Observe the changed system and preserve evidence</text>
+  <path class="route" d="M61 682V783"/>
+  <path d="M704 675H744" fill="none" stroke="#657b54" stroke-width="1.5"/>
+  <rect class="card" x="120" y="768" width="584" height="108" rx="12"/>
+  <circle cx="61" cy="806" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="46" y="813" font-size="22" class="mono lime">05</text>
+  <text x="144" y="811" font-size="31" font-weight="700">Human acceptance</text>
+  <text x="144" y="850" font-size="22" class="muted">Approve the outcome only after its gates pass</text>
+  <path d="M704 822H744" fill="none" stroke="#657b54" stroke-width="1.5"/>
+  <path class="route" d="M744 822V234H704"/>
+  <rect class="card" x="40" y="932" width="720" height="101" rx="12"/>
+  <text x="64" y="973" font-size="28" class="lime" font-weight="700">Failed gate → repair → repeat verification</text>
+  <text x="64" y="1009" font-size="22" class="muted">Preserve evidence; keep the claim below acceptance.</text>
+  <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M61 241V342"/></circle></g>
+  <path d="M32 1056H768" stroke="#34434d"/>
+  <text x="32" y="1085" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>
+</svg>

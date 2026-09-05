@@ -13,6 +13,7 @@ Primary workflows:
   ./station.sh bootstrap --mode full [--host-id station-core-01] [--yes]
   ./station.sh bootstrap --mode team --organization ORG --project PROJECT [--env development] [--yes]
   ./station.sh plan ...
+  ./station.sh spec ... [--output PATH]
   ./station.sh doctor
   ./station.sh status
   ./station.sh setup
@@ -30,7 +31,16 @@ require_station(){ [[ -x "$STATION" ]] || { echo "ERROR: missing $STATION" >&2; 
 build_desired(){
   local mode="full" host="" org="" project="" env="development"
   local -a passthrough=()
+  # The caller owns this dynamically scoped array. Do not consume this function
+  # through process substitution: that discards validation failures.
+  desired=()
   while (($#)); do
+    case "$1" in
+      --mode|--host-id|--organization|--project|--env)
+        [[ $# -ge 2 && -n "$2" && "$2" != --* ]] || {
+          echo "ERROR: $1 requires a value." >&2; return 2;
+        };;
+    esac
     case "$1" in
       --mode) mode="$2"; shift 2;;
       --host-id) host="$2"; shift 2;;
@@ -42,26 +52,30 @@ build_desired(){
   done
   case "$mode" in
     full)
-      printf '%s\0' --host-id "${host:-station-core-01}" --role core
-      ((${#passthrough[@]} == 0)) || printf '%s\0' "${passthrough[@]}"
+      [[ -z "$org" && -z "$project" && "$env" == development ]] || {
+        echo 'ERROR: organization/project/environment options require --mode team.' >&2; return 2;
+      }
+      desired=(--host-id "${host:-station-core-01}" --role core)
+      ((${#passthrough[@]} == 0)) || desired+=("${passthrough[@]}")
       ;;
     team)
       [[ -n "$org" ]] || { echo "ERROR: --organization is required for --mode team" >&2; return 2; }
-      printf '%s\0' --host-id "${host:-${org}-station-01}" --role team --seed-category ORGANIZATIONS --seed-name "$org" --seed-env "$env" --seed-organization "$org"
-      [[ -n "$project" ]] && printf '%s\0' --seed-project "$project"
-      ((${#passthrough[@]} == 0)) || printf '%s\0' "${passthrough[@]}"
+      desired=(--host-id "${host:-${org}-station-01}" --role team --seed-category ORGANIZATIONS --seed-name "$org" --seed-env "$env" --seed-organization "$org")
+      [[ -z "$project" ]] || desired+=(--seed-project "$project")
+      ((${#passthrough[@]} == 0)) || desired+=("${passthrough[@]}")
       ;;
     *) echo "ERROR: --mode must be full or team" >&2; return 2;;
   esac
 }
 
-bootstrap(){
+bootstrap()(
   local yes=0; local -a raw=()
   while (($#)); do case "$1" in --yes) yes=1; shift;; -h|--help) usage; return 0;; *) raw+=("$1"); shift;; esac; done
   require_station
-  local -a desired=(); while IFS= read -r -d '' item; do desired+=("$item"); done < <(build_desired "${raw[@]}")
+  local -a desired=(); build_desired ${raw[@]+"${raw[@]}"} || return $?
   "$STATION" doctor --repo --full
-  local tmpdir spec; tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/agentik-station-bootstrap.XXXXXX")"; trap 'rm -rf "$tmpdir"' RETURN; spec="$tmpdir/install-spec.json"
+  local tmpdir spec; tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/agentik-station-bootstrap.XXXXXX")"; spec="$tmpdir/install-spec.json"
+  trap 'rm -f -- "$spec"; rmdir -- "$tmpdir"' EXIT
   "$STATION" spec "${desired[@]}" --output "$spec" >/dev/null
   echo '==> Plan • not run'; "$STATION" plan --spec "$spec"
   if [[ "$yes" -ne 1 ]]; then
@@ -73,14 +87,17 @@ bootstrap(){
   sudo "$STATION" doctor --full --record
   "$STATION" status || true
   "$STATION" setup
-}
+)
 
 main(){
   require_station
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
     bootstrap) bootstrap "$@";;
-    plan) local -a desired=(); while IFS= read -r -d '' item; do desired+=("$item"); done < <(build_desired "$@"); "$STATION" doctor --repo --full && "$STATION" plan "${desired[@]}";;
+    plan|spec)
+      local -a desired=(); build_desired "$@" || return $?
+      if [[ "$cmd" == plan ]]; then "$STATION" doctor --repo --full || return $?; fi
+      "$STATION" "$cmd" "${desired[@]}";;
     doctor) "$STATION" doctor --repo --full; [[ ! -e /etc/station/station.json ]] || sudo "$STATION" doctor --full;;
     status) "$STATION" status "$@";;
     setup) "$STATION" setup "$@";;

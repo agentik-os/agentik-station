@@ -16,7 +16,7 @@
 
 Bring your projects, models and tools. Give every mission an owner, a workspace and a verification gate.
 
-**[Get started](#quickstart)** · **[How it works](#the-mission-circuit)** · **[Meet the teams](#operative-systems)** · **[Explore the tools](#the-toolchain)** · **[Read the atlas](atlas.md)** · **[Join Discord](https://discord.gg/agentik-os)**
+**[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
 > **Current posture: alpha / repository candidate, release line 11.12.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. External accounts, live chat, OS execution, recovery and provider acceptance need their own evidence. See [readiness](#readiness-without-the-fine-print) and the [deep audit](docs/audit/2026-09-05-station-deep-audit.md). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
@@ -33,6 +33,39 @@ An agent can run a command. An operational system also needs to know **whose pro
 
 These are the architecture and workflow contracts. They are **not** a claim that every declared permission or live integration is already enforced; the [audit](docs/audit/2026-09-05-station-deep-audit.md) tracks those gaps.
 
+## The whole system
+
+<p align="center">
+  <img src="docs/assets/readme/station-system-map.svg" width="800" alt="Human intent is governed by Station's configuration and placement contracts. Fleet places Zones on Hosts. Each Zone owns a Unix identity and Hermes runtime. Hermes runs OS teams using selected tools on Project-owned work. Evidence returns to Station. Other Hosts retain independent Zones.">
+</p>
+
+**Read the map from the outside in:** a **Host** is the machine; a **Zone** is its operational identity and isolation boundary; a **Project** owns the work; an **OS** supplies a team; **Hermes** runs it. **Fleet** describes the placement of those Zones across Hosts. **Station Control** records desired state, policies and evidence indexes.
+
+| Piece | What it owns | What it does not replace |
+| :--- | :--- | :--- |
+| **Station kernel & Control** | Typed installation, layout, desired state, reconciliation and Doctor | Hermes reasoning, human authorization or external-provider truth |
+| **Host & Fleet** | Linux machines, inventory and declared Zone placement | Zone identity or Project ownership |
+| **Zone** | Unix identity, `HOME`, `HERMES_HOME`, credentials, memory and logs | A per-profile sandbox; profiles in one Zone share a trust domain |
+| **Project & Workspaces** | Repositories, knowledge, task worktrees, resources, artifacts and evidence | A global dumping ground for all clients' data |
+| **OS & Hermes** | Director, specialists, sessions, delegation, Skills and tools | A second Linux distribution or another competing scheduler |
+| **Discord / other chat / AGK-TUI** | Human interaction and progress projections | The canonical state, permission or secret store |
+| **Providers & integrations** | Model inference, CLIs, APIs, MCP and connected capabilities | Permission to change scope, read another Zone or bypass review |
+
+### Why Hermes is the central brain
+
+Hermes turns a scoped brief into executable work: it loads the OS profile, uses the selected model provider, delegates to specialists, calls available tools, maintains sessions and returns results. Station supplies the surrounding operating contracts: **where execution belongs, which identity owns it, what requires approval, and what evidence must survive it.**
+
+“Central” means **one execution model**, not one omnipotent process holding every client's secrets. Each Zone gets its own Hermes home and runtime context. A model or CLI change must preserve the same [agent rules](rules/STATION_AGENT_RULES.md), Project paths and verification gates.
+
+<details>
+<summary><strong>A concrete example: a billing feature from Discord to deployment.</strong></summary>
+
+You ask the DevOps Director for a billing feature in the development Project. Atlas scopes the mission; Architect defines the change; Forge works in the Project worktree; SRE checks runtime configuration; Sentinel verifies behavior; Release Engineer prepares the approved promotion. Hermes provides their execution and tool access. GitHub stores the code; the selected Convex, Clerk, Stripe and Vercel accounts provide application services. The Project retains the evidence. Discord shows progress and the result.
+
+Production credentials do not enter development automatically. A passing test is not permission to deploy. This is the **intended accepted workflow**, not a claim that a fresh install has already performed it.
+
+</details>
+
 ## Quickstart
 
 Start on a **fresh Ubuntu/Debian VPS** with systemd, `apt-get`, network/DNS access, Git, and distribution Python **3.11+**. Use a **non-root user with sudo**; run your coding agent as that user. Review [installation](INSTALL.md) and [security](SECURITY.md) first. Other operating systems are not supported Host targets by this installer.
@@ -44,13 +77,34 @@ cd agentik-station
 # Inspect the repository before touching the Host.
 ./station doctor --repo
 
-# Review the bootstrap plan and confirm before installation.
+# Read-only eligibility checks + kernel plan + selected bootstrap operations.
+./bootstrap.sh --mode full --with-ai-stack --plan
+
+# Revalidate, review the plan again, then explicitly confirm installation.
 sudo ./bootstrap.sh --mode full --with-ai-stack
 ```
 
 **What happens next:** the bootstrap prepares the operator account, pinned toolchain, Hermes, selected dependencies, Station filesystem, Zones, desired OS declarations and Doctor receipts. A successful foundation stops at `READY_FOR_SETUP`. Continue through **[SETUP.md](SETUP.md)** to enroll accounts and verify real workflows.
 
 Do not add `--yes` before reviewing the plan. `--with-ai-stack` installs or stages optional components; it does not authenticate services, activate every OS or run security scans.
+
+### From a clean VPS to a verified mission
+
+<p align="center">
+  <img src="docs/assets/readme/station-install-flow.svg" width="800" alt="Fresh VPS installation proceeds through read-only preflight, review and confirmation, bootstrap dependencies, exact-spec kernel apply, and READY_FOR_SETUP. The human then enrolls providers and chat; installed OS profiles and a real fresh-session mission require separate verification.">
+</p>
+
+| Gate | What actually happens | What unlocks the next step |
+| :--- | :--- | :--- |
+| **01 · Inspect** | Check supported Linux/CPU, repository integrity, existing operator identity and managed targets; compile a typed InstallSpec | A valid plan; no conflicting checkout, symlink target or changed same-version release |
+| **02 · Approve** | Show the kernel plan and selected account, dependency and service operations | Your confirmation; the apply invocation uses its exact reviewed InstallSpec |
+| **03 · Prepare** | Create `agk-station`; prepare Tailscale, pinned tools, Hermes and selected resources | Successful selected tool stages—not just a copied repository |
+| **04 · Apply** | Apply the reviewed InstallSpec: Station layout, identities, Zones and desired state | Full Doctor and a kernel `READY_FOR_SETUP` receipt |
+| **05 · Private setup** | Enroll the human-owned Tailnet and verify the private setup route | Correct Tailnet identity and protected access; no public fallback |
+| **06 · Accounts & OS** | Connect providers and the first bot; install an OS, reconcile profiles and bind its Director | Scoped account readback, profile Doctor and the intended chat route |
+| **07 · Accept** | Run a real mission; inspect artifacts, permissions, fresh-session/restart behavior and applicable recovery checks | Evidence for the specific capability you intend to use |
+
+An unenrolled Tailnet leaves the local setup broker waiting for enrollment; it must not be presented as a working private URL. A failed later bootstrap stage also does not become successful merely because the kernel previously emitted `READY_FOR_SETUP`.
 
 <details>
 <summary><strong>Prefer to hand this to your coding agent? Copy this brief.</strong></summary>
@@ -62,6 +116,7 @@ https://github.com/agentik-os/agentik-station
 Work as my non-root sudo user. Clone main with --single-branch.
 Read AGENTS.md, atlas.md, SECURITY.md, INSTALL.md, SETUP.md and AI_INSTALL_PROMPT.md.
 Inspect the VPS and run repository Doctor. Show the plan before mutation.
+Run: ./bootstrap.sh --mode full --with-ai-stack --plan
 After my approval, run: sudo ./bootstrap.sh --mode full --with-ai-stack
 Run full Doctor, status, module status and toolchain checks.
 Continue through external setup one gate at a time using secure provider flows.
@@ -159,6 +214,28 @@ Production or destructive actions require the policy-defined human authorization
 
 An **Operative System (OS)** is an installable AI department, not another Linux distribution. It bundles a Nano Director, a specialist NanoTeam, knowledge, ordered Skills, tools, workflows, memory policy, evaluations and recovery contracts.
 
+<p align="center">
+  <img src="docs/assets/readme/station-os-map.svg" width="800" alt="Canonical OS source compiles into a versioned Hermes distribution. Inside the owning Zone, a Nano Director coordinates specialist Hermes profiles using the team's skills, tools, knowledge, evaluations and recovery contract. Their work belongs to the assigned Project.">
+</p>
+
+### Inside an OS
+
+| Contract | Purpose | Hermes connection |
+| :--- | :--- | :--- |
+| **Director & NanoTeam** | One accountable lead; bounded specialist responsibilities | Native profiles, sessions and delegation |
+| **Knowledge & ordered Skills** | Domain context and reusable operating procedures | Profile context and Skills; canonical source stays in `os/` |
+| **Workflows & programs** | Plan First graph, deterministic operations and handoff rules | Tools, hooks and native task mechanisms |
+| **Integration & provider routes** | Which model, CLI, MCP, API or connected account serves a capability | Explicit configuration and scoped credentials; never secrets baked into a package |
+| **Memory policy** | What can persist, where, for whom and how long | Zone-owned runtime state and selected memory services |
+| **Evaluations & recovery** | What proves success; how to detect and repair failure | Tests, Doctor, readback and fresh-session acceptance |
+| **Human interface** | Director bot, primary channel, commands and progress | Hermes messaging; Station-specific presentation where supported |
+
+### How Builder makes one
+
+**Brief → Librarian research → OS design → canonical package → Hermes distribution → installation → acceptance.** Librarian gathers verified sources, operator knowledge and contrary evidence. Builder's Director delegates domain scoping, architecture, programs, integrations, tests, evaluations, Discord experience, security and recovery. Independent review checks the complete package before it is treated as installable.
+
+The compiler translates those contracts into Hermes-native distributions; it does not start a new orchestrator. Published artifacts live at `/opt/station/os-distributions/<zone>/<project>/<os>/<version>/`. They are immutable outputs—not a second editable OS source. See [Builder](os/builder/README.md) and the [native mapping](docs/builder/03_HERMES_NATIVE_MAPPING.md).
+
 | OS source | Its job |
 | :--- | :--- |
 | [Station Maintainer](os/station-maintainer/README.md) | Inspect Station and Hermes changes; prepare maintenance and compatibility work. |
@@ -169,6 +246,9 @@ An **Operative System (OS)** is an installable AI department, not another Linux 
 | [DevOps](os/devops/README.md) | Organize architecture, implementation, operations, verification and release work. |
 
 Canonical source lives only in `os/`. The compiler produces Hermes Profile Distributions; installation, bindings, profile Doctor and fresh-session acceptance are separate steps. The [catalog](os/CATALOG.json) currently marks these packages **`INSTALLABLE` / `NOT_INSTALLED`**, not running teams.
+
+> [!IMPORTANT]
+> **Current activation limits:** Project-scoped OS artifacts currently meet Zone-scoped profile names, so repeating the same OS across Projects can collide. Generic platform setup selects the Zone gateway, not automatically the intended OS Director. Profile installation retries and durable runtime acceptance also need hardening. Do not infer multi-Project or multi-bot readiness from the diagrams; see the [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md).
 
 ### Meet the DevOps team
 
@@ -216,6 +296,10 @@ The [web-product recipe](resources/stacks/web-product/README.md) provides the de
 
 The community server is separate from your private Station deployment. Your own guild, accounts, tokens and permissions remain under your control.
 
+<p align="center">
+  <img src="docs/assets/readme/station-chat-map.svg" width="800" alt="A human uses Discord or another Hermes transport. Identity, Zone and Director bindings lead to the Hermes OS team and Project work. For account enrollment, the bot provides a short-lived private Tailscale link to a one-use setup form or allowlisted provider flow. Secrets do not belong in chat.">
+</p>
+
 The intended topology is **one installed OS → one Nano Director → one dedicated bot identity and primary channel**. Specialists collaborate inside Hermes; public bots should not create recursive bot-to-bot conversations.
 
 1. **Enroll the first bot and Tailnet as the human owner.** A bot token cannot create more Discord applications or mint their tokens.
@@ -225,9 +309,19 @@ The intended topology is **one installed OS → one Nano Director → one dedica
 
 Prefer Telegram, Slack or another supported platform? Use the [Hermes platform setup](docs/dependencies/HERMES_PLATFORMS.md). Transport support does not imply identical Station card rendering; each surface needs its own live acceptance. [Voice and protected setup guide →](docs/dependencies/VOICE_AND_GUIDED_SETUP.md)
 
+### Voice follows the same ownership rules
+
+The default setup installs Hermes voice/messaging support, configures OpenAI audio defaults and prepares local Parakeet. Transcription becomes input to the same scoped Hermes session; text-to-speech turns its response into audio. OpenAI keys, local service health, actual Discord audio delivery and the return trip remain separate setup checks. Installing the libraries is not evidence that a bot can hear and speak in your guild.
+
+The first human enrollment remains unavoidable. Afterwards, guided links and provider-native authentication can make routine setup chat-led. **An administrator bot is not an unrestricted sudo endpoint**; broad operator sudo is a current security concern, not a model permission to execute any incoming message.
+
 ## Clean by construction
 
 One **Station namespace**, with Linux responsibilities kept in their proper places. `/srv/station` is the human navigation root—not a replacement for the filesystem hierarchy.
+
+<p align="center">
+  <img src="docs/assets/readme/station-filesystem-map.svg" width="800" alt="Station uses Linux filesystem responsibilities: etc for desired state, opt for immutable software, srv for human navigation and Projects, var/lib for runtime state, var/log for logs, var/backups for recovery staging and run for ephemeral files. Each Zone owns its Projects and each Project owns its work.">
+</p>
 
 ```text
 /etc/station          Desired state and approved policy
@@ -240,6 +334,54 @@ One **Station namespace**, with Linux responsibilities kept in their proper plac
 ```
 
 Each Zone has its own Unix identity and `HERMES_HOME`. Each Project owns `repos/`, `docs/`, `knowledge/`, `resources/`, `worktrees/`, `credentials/`, `artifacts/` and `evidence/`. Local versus remote is Host placement, not a different tree.
+
+<details>
+<summary><strong>Open the full navigation tree and source-code map.</strong></summary>
+
+The human-facing tree groups responsibility; authoritative configuration and runtime data remain at the FHS paths above.
+
+```text
+/srv/station/
+└── 2_ZONES/
+    ├── 1_SYSTEM/          Station services and control responsibilities
+    ├── 2_PRIVATE/         Operator-private work
+    ├── 3_AGENTIK/         Agentik-owned development
+    ├── 4_ORGANIZATIONS/   Organization environments and Projects
+    ├── 5_PROJECTS/        Independent Project environments
+    ├── 6_FACTORY/         OS/package creation with sanitized fixtures
+    └── 7_LAB/             Explicit experimental/security boundaries
+```
+
+An owning Project contains these responsibilities (not a second global filesystem):
+
+```text
+Project/
+├── repos/                 Source repositories and their dependency lockfiles
+├── docs/ + knowledge/     Decisions, specifications and verified context
+├── resources/             Selected recipes, assets and capability references
+├── integrations/          Non-secret connector definitions and account scope
+├── credentials/           Zone-protected, Project-scoped credential material
+├── workspaces/ + worktrees/ Isolated task working areas
+├── state/                 Project state and runtime references
+├── artifacts/ + evidence/ Outputs, checks, acceptance and external readback
+└── ops/                   Operations and recovery instructions
+```
+
+| Repository source | Responsibility |
+| :--- | :--- |
+| `src/agentik_station/` | Typed CLI, installer, filesystem safety, Doctor and lifecycle logic |
+| `bootstrap.sh` + `scripts/` | VPS dependency bootstrap, operator tools and service setup |
+| `config/` + `contracts/` + `specs/` | Reviewed pins, desired defaults, schemas and machine-readable contracts |
+| `os/` | The only canonical OS package sources |
+| `resources/` | Reusable tools, SDK recipes and preferred-stack guidance |
+| `components/agk-tui/` | Terminal control surface and Station's Hermes integration |
+| `runtime/` + `modules/` | Runtime templates and explicit module maturity |
+| `tests/` + `.github/workflows/` | Contract, security, integration and acceptance checks |
+| `docs/` + `atlas.md` | Architecture explanations, operating guides and known gaps |
+
+No Project work under `/root`, arbitrary home folders or shared credential dumps. Temporary test fixtures may use a temporary directory; production work still belongs to its Project. Shared shadcn CLI is a tool; generated shadcn components, Lucide icons and application packages belong in the Project repository.
+
+</details>
 
 Hermes, coding CLIs, providers and humans share the same **[Station agent rules](rules/STATION_AGENT_RULES.md)**. A model provider supplies cognition—not permission to bypass ownership, filesystem layout or approval. See the [full architecture](ARCHITECTURE.md) and [atlas](atlas.md).
 
@@ -264,6 +406,10 @@ Account enrollment and external actions still follow [SETUP.md](SETUP.md).
 
 ## Readiness without the fine print
 
+<p align="center">
+  <img src="docs/assets/readme/station-evidence-loop.svg" width="800" alt="An executor reports a result, an independent verification step checks it, external readback confirms the actual target, and an authorized acceptance gate records the outcome. Failed checks return a precise repair action. Repository CI is not VPS health; installation is not operational acceptance.">
+</p>
+
 The CI badge reports **repository checks**, not the health of your VPS. The [module catalog](modules/catalog.json) records maturity and next repair actions; deployed readiness requires observed evidence.
 
 | What the repository provides | What you still need to prove on a deployment |
@@ -277,6 +423,12 @@ The CI badge reports **repository checks**, not the health of your VPS. The [mod
 > The bootstrap operator currently has broad passwordless sudo. A Hermes profile is **not** a filesystem sandbox, and role descriptions are **not** complete tool ACL enforcement. Strix's Docker-capable worker belongs on a separate disposable LAB Host. Review [SECURITY.md](SECURITY.md) and the [remaining audit decisions](docs/audit/2026-09-05-station-deep-audit.md#remaining-findings-and-decisions--not-silently-implemented) before granting access to real data or production.
 
 **Updates are explicit about their limits.** Bootstrap enables a weekly Hermes updater by default, with backup, Doctor and gateway observations; `--skip-hermes-auto-update` opts out. This is not yet the complete canary/ring-promotion or verified code-and-state rollback workflow. Existing-profile upgrades remain supervised. See [INSTALL.md](INSTALL.md#optional-dependency-stack--hermes-auto-update).
+
+### What these diagrams promise
+
+Every map is a **repository-owned, self-contained SVG** with a text equivalent nearby. The signal animation is decorative, runs briefly and respects reduced-motion preferences; the complete architecture remains visible without motion. GitHub clients may display a static frame. These are architecture explanations, **not live telemetry**, permission enforcement proofs or deployment acceptance receipts.
+
+The [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md) separates the repaired installer defects from the remaining OS-instance, routing, resumability and live-acceptance work. That distinction is part of the product, not fine print.
 
 ## Find your next step
 

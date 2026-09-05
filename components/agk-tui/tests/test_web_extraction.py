@@ -20,6 +20,23 @@ import pytest
 PLUGIN = Path(__file__).resolve().parents[1] / "hermes/plugins/agentik_os"
 
 
+@pytest.mark.parametrize("python_flags", [[], ["-S"]])
+def test_worker_starts_as_a_real_script_without_preimported_stdlib(tmp_path, python_flags):
+    # Pytest already imports collections/operator, which hid a sibling module
+    # collision. -S also exercises startup without site preloading those modules.
+    result = subprocess.run(
+        [sys.executable, *python_flags, str(PLUGIN / "scrapegraph_runner.py")],
+        input="{}", capture_output=True, text=True, timeout=15, cwd=tmp_path,
+        env={"HOME": str(tmp_path), "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"},
+    )
+    assert result.returncode == 1
+    assert result.stderr == ""
+    assert json.loads(result.stdout) == {
+        "success": False,
+        "error": "Extraction failed; check runtime health, public URL and Zone credential.",
+    }
+
+
 @pytest.fixture
 def web(monkeypatch):
     package = types.ModuleType("station_web_test")

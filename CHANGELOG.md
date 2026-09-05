@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — VPS workflow and visual system guide (2026-09-05)
+
+- restore the full README architecture with six new animated, accessible SVG maps,
+  an OS/Builder explanation, complete filesystem/source navigation and explicit
+  installation, account enrollment and live-acceptance gates;
+- add read-only bootstrap planning, early Host/identity/path/release checks and
+  exact-spec apply; reject ignored scope arguments and preserve existing checkouts;
+- fix wrapper cleanup, password-sudo bootstrap, Hermes skip/launcher behavior,
+  optional Tailnet enrollment and setup-broker startup readiness;
+- repair component CI's Pillow dependency and the real web worker's stdlib
+  `operator` shadowing; document unresolved OS tenancy/routing/resumability choices.
+
 ## Unreleased — governed Strix and deep Station audit (2026-09-05)
 
 - integrate pinned Strix 1.6.1 as a subordinate tool of the existing Hermes DevOps

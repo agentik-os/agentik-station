@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 STATION_USER="agk-station"
 STATION_HOME="/home/${STATION_USER}"
@@ -11,6 +12,7 @@ ORGANIZATION=""
 PROJECT=""
 ENVIRONMENT="development"
 YES=0
+PLAN_ONLY=0
 INSTALL_HERMES=1
 INSTALL_HERMES_AUTO_UPDATE=1
 INSTALL_CODEX=1
@@ -35,6 +37,7 @@ Options:
   --project ID             optional in team mode
   --env development|staging|production
   --sudo-mode passwordless|password
+  --plan                  validate and show the complete plan without Host changes
   --skip-hermes
   --skip-hermes-auto-update
   --skip-codex
@@ -54,12 +57,19 @@ USAGE
 
 while (($#)); do
   case "$1" in
+    --mode|--host-id|--organization|--project|--env|--sudo-mode)
+      [[ $# -ge 2 && -n "$2" && "$2" != --* ]] || {
+        echo "ERROR: $1 requires a value." >&2; exit 2;
+      };;
+  esac
+  case "$1" in
     --mode) MODE="$2"; shift 2;;
     --host-id) HOST_ID="$2"; shift 2;;
     --organization) ORGANIZATION="$2"; shift 2;;
     --project) PROJECT="$2"; shift 2;;
     --env) ENVIRONMENT="$2"; shift 2;;
     --sudo-mode) SUDO_MODE="$2"; shift 2;;
+    --plan) PLAN_ONLY=1; shift;;
     --skip-hermes) INSTALL_HERMES=0; INSTALL_HERMES_AUTO_UPDATE=0; INSTALL_VOICE=0; shift;;
     --skip-hermes-auto-update) INSTALL_HERMES_AUTO_UPDATE=0; shift;;
     --skip-codex) INSTALL_CODEX=0; shift;;
@@ -75,7 +85,7 @@ while (($#)); do
   esac
 done
 
-[[ "${EUID}" -eq 0 ]] || { echo 'ERROR: run with sudo or as root.' >&2; exit 2; }
+[[ "${EUID}" -eq 0 || "$PLAN_ONLY" -eq 1 ]] || { echo 'ERROR: run with sudo; use --plan for unprivileged preflight.' >&2; exit 2; }
 [[ "$MODE" == full || "$MODE" == team ]] || { echo 'ERROR: --mode must be full or team.' >&2; exit 2; }
 [[ "$SUDO_MODE" == passwordless || "$SUDO_MODE" == password ]] || { echo 'ERROR: invalid --sudo-mode.' >&2; exit 2; }
 [[ "$INSTALL_AI_STACK" -eq 0 || "$INSTALL_TOOLCHAIN" -eq 1 ]] || {
@@ -94,20 +104,49 @@ if [[ "$MODE" == team && -z "$ORGANIZATION" ]]; then echo 'ERROR: --organization
 
 source_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$source_root" == /root || "$source_root" == /root/* ]]; then
-  echo "ERROR: do not bootstrap from /root. Clone the repository under /tmp/agentik-station, then run sudo ./bootstrap.sh from there." >&2
+  echo "ERROR: do not bootstrap from /root. Clone into your non-root user's workspace, then run sudo ./bootstrap.sh from there." >&2
   exit 2
 fi
 [[ -x "$source_root/station" ]] || { echo 'ERROR: run this from the Agentik Station repository.' >&2; exit 2; }
 
-if [[ "$YES" -ne 1 ]]; then
-  cat <<EOF
-Bootstrap plan
+# Validate before apt, account/sudo edits, source copies, or upstream installers.
+command -v python3 >/dev/null || { echo 'ERROR: distribution Python 3.11+ is required for preflight.' >&2; exit 2; }
+python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else "ERROR: Python 3.11+ is required")'
+"$source_root/station" doctor --repo
+python3 "$source_root/scripts/station_bootstrap_preflight.py"
+
+bootstrap_plan_dir="$(mktemp -d /tmp/station-bootstrap-plan.XXXXXX)"
+bootstrap_spec="$bootstrap_plan_dir/install-spec.json"
+cleanup_bootstrap_plan(){ rm -f -- "$bootstrap_spec"; rmdir -- "$bootstrap_plan_dir"; }
+trap cleanup_bootstrap_plan EXIT
+plan_args=(--mode "$MODE")
+[[ -z "$HOST_ID" ]] || plan_args+=(--host-id "$HOST_ID")
+if [[ "$MODE" == team ]]; then
+  plan_args+=(--organization "$ORGANIZATION" --env "$ENVIRONMENT")
+  [[ -z "$PROJECT" ]] || plan_args+=(--project "$PROJECT")
+else
+  [[ -z "$ORGANIZATION" && -z "$PROJECT" && "$ENVIRONMENT" == development ]] || {
+    echo 'ERROR: organization/project/environment options require --mode team.' >&2; exit 2;
+  }
+fi
+"$source_root/station.sh" spec "${plan_args[@]}" --output "$bootstrap_spec" >/dev/null
+echo '==> Typed kernel plan — this exact InstallSpec will be applied'
+"$source_root/station" plan --spec "$bootstrap_spec"
+
+distro_id=$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+distro_codename=$(awk -F= '$1 == "VERSION_CODENAME" {gsub(/"/, "", $2); print $2}' /etc/os-release)
+[[ "$distro_id" =~ ^(ubuntu|debian)$ && "$distro_codename" =~ ^[a-z][a-z0-9-]+$ ]] || {
+  echo 'ERROR: Tailscale package repository requires a supported Ubuntu/Debian codename.' >&2; exit 2;
+}
+cat <<EOF
+Additional bootstrap operations (outside the kernel InstallSpec)
+  distro:       ${distro_id}/${distro_codename}
   account:      ${STATION_USER}
   home:         ${STATION_HOME}
   repository:   ${REPO_DIR}
   mode:         ${MODE}
   Hermes:       $([[ $INSTALL_HERMES -eq 1 ]] && echo install || echo skip)
-  Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly verified timer' || echo ' disabled')
+  Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly backup/Doctor timer' || echo ' disabled')
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
   Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
@@ -116,7 +155,11 @@ Bootstrap plan
   Crawl4AI:     $([[ $INSTALL_CRAWL4AI -eq 1 ]] && echo 'install + Markdown tool' || echo skip)
   AI stack:     $([[ $INSTALL_AI_STACK -eq 1 ]] && echo install-all || echo optional)
   sudo policy:  ${SUDO_MODE}
+  packages:     apt dependencies + signed Tailscale repository
+  enrollment:   human-owned; no provider credentials or bot tokens created
 EOF
+if [[ "$PLAN_ONLY" -eq 1 ]]; then echo 'PLAN_ONLY: no Host changes applied.'; exit 0; fi
+if [[ "$YES" -ne 1 ]]; then
   read -r -p 'Continue? [y/N] ' answer
   [[ "$answer" =~ ^([yY]|yes|YES)$ ]] || { echo 'Cancelled.'; exit 0; }
 fi
@@ -130,12 +173,6 @@ apt-get install -y git curl ca-certificates xz-utils sudo rsync jq unzip build-e
 # Install at least the reviewed Tailscale stable version through its signed
 # distro repository. Enrollment remains a human-owned external setup gate.
 source "$source_root/config/versions.lock"
-distro_id=$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print $2}' /etc/os-release)
-distro_codename=$(awk -F= '$1 == "VERSION_CODENAME" {gsub(/"/, "", $2); print $2}' /etc/os-release)
-[[ "$distro_id" =~ ^(ubuntu|debian)$ && "$distro_codename" =~ ^[a-z][a-z0-9-]+$ ]] || {
-  echo 'ERROR: Tailscale package repository requires a supported Ubuntu/Debian codename.' >&2
-  exit 2
-}
 tailscale_key=$(mktemp)
 curl --fail --silent --show-error --location \
   "https://pkgs.tailscale.com/${TAILSCALE_TRACK}/${distro_id}/${distro_codename}.noarmor.gpg" \
@@ -178,7 +215,10 @@ fi
 
 # Keep the working source out of /root even if the initial clone happened there.
 mkdir -p "$REPO_DIR"
-rsync -a --delete --exclude '.pytest_cache' --exclude '__pycache__' --exclude '*.pyc' "$source_root/" "$REPO_DIR/"
+if [[ "$source_root" != "$REPO_DIR" ]]; then
+  # Preflight rejects a nonempty destination; never delete an operator's work.
+  rsync -a --exclude '.pytest_cache' --exclude '__pycache__' --exclude '*.pyc' "$source_root/" "$REPO_DIR/"
+fi
 chown -R "$STATION_USER:$STATION_USER" "$REPO_DIR"
 command -v loginctl >/dev/null 2>&1 && loginctl enable-linger "$STATION_USER" || true
 
@@ -240,11 +280,6 @@ if [[ "$INSTALL_VOICE" -eq 1 ]]; then
     'import discord, numpy, sounddevice; print("Hermes voice and messaging dependencies OK")'
 fi
 
-if [[ "$INSTALL_HERMES_AUTO_UPDATE" -eq 1 ]]; then
-  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
-    "$REPO_DIR/scripts/station_deps_install.sh" --enable-hermes-auto-update
-fi
-
 # AGK-TUI (RMUX session control plane) — vendored under components/agk-tui
 if [[ "$INSTALL_AGK_TUI" -eq 1 ]]; then
   agk_src="$REPO_DIR/components/agk-tui"
@@ -262,21 +297,18 @@ if [[ "$INSTALL_AGK_TUI" -eq 1 ]]; then
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       build-essential pkg-config libssl-dev ca-certificates curl git jq unzip >/dev/null
   fi
-  hermes_flag=()
-  [[ "$INSTALL_HERMES" -eq 1 ]] && hermes_flag+=(--without-hermes)
+  # Bootstrap owns Hermes installation, including an explicit decision to skip it.
   sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" \
     PATH="$STATION_HOME/.cargo/bin:$STATION_HOME/.local/bin:$PATH" \
     CARGO_HOME="$STATION_HOME/.cargo" RUSTUP_HOME="$STATION_HOME/.rustup" \
-    bash "$agk_src/install.sh" --prefix "$STATION_HOME/.local" "${hermes_flag[@]}"
+    bash "$agk_src/install.sh" --prefix "$STATION_HOME/.local" --without-hermes
 fi
-# Run Station from the dedicated account; sudo elevation happens only for the apply stage inside station.sh.
-args=(bootstrap --mode "$MODE" --yes)
-[[ -n "$HOST_ID" ]] && args+=(--host-id "$HOST_ID")
-if [[ "$MODE" == team ]]; then
-  args+=(--organization "$ORGANIZATION" --env "$ENVIRONMENT")
-  [[ -n "$PROJECT" ]] && args+=(--project "$PROJECT")
-fi
-sudo -u "$STATION_USER" -H -- "$REPO_DIR/station.sh" "${args[@]}"
+# Apply the exact reviewed spec using the already authorized bootstrap identity.
+# This must not depend on the newly created operator having a sudo password.
+"$REPO_DIR/station" apply --spec "$bootstrap_spec"
+"$REPO_DIR/station" doctor --full --record
+"$REPO_DIR/station" status
+"$REPO_DIR/station" setup
 
 # Runtime services are installed only after Station has reconciled the
 # canonical Zones and systemd units. Parakeet is default voice infrastructure;
@@ -291,6 +323,12 @@ fi
 
 if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   "$REPO_DIR/scripts/station_guided_setup_enable.sh" --if-enrolled
+fi
+
+# Do not start an updater while the initial installation is still incomplete.
+if [[ "$INSTALL_HERMES_AUTO_UPDATE" -eq 1 ]]; then
+  STATION_USER="$STATION_USER" STATION_HOME="$STATION_HOME" \
+    "$REPO_DIR/scripts/station_deps_install.sh" --enable-hermes-auto-update
 fi
 
 mkdir -p /etc/station

@@ -1,4 +1,4 @@
-"""Allowlisted Operator diagnostics for the Agentik OS command layer."""
+"""Allowlisted Operator diagnostics; named to avoid shadowing stdlib operator."""
 
 from __future__ import annotations
 

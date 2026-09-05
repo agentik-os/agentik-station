@@ -18,7 +18,7 @@ from .paths import (
     create_project_layout, normalize_slug,
 )
 from .store import ControlObject, ControlStore
-from .operator import COMMANDS as OPERATOR_COMMANDS, OperatorCommandService
+from .operator_commands import COMMANDS as OPERATOR_COMMANDS, OperatorCommandService
 from .domain import DESCRIPTIONS as DOMAIN_DESCRIPTIONS, DOMAIN_COMMANDS, DomainCommandService
 from .os_registry import OSRegistry, resolve_assignments
 

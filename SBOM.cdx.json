@@ -2578,6 +2578,18 @@
       "version": "v0.8.0"
     },
     {
+      "bom-ref": "station:pillow@12.3.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://pypi.org/project/Pillow/12.3.0/"
+        }
+      ],
+      "name": "Pillow",
+      "type": "library",
+      "version": "12.3.0"
+    },
+    {
       "bom-ref": "station:playwright@1.62.0",
       "externalReferences": [
         {

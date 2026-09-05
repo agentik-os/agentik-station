@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1186" viewBox="0 0 800 1186" role="img" aria-labelledby="title description">
+  <title id="title">Install, enroll, then accept</title>
+  <desc id="description">Read-only Host and input preflight produces one saved InstallSpec and its plan. After human confirmation, bootstrap installs the operator and reviewed tools, then the kernel applies the same spec and creates independent Zones. READY_FOR_SETUP is followed by private setup, scoped account and OS/chat enrollment, and live acceptance. READY_FOR_SETUP does not mean OPERATIONAL. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .lime { fill: #c5f277; }
+      .card { fill: #101b23; stroke: #3c4e5c; stroke-width: 1.5; }
+      .route { fill: none; stroke: #91aa77; stroke-width: 2; marker-end: url(#arrow); }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 7 4 1 7" fill="none" stroke="#c5f277" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="800" height="1186" fill="#0b1117"/>
+  <rect x=".75" y=".75" width="798.5" height="1184.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
+  <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
+  <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">Install, enroll, then accept</text>
+  <text x="32" y="144" class="muted" font-size="22">One saved InstallSpec links the reviewed plan to apply.</text>
+  <rect class="card" x="112" y="180" width="632" height="94" rx="12"/>
+  <circle cx="58" cy="214" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="221" font-size="22" class="mono lime">01</text>
+  <text x="134" y="216" font-size="28" font-weight="700">Read-only preflight + plan</text>
+  <text x="134" y="251" font-size="22" class="muted">Validated Host + inputs; one saved InstallSpec.</text>
+  <path class="route" d="M58 237V310"/>
+  <rect class="card" x="112" y="300" width="632" height="84" rx="12"/>
+  <circle cx="58" cy="334" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="341" font-size="22" class="mono lime">02</text>
+  <text x="134" y="336" font-size="28" font-weight="700">Human confirms</text>
+  <text x="134" y="371" font-size="22" class="muted">Review the exact plan before mutation.</text>
+  <path class="route" d="M58 357V420"/>
+  <rect class="card" x="112" y="410" width="632" height="94" rx="12"/>
+  <circle cx="58" cy="444" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="451" font-size="22" class="mono lime">03</text>
+  <text x="134" y="446" font-size="28" font-weight="700">Operator + reviewed tools</text>
+  <text x="134" y="481" font-size="22" class="muted">agk-station · pinned toolchain · Hermes</text>
+  <path class="route" d="M58 467V540"/>
+  <rect class="card" x="112" y="530" width="632" height="110" rx="12"/>
+  <circle cx="58" cy="564" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="571" font-size="22" class="mono lime">04</text>
+  <text x="134" y="566" font-size="28" font-weight="700">Kernel + independent Zones</text>
+  <text x="134" y="601" font-size="22" class="muted">Apply the same InstallSpec; run Doctor.</text>
+  <text x="134" y="627" font-size="22" class="mono lime">READY_FOR_SETUP</text>
+  <path class="route" d="M58 587V676"/>
+  <rect class="card" x="112" y="666" width="632" height="84" rx="12"/>
+  <circle cx="58" cy="700" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="707" font-size="22" class="mono lime">05</text>
+  <text x="134" y="702" font-size="28" font-weight="700">Private setup</text>
+  <text x="134" y="737" font-size="22" class="muted">Tailnet identity + protected access.</text>
+  <path class="route" d="M58 723V786"/>
+  <rect class="card" x="112" y="776" width="632" height="94" rx="12"/>
+  <circle cx="58" cy="810" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="817" font-size="22" class="mono lime">06</text>
+  <text x="134" y="812" font-size="28" font-weight="700">Account + OS/chat enrollment</text>
+  <text x="134" y="847" font-size="22" class="muted">Zone credentials · profiles · dedicated bot routes.</text>
+  <path class="route" d="M58 833V906"/>
+  <rect class="card" x="112" y="896" width="632" height="100" rx="12"/>
+  <circle cx="58" cy="930" r="23" fill="#0b1117" stroke="#667c56" stroke-width="1.5"/>
+  <text x="43" y="937" font-size="22" class="mono lime">07</text>
+  <text x="134" y="932" font-size="28" font-weight="700">Live acceptance</text>
+  <text x="134" y="967" font-size="22" class="muted">Provider + chat readback; restore + fresh session.</text>
+  <rect class="card" x="56" y="1033" width="688" height="93" rx="12"/>
+  <text x="80" y="1072" font-size="27" class="lime" font-weight="700">READY_FOR_SETUP ≠ OPERATIONAL</text>
+  <text x="80" y="1108" font-size="22" class="muted">Advance only after every applicable gate passes.</text>
+  <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M58 237V310"/></circle></g>
+  <path d="M32 1132H768" stroke="#34434d"/>
+  <text x="32" y="1161" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>
+</svg>

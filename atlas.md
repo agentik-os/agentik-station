@@ -4,6 +4,15 @@ This is the operator's end-to-end map of Agentik Station: what every major part 
 
 The Atlas describes release `11.12`. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
+**Visual companion:** the [README system maps](README.md#the-whole-system) explain
+the full topology, VPS install, OS factory, chat enrollment, filesystem and evidence
+loop with self-contained animated SVGs and text alternatives. They describe
+architecture, not live telemetry. The [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md)
+records repaired bootstrap defects and the remaining OS-instance/routing and
+resumability decisions. Begin a fresh Host with
+`./bootstrap.sh --mode full --with-ai-stack --plan`; see [INSTALL.md](INSTALL.md)
+for confirmation, exact-spec apply and the boundary of kernel rollback.
+
 ## 1. The system in one sentence
 
 Station is the governed Linux control plane; Hermes is the Zone-isolated agent execution brain; an OS is the installable operating contract Hermes runs; model providers supply replaceable cognition; tools perform bounded actions; Discord and Agentik UI are human surfaces; evidence decides whether the result is truly done.

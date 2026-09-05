@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-labelledby="title description">
   <title id="title">Agentik Station — your AI teams, your infrastructure</title>
-  <desc id="description">A mission circuit: human intent enters Station policy; Hermes orchestrates OS teams and tools; evidence returns to Station for readback, review and acceptance. This is an illustrated architecture, not live telemetry. Motion is decorative and hidden for reduced-motion preferences.</desc>
+  <desc id="description">A mission circuit: human intent enters Station policy; Hermes orchestrates OS teams and tools; evidence returns to Station for readback, review and acceptance. This is an illustrated architecture, not live telemetry. Decorative signals run once for four seconds and are hidden for reduced-motion preferences; the complete diagram remains static.</desc>
   <defs>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M40 0H0V40" fill="none" stroke="#1c2730" stroke-width="1"/>
@@ -74,13 +74,15 @@
   <!-- Decorative signals; the diagram works statically if SMIL is unavailable. -->
   <g class="motion" fill="#c5f277">
     <g transform="translate(88 447)">
-      <circle r="4">
-        <animateMotion dur="8s" repeatCount="indefinite" path="M0 0H1104"/>
+      <circle r="4" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/>
+        <animateMotion dur="4s" repeatCount="1" path="M0 0H1104"/>
       </circle>
     </g>
     <g transform="translate(1192 549)">
-      <circle r="4">
-        <animateMotion dur="8s" repeatCount="indefinite" path="M0 0V39H-828V0"/>
+      <circle r="4" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/>
+        <animateMotion dur="4s" repeatCount="1" path="M0 0V39H-828V0"/>
       </circle>
     </g>
   </g>

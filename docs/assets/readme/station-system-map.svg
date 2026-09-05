@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1140" viewBox="0 0 800 1140" role="img" aria-labelledby="title description">
+  <title id="title">One Station. Many Hosts.</title>
+  <desc id="description">Human chat, CLI or UI intent reaches Station policy and desired state. Fleet places independent Zones on Hosts. Each Zone has its own Unix identity, HOME, HERMES_HOME, credentials and memory. Hermes runs OS teams and selected tools with declared scope against Project-owned assets. Observed evidence returns to Station Control. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .lime { fill: #c5f277; }
+      .card { fill: #101b23; stroke: #3c4e5c; stroke-width: 1.5; }
+      .route { fill: none; stroke: #91aa77; stroke-width: 2; marker-end: url(#arrow); }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 7 4 1 7" fill="none" stroke="#c5f277" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="800" height="1140" fill="#0b1117"/>
+  <rect x=".75" y=".75" width="798.5" height="1138.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
+  <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
+  <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">One Station. Many Hosts.</text>
+  <text x="32" y="144" class="muted" font-size="22">Station governs. Hermes executes within each Zone.</text>
+  <rect class="card" x="40" y="188" width="270" height="88" rx="12"/>
+  <text x="60" y="224" font-size="29" font-weight="700">Human</text>
+  <text x="60" y="255" font-size="22" class="muted">Chat · CLI · UI</text>
+  <path class="route" d="M310 232H400"/>
+  <rect class="card" x="400" y="174" width="360" height="118" rx="12"/>
+  <text x="422" y="213" font-size="30" font-weight="700">Station Control</text>
+  <text x="422" y="248" font-size="22" class="muted">Policy · desired state</text>
+  <text x="422" y="278" font-size="22" class="muted">Placement · evidence indexes</text>
+  <path class="route" d="M430 292V330H400V342"/>
+  <text x="450" y="321" font-size="22" class="muted">Configuration / placement</text>
+  <rect x="32" y="342" width="736" height="540" rx="14" fill="none" stroke="#526773" stroke-width="1.5"/>
+  <text x="56" y="380" font-size="22" class="mono muted">HOST A / LINUX OR VPS</text>
+  <rect x="56" y="410" width="664" height="452" rx="12" fill="none" stroke="#c5f277" stroke-width="1.5"/>
+  <text x="80" y="448" font-size="23" class="lime" font-weight="700">ZONE / INDEPENDENT UNIX IDENTITY</text>
+  <text x="80" y="481" font-size="22" class="muted">HOME · HERMES_HOME · credentials · memory</text>
+  <rect class="card" x="80" y="510" width="616" height="98" rx="12"/>
+  <text x="104" y="551" font-size="31" class="lime" font-weight="700">Hermes execution</text>
+  <text x="104" y="586" font-size="22">OS = Nano Director + specialist profiles</text>
+  <path class="route" d="M388 608V628H226V650"/>
+  <path class="route" d="M388 628H546V650"/>
+  <rect class="card" x="80" y="650" width="286" height="142" rx="12"/>
+  <text x="104" y="692" font-size="28" font-weight="700">Selected tools</text>
+  <text x="104" y="729" font-size="22" class="muted">Native · MCP · APIs</text>
+  <text x="104" y="763" font-size="22" class="muted">Declared scope</text>
+  <path class="route" d="M366 724H390"/>
+  <rect class="card" x="390" y="650" width="306" height="142" rx="12"/>
+  <text x="414" y="692" font-size="28" font-weight="700">Owned Project</text>
+  <text x="414" y="729" font-size="22" class="muted">Repos · knowledge</text>
+  <text x="414" y="763" font-size="22" class="muted">Workspaces · evidence</text>
+  <path class="route" d="M543 792V819"/>
+  <text x="91" y="841" font-size="24" class="lime">Observed evidence returns to Station</text>
+  <path class="route" d="M696 832H742V313H719V292"/>
+  <text x="92" y="920" font-size="25" font-weight="700">Fleet = Hosts + declared Zone placement</text>
+  <rect class="card" x="40" y="944" width="348" height="80" rx="12"/>
+  <text x="60" y="978" font-size="25" font-weight="700">HOST B</text>
+  <text x="60" y="1009" font-size="22" class="muted">Its own isolated Zones</text>
+  <rect class="card" x="412" y="944" width="348" height="80" rx="12"/>
+  <text x="432" y="978" font-size="25" font-weight="700">HOST C</text>
+  <text x="432" y="1009" font-size="22" class="muted">Its own isolated Zones</text>
+  <text x="144" y="1052" font-size="23" class="muted">Local / remote describes placement.</text>
+  <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M310 232H400"/></circle></g>
+  <path d="M32 1086H768" stroke="#34434d"/>
+  <text x="32" y="1115" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>
+</svg>

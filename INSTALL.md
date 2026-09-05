@@ -3,12 +3,51 @@
 The preferred first install on a fresh Host is `bootstrap.sh`. It creates the dedicated `agk-station` sudo account, keeps the repository and user tools outside `/root`, installs the pinned operator toolchain and reviewed Hermes release, and then delegates to the typed Station kernel.
 
 ```bash
+./bootstrap.sh --mode full --with-ai-stack --plan
+# After reviewing the plan, choose ONE installation mode:
 sudo ./bootstrap.sh --mode full
 sudo ./bootstrap.sh --mode team --organization organization-alpha --project platform
 sudo ./bootstrap.sh --mode full --with-ai-stack  # includes every optional AI component
 ```
 
 Use the lower-level `station` / `install` commands below when you need explicit release engineering control.
+
+## Fresh-VPS preflight and confirmation
+
+`bootstrap.sh --plan` runs without sudo. It checks repository Doctor, supported
+Linux/systemd/apt and CPU architecture, existing operator identity/home/group,
+managed directory chains, the operator profile file, checkout conflicts and any
+same-version immutable release content. It creates and removes a temporary
+InstallSpec to print the typed kernel plan, followed by the selected dependency,
+account and service operations. It does not run apt, create accounts, enroll a
+Tailnet or install tools. A private existing target that the caller cannot inspect
+causes a check failure; review it with an appropriately authorized operator rather
+than loosening its permissions.
+
+The actual bootstrap repeats validation and displays its plan before confirmation.
+Within that invocation, **the exact reviewed JSON InstallSpec is passed to apply**.
+The earlier `--plan` invocation is a preview, not a persisted approval artifact.
+Account/tool/package work remains outside the typed kernel transaction and is
+listed separately. Missing option values, invalid modes and unsupported Host
+conditions fail before those mutations.
+
+An existing nonempty operator checkout is not overwritten from another checkout.
+Run from the preserved checkout after reviewing its state. Changed content cannot
+be installed under an already published version—even if provenance text was left
+unchanged. These early checks reduce accidental partial installation; they are
+not a race-proof privileged reconciliation layer or a complete rollback mechanism.
+
+`--sudo-mode password` uses the already authorized root bootstrap for kernel apply;
+it does not require the new account to perform nested interactive sudo. The account
+still needs a human-set password before later interactive sudo can work. The
+default remains broad passwordless operator sudo; see `SECURITY.md` before use.
+
+AGK-TUI never independently installs Hermes during bootstrap: the parent bootstrap
+owns that lifecycle, including `--skip-hermes`. The weekly updater is enabled only
+after selected dependency and setup stages succeed. When Tailnet enrollment is
+missing, optional guided setup reports `LOCAL_BROKER_READY_TAILNET_NOT_READY`
+instead of claiming a private URL; an explicit enable request still fails until
+enrollment is complete. Loopback health is retried within a bounded startup window.
 
 # Installation Contract
 
@@ -139,7 +178,7 @@ Unknown fields, malformed booleans, path syntax, shell syntax, invalid environme
 15. runs full Station Doctor;
 16. records `READY_FOR_SETUP` and explicit next actions.
 
-## Failure behavior
+## Kernel failure behavior
 
 A failed operation:
 
@@ -154,6 +193,15 @@ Receipts live under:
 ```text
 /var/lib/station/receipts/<operation-id>.json
 ```
+
+These transactional claims apply to the **kernel operation**, not the entire
+shell bootstrap. A later dependency/setup failure can occur after a successful
+kernel receipt. The complete bootstrap does not yet have one durable stage journal,
+global operation lock or automatic all-stage rollback. Read the process exit status
+and failed stage, inspect the Host, and create a new reviewed repair plan before
+retrying. An interrupted optional runtime or OS profile installation may require
+supervised reconciliation; do not use `--force` or overwrite immutable artifacts
+as a generic recovery strategy. See the [workflow review](docs/audit/2026-09-05-vps-workflow-review.md).
 
 ## Immutable releases
 

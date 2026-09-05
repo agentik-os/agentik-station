@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title description">
+  <title id="title">Chat is the human doorway</title>
+  <desc id="description">A human creates and authorizes the first bot and enrolls the Host into the Tailnet. The target topology has one dedicated bot and primary channel per installed OS, routed by the Hermes gateway to the owning Zone profile. One-time scoped private links handle credentials and approved OAuth or device flows. No account tokens enter chat. Each OS route still requires live acceptance. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .lime { fill: #c5f277; }
+      .card { fill: #101b23; stroke: #3c4e5c; stroke-width: 1.5; }
+      .route { fill: none; stroke: #91aa77; stroke-width: 2; marker-end: url(#arrow); }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 7 4 1 7" fill="none" stroke="#c5f277" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="800" height="1200" fill="#0b1117"/>
+  <rect x=".75" y=".75" width="798.5" height="1198.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
+  <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
+  <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">Chat is the human doorway</text>
+  <text x="32" y="144" class="muted" font-size="22">Human setup first. Private links for scoped enrollment.</text>
+  <rect class="card" x="56" y="180" width="688" height="98" rx="12"/>
+  <text x="80" y="220" font-size="29" font-weight="700">Human creates the first bot</text>
+  <text x="80" y="257" font-size="22" class="muted">Authorize its app; enter its token through Hermes.</text>
+  <path class="route" d="M400 278V313"/>
+  <rect class="card" x="56" y="313" width="688" height="96" rx="12"/>
+  <text x="80" y="353" font-size="29" font-weight="700">Enroll the Host in your Tailnet</text>
+  <text x="80" y="390" font-size="23" class="muted">Private access before guided setup</text>
+  <path class="route" d="M400 409V449"/>
+  <rect x="32" y="449" width="736" height="269" rx="14" fill="none" stroke="#c5f277" stroke-width="1.5"/>
+  <text x="56" y="487" font-size="22" class="lime" font-weight="700">OWNING ZONE / UNIX USER + HERMES_HOME</text>
+  <rect class="card" x="56" y="518" width="216" height="123" rx="12"/>
+  <text x="76" y="557" font-size="28" font-weight="700">OS bot</text>
+  <text x="76" y="591" font-size="22" class="muted">1 per installed OS</text>
+  <text x="76" y="623" font-size="22" class="muted">Primary channel</text>
+  <path class="route" d="M272 579H290"/>
+  <rect class="card" x="290" y="518" width="218" height="123" rx="12"/>
+  <text x="306" y="557" font-size="24" font-weight="700">Hermes gateway</text>
+  <text x="309" y="596" font-size="22" class="muted">Inbound + reply</text>
+  <path class="route" d="M508 579H526"/>
+  <rect class="card" x="526" y="518" width="218" height="123" rx="12"/>
+  <text x="547" y="557" font-size="28" font-weight="700">OS profile</text>
+  <text x="547" y="596" font-size="22" class="muted">Nano Director</text>
+  <text x="90" y="685" font-size="25" class="lime">Target topology · accept each route live</text>
+  <path class="route" d="M400 718V766"/>
+  <rect class="card" x="56" y="766" width="688" height="206" rx="12"/>
+  <text x="80" y="807" font-size="29" font-weight="700">One-time private setup link</text>
+  <text x="80" y="843" font-size="22" class="muted">Tailnet HTTPS · short-lived · scoped to the Zone</text>
+  <text x="80" y="879" font-size="23">Secret form → Zone credential store</text>
+  <text x="80" y="914" font-size="23">OAuth / device link → approved provider</text>
+  <text x="80" y="951" font-size="24" class="lime" font-weight="700">No account tokens in chat.</text>
+  <path class="route" d="M400 972V1010"/>
+  <rect class="card" x="56" y="1010" width="688" height="101" rx="12"/>
+  <text x="80" y="1050" font-size="29" font-weight="700">Per-OS route acceptance</text>
+  <text x="80" y="1086" font-size="22" class="muted">Pending until live routing + permission tests pass.</text>
+  <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M272 579H290"/></circle></g>
+  <path d="M32 1146H768" stroke="#34434d"/>
+  <text x="32" y="1175" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>
+</svg>

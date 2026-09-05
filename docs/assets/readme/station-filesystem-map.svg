@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1230" viewBox="0 0 800 1230" role="img" aria-labelledby="title description">
+  <title id="title">A home for every boundary</title>
+  <desc id="description">Station uses exact FHS roots: /etc/station for desired state, /opt/station for immutable code, /srv/station for human assets, /var/lib/station for runtime state, /var/log/station for logs, /var/backups/station for recovery staging, and /run/station for ephemeral runtime. The human Zone path is 2_ZONES/category/name, with an environment directory only for ORGANIZATIONS and PROJECTS. Each Zone owns Projects and their assets, plus independent HOME and HERMES_HOME state. There is no global shared HOME. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
+      .mono { font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; }
+      .muted { fill: #9aa9b5; }
+      .lime { fill: #c5f277; }
+      .card { fill: #101b23; stroke: #3c4e5c; stroke-width: 1.5; }
+      .route { fill: none; stroke: #91aa77; stroke-width: 2; marker-end: url(#arrow); }
+      @media (prefers-reduced-motion: reduce) { .motion { display: none; } }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 7 4 1 7" fill="none" stroke="#c5f277" stroke-width="1.5"/></marker>
+  </defs>
+  <rect width="800" height="1230" fill="#0b1117"/>
+  <rect x=".75" y=".75" width="798.5" height="1228.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
+  <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
+  <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">A home for every boundary</text>
+  <text x="32" y="144" class="muted" font-size="22">Exact Station roots; each Zone owns its runtime.</text>
+  <rect class="card" x="32" y="180" width="736" height="384" rx="12"/>
+  <text x="56" y="216" font-size="22" class="mono">/etc/station/</text>
+  <text x="372" y="216" font-size="22" class="muted">Desired state + policy</text>
+  <path d="M56 234H744" stroke="#293b48"/>
+  <text x="56" y="270" font-size="22" class="mono">/opt/station/</text>
+  <text x="372" y="270" font-size="22" class="muted">Immutable code + releases</text>
+  <path d="M56 288H744" stroke="#293b48"/>
+  <text x="56" y="324" font-size="22" class="mono lime">/srv/station/</text>
+  <text x="372" y="324" font-size="22" class="muted">Human navigation + assets</text>
+  <path d="M56 342H744" stroke="#293b48"/>
+  <text x="56" y="378" font-size="22" class="mono">/var/lib/station/</text>
+  <text x="372" y="378" font-size="22" class="muted">Durable runtime + evidence</text>
+  <path d="M56 396H744" stroke="#293b48"/>
+  <text x="56" y="432" font-size="22" class="mono">/var/log/station/</text>
+  <text x="372" y="432" font-size="22" class="muted">System + Zone logs</text>
+  <path d="M56 450H744" stroke="#293b48"/>
+  <text x="56" y="486" font-size="22" class="mono">/var/backups/station/</text>
+  <text x="372" y="486" font-size="22" class="muted">Recovery staging</text>
+  <path d="M56 504H744" stroke="#293b48"/>
+  <text x="56" y="540" font-size="22" class="mono">/run/station/</text>
+  <text x="372" y="540" font-size="22" class="muted">Ephemeral runtime</text>
+  <path class="route" d="M400 564V599"/>
+  <rect class="card" x="32" y="599" width="736" height="291" rx="12"/>
+  <text x="56" y="640" font-size="29" font-weight="700">Human tree /srv/station/</text>
+  <text x="56" y="677" font-size="23" class="mono lime">2_ZONES/&lt;category&gt;/&lt;name&gt;/</text>
+  <text x="56" y="709" font-size="22" class="muted">Then &lt;env&gt;/ for ORGANIZATIONS or PROJECTS.</text>
+  <path d="M66 721V739H88" fill="none" stroke="#78906a" stroke-width="2"/>
+  <text x="98" y="747" font-size="24" class="mono">projects/&lt;project&gt;/</text>
+  <text x="98" y="787" font-size="22" class="muted">repos/ · docs/ · knowledge/ · resources/</text>
+  <text x="98" y="824" font-size="22" class="muted">workspaces/ · worktrees/ · artifacts/ · evidence/</text>
+  <text x="98" y="861" font-size="22" class="muted">integrations/ · credentials/ · state/ · ops/</text>
+  <rect class="card" x="32" y="918" width="736" height="183" rx="12"/>
+  <text x="56" y="958" font-size="29" font-weight="700">Each Zone has its own state</text>
+  <text x="56" y="997" font-size="22" class="mono lime">/var/lib/station/zones/&lt;zone-id&gt;/</text>
+  <text x="56" y="1034" font-size="23" class="mono">home/      hermes/ (HERMES_HOME)</text>
+  <text x="56" y="1076" font-size="22" class="muted">Credentials · sessions · memory stay in this Zone.</text>
+  <text x="83" y="1148" font-size="25" class="lime" font-weight="700">Shared code. One independent HOME per Zone.</text>
+  <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M400 564V599"/></circle></g>
+  <path d="M32 1176H768" stroke="#34434d"/>
+  <text x="32" y="1205" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>
+</svg>

@@ -17,13 +17,14 @@ After cloning, the detailed operating instruction is:
 
 > Read `AGENTS.md`, `atlas.md`, `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md`, `SETUP.md`, and `docs/hardening/README.md`. Treat them as authoritative. Inspect the Host without exposing secrets. Run repository Doctor and compile the exact install plan. Do not redesign Station or weaken Zone boundaries. Apply only the supported safe-kernel installation after the plan is reviewed. Then run installed-Host Doctor and report the exact observed state, completed receipts, warnings, degradation, and next setup gates. Leave the Host at `READY_FOR_SETUP`. Do not claim Hermes, Discord, Composio, Tailscale, GitHub credentials, OS packages, remote Fleet, backup, or recovery are ready unless their real module-specific Doctor/readback/acceptance evidence exists.
 
-Expected base flow:
+Preferred fresh-VPS flow:
 
 ```bash
 cd agentik-station
 ./station doctor --repo
-./station plan --host-id <host-id> --role <role>
-sudo ./install --host-id <host-id> --role <role>
+./bootstrap.sh --mode full --with-ai-stack --plan
+# Human reviews the preview. Bootstrap then revalidates and asks confirmation.
+sudo ./bootstrap.sh --mode full --with-ai-stack
 station doctor --full
 station status --json
 station module status
@@ -32,6 +33,13 @@ station deps toolchain-check
 ```
 
 For a seeded organization/project Host, use the exact command pattern in `INSTALL.md` or a reviewed JSON `InstallSpec`.
+
+The lower-level `station plan` / `install` path installs the typed kernel; it is
+not the full dependency bootstrap. `--plan` performs read-only eligibility checks
+and prints both the kernel plan and the additional shell-bootstrap operations.
+Do not proceed when the Host, operator identity, checkout or immutable release
+conflicts. Do not infer overall bootstrap success from a kernel receipt if a later
+stage failed. Existing OS profile retries and upgrades require supervision.
 
 The installation report must separate:
 
@@ -47,6 +55,7 @@ The installation report must separate:
 After reading the repository contracts, an AI operator should prefer:
 
 ```bash
+./bootstrap.sh --mode full --plan
 sudo ./bootstrap.sh --mode full
 ```
 

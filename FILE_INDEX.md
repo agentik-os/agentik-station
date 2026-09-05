@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1088
+Total files: 1099
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -112,7 +112,7 @@ Total files: 1088
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/manifest.json`
 - `components/agk-tui/hermes/plugins/agentik_os/dashboard/plugin_api.py`
 - `components/agk-tui/hermes/plugins/agentik_os/domain.py`
-- `components/agk-tui/hermes/plugins/agentik_os/operator.py`
+- `components/agk-tui/hermes/plugins/agentik_os/operator_commands.py`
 - `components/agk-tui/hermes/plugins/agentik_os/os_registry.py`
 - `components/agk-tui/hermes/plugins/agentik_os/paths.py`
 - `components/agk-tui/hermes/plugins/agentik_os/plugin.yaml`
@@ -173,6 +173,7 @@ Total files: 1088
 - `components/agk-tui/tests/test_provider.py`
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
 - `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
+- `components/agk-tui/tests/test_sync_hermes_launcher.py`
 - `components/agk-tui/tests/test_topology.py`
 - `components/agk-tui/tests/test_web_extraction.py`
 - `config/agent-runtime-policy.json`
@@ -239,8 +240,15 @@ Total files: 1088
 - `docs/architecture/14_GITHUB_PUBLISHING.md`
 - `docs/architecture/15_AGK_STATION_USER_BOOTSTRAP.md`
 - `docs/assets/readme/DESIGN.md`
+- `docs/assets/readme/station-chat-map.svg`
+- `docs/assets/readme/station-evidence-loop.svg`
+- `docs/assets/readme/station-filesystem-map.svg`
+- `docs/assets/readme/station-install-flow.svg`
 - `docs/assets/readme/station-mission-control.svg`
+- `docs/assets/readme/station-os-map.svg`
+- `docs/assets/readme/station-system-map.svg`
 - `docs/audit/2026-09-05-station-deep-audit.md`
+- `docs/audit/2026-09-05-vps-workflow-review.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
 - `docs/audit/V10_PROFESSIONAL_AUDIT.md`
 - `docs/builder/01_BUILDER_OS_CANONICAL.md`
@@ -999,6 +1007,7 @@ Total files: 1088
 - `scripts/ci_vps_acceptance.sh`
 - `scripts/generate_release_metadata.py`
 - `scripts/station_agk_sync.py`
+- `scripts/station_bootstrap_preflight.py`
 - `scripts/station_deps_install.sh`
 - `scripts/station_guided_setup_enable.sh`
 - `scripts/station_hermes_update.sh`
@@ -1077,6 +1086,7 @@ Total files: 1088
 - `tests/contract/test_zone_schema.py`
 - `tests/install/test_core_install.py`
 - `tests/install/test_temp_install.py`
+- `tests/security/test_bootstrap_workflow.py`
 - `tests/security/test_doctor_boundaries.py`
 - `tests/security/test_os_compiler_boundaries.py`
 - `tests/security/test_remote_bootstrap.py`
@@ -1085,6 +1095,7 @@ Total files: 1088
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`
+- `tests/unit/test_guided_setup_enable.py`
 - `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_hermes_update_receipt.py`
 - `tests/unit/test_identifiers.py`

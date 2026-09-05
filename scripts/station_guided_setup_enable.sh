@@ -35,20 +35,43 @@ jq -e --arg id "$zone_id" --arg user "$zone_user" --arg root "$zone_root" \
 id "$zone_user" >/dev/null 2>&1 || { echo "ERROR: missing $zone_user" >&2; exit 2; }
 install -d -m 0700 -o "$zone_user" -g "$zone_user" "$state_root"
 systemctl enable --now station-guided-setup.service
-curl --fail --silent --show-error --max-time 3 http://127.0.0.1:8787/health >/dev/null
+# Type=simple becomes active before the broker necessarily starts listening.
+broker_ready=0
+for attempt in {1..10}; do
+  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:8787/health >/dev/null 2>&1; then
+    broker_ready=1
+    break
+  fi
+  if [[ "$attempt" -lt 10 ]]; then sleep 1; fi
+done
+[[ "$broker_ready" -eq 1 ]] || {
+  echo "ERROR: loopback setup broker did not become healthy after 10 attempts" >&2
+  exit 2
+}
 
-if ! command -v tailscale >/dev/null 2>&1 || ! tailscale status --json >/dev/null 2>&1; then
-  echo "STATE: LOCAL_BROKER_READY_TAILSCALE_NOT_ENROLLED"
-  echo "NEXT: enroll this Host in Tailscale, then rerun sudo $0"
+tailnet_not_ready() {
+  echo "STATE: LOCAL_BROKER_READY_TAILNET_NOT_READY"
+  echo "NEXT: $1, then rerun sudo $0"
   [[ "$optional" -eq 1 ]] && exit 0
   exit 2
+}
+
+# Match providers/tailscale.py: zero exit alone is not an enrolled, online node.
+# Use one observed snapshot for both readiness and the private DNS identity.
+if ! command -v tailscale >/dev/null 2>&1 \
+  || ! tailscale_status=$(tailscale status --json 2>/dev/null) \
+  || ! jq -e '
+    type == "object" and .BackendState == "Running"
+    and (.Self | type == "object") and .Self.Online == true
+    and (.Self.TailscaleIPs | type == "array" and length > 0)
+  ' <<< "$tailscale_status" >/dev/null 2>&1; then
+  tailnet_not_ready "enroll/start Tailscale and verify this Host is online with assigned Tailnet addresses"
 fi
 
-dns_name=$(tailscale status --json | jq -r '.Self.DNSName // empty')
+dns_name=$(jq -r '.Self.DNSName // empty' <<< "$tailscale_status")
 dns_name=${dns_name%.}
 [[ "$dns_name" =~ ^[A-Za-z0-9.-]+\.ts\.net$ ]] || {
-  echo "ERROR: Tailscale MagicDNS .ts.net identity is unavailable" >&2
-  exit 2
+  tailnet_not_ready "enable and verify this Host's Tailscale MagicDNS .ts.net identity"
 }
 base_url="https://${dns_name}/station-setup"
 if [[ -n "$hermes_setup_url" ]]; then
