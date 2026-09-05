@@ -245,9 +245,10 @@ def test_preflight_accepts_matching_release_while_ignoring_unpublished_source_me
     preflight.module.check_existing_targets(preflight.repo, preflight.home, preflight.releases)
 
 
-@pytest.mark.parametrize("relative", [".local", ".config", ".profile"])
+@pytest.mark.parametrize("relative", [".local", ".local/share", ".local/lib", ".config", ".profile"])
 def test_preflight_rejects_symlinked_operator_install_targets(preflight, relative):
     preflight.home.mkdir()
+    (preflight.home / relative).parent.mkdir(parents=True, exist_ok=True)
     (preflight.home / relative).symlink_to(preflight.repo, target_is_directory=True)
     with pytest.raises(preflight.module.ValidationError):
         preflight.module.check_existing_targets(preflight.repo, preflight.home, preflight.releases)
@@ -257,3 +258,45 @@ def test_preflight_rejects_nonregular_profile(preflight):
     (preflight.home / ".profile").mkdir(parents=True)
     with pytest.raises(preflight.module.ValidationError, match="regular file"):
         preflight.module.check_existing_targets(preflight.repo, preflight.home, preflight.releases)
+
+
+@pytest.mark.parametrize("relative", ["tools", "tools/hermes", "tools/hermes/current", "tools/hermes/python", "tools/hermes/python/bin"])
+def test_preflight_rejects_symlinked_shared_hermes_code(preflight, relative):
+    target = preflight.releases.parent / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.symlink_to(preflight.repo, target_is_directory=True)
+    with pytest.raises(preflight.module.ValidationError, match="real directory"):
+        preflight.module.check_existing_targets(preflight.repo, preflight.home, preflight.releases)
+
+
+def test_operator_scaffolding_explicitly_owns_intermediate_local_directories(shell, tmp_path):
+    source = (ROOT / "bootstrap.sh").read_text()
+    section = source.split("bootstrap_checkpoint operator-account running\n", 1)[1].split(
+        "bootstrap_checkpoint operator-account success", 1)[0]
+    command = section[section.index("\ninstall -d ") + 1:]
+    home = tmp_path / "operator with spaces"
+    result = subprocess.run([shell, "-c", "install() { printf '%s\\0' \"$@\"; };\n" + command],
+                            env=dict(os.environ, STATION_USER="fixture", STATION_HOME=str(home)),
+                            text=True, capture_output=True, check=True)
+    operands = result.stdout.split("\0")
+    assert operands[:7] == ["-d", "-m", "0750", "-o", "fixture", "-g", "fixture"]
+    assert set(operands[7:-1]) == {str(home / relative) for relative in
+                                 ("repos", ".local", ".local/bin", ".local/share", ".local/lib", ".config")}
+
+
+def test_native_installer_receives_shared_managed_python_without_changing_private_home(shell, tmp_path):
+    source = (ROOT / "bootstrap.sh").read_text()
+    start = source.index('  sudo -u "$STATION_USER" -H env HERMES_HOME=')
+    end = source.index('\n  [[ -x "$STATION_HOME/.local/bin/hermes" ]]', start)
+    command = source[start:end]
+    installer = tmp_path / "upstream fixture.sh"
+    installer.write_text("printf '%s\\n' \"$HERMES_HOME\" \"$UV_PYTHON_INSTALL_DIR\" \"$UV_PYTHON_BIN_DIR\" \"$UV_PYTHON_PREFERENCE\"\n")
+    home = tmp_path / "private operator"
+    shared = tmp_path / "shared code" / "python"
+    result = subprocess.run([shell, "-c", "sudo() { shift 3; \"$@\"; };\n" + command],
+                            env=dict(os.environ, STATION_USER="fixture", STATION_HOME=str(home),
+                                     hermes_python_dir=str(shared), hermes_install_dir=str(shared.parent / "current"),
+                                     HERMES_COMMIT="0" * 40, tmp=str(installer)),
+                            text=True, capture_output=True, check=True)
+    assert result.stdout.splitlines() == [str(home / ".hermes"), str(shared), str(shared / "bin"), "only-managed"]
+    assert not home.exists()

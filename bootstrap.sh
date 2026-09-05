@@ -256,7 +256,11 @@ if ! id "$STATION_USER" >/dev/null 2>&1; then
 else
   usermod -aG sudo "$STATION_USER"
 fi
-install -d -m 0750 -o "$STATION_USER" -g "$STATION_USER" "$STATION_HOME/repos" "$STATION_HOME/.local/bin" "$STATION_HOME/.config"
+# install -d only applies ownership to explicit operands, not intermediate
+# parents. A root-owned .local prevents uv/npm from creating share/lib below it.
+install -d -m 0750 -o "$STATION_USER" -g "$STATION_USER" \
+  "$STATION_HOME/repos" "$STATION_HOME/.local" "$STATION_HOME/.local/bin" \
+  "$STATION_HOME/.local/share" "$STATION_HOME/.local/lib" "$STATION_HOME/.config"
 bootstrap_checkpoint operator-account success
 
 bootstrap_checkpoint operator-sudo running
@@ -304,9 +308,15 @@ if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   }
   chmod 0755 "$tmp"
   hermes_install_dir="/opt/station/tools/hermes/current"
-  install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" /opt/station/tools/hermes
+  hermes_python_dir="/opt/station/tools/hermes/python"
+  install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" \
+    /opt/station/tools/hermes "$hermes_python_dir" "$hermes_python_dir/bin"
   # Execute the downloaded upstream installer as the dedicated account, pinned to the reviewed release commit.
-  sudo -u "$STATION_USER" -H env HERMES_HOME="$STATION_HOME/.hermes" bash "$tmp" \
+  # Its interpreter must be shared executable code, not a symlink into the
+  # private operator home. Credentials and caches remain in the owning home.
+  sudo -u "$STATION_USER" -H env HERMES_HOME="$STATION_HOME/.hermes" \
+    UV_PYTHON_INSTALL_DIR="$hermes_python_dir" UV_PYTHON_BIN_DIR="$hermes_python_dir/bin" \
+    UV_PYTHON_PREFERENCE=only-managed bash "$tmp" \
     --dir "$hermes_install_dir" --branch main --commit "$HERMES_COMMIT" --skip-setup --non-interactive
   [[ -x "$STATION_HOME/.local/bin/hermes" ]] || { echo 'ERROR: Hermes launcher was not created.' >&2; exit 2; }
   install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes" /usr/local/bin/hermes
@@ -439,8 +449,9 @@ bootstrap_checkpoint tool-inventory success
 
 # Sync Station metadata into AGK home (best-effort).
 bootstrap_checkpoint agk-metadata-sync running
-if sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" PATH="$STATION_HOME/.local/bin:$PATH" \
-  python3 "$REPO_DIR/scripts/station_agk_sync.py"; then
+if python3 -B "$REPO_DIR/scripts/station_agk_sync.py" --export | \
+  sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" PATH="$STATION_HOME/.local/bin:$PATH" \
+    python3 -B "$REPO_DIR/scripts/station_agk_sync.py" --from-stdin; then
   bootstrap_checkpoint agk-metadata-sync success
 else
   sync_rc=$?

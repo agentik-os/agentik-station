@@ -55,7 +55,11 @@ def check_existing_targets(repo: Path, home: Path, releases: Path) -> None:
     check_directory_chain(destination)
     check_directory_chain(releases)
     check_directory_chain(home / ".local" / "bin")
+    check_directory_chain(home / ".local" / "share")
+    check_directory_chain(home / ".local" / "lib")
     check_directory_chain(home / ".config")
+    check_directory_chain(releases.parent / "tools" / "hermes" / "current")
+    check_directory_chain(releases.parent / "tools" / "hermes" / "python" / "bin")
     profile = home / ".profile"
     if profile.is_symlink() or (profile.exists() and not stat.S_ISREG(profile.lstat().st_mode)):
         raise ValidationError("Operator .profile must be a regular file, not a link or special file")

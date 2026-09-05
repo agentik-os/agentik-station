@@ -1,4 +1,26 @@
-# Agentik Station 11.14 Validation
+# Agentik Station 11.15 Validation
+
+## Live VPS repair campaign — 2026-09-05
+
+- Baseline 11.14 Station/Factory suite rerun: **692 passed**.
+- On a fresh Ubuntu 26.04.1 x86_64 VPS, repository Doctor and the full bootstrap
+  plan passed. The first real installation completed base packages, Tailscale and
+  operator creation, then failed because root-owned `.local` prevented the
+  operator's Hermes installer from creating its managed Python directory.
+- The failed attempt is retained; no kernel release had been published. Its
+  service exited and no apt/dpkg/uv child remained before repair preparation.
+- 11.15 adds targeted ownership/shared-interpreter, npm launcher, redacted AGK
+  synchronization and safe observed-host evidence regressions.
+- Corrective Station/Factory suite: **795 passed**. Shipped AGK-TUI component
+  suite: **225 passed, 2 skipped** (the two unavailable local web libraries).
+- Repository Doctor, shell syntax, diff hygiene and regenerated release metadata
+  checks passed before publication of this corrective candidate.
+
+Full corrected bootstrap, real named-instance installation and external
+provider/chat/recovery acceptance are still pending at this checkpoint. A passing
+source test or a prepared plan is not a successful VPS installation.
+
+## Previous client-instance validation — 11.14
 
 Local verification on 2026-09-05, after the client-owned OS instance implementation:
 

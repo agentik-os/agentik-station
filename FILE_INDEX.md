@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1121
+Total files: 1125
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -1008,6 +1008,7 @@ Total files: 1121
 - `runtime/systemd/station-hermes-watch.timer`
 - `runtime/systemd/station-parakeet.service`
 - `scripts/ci_vps_acceptance.sh`
+- `scripts/ci_vps_evidence.py`
 - `scripts/generate_release_metadata.py`
 - `scripts/station_agk_sync.py`
 - `scripts/station_bootstrap_preflight.py`
@@ -1096,6 +1097,7 @@ Total files: 1121
 - `tests/contract/test_zone_schema.py`
 - `tests/install/test_core_install.py`
 - `tests/install/test_temp_install.py`
+- `tests/security/test_agk_metadata_sync.py`
 - `tests/security/test_bootstrap_state.py`
 - `tests/security/test_bootstrap_workflow.py`
 - `tests/security/test_doctor_boundaries.py`
@@ -1108,6 +1110,7 @@ Total files: 1121
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
 - `tests/security/test_strix_boundaries.py`
+- `tests/security/test_vps_acceptance_evidence.py`
 - `tests/security/test_zone_compilation.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
@@ -1123,3 +1126,4 @@ Total files: 1121
 - `tests/unit/test_orchestration_cli.py`
 - `tests/unit/test_release_generation.py`
 - `tests/unit/test_tailscale_readiness.py`
+- `tests/unit/test_toolchain_launchers.py`

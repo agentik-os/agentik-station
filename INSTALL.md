@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.14
+## Supported base for Station 11.15
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.14",
+  "release_version": "11.15",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -302,7 +302,7 @@ shadcn CLI
 
 Bootstrap also installs at least the reviewed Tailscale stable version from its signed Ubuntu/Debian repository after verifying the archive-key checksum. It starts `tailscaled` but never invents a tailnet identity or authentication; the human owner completes `sudo tailscale up`, checks the device in the admin console, and then enables Station's private Serve path.
 
-Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there. Zone-base state remains at `/var/lib/station/zones/<zone-id>/hermes`; named instances use `/var/lib/station/zones/<zone-id>/os-instances/<instance>/hermes` under that Zone's UID.
+Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Its managed Python lives under `/opt/station/tools/hermes/python`, so a Zone does not need access to the operator's private home to execute it. Runtime state never lives there. Zone-base state remains at `/var/lib/station/zones/<zone-id>/hermes`; named instances use `/var/lib/station/zones/<zone-id>/os-instances/<instance>/hermes` under that Zone's UID.
 
 Once the Host is enrolled in Tailscale, enable the private guided-setup path:
 
@@ -336,7 +336,20 @@ For a generic team Host:
 ## AGK-TUI
 
 Bootstrap installs AGK-TUI for `agk-station` (skip with `--skip-agk-tui`).
-Then: `agk` or `station tui` for live sessions. Sync metadata: `~/.agentik/station-sync.json`.
+Then: `agk` or `station tui` for live sessions. Bootstrap synchronizes redacted
+metadata into `/home/agk-station/.agentik/station-sync.json`: root reads the
+protected metadata and the unprivileged operator writes its own snapshot. A
+missing or unreadable source is a reported failure, not an empty success. To
+repeat that metadata-only handoff from the reviewed checkout:
+
+```bash
+set -o pipefail
+sudo python3 -B scripts/station_agk_sync.py --export | \
+  sudo -u agk-station -H python3 -B scripts/station_agk_sync.py --from-stdin
+```
+
+The snapshot does not enroll accounts or turn the legacy AGK client UI into the
+canonical Organization/instance registry.
 
 
 ## Optional dependency stack + Hermes auto-update
@@ -380,7 +393,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.14 publishes beside earlier releases; it never overwrites an old
+Station 11.15 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

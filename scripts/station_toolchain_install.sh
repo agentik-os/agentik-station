@@ -169,11 +169,142 @@ verify_checksum_file() {
   (cd "$directory" && printf '%s  %s\n' "$expected" "$archive" | sha256sum --check --status)
 }
 
+manage_node_launchers() {
+  # Python is a bootstrap prerequisite. Run this narrow filesystem handoff as
+  # the operator, never root; preserve unrelated launchers and reject symlinked
+  # parents. npm owns its global package, while Station owns these exact links.
+  as_station /usr/bin/python3 -I - "$STATION_HOME" "$1" "$2" "$NPM_VERSION" <<'PY'
+import contextlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+import uuid
+
+home, bundle, action, version = sys.argv[1:]
+prefix = home + "/.local"
+bins = prefix + "/bin"
+npm_root = prefix + "/lib/node_modules/npm"
+for value in (home, bundle):
+    if not value.startswith("/") or os.path.normpath(value) != value or value == "/":
+        sys.exit("ERROR: Node launcher paths must be canonical absolute paths")
+if not re.fullmatch(re.escape(prefix) + r"/lib/node-v\d+\.\d+\.\d+-linux-(x64|arm64)", bundle):
+    sys.exit("ERROR: unexpected Station Node bundle path")
+
+@contextlib.contextmanager
+def directory(path, *, missing=False):
+    fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for part in Path(path).parts[1:]:
+            try:
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            except FileNotFoundError:
+                if missing:
+                    yield None
+                    return
+                raise
+            os.close(fd)
+            fd = child
+        yield fd
+    finally:
+        os.close(fd)
+
+def regular(path, *, missing=False):
+    with directory(str(Path(path).parent), missing=missing) as fd:
+        if fd is None:
+            return False
+        try:
+            value = os.stat(Path(path).name, dir_fd=fd, follow_symlinks=False)
+        except FileNotFoundError:
+            if missing:
+                return False
+            raise
+        if not stat.S_ISREG(value.st_mode) or value.st_nlink != 1:
+            raise ValueError("unsafe Node/npm executable or package metadata")
+        return True
+
+def recognized(fd, binary):
+    try:
+        value = os.stat(binary, dir_fd=fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    if not stat.S_ISLNK(value.st_mode):
+        raise ValueError("refusing unrelated existing launcher: " + binary)
+    target = os.path.normpath(os.path.join(bins, os.readlink(binary, dir_fd=fd)))
+    global_target = npm_root + "/bin/" + binary + "-cli.js"
+    hermes_target = home + "/.hermes/node/bin/" + binary
+    node_target = re.fullmatch(re.escape(prefix) + r"/lib/node-v\d+\.\d+\.\d+-linux-(x64|arm64)/bin/" + binary, target)
+    if not (node_target or (binary in {"npm", "npx"} and target == global_target)
+            or (binary in {"node", "npm", "npx"} and target == hermes_target)):
+        raise ValueError("refusing unrelated existing launcher: " + binary)
+    with directory(str(Path(target).parent), missing=True):
+        pass
+
+def publish(fd, binary, target):
+    recognized(fd, binary)
+    try:
+        if os.readlink(binary, dir_fd=fd) == target:
+            return
+    except FileNotFoundError:
+        pass
+    temporary = ".station-launcher-" + uuid.uuid4().hex
+    os.symlink(target, temporary, dir_fd=fd)
+    try:
+        recognized(fd, binary)
+        os.rename(temporary, binary, src_dir_fd=fd, dst_dir_fd=fd)
+    finally:
+        try:
+            os.unlink(temporary, dir_fd=fd)
+        except FileNotFoundError:
+            pass
+
+try:
+    for path in (home, prefix, bins, prefix + "/lib", bundle, bundle + "/bin",
+                 bundle + "/lib/node_modules/npm/bin", npm_root + "/bin"):
+        with directory(path, missing=True):
+            pass
+    for name in ("package.json", "bin/npm-cli.js", "bin/npx-cli.js"):
+        regular(npm_root + "/" + name, missing=True)
+    regular(bundle + "/bin/node", missing=True)
+    regular(bundle + "/lib/node_modules/npm/bin/npm-cli.js", missing=True)
+    with directory(bins, missing=action == "check") as fd:
+        if fd is not None:
+            for binary in ("node", "npm", "npx", "corepack"):
+                recognized(fd, binary)
+        if action == "node":
+            regular(bundle + "/bin/node")
+            publish(fd, "node", bundle + "/bin/node")
+            # Recent Node distributions do not necessarily include Corepack.
+            if os.path.exists(bundle + "/bin/corepack"):
+                corepack = os.path.realpath(bundle + "/bin/corepack")
+                if not corepack.startswith(bundle + "/"):
+                    raise ValueError("Corepack target escapes the pinned Node bundle")
+                regular(corepack)
+                publish(fd, "corepack", bundle + "/bin/corepack")
+        elif action == "npm":
+            for name in ("package.json", "bin/npm-cli.js", "bin/npx-cli.js"):
+                regular(npm_root + "/" + name)
+            with open(npm_root + "/package.json", encoding="utf-8") as source:
+                package = json.load(source)
+            if package.get("name") != "npm" or package.get("version") != version:
+                raise ValueError("global npm package does not match the requested pin")
+            for binary in ("npm", "npx"):
+                publish(fd, binary, "../lib/node_modules/npm/bin/" + binary + "-cli.js")
+        elif action != "check":
+            raise ValueError("unknown Node launcher action")
+except (OSError, ValueError) as exc:
+    sys.exit("ERROR: safe Node/npm launcher handoff failed: " + str(exc))
+PY
+}
+
 install_node() {
   local version="${NODE_VERSION#v}"
   local base="node-v${version}-linux-${NODE_ARCH}"
   local archive="${base}.tar.xz"
   local dest="$STATION_HOME/.local/lib/$base"
+  manage_node_launchers "$dest" check
   if [[ ! -x "$dest/bin/node" ]]; then
     local tmp
     tmp="$(mktemp -d)"
@@ -188,10 +319,7 @@ install_node() {
     rmdir "$tmp"
   fi
   install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" "$tool_path"
-  for binary in node npm npx corepack; do
-    ln -sfn "$dest/bin/$binary" "$tool_path/$binary"
-    chown -h "$STATION_USER:$STATION_USER" "$tool_path/$binary"
-  done
+  manage_node_launchers "$dest" node
 }
 
 install_github_cli() {
@@ -264,9 +392,16 @@ verify_npm_integrity() {
 }
 
 install_node_clis() {
+  local dest="$STATION_HOME/.local/lib/node-v${NODE_VERSION#v}-linux-${NODE_ARCH}"
+  manage_node_launchers "$dest" check
+  # Bootstrap through the immutable bundle, not a launcher npm will replace.
+  # npm's default global bin check rejects earlier bundled/Hermes links with
+  # EEXIST. Suppress only its bin publication, then safely hand off exact links.
+  as_station "$dest/bin/node" "$dest/lib/node_modules/npm/bin/npm-cli.js" \
+    install --global --bin-links=false "npm@${NPM_VERSION}"
+  manage_node_launchers "$dest" npm
   verify_npm_integrity vercel "$VERCEL_CLI_VERSION" "$VERCEL_CLI_INTEGRITY"
   verify_npm_integrity shadcn "$SHADCN_CLI_VERSION" "$SHADCN_CLI_INTEGRITY"
-  as_station "$tool_path/npm" install --global "npm@${NPM_VERSION}"
   as_station "$tool_path/npm" install --global "vercel@${VERCEL_CLI_VERSION}"
   as_station "$tool_path/npm" install --global "shadcn@${SHADCN_CLI_VERSION}"
   if [[ "$INSTALL_CODEX" -eq 1 ]]; then

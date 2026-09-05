@@ -1,5 +1,24 @@
 # Changelog
 
+## 11.15 — Live VPS bootstrap repairs (2026-09-05)
+
+- explicitly assign the operator's `.local` parent and tool directories to its
+  account, fixing the Python installation permission failure reproduced on a
+  fresh Ubuntu 26.04 VPS;
+- install Hermes-managed Python under shared `/opt/station/tools/hermes/python`
+  instead of making Zone runtimes depend on a private operator-home interpreter;
+- safely hand off Hermes/bundled npm launchers to the pinned Station npm package,
+  preserving unrelated files and managed links on retries without `--force`;
+- export only validated, redacted Host/tool/Doctor metadata as root, then write
+  the AGK snapshot as its unprivileged owner; missing metadata no longer silently
+  becomes an empty successful synchronization;
+- derive VPS evidence from the observed OS and architecture; use private temporary
+  capture and atomic no-overwrite publication rather than predictable root writes.
+
+These changes preserve the 11.14 client-owned OS instance contract. Live bootstrap
+and account/runtime acceptance are reported separately in `VALIDATION.md`; no
+provider authentication, Discord bot, scan or recovery success is implied.
+
 ## 11.14 — Client-owned OS instances and complete Hermes teams (2026-09-05)
 
 - make Organizations explicit owners of their existing environment Zones; OS
