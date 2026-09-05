@@ -35,6 +35,7 @@ def load_module(name):
 broker = load_module("broker")
 token_helper = load_module("token")
 preflight = load_module("preflight")
+profile_check = load_module('profile_check')
 CAPABILITY = "a" * 64
 SOURCE_TOKEN = "source-secret-never-in-target"
 GRANT = {"zone_id": "acme-dev", "uid": 2101,
@@ -42,6 +43,18 @@ GRANT = {"zone_id": "acme-dev", "uid": 2101,
 CONFIG = {"schema_version": 1, "port": 8791,
           "source": {"operator": "agk-station", "hermes_home": "/home/agk-station/.hermes"},
           "grants": [GRANT]}
+
+
+def test_native_command_token_source_is_resolved_without_stringifying_it():
+    calls = []
+    def source():
+        calls.append(True)
+        return CAPABILITY
+    assert profile_check.key_value(source) == CAPABILITY and calls == [True]
+    assert profile_check.key_value(CAPABILITY) == CAPABILITY
+    for invalid in (None, '', object(), lambda: None):
+        with pytest.raises(ValueError, match='Native credential unavailable'):
+            profile_check.key_value(invalid)
 
 
 def frame(value):

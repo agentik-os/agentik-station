@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "name": "agentik-station",
-  "release": "11.38",
+  "release": "11.39",
   "blueprint_version": 11,
   "posture": "final-repository-candidate",
   "archive_root": "agentik-station",

@@ -46,9 +46,9 @@ dedicated directory whose parent exists. Existing directories, including empty
 unmanaged ones, are refused rather than adopted. Keep the path short enough for
 RMUX's native Unix socket limit. Paths containing spaces are supported.
 
-The repository prepares `@agentik-os/station` version `11.38.0`; this documentation
+The repository prepares `@agentik-os/station` version `11.39.0`; this documentation
 does **not** claim that npm publication has happened. After an authorized registry
-publication, `npx @agentik-os/station@11.38.0` can launch the same installer.
+publication, `npx @agentik-os/station@11.39.0` can launch the same installer.
 The package has no dependencies or npm lifecycle installation scripts: npm
 install alone never installs Hermes, modifies the OS or starts a gateway.
 The npm package/cache itself lives in npm's chosen prefix/cache; Station-managed

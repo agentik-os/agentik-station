@@ -1,6 +1,6 @@
-# Agentik Station 11.38 Validation
+# Agentik Station 11.39 Validation
 
-## Scoped Hermes model inheritance — 11.38
+## Scoped Hermes model inheritance — 11.39
 
 See the [mission and acceptance record](docs/audit/2026-09-05-hermes-model-inheritance.md)
 and [supported runtime scope](docs/operations/11_MODEL_INHERITANCE.md). Configuration,

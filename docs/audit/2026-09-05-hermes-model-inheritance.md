@@ -90,3 +90,24 @@ the label and fixture isolation were corrected without weakening Host validation
 An existing Builder Director produced the expected fresh-session test response;
 its explicit native model/auth setup is preserved, not overwritten by inference
 sharing. Team-route and tool-roundtrip readback remain separate final gates.
+
+## Live model acceptance
+
+The Zone-owned synthetic live check passed text, a model-generated local function
+call, and the returned function output at UID 981 using `gpt-6-astra`. The broker
+did not run a source agent or source tools. Fresh native Builder and Stepper
+Director chats independently returned their requested probe markers without
+authentication errors; their pre-existing explicit Codex selections were kept.
+
+The native `key_cmd` resolver returns a callable `CommandTokenSource`, not a
+stored token string. Release 11.39 materializes that native source privately for
+route verification; a real Zone-identity readback passed. The acceptance client
+also collects completed streamed output items, as pinned Hermes does: the final
+Codex completion envelope can have an empty `output` array despite valid preceding
+output events. This was an acceptance-client assumption, not missing model output.
+
+Repository version 11.38 passed GitHub's verify, Python 3.11/3.13, both npm OS,
+Node and both web-runtime jobs at this checkpoint. Its longer native Workstation
+job was still running. Final published-commit CI and whole-team Host verification
+are distinct gates, with private Host evidence retained under
+`/var/backups/station/inference-11.36-20260905/` (the initial candidate baseline).

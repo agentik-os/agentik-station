@@ -13,6 +13,15 @@ import re
 import sys
 
 
+def key_value(value):
+    # Native key_cmd is a refreshable CommandTokenSource, not a stored string.
+    if callable(value):
+        value = value()
+    if not isinstance(value, str) or not value:
+        raise ValueError('Native credential unavailable')
+    return value
+
+
 def check():
     uid = os.geteuid()
     account = pwd.getpwuid(uid)
@@ -45,7 +54,7 @@ def check():
         token = module.capability()
         if (runtime.get('provider') != 'custom' or runtime.get('api_mode') != 'codex_responses'
                 or runtime.get('base_url', '').rstrip('/') != 'http://127.0.0.1:8791'
-                or runtime.get('api_key') != token):
+                or key_value(runtime.get('api_key')) != token):
             raise ValueError('Native runtime differs')
     return {'state': 'NATIVE_ROUTE_VERIFIED', 'model': 'hermes-default',
             'provider': 'custom:station-inference', 'live_inference_tested': False}

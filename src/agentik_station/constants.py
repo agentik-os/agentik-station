@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-PRODUCT_VERSION = "11.38"
+PRODUCT_VERSION = "11.39"
 BLUEPRINT_VERSION = 11
 SPEC_SCHEMA_VERSION = 1
 
