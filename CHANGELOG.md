@@ -1,5 +1,16 @@
 # Changelog
 
+## 11.21 — Governed native caches and post-execution readback (2026-09-05)
+
+- preserve the successful full 11.20 VPS bootstrap and all six native DevOps
+  profile Doctors as evidence, without claiming provider/chat acceptance;
+- distinguish narrowly governed Codex/uv runtime-cache links from forbidden
+  authority paths; keep privileged SafeFS writes and release symlink guards;
+- require a fresh Station Doctor after CLI/web checks before publishing VPS
+  acceptance, so native command side effects cannot escape the final gate;
+- align the module catalog with Zone-owned OS instances and optional sibling
+  Projects, and describe code-only shared CLI publication accurately.
+
 ## 11.20 — Real Zone execution and first private setup (2026-09-05)
 
 - explicitly reconcile private Zone HOME intermediates with their Zone owner,

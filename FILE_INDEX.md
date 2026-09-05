@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1135
+Total files: 1137
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -1076,6 +1076,7 @@ Total files: 1135
 - `src/agentik_station/receipts.py`
 - `src/agentik_station/remote.py`
 - `src/agentik_station/resources.py`
+- `src/agentik_station/runtime_links.py`
 - `src/agentik_station/strix.py`
 - `station`
 - `station.sh`
@@ -1114,6 +1115,7 @@ Total files: 1135
 - `tests/security/test_parakeet_transcribe.py`
 - `tests/security/test_project_creation.py`
 - `tests/security/test_remote_bootstrap.py`
+- `tests/security/test_runtime_links.py`
 - `tests/security/test_safe_filesystem.py`
 - `tests/security/test_shared_toolchain.py`
 - `tests/security/test_strix_boundaries.py`

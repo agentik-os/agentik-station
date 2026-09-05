@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.20",
+  "release": "11.21",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1132,
+  "subject_count": 1134,
   "subjects": [
     {
       "executable": false,
@@ -80,8 +80,8 @@
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "e5f6feea305dcba88214d3acd8cb425b4bf73115fe05558c7f2651ab80fdbd86",
-      "size": 14306
+      "sha256": "9883a3a881c3197d06fc323894e56dcabc841e1b818563fe5efc871928f31bbc",
+      "size": 14987
     },
     {
       "executable": false,
@@ -110,7 +110,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "3efbc5063841d1a9eb22fcb41a4fc45851a715c7867c930ff2afe30d277a12d9",
+      "sha256": "26b51ed5daf9abe7104b5a307cf5ab97c63da00bf6ba54fec09d18e3aaad6cb2",
       "size": 20672
     },
     {
@@ -134,7 +134,7 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "eea29a64a5c08bbcd4720b1307f88079dd1052a9b1346debc8005d1611e1ffc5",
+      "sha256": "7f6b66636be1d3e6fa54f6b69bca250fe00b5931957d0598f03d522b62a06643",
       "size": 42806
     },
     {
@@ -146,14 +146,14 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "c4b2a377beb5cd5ae128c34cea842482c6e1b93a7bd23b54b59299741e361a89",
+      "sha256": "c9fbac2078264c5fc7e917f3b8c8de2f3e427c7c818b56cb1746f30ce9fe3f9f",
       "size": 83216
     },
     {
       "executable": false,
       "path": "SECURITY.md",
-      "sha256": "cbe29fce7dde627df004b752283561094a335654fc37803fbf0ce70e329b6058",
-      "size": 9126
+      "sha256": "8c5d00ff61bf543efb000532413bd7079d59a80cc0e2627661410de234dc7a34",
+      "size": 9933
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "96cc6a9098add169030982bd2ff16c7fdb6812aea8789d353bb91bd56a0f731c",
-      "size": 13602
+      "sha256": "c37e1cbc24c85ee1c84e6a79e34dd958f946af6dce709981d058eedb796e1292",
+      "size": 16164
     },
     {
       "executable": false,
@@ -188,13 +188,13 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "37d2282e9c31775ec2341e3883b6e82b9783e0d16ed4c7d6523b7d170dd1711d",
+      "sha256": "6a7566ce5bb3c8b59a8ce8085b50898abe862ecba31206907a7c565c1d0f6558",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "35f1586adbef3caa205ee222d1b7864dec537d5adc8a9d0926b8fc1e0edb6e54",
+      "sha256": "4993e3a3eb62e4376d5f24b8c5a52d005bb607fc11f2878949085bf696470292",
       "size": 59610
     },
     {
@@ -1316,7 +1316,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "4ad1abaef62830ec212617f4edae4e4a27a8e9cc08e83ccabe3fb3f66c0ca3ab",
+      "sha256": "a0627bdf2154df16a60c3311b8ce5cc6ac001ec803b681681d201b280119c3e3",
       "size": 2339
     },
     {
@@ -2810,8 +2810,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "cadae1f41cc5b1dd221405c59ffb012eef638b65aedf2e512efac469072ede90",
-      "size": 10340
+      "sha256": "603b5983cd0f6709eb2ff9ac21430fad13d5777c4e99f8602f4c6d183a346c7e",
+      "size": 10642
     },
     {
       "executable": false,
@@ -3056,7 +3056,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "9353ce81ff97c15294b1ac8b3ea9502d7c94ee9bcd035ba3587887f1695d59b5",
+      "sha256": "65ca0402140a2e8332e12d132739cec5b97a3a6827f2a50ff6e3803032ffbe23",
       "size": 3188
     },
     {
@@ -5822,7 +5822,7 @@
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "27de705cc273265a2d68ad91549ad36eb0ceeaf6be7f7ab69d532486976bd884",
+      "sha256": "12784b2cab93a6400e019011f2962b0f0558653c5e770c417cbe7d138d8231ba",
       "size": 720
     },
     {
@@ -6044,8 +6044,8 @@
     {
       "executable": true,
       "path": "scripts/ci_vps_acceptance.sh",
-      "sha256": "3c520d6c7359c5fdf57eea17d0cdd7451d4291b5fc691c919e7a56c27d358422",
-      "size": 8270
+      "sha256": "f3bd7a54eede485d38cce447f344206678f9da6fdc80006bdbc5fa0a1c93a7c3",
+      "size": 8461
     },
     {
       "executable": false,
@@ -6260,14 +6260,14 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "a444e3f889f5b84073b07882f31b8e493fae1e7677def9309ff5531350842031",
+      "sha256": "632e1df731d5d8f200d986bd12e3ff124321d2fc36c782d3bf902f510a90756b",
       "size": 1851
     },
     {
       "executable": false,
       "path": "src/agentik_station/doctor.py",
-      "sha256": "ce29229fd9502b6e212140f8e4bfc888797aa1aae164058fffa86db62a78934d",
-      "size": 56097
+      "sha256": "5af7eea497d3f7a54f051718ef456bd2c6181168a859b45769d3f67199fa36b9",
+      "size": 56497
     },
     {
       "executable": false,
@@ -6436,6 +6436,12 @@
       "path": "src/agentik_station/resources.py",
       "sha256": "006c2709258fb37cfdfd481f7ad4e2f20aa7945f4b7d57808c98930446260339",
       "size": 3723
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/runtime_links.py",
+      "sha256": "0f8538bf5b6a8f3d6170bffa02b9bcc7481afb1a2b9fe7e5a8cc97669605154f",
+      "size": 9963
     },
     {
       "executable": false,
@@ -6667,6 +6673,12 @@
     },
     {
       "executable": false,
+      "path": "tests/security/test_runtime_links.py",
+      "sha256": "00cc22083dd310d7d1764d31d3d6137b647ef3c6c0993d63944f01ed6450de58",
+      "size": 17249
+    },
+    {
+      "executable": false,
       "path": "tests/security/test_safe_filesystem.py",
       "sha256": "1f4aaa15f732023445adf47cf96d407eb5ccf0010df3a5014ddf44194dc82ee5",
       "size": 2043
@@ -6692,8 +6704,8 @@
     {
       "executable": false,
       "path": "tests/security/test_vps_zone_toolchain_acceptance.py",
-      "sha256": "400b099c2fa02c979071a796e43ac5eecca362335c571cdd83f8f347679b6873",
-      "size": 8268
+      "sha256": "2da87eca655fed7e1b5ce0bc132fc2b08ea7a35f60bdb5880a8bcb6e28dad09e",
+      "size": 10445
     },
     {
       "executable": false,

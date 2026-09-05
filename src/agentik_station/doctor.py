@@ -30,6 +30,7 @@ from .maturity import load_catalog, load_os_catalog
 from .os_contract import doctor_os_source
 from .models import ROLES, ZoneSpec
 from .paths import LayoutPaths
+from .runtime_links import audit_zone_links
 
 
 @dataclass
@@ -1030,15 +1031,20 @@ def station_doctor(
                     "Recompile desired OS declarations from the active release catalog.",
                 )
 
-        unsafe_links = ensure_no_symlinks(human) + ensure_no_symlinks(state_root)
-        if unsafe_links:
+        runtime_links = audit_zone_links(paths, human=human, state_root=state_root, owner=home_owner)
+        if runtime_links["unsafe"] or runtime_links["errors"]:
             result.fail(
                 f"zone:{zone_id}:symlinks",
-                f"Unexpected symlinks exist in the Zone roots: {unsafe_links[:5]}",
-                "Remove the symlinks or replace them with an explicitly governed mount/binding contract.",
+                f"Unapproved or unverifiable Zone links: {runtime_links['unsafe'][:5]}; "
+                f"scan errors: {runtime_links['errors'][:5]}",
+                "Inspect the exact link and owner/target contract; do not delete native caches or relax privileged-write guards.",
             )
         else:
-            result.pass_check(f"zone:{zone_id}:symlinks")
+            result.pass_check(
+                f"zone:{zone_id}:symlinks",
+                f"No unapproved links; {len(runtime_links['allowed'])} governed native-cache aliases verified. "
+                "No provider or mission readiness implied.",
+            )
 
         if not paths.test_mode:
             try:

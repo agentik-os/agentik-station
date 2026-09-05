@@ -160,5 +160,9 @@ if [[ "$PROFILE" == full ]]; then
   curl --fail --silent --show-error --max-time 5 http://127.0.0.1:5092/health >/dev/null
 fi
 
+# Native CLI/web probes can create runtime caches. Recheck the resulting Host,
+# not just the state before those probes, before publishing acceptance evidence.
+"$REPO/station" doctor --full
+
 python3 -I -B "$EVIDENCE_HELPER" --output "$EVIDENCE" --profile "$PROFILE" \
   --doctor "$READBACK_DIR/devops-os-doctor.json"

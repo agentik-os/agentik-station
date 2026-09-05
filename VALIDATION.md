@@ -1,4 +1,4 @@
-# Agentik Station 11.20 Validation
+# Agentik Station 11.21 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -160,6 +160,44 @@ cases. Independent reviews found no blocker in the ownership, TLS, shared-code
 or Zone-probe changes. The actual VPS acceptance additionally requires all eleven
 public CLI pins under a real Zone identity with its canonical HOME/HERMES_HOME
 and an isolated network namespace; this does not authenticate any provider.
+
+All six final 11.20 CI jobs passed for commit
+`338ba8e79382f2ebe72837815641eb07aafdbcde`. Actual shared-code publication passed,
+including native versions and relocated Python runtime/venv probes; its unchanged
+retry also passed after a complete operator-toolchain reinstall. The operator
+home remained 0750 and no authentication was copied.
+
+The seventh bootstrap, `op-20260905-035321-f5537068`, completed **all 19 selected
+stages** successfully and activated the immutable 11.20 kernel. It used normal
+full mode, not `--with-ai-stack`: Ponytail remained blocked/not installed, while
+the other optional components had been installed separately as described above.
+Guided HTTPS setup, the weekly Hermes update timer, inventory and redacted AGK
+metadata synchronization all completed. Timer readback showed its first scheduled
+run on 2026-09-07; no native Hermes update/restore was executed during acceptance.
+
+All six `dev/engineering` native profile Doctors and complete local readback then
+passed. Its ledger advanced to `VERIFIED`, **not OPERATIONAL**. The owning Zone
+could read its Director config; the Factory Zone could not. Unknown-role routing
+was refused, and Discord setup still resolved only the instance's namespaced
+Director with its canonical Zone HOME and dedicated instance HERMES_HOME.
+
+The initial full VPS acceptance passed all nine gates: real Zone traversal and
+cross-Zone denial, eleven public CLI pins under network isolation, web runtimes
+and Chromium, AGK, timer and Parakeet health. **A subsequent fresh Station Doctor
+failed**, exposing a missing post-execution gate: Codex `--version` and native
+Hermes Doctor had created legitimate Codex/uv cache links that the blanket Zone
+symlink check rejected. The earlier receipt is retained as historical evidence,
+not final clean-state acceptance. No caches or links were deleted to hide this.
+11.21 adds a governed, bounded read-only link inspection and a final fresh Doctor;
+the immutable 11.20 release is preserved rather than patched in place.
+
+The frozen 11.21 Station/Factory suite passed **1,104 tests**. Its focused link
+and existing boundary suite passed 92 cases; acceptance/evidence tests passed 71
+cases, including shell execution proving a failed final Doctor prevents success
+publication. Independent review found and corrected an immutable-directory
+permission check before final validation. Repository Doctor, deterministic
+metadata, shell syntax and diff checks passed. Live cache-policy and post-probe
+acceptance readback are required before accepting the new deployment.
 
 ## Previous client-instance validation — 11.14
 

@@ -183,3 +183,47 @@ def test_acceptance_gate_precedes_evidence_publication_and_shell_is_valid():
     source = SCRIPT.read_text()
     assert source.index("<<'PY_ZONE_TOOLS'") < source.index('--profile "$PROFILE"')
     subprocess.run(["bash", "-n", str(SCRIPT)], check=True, timeout=5)
+
+
+def test_final_fresh_doctor_runs_after_every_native_gate_before_publication():
+    source = SCRIPT.read_text()
+    command = '"$REPO/station" doctor --full'
+    assert source.count(command) == 2, "Keep both initial and final fresh Station Doctor gates"
+    final_doctor = source.rindex(command)
+    for earlier in ('station_toolchain_install.sh" --check', '"$REPO/station" deps web-check',
+                    '\nPY_ZONE_TOOLS\n', '127.0.0.1:5092/health'):
+        assert source.index(earlier) < final_doctor
+    assert final_doctor < source.index('--profile "$PROFILE"')
+
+
+@pytest.mark.parametrize("doctor_exit", [0, 1, 23])
+def test_final_doctor_failure_cannot_publish_acceptance(tmp_path, doctor_exit):
+    """Run the real shell epilogue, replacing only native commands with fakes."""
+    source = SCRIPT.read_text()
+    epilogue = source[source.rindex('"$REPO/station" doctor --full'):]
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    bins = tmp_path / "bin"
+    bins.mkdir()
+    station = repo / "station"
+    station.write_text(
+        '#!/bin/sh\n[ "$1" = doctor ] && [ "$2" = --full ] && [ "$#" = 2 ] || exit 91\n'
+        'printf "doctor\\n" >> "$TRACE"\nexit "$DOCTOR_EXIT"\n'
+    )
+    station.chmod(0o755)
+    publisher = bins / "python3"
+    publisher.write_text(
+        '#!/bin/sh\nprintf "evidence\\n" >> "$TRACE"\n'
+        'printf "verified\\n" > "$EVIDENCE"\n'
+    )
+    publisher.chmod(0o755)
+    evidence = tmp_path / "acceptance.json"
+    trace = tmp_path / "trace"
+    environment = {"PATH": str(bins) + ":/usr/bin:/bin", "REPO": str(repo), "PROFILE": "core",
+                   "EVIDENCE": str(evidence), "EVIDENCE_HELPER": "synthetic-evidence-helper",
+                   "READBACK_DIR": str(tmp_path), "TRACE": str(trace), "DOCTOR_EXIT": str(doctor_exit)}
+    completed = subprocess.run(["bash", "-c", "set -Eeuo pipefail\n" + epilogue], env=environment,
+                               cwd=tmp_path, capture_output=True, text=True, timeout=5)
+    assert completed.returncode == doctor_exit
+    assert trace.read_text().splitlines() == (["doctor", "evidence"] if doctor_exit == 0 else ["doctor"])
+    assert evidence.exists() is (doctor_exit == 0)

@@ -98,6 +98,18 @@ Instance `HERMES_HOME` separates Hermes profiles, configuration and sessions, bu
 gateway processes retain the canonical Zone `HOME`. Other CLI authentication and
 caches under that home may be shared within the Zone. This is not per-instance
 CLI/account isolation; enrollment must not automatically copy authentication.
+
+Doctor permits only two explicitly governed native cache-link layouts beneath
+the canonical Zone HOME: Codex's four temporary `arg0` executable aliases to the
+exact immutable shared-toolchain native binary (root-owned manifest and binary
+hash verified), and uv `wheels-v6/pypi` aliases to existing directories in that
+same Zone's `archive-v0` cache. Links and real cache parents must have the Zone's
+UID/GID; writable-by-other-user parents, escaping/dangling targets and links in
+authority paths still fail. This is read-only verification, never permission for
+privileged writes to follow links. Repository/release and Project link bans are
+unchanged: arbitrary `node_modules`, virtualenv and other native layouts are not
+implicitly supported by this narrow policy. Caches are not deleted to pass Doctor.
+
 Instance runtime roots are inode-bound. A copied/restored replacement is not
 automatically trusted; it requires reviewed repair or re-enrollment. No automatic
 instance restore or migration is provided in 11.14.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.20",
+  "release": "11.21",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -39,14 +39,14 @@
     {
       "id": "hermes-runtime",
       "maturity": "INSTALLABLE",
-      "claim": "AGK OS sources compile into Hermes Profile Distributions. Root-owned runtime ledgers bind exact bundles and complete native teams to one Project per OS per Zone; safe retries preserve completed profiles. Selected-Director setup and full-team Doctor are explicit. Bootstrap installs the reviewed shared runtime and optional weekly updater; live accounts and fresh-session acceptance remain separate.",
+      "claim": "AGK OS sources compile into Hermes Profile Distributions. Root-owned instance ledgers bind exact bundles and complete namespaced teams to one Zone/OS instance; Projects are optional sibling scopes, not instance containers. Legacy Project-bound runtimes remain explicit. Safe retries preserve completed profiles. Selected-Director setup and full-team Doctor are explicit. Bootstrap installs the reviewed shared runtime and weekly updater; live accounts and fresh-session acceptance remain separate.",
       "binary_probes": ["hermes"],
-      "next_repair_action": "Read station setup --json, create/select the owning Project, install the OS, run station os setup and os verify, then complete fresh-session acceptance."
+      "next_repair_action": "Read station setup --json, select the owning Zone/Organization, use station os instance install/setup/verify, then complete fresh-session/provider/chat acceptance. Declare existing Projects only when needed."
     },
     {
       "id": "operator-toolchain",
       "maturity": "INSTALLABLE",
-      "claim": "The bootstrap can install pinned user-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI with checksum or registry-integrity verification. External account authentication is never inferred.",
+      "claim": "The bootstrap installs pinned operator-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI with checksum or registry-integrity verification. Allowlisted software is also published as verified root-owned shared code; public launchers preserve each Zone HOME and never copy authentication. External account authentication is never inferred.",
       "binary_probes": ["python-latest", "python-ai", "node", "gh", "vercel", "codex", "composio", "shadcn"],
       "next_repair_action": "Run station deps toolchain-install, then toolchain-check and complete least-privilege login/readback for each provider actually needed."
     },
