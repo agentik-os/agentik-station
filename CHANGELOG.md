@@ -1,5 +1,24 @@
 # Changelog
 
+## 11.13 — Owned orchestration and first-mission workflow (2026-09-05)
+
+- add a bootstrap-wide lock and durable stage receipts, preserve failure codes,
+  and require explicit reviewed acknowledgement before restarting an incomplete attempt;
+- add safe, scoped `station project create` for existing Zones without rerunning
+  Host installation or overwriting an existing Project;
+- bind each installed OS to its Project, exact immutable bundle and full native
+  team in a root-owned ledger; preserve completed profiles on safe retries;
+- add selected-Director provider setup and gateway routing with explicit native
+  profiles, complete-team Doctor readback and configuration-bound verification;
+- make `station setup` an ordered, read-only onboarding report with a separately
+  requested systemd-only probe and no automatic account/readiness claims;
+- derive release metadata from `VERSION` and make metadata `--check` genuinely
+  read-only; document the full first-mission sequence and remaining live gates.
+
+This is a new immutable software release, not an automatic migration of old OS
+profiles. Broad operator sudo, same-Zone role trust, external account acceptance,
+off-Host recovery and interrupted dependency repair remain explicit limitations.
+
 ## Unreleased — VPS workflow and visual system guide (2026-09-05)
 
 - restore the full README architecture with six new animated, accessible SVG maps,

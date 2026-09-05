@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import grp
 import json
 import os
 import pwd
@@ -237,19 +238,25 @@ def cmd_member_list(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_setup(_: argparse.Namespace) -> int:
-    print(
-        "Station 11.12 setup gates\n\n"
-        "1. Tailscale: install/enroll, verify Host identity and SSH reachability.\n"
-        "2. Hermes: install/configure, compile Zone profiles, run Hermes and plugin Doctor.\n"
-        "3. Ponytail: enable only in Builder/DevOps engineering profiles, then verify registration.\n"
-        "4. Discord: enroll one dedicated Nano Director bot per OS, provision and read back the control surface.\n"
-        "5. Composio: map Station principals, restrict toolkits/accounts, verify session/MCP boundaries.\n"
-        "6. GitHub/providers: enroll only the narrow credentials required by each Zone/Project.\n"
-        "7. Backups: configure off-Host encrypted backups and execute a restore rehearsal.\n"
-        "8. Fresh session: run the OS from deployed context/tools/state only.\n"
-        "9. Raise a module to OPERATIONAL only after external readback and acceptance evidence.\n"
+def cmd_setup(args: argparse.Namespace) -> int:
+    from .onboarding import build_onboarding_report, render_onboarding_report
+
+    report = build_onboarding_report(
+        LayoutPaths.live(), repository_root(),
+        zone_id=args.zone, project_id=args.project, os_id=args.os, probe=args.probe,
     )
+    print(json.dumps(report, indent=2, sort_keys=True) if args.json else render_onboarding_report(report))
+    return 0
+
+
+def cmd_project_create(args: argparse.Namespace) -> int:
+    from .projects import create_project
+
+    result = create_project(
+        LayoutPaths.live(), repository_root(), zone=_load_zone_record(args.zone),
+        project_id=args.id, plan=args.plan,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
 
@@ -736,6 +743,14 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
 
     zone = _load_zone_record(args.zone)
     requested_platform = normalize_platform(getattr(args, "platform", None))
+    runtime = None
+    if getattr(args, "os", None):
+        from .os_lifecycle import load_os_runtime_record
+        runtime = load_os_runtime_record(
+            LayoutPaths.live(), zone=zone, os_id=args.os, require_configured=True,
+        )
+        if runtime["state"] == "DEGRADED" and args.platform_command in {"install", "start", "restart"}:
+            raise ValidationError("Repair the selected Director and rerun station os verify before starting its gateway")
     hermes = next(
         (path for path in (Path("/usr/local/bin/hermes"), Path(shutil.which("hermes") or "")) if path.is_absolute() and path.is_file()),
         None,
@@ -748,19 +763,31 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
     unix_user = validate_identifier(str(zone.get("unix_user", "")), "Zone Unix user")
     try:
         zone_user = pwd.getpwnam(unix_user)
+        zone_group = grp.getgrnam(unix_user)
     except KeyError as exc:
-        raise StationError(f"Zone Unix user is missing: {unix_user}") from exc
+        raise StationError(f"Zone Unix user/group is missing: {unix_user}") from exc
+    if (zone_user.pw_uid == 0 or zone_user.pw_gid == 0
+            or zone_user.pw_gid != zone_group.gr_gid
+            or Path(zone_user.pw_dir) != Path(zone["state_root"]) / "home"
+            or zone_user.pw_shell not in {"/usr/sbin/nologin", "/sbin/nologin", "/bin/false"}):
+        raise ValidationError("Zone Unix identity does not match its canonical home/group/shell")
     argv = build_gateway_argv(
         zone,
         args.platform_command,
         runtime_uid=zone_user.pw_uid,
         hermes_binary=hermes,
         runuser_binary=runuser,
+        director_profile=runtime["nano_director"] if runtime else None,
     )
     payload = {
         "schema_version": 1,
         "zone_id": args.zone,
+        "os_id": runtime["os_id"] if runtime else None,
+        "project_id": runtime["project_id"] if runtime else None,
+        "profile": runtime["nano_director"] if runtime else "default",
+        "bundle_sha256": runtime["bundle_sha256"] if runtime else None,
         "platform": requested_platform,
+        "platform_selection": "operator-intent-only; actions target the selected profile's whole gateway",
         "action": args.platform_command,
         "argv": argv,
         "claim": "PREPARED_NOT_RUN" if args.plan else "OBSERVED_NOT_ACCEPTED",
@@ -780,32 +807,42 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         systemctl = shutil.which("systemctl")
         if not loginctl or not systemctl or not Path("/run/systemd/system").is_dir():
             raise StationError("Hermes gateway service installation requires a running systemd/loginctl Host")
-        linger = subprocess.run([loginctl, "enable-linger", unix_user], check=False, capture_output=True, text=True)
-        if linger.returncode != 0:
-            raise StationError(f"Could not enable systemd linger for {unix_user}: {linger.stderr.strip()}")
-        manager = subprocess.run(
-            [systemctl, "start", f"user@{zone_user.pw_uid}.service"],
-            check=False,
-            capture_output=True,
-            text=True,
+        for command, label in (
+            ([loginctl, "enable-linger", unix_user], "enable Zone systemd linger"),
+            ([systemctl, "start", f"user@{zone_user.pw_uid}.service"], "start the Zone systemd user manager"),
+        ):
+            try:
+                prerequisite = subprocess.run(
+                    command, check=False, stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL, timeout=30,
+                )
+            except (OSError, subprocess.TimeoutExpired):
+                raise StationError(f"Could not {label} within its time limit; inspect Host service logs before retrying") from None
+            if prerequisite.returncode != 0:
+                raise StationError(f"Could not {label}; inspect Host service logs before retrying")
+    interactive = args.platform_command in {"setup", "configure"}
+    try:
+        completed = subprocess.run(
+            argv, check=False, text=True,
+            stdout=None if interactive else subprocess.DEVNULL,
+            stderr=None if interactive else subprocess.DEVNULL,
+            timeout=None if interactive else 300,
         )
-        if manager.returncode != 0:
-            raise StationError(f"Could not start systemd user manager for {unix_user}: {manager.stderr.strip()}")
-    interactive = args.platform_command == "setup"
-    completed = subprocess.run(
-        argv,
-        check=False,
-        text=True,
-        capture_output=not interactive,
-        timeout=None if interactive else 300,
-    )
-    payload["returncode"] = completed.returncode
+        returncode = completed.returncode
+    except subprocess.TimeoutExpired:
+        returncode = 124
+        payload["error"] = "Native Hermes command exceeded its time limit; inspect the owning Zone logs."
+    except OSError:
+        returncode = 127
+        payload["error"] = "Native Hermes command could not start; verify the shared launcher and Zone identity."
+    payload["returncode"] = returncode
     if not interactive:
-        payload["stdout"] = completed.stdout[-12000:]
-        payload["stderr"] = completed.stderr[-12000:]
-    payload["claim"] = "OBSERVED_COMMAND_SUCCEEDED_NOT_ACCEPTED" if completed.returncode == 0 else "DEGRADED"
+        # JSON is consumed by bots and UI surfaces. Native output may contain
+        # provider/account material; never export it into that projection.
+        payload["native_output_exported"] = False
+    payload["claim"] = "OBSERVED_COMMAND_SUCCEEDED_NOT_ACCEPTED" if returncode == 0 else "COMMAND_FAILED_NOT_ACCEPTED"
     print(json.dumps(payload, indent=2, sort_keys=True))
-    return int(completed.returncode)
+    return int(returncode)
 
 
 def cmd_hermes_check(args: argparse.Namespace) -> int:
@@ -872,13 +909,25 @@ def cmd_os_catalog(args: argparse.Namespace) -> int:
 
 
 def _load_zone_record(zone_id: str) -> dict[str, Any]:
+    from .os_lifecycle import read_runtime_json
+
     zone_id = validate_identifier(zone_id, "zone_id")
-    path = LayoutPaths.live().config / "zones.d" / f"{zone_id}.json"
+    layout = LayoutPaths.live()
+    path = layout.config / "zones.d" / f"{zone_id}.json"
+    SafeFS._assert_existing_absolute_chain(path.parent)
     if path.is_symlink() or not path.is_file():
         raise ValidationError(f"Local Zone desired state not found: {zone_id}")
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if payload.get("id") != zone_id or payload.get("placement") != "local":
+    payload = read_runtime_json(
+        path, uid=os.getuid() if layout.test_mode else 0, immutable=True,
+        trusted_root=layout.config if layout.test_mode else None,
+    )
+    if not isinstance(payload, dict) or payload.get("id") != zone_id or payload.get("placement") != "local":
         raise ValidationError(f"Zone {zone_id} is not a local reconciled Zone")
+    from .doctor import _validate_local_zone_record
+    try:
+        _validate_local_zone_record(payload, record_path=path, paths=layout, expected_host_id=None)
+    except (ValueError, KeyError, TypeError) as exc:
+        raise ValidationError(f"Zone desired record does not match canonical ownership/layout: {zone_id}") from exc
     return payload
 
 
@@ -899,109 +948,46 @@ def _chown_generated_tree(root: Path, uid: int, gid: int) -> None:
 
 def cmd_os_install(args: argparse.Namespace) -> int:
     if os.geteuid() != 0:
-        raise StationError("OS runtime installation requires root so Station can cross into the target Zone identity safely")
-    import pwd
-    import tempfile
-    from .os_runtime import compile_os_to_hermes, install_compiled_bundle
+        raise StationError("OS runtime installation requires root for the owning Zone identity")
+    from .os_lifecycle import install_os_runtime
 
     item, source = _os_catalog_entry(args.id)
     zone = _load_zone_record(args.zone)
-    project_id = validate_identifier(args.project, "project_id")
-    project_root = Path(str(zone["human_root"])) / "projects" / project_id
-    if project_root.is_symlink() or not project_root.is_dir():
-        raise ValidationError(f"Project does not exist in Zone {args.zone}: {project_id}")
-    state_root = Path(str(zone["state_root"]))
-    hermes_home = Path(str(zone["hermes_home"]))
-    unix_user = validate_identifier(str(zone["unix_user"]), "Zone Unix user")
-    entry = pwd.getpwnam(unix_user)
-    hermes = shutil.which("hermes")
-    runuser = shutil.which("runuser")
+    hermes, runuser = shutil.which("hermes"), shutil.which("runuser")
     if not hermes or not runuser:
         raise StationError("Hermes and runuser must be available before OS runtime installation")
-
-    version = validate_version(str(item["version"]))
-    # Generated source is public, immutable software, not Zone-writable runtime state.
-    # Compiling as root underneath a Zone-owned parent is both a symlink race and
-    # a traversal-permission bug. Keep staging/publication outside that boundary.
-    layout = LayoutPaths.live()
-    fs = SafeFS(layout.allowed_roots)
-    from .os_runtime import require_root_owned_directory_chain
-    require_root_owned_directory_chain(layout.software)
-    final = layout.software / "os-distributions" / args.zone / project_id / str(item["id"]) / version
-    if final.exists() or final.is_symlink():
-        raise StationError(f"Immutable compiled OS distribution already exists: {final}")
-
-    staging_parent = layout.staging / "os"
-    fs.mkdir(staging_parent, mode=0o700, owner=(0, 0))
-    require_root_owned_directory_chain(staging_parent)
-    with tempfile.TemporaryDirectory(prefix=f"{item['id']}-", dir=staging_parent) as td:
-        generated = Path(td) / "bundle"
-        compiled = compile_os_to_hermes(source, generated, project_root=project_root)
-        fs.mkdir(final.parent, mode=0o755, owner=(0, 0))
-        require_root_owned_directory_chain(final.parent)
-        fs.freeze_tree(generated)
-        os.replace(generated, final)
-
-    result = install_compiled_bundle(
-        final,
-        hermes_home=hermes_home,
-        unix_user=unix_user,
-        hermes_binary=hermes,
-        runuser_binary=runuser,
+    record = install_os_runtime(
+        source, paths=LayoutPaths.live(), zone=zone,
+        project_id=args.project, os_id=item["id"], os_version=item["version"],
+        hermes_binary=hermes, runuser_binary=runuser,
     )
-    record = {
-        "schema_version": 1,
-        "os_id": item["id"],
-        "os_version": version,
-        "zone_id": args.zone,
-        "project_id": project_id,
-        "compiled_distribution": str(final),
-        "runtime": result,
-        "state": result["state"],
-        "claim": "CONFIGURED_NOT_OPERATIONAL" if result["state"] == "CONFIGURED" else "DEGRADED",
-    }
-    output = Path(str(zone["human_root"])) / "os" / f"{item['id']}.runtime.json"
-    fs.write_text(output, json.dumps(record, indent=2, sort_keys=True) + "\n", 0o640, (entry.pw_uid, entry.pw_gid))
     print(json.dumps(record, indent=2, sort_keys=True))
-    return 0 if result["state"] == "CONFIGURED" else 1
+    return 0 if record["state"] in {"CONFIGURED", "VERIFIED"} else 1
 
 
 def cmd_os_verify(args: argparse.Namespace) -> int:
-    import pwd
-    zone = _load_zone_record(args.zone)
+    if os.geteuid() != 0:
+        raise StationError("OS runtime verification requires root for trusted evidence and Zone execution")
+    from .os_lifecycle import verify_os_runtime
+
     item, _ = _os_catalog_entry(args.id)
-    unix_user = validate_identifier(str(zone["unix_user"]), "Zone Unix user")
-    hermes_home = Path(str(zone["hermes_home"]))
-    hermes = shutil.which("hermes")
-    runuser = shutil.which("runuser")
+    zone = _load_zone_record(args.zone)
+    hermes, runuser = shutil.which("hermes"), shutil.which("runuser")
     if not hermes or not runuser:
         raise StationError("Hermes and runuser are required for OS verification")
-    record_path = Path(str(zone["human_root"])) / "os" / f"{item['id']}.runtime.json"
-    if record_path.is_symlink() or not record_path.is_file():
-        raise ValidationError("OS runtime record is missing; install the OS first")
-    record = json.loads(record_path.read_text(encoding="utf-8"))
-    profiles = record.get("runtime", {}).get("profiles", [])
-    profile_ids = [validate_identifier(str(x.get("profile")), "Hermes profile") for x in profiles if x.get("profile")]
-    observations = []
-    ok = bool(profile_ids)
-    for profile in profile_ids:
-        argv = [runuser, "--user", unix_user, "--", "/usr/bin/env", "-i",
-                f"HOME={hermes_home.parent / 'home'}", f"HERMES_HOME={hermes_home}",
-                "PATH=/usr/local/bin:/usr/bin:/bin", hermes, "-p", profile, "doctor"]
-        completed = subprocess.run(argv, capture_output=True, text=True, check=False, timeout=300)
-        observations.append({"profile": profile, "returncode": completed.returncode, "stdout": completed.stdout[-8000:], "stderr": completed.stderr[-8000:]})
-        ok = ok and completed.returncode == 0
-    payload = {
-        "schema_version": 1,
-        "os_id": item["id"],
-        "zone_id": args.zone,
-        "state": "VERIFIED" if ok else "DEGRADED",
-        "observations": observations,
-        "operational": False,
-        "next_repair_action": "Complete dedicated Discord/connector readback and fresh-session acceptance before OPERATIONAL." if ok else "Repair failing Hermes profile Doctor results.",
-    }
-    print(json.dumps(payload, indent=2, sort_keys=True))
-    return 0 if ok else 1
+    record = verify_os_runtime(
+        LayoutPaths.live(), zone=zone, os_id=item["id"],
+        hermes_binary=hermes, runuser_binary=runuser,
+    )
+    print(json.dumps(record, indent=2, sort_keys=True))
+    return 0 if record["state"] == "VERIFIED" else 1
+
+
+def cmd_os_setup(args: argparse.Namespace) -> int:
+    """Open the selected Director's native provider wizard, never a global login."""
+    args.os = args.id
+    args.platform_command = "configure"
+    return cmd_platform_gateway(args)
 
 
 def cmd_strix(args: argparse.Namespace) -> int:
@@ -1140,7 +1126,7 @@ def cmd_recovery_rehearse(args: argparse.Namespace) -> int:
     return 0 if payload.get("returncode") == 0 else 1
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="station", description="Agentik Station 11.12")
+    parser = argparse.ArgumentParser(prog="station", description=f"Agentik Station {PRODUCT_VERSION}")
     sub = parser.add_subparsers(dest="command", required=True)
 
 
@@ -1179,7 +1165,20 @@ def build_parser() -> argparse.ArgumentParser:
     status.set_defaults(handler=cmd_status)
 
     setup = sub.add_parser("setup")
+    setup.add_argument("--zone", help="Inspect a specific owning Zone")
+    setup.add_argument("--project", help="Project inside the selected Zone")
+    setup.add_argument("--os", help="OS whose Director and setup gates to inspect")
+    setup.add_argument("--json", action="store_true", help="Machine-readable observations and next actions")
+    setup.add_argument("--probe", action="store_true", help="Explicit bounded read-only local service observation")
     setup.set_defaults(handler=cmd_setup)
+
+    project = sub.add_parser("project", help="Create a new owned Project without re-running Host installation")
+    project_sub = project.add_subparsers(dest="project_command", required=True)
+    project_create = project_sub.add_parser("create")
+    project_create.add_argument("--zone", required=True)
+    project_create.add_argument("--id", required=True)
+    project_create.add_argument("--plan", action="store_true")
+    project_create.set_defaults(handler=cmd_project_create)
 
     setup_link = sub.add_parser("setup-link", help="Tailnet-only one-time redirects for bot-guided provider setup")
     setup_link_sub = setup_link.add_subparsers(dest="setup_link_command", required=True)
@@ -1358,6 +1357,11 @@ def build_parser() -> argparse.ArgumentParser:
     os_install.add_argument("--zone", required=True)
     os_install.add_argument("--project", required=True)
     os_install.set_defaults(handler=cmd_os_install)
+    os_setup = os_sub.add_parser("setup", help="Configure the selected Director through Hermes' native provider wizard")
+    os_setup.add_argument("--id", required=True)
+    os_setup.add_argument("--zone", required=True)
+    os_setup.add_argument("--plan", action="store_true")
+    os_setup.set_defaults(handler=cmd_os_setup)
     os_verify = os_sub.add_parser("verify")
     os_verify.add_argument("--id", required=True)
     os_verify.add_argument("--zone", required=True)
@@ -1441,7 +1445,8 @@ def build_parser() -> argparse.ArgumentParser:
     for action in ("setup", "install", "start", "restart", "status", "doctor"):
         command = platform_sub.add_parser(action)
         command.add_argument("--zone", required=True)
-        command.add_argument("--platform", help="Hermes platform name or alias")
+        command.add_argument("--platform", help="Platform intent/name; native actions affect the selected profile's whole gateway")
+        command.add_argument("--os", help="Use this installed OS Director instead of the Zone's default profile")
         command.add_argument("--plan", action="store_true")
         command.set_defaults(handler=cmd_platform_gateway)
 

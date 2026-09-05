@@ -7,7 +7,7 @@ STATION="$ROOT/station"
 
 usage() {
   cat <<'USAGE'
-Agentik Station 11.12 orchestration wrapper
+Agentik Station orchestration wrapper
 
 Primary workflows:
   ./station.sh bootstrap --mode full [--host-id station-core-01] [--yes]

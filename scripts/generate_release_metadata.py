@@ -69,6 +69,7 @@ def npm_components(lock_path: Path) -> list[dict[str, Any]]:
 
 def sbom_payload() -> dict[str, Any]:
     pins = read_versions()
+    release = (ROOT / "VERSION").read_text().strip()
     declared = [
         ("Hermes Agent", "application", pins["HERMES_RELEASE"], "https://github.com/NousResearch/hermes-agent"),
         ("Python", "application", pins["PYTHON_VERSION"], "https://www.python.org"),
@@ -117,14 +118,14 @@ def sbom_payload() -> dict[str, Any]:
     return {
         "bomFormat": "CycloneDX",
         "specVersion": "1.6",
-        "serialNumber": "urn:uuid:" + str(uuid.uuid5(uuid.NAMESPACE_URL, "https://github.com/agentik-os/agentik-station/11.12")),
+        "serialNumber": "urn:uuid:" + str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://github.com/agentik-os/agentik-station/{release}")),
         "version": 1,
         "metadata": {
             "component": {
                 "type": "application",
-                "bom-ref": "pkg:generic/agentik-station@11.12",
+                "bom-ref": f"pkg:generic/agentik-station@{release}",
                 "name": "agentik-station",
-                "version": "11.12",
+                "version": release,
             },
             "properties": [
                 {"name": "station:claim", "value": "READY_FOR_SETUP"},
@@ -135,26 +136,28 @@ def sbom_payload() -> dict[str, Any]:
     }
 
 
-def provenance_payload(paths: list[Path]) -> dict[str, Any]:
+def provenance_payload(paths: list[Path], virtual_files: dict[Path, bytes] | None = None) -> dict[str, Any]:
+    virtual_files = virtual_files or {}
     subjects = []
     for path in paths:
         relative = str(path.relative_to(ROOT))
         if relative in GENERATED:
             continue
-        info = os.lstat(path)
-        if not stat.S_ISREG(info.st_mode):
+        info = os.lstat(path) if path.exists() or path.is_symlink() else None
+        if info is not None and not stat.S_ISREG(info.st_mode):
             raise ValueError(f"provenance subject is not a regular file: {relative}")
+        data = virtual_files[path] if path in virtual_files else path.read_bytes()
         subjects.append(
             {
                 "path": relative,
-                "sha256": sha256(path),
-                "size": info.st_size,
-                "executable": bool(info.st_mode & 0o111),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "size": len(data),
+                "executable": bool(info and info.st_mode & 0o111),
             }
         )
     return {
         "schema_version": "agk-release-provenance/v1",
-        "release": "11.12",
+        "release": (ROOT / "VERSION").read_text().strip(),
         "algorithm": "sha256",
         "claim": "SOURCE_TREE_VERIFIED_NOT_RUNTIME_ACCEPTED",
         "generated_by": "scripts/generate_release_metadata.py",
@@ -166,14 +169,15 @@ def provenance_payload(paths: list[Path]) -> dict[str, Any]:
 
 def rendered_outputs() -> dict[Path, str]:
     sbom = json.dumps(sbom_payload(), indent=2, sort_keys=True) + "\n"
-    (ROOT / "SBOM.cdx.json").write_text(sbom, encoding="utf-8")
-    paths = inventory()
-    provenance = json.dumps(provenance_payload(paths), indent=2, sort_keys=True) + "\n"
-    (ROOT / "RELEASE_PROVENANCE.json").write_text(provenance, encoding="utf-8")
-    paths = inventory()
+    # Render in memory. --check must work on immutable releases without even
+    # momentarily rewriting their metadata or changing file timestamps.
+    paths = sorted(set(inventory()) | {ROOT / name for name in GENERATED | {"SBOM.cdx.json"}},
+                   key=lambda path: str(path.relative_to(ROOT)))
+    provenance = json.dumps(provenance_payload(paths, {ROOT / "SBOM.cdx.json": sbom.encode("utf-8")}), indent=2, sort_keys=True) + "\n"
     names = [str(path.relative_to(ROOT)) for path in paths]
     manifest_path = ROOT / "MANIFEST.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["release"] = (ROOT / "VERSION").read_text().strip()
     manifest["files"] = names
     manifest["file_count"] = len(names)
     manifest_text = json.dumps(manifest, indent=2, sort_keys=False) + "\n"
@@ -197,14 +201,6 @@ def main(argv: list[str] | None = None) -> int:
     outputs = rendered_outputs()
     if args.check:
         mismatches = [str(path.relative_to(ROOT)) for path, text in outputs.items() if before[path] != text]
-        for path, previous in before.items():
-            if previous is None:
-                try:
-                    path.unlink()
-                except FileNotFoundError:
-                    pass
-            else:
-                path.write_text(previous, encoding="utf-8")
         if mismatches:
             print("release metadata drift: " + ", ".join(mismatches), file=sys.stderr)
             return 1

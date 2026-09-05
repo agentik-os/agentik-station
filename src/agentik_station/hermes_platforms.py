@@ -32,6 +32,7 @@ SUPPORTED_PLATFORMS = (
 )
 
 GATEWAY_ACTIONS = {
+    "configure": ("setup",),
     "setup": ("gateway", "setup"),
     "install": ("gateway", "install"),
     "start": ("gateway", "start"),
@@ -68,7 +69,13 @@ def build_gateway_argv(
     runtime_uid: int,
     hermes_binary: Path,
     runuser_binary: Path = Path("/usr/sbin/runuser"),
+    director_profile: str | None = None,
 ) -> list[str]:
+    """Build a native command; callers must resolve Directors from the OS ledger.
+
+    An explicit default selector also prevents Hermes' sticky ``active_profile``
+    from silently routing a legacy Zone-level action to another OS.
+    """
     if action not in GATEWAY_ACTIONS:
         raise ValidationError(f"Unsupported Hermes gateway action: {action}")
     unix_user = validate_identifier(str(zone.get("unix_user", "")), "Zone Unix user")
@@ -81,6 +88,7 @@ def build_gateway_argv(
         raise ValidationError("Hermes and runuser binaries must use absolute paths")
     if runtime_uid < 0:
         raise ValidationError("Zone runtime uid must be non-negative")
+    profile = validate_identifier(director_profile, "OS Director profile") if director_profile is not None else "default"
     runtime_dir = Path("/run/user") / str(runtime_uid)
     return [
         str(runuser_binary),
@@ -95,5 +103,14 @@ def build_gateway_argv(
         f"DBUS_SESSION_BUS_ADDRESS=unix:path={runtime_dir / 'bus'}",
         "PATH=/usr/local/bin:/usr/bin:/bin",
         str(hermes_binary),
+        "--profile",
+        profile,
         *GATEWAY_ACTIONS[action],
     ]
+
+
+def gateway_service_name(director_profile: str | None = None) -> str:
+    """Pinned Hermes native systemd name for a canonical named profile."""
+    profile = validate_identifier(director_profile, "OS Director profile") if director_profile is not None else "default"
+    suffix = "" if profile == "default" else f"-{profile}"
+    return f"hermes-gateway{suffix}.service"

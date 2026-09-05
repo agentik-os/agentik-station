@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes release `11.12`. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.13`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Visual companion:** the [README system maps](README.md#the-whole-system) explain
 the full topology, VPS install, OS factory, chat enrollment, filesystem and evidence
@@ -12,6 +12,14 @@ records repaired bootstrap defects and the remaining OS-instance/routing and
 resumability decisions. Begin a fresh Host with
 `./bootstrap.sh --mode full --with-ai-stack --plan`; see [INSTALL.md](INSTALL.md)
 for confirmation, exact-spec apply and the boundary of kernel rollback.
+
+**Current operating entry point:** `sudo station setup --json` reads local bootstrap,
+Zone and trusted OS evidence and returns dependency-ordered next steps. Use
+`station project create` to provision an owning Project without rerunning the Host
+installer, `station os install` for tracked resumable profile installation,
+`station os setup` for the Director's provider login, and `station platform … --os`
+for its chat gateway. The [first-mission guide](docs/operations/06_FIRST_MISSION.md)
+contains the exact order and repair boundaries.
 
 ## 1. The system in one sentence
 
@@ -354,7 +362,8 @@ station os catalog
 station os doctor --all
 station os compile --id devops-os --project-root /absolute/project --output /new/output
 sudo station os install --id devops-os --zone <zone-id> --project <project-id>
-station os verify --id devops-os --zone <zone-id>
+sudo station os setup --id devops-os --zone <zone-id>
+sudo station os verify --id devops-os --zone <zone-id>
 ```
 
 Compile is not install; install is not external acceptance; profile Doctor is not Discord/deployment readback.

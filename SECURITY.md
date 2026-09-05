@@ -29,6 +29,13 @@ Compiled OS distributions are published under root-owned
 `/opt/station/os-distributions/<zone>/<project>/<os>/<version>`, never by root inside
 a Zone-writable parent. Cross-identity CLI launches clear the inherited environment.
 
+The 11.13 OS ledger is root-owned under `/var/lib/station/registry/os`. It binds the
+exact compiled distribution, Project and complete native team. Zone-writable
+profile files are read back, not accepted as an authoritative installation record.
+New standalone Projects reserve previously absent human/runtime roots before
+writing; existing or substituted roots fail closed. Partial creation is reported
+for deliberate repair rather than broad deletion.
+
 Strix execution requires a separately accepted disposable LAB Host. Docker access
 is host-root-equivalent; a root-owned approval file cannot contain a malicious
 Docker administrator. Do not enroll that capability on a shared/core/production
@@ -71,6 +78,18 @@ Each Zone receives:
 - default-deny cross-Zone filesystem, credentials, and memory.
 
 A Hermes Profile is not treated as a filesystem sandbox. Linux/Zone isolation remains mandatory.
+
+The bootstrap operator currently receives broad passwordless sudo by default.
+`--sudo-mode password` changes the account's authentication requirement; it is not
+an action-policy enforcement service. Same-Zone roles share one Unix trust domain,
+and prompts/tool descriptions do not constitute complete runtime ACL enforcement.
+Do not expose an unrestricted operator shell to incoming chat or untrusted tools.
+
+Bootstrap locking and stage receipts improve coordination and diagnosis; they do
+not make apt, external installers or services one atomic transaction. A killed
+shell can leave sudo children running. Inspect those processes and the named
+repair action before acknowledging an incomplete attempt. Reported completion is
+not live system acceptance or proof of recovery.
 
 ## Credentials
 

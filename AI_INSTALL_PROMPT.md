@@ -30,6 +30,7 @@ station status --json
 station module status
 station provider status
 station deps toolchain-check
+sudo station setup --json
 ```
 
 For a seeded organization/project Host, use the exact command pattern in `INSTALL.md` or a reviewed JSON `InstallSpec`.
@@ -39,7 +40,18 @@ not the full dependency bootstrap. `--plan` performs read-only eligibility check
 and prints both the kernel plan and the additional shell-bootstrap operations.
 Do not proceed when the Host, operator identity, checkout or immutable release
 conflicts. Do not infer overall bootstrap success from a kernel receipt if a later
-stage failed. Existing OS profile retries and upgrades require supervision.
+stage failed. Read the durable bootstrap receipt after failure. Never supply
+`--acknowledge-incomplete <attempt-id>` until the human has reviewed the exact
+failed stage, surviving processes and repair action; it starts a fresh attempt,
+not a rollback or stage-skipping resume.
+
+Continue with [the first-mission guide](docs/operations/06_FIRST_MISSION.md): choose
+a local Zone, plan/create its Project with `station project create`, install the
+owned OS, and use `station os setup` for its Director's native provider wizard.
+Use `station platform setup --os <os-id>` for that Director's chat identity. Do not
+fall back silently to the Zone default profile. Full/core does not invent Projects.
+Safe OS retries preserve verified installed files; existing untracked profiles,
+changed bundles and cross-Project reuse require explicit repair or migration.
 
 The installation report must separate:
 
@@ -60,3 +72,9 @@ sudo ./bootstrap.sh --mode full
 ```
 
 Use `--with-ai-stack` only when Ponytail, Langfuse, Honcho, Hindsight, TigerVNC, Crawl4AI and Parakeet are all desired on this Host. Parakeet and Hermes voice/messaging support are already installed by the default bootstrap unless `--skip-voice` is explicit. Do not use `--yes` until the generated plan has been inspected. Bootstrap installs pinned binaries but never authenticates GitHub, Vercel, Convex, Clerk, Stripe, Composio, Codex, Hermes providers or messaging platforms on the operator's behalf. Codex must guide the first Tailscale and Discord enrollment through their native secure flows; afterward it should prefer Station's one-time Tailnet setup buttons. The human owner retains OAuth consent, secret entry and production/destructive approval.
+
+The current guided broker writes Zone-base credentials; it does not automatically
+enroll every named Director. Never copy credentials across profiles to bypass this
+boundary. `station setup --json` describes ordered actions without executing them;
+`--probe` only observes the selected user service. Preserve the distinction between
+local Doctor evidence and a fresh, authorized, bidirectional live mission.

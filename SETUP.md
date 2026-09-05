@@ -2,6 +2,13 @@
 
 A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 
+For the complete 11.13 sequence, follow [the first-mission guide](docs/operations/06_FIRST_MISSION.md).
+Start with `sudo station setup --json`. This is a read-only local report of the
+bootstrap, available Zones/Projects, trusted OS installation and the next ordered
+actions—not an automatic executor. Select `--zone`, `--project` and `--os` to make
+the actions specific. `--probe` adds only a bounded read of the selected systemd
+user service; it does not start Hermes or authenticate an account.
+
 ## Gate 1 — Host identity and private connectivity
 
 - enroll the Host in the approved Tailscale network;
@@ -22,7 +29,25 @@ A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 - execute Zone-boundary negative tests;
 - store receipts/evidence before raising readiness.
 
-Until this exists, desired OS packages remain `NOT_INSTALLED`.
+Full/core creates Zones, not their first Projects. Create the owned workspace,
+install its team, then configure the exact Director:
+
+```bash
+sudo station project create --zone dev --id first-mission --plan
+sudo station project create --zone dev --id first-mission
+sudo station os install --zone dev --project first-mission --id devops-os
+sudo station os setup --zone dev --id devops-os --plan
+sudo station os setup --zone dev --id devops-os
+```
+
+An untouched desired OS remains `NOT_INSTALLED`. Successful installation records
+`CONFIGURED` for the entire native team, not provider authentication. The root-owned
+ledger keys each `(Zone, OS id)` to one Project and one bundle; a Zone can contain
+multiple Projects and distinct OS teams. Safe retries preserve
+completed profiles; collisions, changed bundles and ambiguous partial files require
+repair. `sudo station os verify --zone dev --id devops-os` records local full-team
+Doctor evidence, never live mission acceptance. Reconfigure first, then verify:
+changing a profile's configuration invalidates its previous verification.
 
 ## Gate 2a — Hermes voice and local Discord audio failover
 
@@ -70,7 +95,7 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 For every OS instance that is actually installed:
 
 - have a human server owner create one dedicated Nano Director Discord application/bot, authorize it to the guild, and retain control of token rotation;
-- enter the token only through `station platform setup --zone <zone-id> --platform discord` (the Zone-isolated Hermes wizard), never a CLI argument or Git file;
+- enter the token only through `sudo station platform setup --zone <zone-id> --os <os-id> --platform discord` (the selected Director's Hermes wizard), never a CLI argument or Git file;
 - provision the dedicated channel, roles, permissions, commands, pins, and bindings;
 - grant temporary bootstrap administration only for an approved maintenance window and only when narrower permissions are insufficient;
 - require the human server owner to remove the elevation, then read back and verify least-privilege runtime permissions;
@@ -79,9 +104,14 @@ For every OS instance that is actually installed:
 - verify command registration, message creation/edit, interactions, authorization, rate-limit recovery, and external readback in a test guild;
 - keep Bot-to-Bot collaboration inside Hermes/AGK rather than recursive Discord auto-replies.
 
-The bot token cannot create other Discord applications or mint their tokens. Release 11.12 does not yet claim the full guild topology provisioner is externally accepted; use a test guild and keep the module `INSTALLABLE` until its create/edit/permission/command/readback gate passes.
+The bot token cannot create other Discord applications or mint their tokens. Release 11.13 does not claim the full guild topology provisioner is externally accepted; use a test guild and keep the module `INSTALLABLE` until its create/edit/permission/command/readback gate passes.
 
 After the first bot and Tailscale enrollment, run `sudo ./scripts/station_guided_setup_enable.sh`. The Discord account picker can then return an ephemeral one-time Tailnet button. The bearer token is stored only as a hash, expires in at most 15 minutes and is consumed once. Secret forms write directly to the owning Zone's mode-0600 Hermes environment; Composio/OAuth/device flows redirect only to an allowlisted host. Never paste the credential into Discord. Slack/Telegram can reuse the provider-neutral card contract, but their live renderers remain an acceptance gate.
+
+That broker currently writes **Zone-base** credentials, not every named Director's
+private profile. Use `station os setup` and `station platform setup --os` for
+per-Director enrollment. Do not infer that a Zone connection authenticates all of
+its profiles or that a bot has Linux sudo authority.
 
 ## Gate 6 — Backup and recovery
 
@@ -95,7 +125,9 @@ After the first bot and Tailscale enrollment, run `sudo ./scripts/station_guided
 
 ## Gate 7 — Fresh-session acceptance
 
-Every persistent automation starts disabled.
+OS mission automations stay disabled until their applicable acceptance gates pass.
+Infrastructure services/timers are separate: bootstrap can enable Station Doctor,
+the weekly Hermes updater and the enrolled guided-setup broker as documented.
 
 Acceptance uses only:
 
@@ -116,17 +148,22 @@ Only raise the Host/OS to `OPERATIONAL` when all applicable module gates have ob
 
 Use the Hermes Messaging Gateway — one process for Telegram, Discord, Slack, WhatsApp, Signal, Email, Teams, and more.
 
-Use the owning Zone, not the global operator home:
+Use the owning Zone and installed OS, not the global operator home:
 
 ```bash
-sudo station platform setup --zone organization-alpha-dev --platform slack
-sudo station platform install --zone organization-alpha-dev
-sudo station platform start --zone organization-alpha-dev
-sudo station platform status --zone organization-alpha-dev
-sudo station platform doctor --zone organization-alpha-dev
+sudo station platform setup --zone organization-alpha-dev --os devops-os --platform slack
+sudo station os verify --zone organization-alpha-dev --id devops-os
+sudo station platform install --zone organization-alpha-dev --os devops-os
+sudo station platform start --zone organization-alpha-dev --os devops-os
+sudo station setup --zone organization-alpha-dev --os devops-os --probe --json
 ```
 
-Add `--plan` to any of these commands to inspect the exact `runuser`/`HERMES_HOME` invocation before execution. `setup` opens Hermes' interactive gateway wizard; the platform flag validates operator intent and includes it in the emitted result, but tokens are entered only through Hermes. `install` enables linger and starts the Zone's systemd user manager so the gateway survives logout/reboot.
+Add `--plan` to the `station platform` commands to inspect the exact `runuser`/`HERMES_HOME` invocation before execution. `platform setup` opens Hermes' interactive gateway wizard; the platform flag validates operator intent and includes it in the emitted result, but tokens are entered only through Hermes. `install` enables linger and starts the Zone's systemd user manager so the gateway survives logout/reboot.
+
+Here `--plan` applies to `station platform` actions; `station setup` is already a
+read-only report. Omitting `--os` explicitly selects the Zone's `default` profile.
+Native `station platform status/doctor` remain available, but upstream Hermes can
+synchronize bundled Skills at startup; they are not the pure setup report.
 
 Details: `docs/dependencies/HERMES_PLATFORMS.md` and https://hermes-agent.nousresearch.com/docs/user-guide/messaging
 

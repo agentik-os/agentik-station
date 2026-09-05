@@ -99,5 +99,6 @@ def test_readme_preserves_system_explanation_and_readiness_boundaries() -> None:
     assert "./bootstrap.sh --mode full --with-ai-stack --plan" in text
     assert "Current activation limits" in text
     assert "Zone-scoped profile names" in text
-    assert "not automatically the intended OS Director" in text
+    assert "trusted installation record" in text
+    assert "One OS per Zone, bound to one Project" in text
     assert "Project repository" in text

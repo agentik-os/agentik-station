@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.12
+## Supported base for Station 11.13
 
 The current safe-kernel provider supports:
 
@@ -59,7 +59,7 @@ The current safe-kernel provider supports:
 - a running systemd Host;
 - `apt-get`;
 - the distribution Python 3.11 or newer for the repository CLI;
-- root only for `station apply` / `./install`.
+- root for kernel apply, protected identity readback and Zone-scoped Project/OS/gateway operations; run coding agents as the non-root operator.
 
 Bootstrap also installs Python 3.14.7 user-locally as `python-latest`, plus Python 3.13.15 as `python-ai` for isolated AI packages that do not yet guarantee 3.14 wheels. It does not replace the distribution Python. Hermes owns a separate Python 3.11 environment because `v2026.8.31` currently requires Python `>=3.11,<3.14`. The default install adds Hermes' `voice,messaging` extras, OpenAI audio defaults, and the digest-pinned loopback Parakeet service; `--skip-voice` deliberately omits that layer.
 
@@ -135,7 +135,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.12",
+  "release_version": "11.13",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -196,12 +196,33 @@ Receipts live under:
 
 These transactional claims apply to the **kernel operation**, not the entire
 shell bootstrap. A later dependency/setup failure can occur after a successful
-kernel receipt. The complete bootstrap does not yet have one durable stage journal,
-global operation lock or automatic all-stage rollback. Read the process exit status
-and failed stage, inspect the Host, and create a new reviewed repair plan before
-retrying. An interrupted optional runtime or OS profile installation may require
-supervised reconciliation; do not use `--force` or overwrite immutable artifacts
-as a generic recovery strategy. See the [workflow review](docs/audit/2026-09-05-vps-workflow-review.md).
+kernel receipt. The outer bootstrap now holds a separate singleton lock and records
+selected stages under `/var/lib/station/bootstrap/attempts/<attempt-id>.json`, with
+a root-owned `latest.json` pointer. It preserves the exact InstallSpec, selected
+options, source fingerprint, stage results and original exit code; it does not
+record credentials or native tool output.
+
+Read `sudo station setup --json` after a failure. If the kernel/launcher was not
+installed yet, run `sudo python3 scripts/station_bootstrap_state.py report` from
+the reviewed checkout. An incomplete attempt blocks a
+new mutating run even with `--yes`. Inspect and repair the failed stage, check for
+surviving installer processes, then explicitly acknowledge that attempt:
+
+```bash
+sudo ./bootstrap.sh --mode full --acknowledge-incomplete <attempt-id>
+```
+
+Repeat the same reviewed feature flags, such as `--with-ai-stack`, where intended.
+This starts a **new full attempt**, not a resume or a rollback; the previous receipt
+survives. A forcibly killed shell may leave children running, especially across
+sudo descriptor boundaries. Never acknowledge an incomplete attempt without
+inspecting the Host. The bootstrap lock and kernel lock have distinct scopes;
+standalone dependency installers are not one global transaction with bootstrap.
+
+Interrupted optional runtime builds still require supervised repair. Do not move
+a Python virtual environment from a staging path to its final path or overwrite a
+published runtime to make a retry pass. OS profile retries use the more specific
+tracked lifecycle below; neither mechanism claims automatic all-stage rollback.
 
 ## Immutable releases
 
@@ -277,23 +298,21 @@ Bootstrap already calls it in non-failing `--if-enrolled` mode. Without Tailscal
 
 ## Recommended Bash entry point
 
-The simplest supported workflow is:
+For the typed kernel only (not the full dependency bootstrap):
 
 ```bash
-./station.sh bootstrap --host-id station-core-01 --role core
+./station.sh bootstrap --mode full --host-id station-core-01
 ```
 
 For a generic team Host:
 
 ```bash
 ./station.sh bootstrap \
+  --mode team \
   --host-id organization-alpha-prod-01 \
-  --role team \
-  --seed-category ORGANIZATIONS \
-  --seed-name organization-alpha \
-  --seed-env production \
-  --seed-organization organization-alpha \
-  --seed-project platform
+  --organization organization-alpha \
+  --env production \
+  --project platform
 ```
 
 `station.sh` always creates one versioned `InstallSpec` first and uses that exact spec for both plan and apply. It never reconstructs remote commands from unvalidated values and never bypasses the Station kernel. Use `--yes` only after the plan is already trusted in non-interactive automation.
@@ -345,11 +364,29 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Existing-profile migration is supervised: native `hermes profile install` refuses
-an existing profile; `--force` replaces its config. Do not use `--force` unattended
-to make a retry pass. Back up and reconcile user overrides, credentials and the
-distribution source deliberately, then run a fresh-session test. The present
-`station os install` path is not an automatic in-place OS upgrade/retry mechanism.
+Station 11.13 publishes beside 11.12; it never overwrites the old immutable release.
+Its OS lifecycle uses a new root-owned ledger and does not automatically adopt
+legacy Zone-owned receipts or untracked native profiles. Back up and inspect an
+existing installation before supervised migration.
+
+For installations tracked by the new ledger, `station os install` can retry the
+**same OS, version, Zone, Project and compiled bytes**: complete profiles are read
+back and preserved; missing profiles are installed and checkpointed. An occupied
+untracked name, partial profile, tombstone, changed bundle or different owning
+Project is a repair/migration boundary. Native `--force` is never used.
+
+`sudo station os verify --zone <zone-id> --id <os-id>` checks the entire expected
+team and persists local Doctor evidence. Provider configuration changes make prior
+verification stale; rerun verification after setup. A failed Doctor can be repaired
+through `station os setup` and verified again without reinstalling the team.
+Gateway startup remains blocked while that local OS record is degraded.
+
+For full/core Zones with no Project yet, use `sudo station project create --zone <zone-id>
+--id <project-id> --plan`, then the same command without `--plan`. This preview is
+read-only but needs privileged access to protected local identity records.
+Project creation reuses the canonical kernel layout/rules but does not reinstall
+the Host, create a Unix account or restart services. Existing human/runtime Project
+roots are refused, never overwritten. See the [first-mission sequence](docs/operations/06_FIRST_MISSION.md).
 
 Fresh ScrapeGraphAI installs include verified tokenizer assets. For an older
 published runtime missing those assets, inspect and archive that exact runtime,

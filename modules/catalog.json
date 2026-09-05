@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.12",
+  "release": "11.13",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -39,9 +39,9 @@
     {
       "id": "hermes-runtime",
       "maturity": "INSTALLABLE",
-      "claim": "AGK OS sources compile into Hermes Profile Distributions; bootstrap installs the reviewed Hermes release commit into a shared executable runtime while every Zone keeps its own HERMES_HOME. Automatic updates take a backup, run Doctor and write a receipt, with an explicit bootstrap opt-out. Live profile and fresh-session acceptance still require enrollment.",
+      "claim": "AGK OS sources compile into Hermes Profile Distributions. Root-owned runtime ledgers bind exact bundles and complete native teams to one Project per OS per Zone; safe retries preserve completed profiles. Selected-Director setup and full-team Doctor are explicit. Bootstrap installs the reviewed shared runtime and optional weekly updater; live accounts and fresh-session acceptance remain separate.",
       "binary_probes": ["hermes"],
-      "next_repair_action": "Enroll Hermes, run station hermes check, install compiled profiles, pass Hermes/plugin Doctor and fresh-session acceptance."
+      "next_repair_action": "Read station setup --json, create/select the owning Project, install the OS, run station os setup and os verify, then complete fresh-session acceptance."
     },
     {
       "id": "operator-toolchain",
@@ -109,9 +109,9 @@
     {
       "id": "hermes-platforms",
       "maturity": "INSTALLABLE",
-      "claim": "Station exposes plan/setup/install/start/restart/status/doctor commands for the Hermes Messaging Gateway under the owning Zone Unix identity and dedicated HERMES_HOME. Live per-platform token enrollment remains operator-owned.",
+      "claim": "Station wraps the native Hermes gateway under the owning Zone identity. --os resolves a Director from its trusted complete-team ledger; omission explicitly selects default. Provider setup, whole-profile gateway actions and a read-only systemd probe are distinct. Live platform enrollment and acceptance remain human-owned.",
       "binary_probes": [],
-      "next_repair_action": "Run station platform setup --zone <id> --platform <name>, install/start the gateway, then complete a live message readback."
+      "next_repair_action": "Run station platform setup --zone <zone-id> --os <os-id> --platform <name>, verify the OS, install/start that Director gateway, then prove bidirectional routing and authorization."
     },
     {
       "id": "ponytail",

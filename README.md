@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.12.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. External accounts, live chat, OS execution, recovery and provider acceptance need their own evidence. See [readiness](#readiness-without-the-fine-print) and the [deep audit](docs/audit/2026-09-05-station-deep-audit.md). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.13.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. External accounts, live chat, OS execution, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -105,6 +105,26 @@ Do not add `--yes` before reviewing the plan. `--with-ai-stack` installs or stag
 | **07 · Accept** | Run a real mission; inspect artifacts, permissions, fresh-session/restart behavior and applicable recovery checks | Evidence for the specific capability you intend to use |
 
 An unenrolled Tailnet leaves the local setup broker waiting for enrollment; it must not be presented as a working private URL. A failed later bootstrap stage also does not become successful merely because the kernel previously emitted `READY_FOR_SETUP`.
+
+### The next command is part of the product
+
+```bash
+sudo station setup --json
+# Once you choose a Zone, Project and OS:
+sudo station setup --zone <zone-id> --project <project-id> --os devops-os
+```
+
+The setup report reads local evidence and returns ordered gates, missing selections
+and exact next-action arguments. It does **not** execute those actions, expose
+credential values or authenticate accounts. Integrity checks read profile configuration,
+not `.env`, authentication or session files. `--probe` explicitly adds a bounded systemd
+service observation; an active service is still not an accepted chat route.
+
+Full/core bootstrap creates Zones; `sudo station project create --zone <zone-id> --id <project-id> --plan`
+previews a new Project inside one of them. OS installation then records the exact
+team and Project. `station os setup` opens that Director's provider wizard;
+`station platform setup --os …` opens its chat wizard. See the complete
+[clean VPS → first verified mission](docs/operations/06_FIRST_MISSION.md) sequence.
 
 <details>
 <summary><strong>Prefer to hand this to your coding agent? Copy this brief.</strong></summary>
@@ -248,7 +268,7 @@ The compiler translates those contracts into Hermes-native distributions; it doe
 Canonical source lives only in `os/`. The compiler produces Hermes Profile Distributions; installation, bindings, profile Doctor and fresh-session acceptance are separate steps. The [catalog](os/CATALOG.json) currently marks these packages **`INSTALLABLE` / `NOT_INSTALLED`**, not running teams.
 
 > [!IMPORTANT]
-> **Current activation limits:** Project-scoped OS artifacts currently meet Zone-scoped profile names, so repeating the same OS across Projects can collide. Generic platform setup selects the Zone gateway, not automatically the intended OS Director. Profile installation retries and durable runtime acceptance also need hardening. Do not infer multi-Project or multi-bot readiness from the diagrams; see the [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md).
+> **Current activation limits:** One OS per Zone, bound to one Project. A trusted installation record rejects cross-Project reuse of Zone-scoped profile names. Unchanged recorded installations can resume missing profiles without `--force`; existing untracked or damaged profiles require explicit repair. Use `--os` for the intended Director, otherwise the platform command explicitly uses `default`. Local profile verification is durable, but live routing, provider and fresh-session acceptance remain separate. See the [operating workflow](docs/operations/06_FIRST_MISSION.md).
 
 ### Meet the DevOps team
 
@@ -428,7 +448,12 @@ The CI badge reports **repository checks**, not the health of your VPS. The [mod
 
 Every map is a **repository-owned, self-contained SVG** with a text equivalent nearby. The signal animation is decorative, runs briefly and respects reduced-motion preferences; the complete architecture remains visible without motion. GitHub clients may display a static frame. These are architecture explanations, **not live telemetry**, permission enforcement proofs or deployment acceptance receipts.
 
-The [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md) separates the repaired installer defects from the remaining OS-instance, routing, resumability and live-acceptance work. That distinction is part of the product, not fine print.
+The earlier [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md) identified the OS-instance, routing and resumability gaps addressed in 11.13. Live acceptance and the explicitly deferred security/tenancy decisions still need their own evidence.
+
+The [11.13 control-plane review](docs/audit/2026-09-05-operational-control-plane.md)
+records the implementation: bootstrap checkpoints, safe Project creation,
+trusted resumable OS installation and Director-specific onboarding. Earlier audits
+remain historical evidence; they are not a substitute for the current workflow.
 
 ## Find your next step
 

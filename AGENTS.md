@@ -61,7 +61,18 @@ SPECIFIED → SCAFFOLDED → INSTALLABLE → CONFIGURED → VERIFIED → OPERATI
 
 `DEGRADED` is reserved for a failing previously configured/operational module and requires a repair action.
 
-Never write `installed.yaml` merely because files were copied. OS runtime state stays `NOT_INSTALLED` until Hermes profiles/distributions, bindings, Doctor, readback, and acceptance exist.
+Never write `installed.yaml` merely because files were copied. Desired declarations
+remain `NOT_INSTALLED`; only the trusted runtime ledger plus complete native team
+readback can establish `CONFIGURED`. Full-team Doctor evidence establishes local
+`VERIFIED`, not account or live mission acceptance. `OPERATIONAL` requires the
+separate applicable external readback and acceptance gates.
+
+For an existing Zone, create new Projects through `station project create`; do not
+rerun Host installation or overwrite partial workspace state. Install an OS into
+its explicit owning Project, use `station os setup` for its Director's provider
+wizard, and pass `--os` to gateway commands. Never bypass ledger conflicts with
+forced profile replacement or infer credentials from another profile. Bootstrap
+incomplete-attempt acknowledgement requires reviewed repair, not automatic retry.
 
 ## Hermes and OS rules
 

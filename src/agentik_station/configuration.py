@@ -70,9 +70,9 @@ def _validate_supported_platform(value: Any) -> None:
     if not isinstance(os_ids, list) or not os_ids or any(item not in {"ubuntu", "debian"} for item in os_ids):
         raise ValidationError("supported_platform.os_ids must be a non-empty subset of ubuntu/debian")
     if value.get("requires_systemd") is not True:
-        raise ValidationError("11.12 supported_platform.requires_systemd must be true")
+        raise ValidationError("supported_platform.requires_systemd must be true")
     if value.get("package_manager") != "apt":
-        raise ValidationError("11.12 supported_platform.package_manager must be apt")
+        raise ValidationError("supported_platform.package_manager must be apt")
 
 
 def _validate_policy(value: Any) -> dict[str, Any]:

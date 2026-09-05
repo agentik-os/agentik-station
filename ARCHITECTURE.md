@@ -271,7 +271,22 @@ Logs                              Hermes logs/events
 Learning                          Hermes learning + AGK promotion governance
 ```
 
-Station 11.12 declares desired OS packages as `NOT_INSTALLED` and includes a deterministic AGK OS → Hermes Profile Distribution compiler for the Nano Director and persistent worker profiles. `station os install` installs compiled profiles into the target Zone-local `HERMES_HOME`; `station os verify` runs Hermes profile Doctor. Boards, dedicated Discord enrollment, connector readback and fresh-session acceptance remain separate gates before `OPERATIONAL`.
+Station 11.13 declares desired OS packages as `NOT_INSTALLED` and includes a deterministic AGK OS → Hermes Profile Distribution compiler for the Nano Director and persistent worker profiles. `station os install` installs compiled profiles into the target Zone-local `HERMES_HOME`. A root-owned ledger under `/var/lib/station/registry/os/<zone>/<os>.json` binds the complete team, immutable bundle digest and one owning Project. One OS may not silently reuse its native profile names for another Project in the same Zone.
+
+Installation records every profile checkpoint and resumes only an unchanged bundle;
+it never uses unattended `--force`. `station os verify` rechecks the entire expected
+team and records local Doctor evidence bound to profile configuration hashes. A
+changed configuration invalidates the previous local verification. Zone-owned
+runtime projections are not installation authority. Boards, dedicated Discord
+enrollment, connector readback and fresh-session acceptance remain separate gates
+before `OPERATIONAL`.
+
+`station os setup` opens the selected Director's native provider wizard. Gateway
+commands accept `--os` and resolve that Director through the trusted ledger; without
+it they explicitly select Hermes `default`, never a sticky active profile.
+`station setup --json` is a read-only operating report, not another scheduler.
+It lists dependencies and next actions; humans or an authorized executor decide
+which to run. A running gateway cannot prove account authorization or chat routing.
 
 ## 11. Credentials and connected accounts
 

@@ -22,3 +22,7 @@ Current documentation is organized by responsibility:
 Start with [`../atlas.md`](../atlas.md) for the end-to-end operator map, then [`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the normative architecture. Do not start with history.
 
 The one-page Chief AI Officer AIOS/VPS flow is [`diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd`](diagrams/14_CHIEF_AI_OFFICER_AIOS_VPS.mmd).
+
+The executable onboarding sequence is [clean VPS to first mission](operations/06_FIRST_MISSION.md).
+The [11.13 implementation review](audit/2026-09-05-operational-control-plane.md)
+explains bootstrap receipts, Project creation, trusted OS lifecycle and named Director routing.

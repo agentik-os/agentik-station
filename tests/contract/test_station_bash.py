@@ -18,7 +18,7 @@ def test_spec_command_uses_generic_defaults() -> None:
     payload = json.loads(result.stdout)
     assert payload["host_id"] == "station-core-01"
     assert payload["role"] == "core"
-    assert payload["release_version"] == "11.12"
+    assert payload["release_version"] == (ROOT / "VERSION").read_text().strip()
 
 
 def test_bash_wrapper_is_thin_and_avoids_unsafe_shell_patterns() -> None:

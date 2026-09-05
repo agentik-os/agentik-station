@@ -2,4 +2,4 @@
 from __future__ import annotations
 
 __all__ = ["__version__"]
-__version__ = "11.12"
+from .constants import PRODUCT_VERSION as __version__

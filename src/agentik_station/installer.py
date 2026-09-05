@@ -69,7 +69,7 @@ def validate_supported_host(paths: LayoutPaths) -> None:
     if paths.test_mode:
         return
     if platform.system() != "Linux":
-        raise ReconcileError("Station 11.12 supports Linux only")
+        raise ReconcileError("Station supports Linux only")
     os_release = Path("/etc/os-release")
     if not os_release.is_file():
         raise ReconcileError("Cannot identify Linux distribution: /etc/os-release is missing")
@@ -82,7 +82,7 @@ def validate_supported_host(paths: LayoutPaths) -> None:
     like = values.get("ID_LIKE", "")
     if distro not in {"ubuntu", "debian"} and "debian" not in like.split():
         raise ReconcileError(
-            f"Unsupported distribution {distro!r}. 11.12 is intentionally scoped to Ubuntu/Debian with systemd."
+            f"Unsupported distribution {distro!r}. Station is intentionally scoped to Ubuntu/Debian with systemd."
         )
     if not shutil.which("apt-get"):
         raise ReconcileError("apt-get is required by the current Ubuntu/Debian provider")
@@ -108,6 +108,22 @@ def install_lock(paths: LayoutPaths, operation_id: str) -> Iterator[None]:
     finally:
         fcntl.flock(fd, fcntl.LOCK_UN)
         os.close(fd)
+
+
+PROJECT_RUNTIME_SUBDIRS = ("mission-state", "databases", "connector-state", "caches")
+
+
+def project_creation_layout(paths: LayoutPaths, human: Path, zone_id: str, project_id: str) -> dict[str, Any]:
+    """The kernel's Project directory plan, shared by narrow Project creation."""
+    validate_identifier(zone_id, "zone_id")
+    validate_identifier(project_id, "project_id")
+    project = human / "projects" / project_id
+    state = paths.zones_state / zone_id / "projects" / project_id
+    directories = [(project, 0o750)]
+    directories.extend((project / name, 0o700 if name == "credentials" else 0o750) for name in PROJECT_SUBDIRS)
+    directories.extend([(project / ".station", 0o750), (state, 0o700)])
+    directories.extend((state / name, 0o700) for name in PROJECT_RUNTIME_SUBDIRS)
+    return {"human_root": project, "runtime_state_root": state, "directories": directories}
 
 
 class StationInstaller:
@@ -145,7 +161,7 @@ class StationInstaller:
         if as_json:
             print(json.dumps(payload, indent=2, sort_keys=True))
             return
-        print(f"Agentik Station 11.12 plan · {self.spec.operation_id}")
+        print(f"Agentik Station {PRODUCT_VERSION} plan · {self.spec.operation_id}")
         print(f"Host: {self.spec.host_id} · role: {self.spec.role} · release: {self.spec.release_version}")
         for index, step in enumerate(build_plan(self.spec, self.config), 1):
             print(f"{index}. {step.id}: {step.description}")
@@ -697,15 +713,10 @@ class StationInstaller:
         if identity is None or human is None:
             raise ReconcileError(f"Zone must be reconciled before Project creation: {zone.zone_id}")
         owner = (identity.uid, identity.gid) if identity.uid >= 0 else (os.getuid(), os.getgid())
-        project = human / "projects" / project_id
-        self.fs.mkdir(project, 0o750, owner)
-        for name in PROJECT_SUBDIRS:
-            self.fs.mkdir(project / name, 0o700 if name == "credentials" else 0o750, owner)
-        self.fs.mkdir(project / ".station", 0o750, owner)
-        state_root = self.paths.zones_state / zone.zone_id / "projects" / project_id
-        self.fs.mkdir(state_root, 0o700, owner)
-        for name in ["mission-state", "databases", "connector-state", "caches"]:
-            self.fs.mkdir(state_root / name, 0o700, owner)
+        layout = project_creation_layout(self.paths, human, zone.zone_id, project_id)
+        project, state_root = layout["human_root"], layout["runtime_state_root"]
+        for directory, mode in layout["directories"]:
+            self.fs.mkdir(directory, mode, owner)
         payload = {
             "schema_version": 2,
             "id": project_id,

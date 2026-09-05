@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1099
+Total files: 1112
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -247,6 +247,7 @@ Total files: 1099
 - `docs/assets/readme/station-mission-control.svg`
 - `docs/assets/readme/station-os-map.svg`
 - `docs/assets/readme/station-system-map.svg`
+- `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/2026-09-05-vps-workflow-review.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
@@ -384,6 +385,7 @@ Total files: 1099
 - `docs/operations/03_EVIDENCE_MODEL.md`
 - `docs/operations/04_DISCORD_DRIFT_RECONCILIATION.md`
 - `docs/operations/05_ENGINEERING_EPISODE_MODEL.md`
+- `docs/operations/06_FIRST_MISSION.md`
 - `docs/orchestration/01_STATION_ORCHESTRATION_CONTRACT.md`
 - `docs/orchestration/02_SEVEN_CAPABILITY_LANES.md`
 - `docs/orchestration/03_CLARIFY_AND_PLAN.md`
@@ -1008,6 +1010,7 @@ Total files: 1099
 - `scripts/generate_release_metadata.py`
 - `scripts/station_agk_sync.py`
 - `scripts/station_bootstrap_preflight.py`
+- `scripts/station_bootstrap_state.py`
 - `scripts/station_deps_install.sh`
 - `scripts/station_guided_setup_enable.sh`
 - `scripts/station_hermes_update.sh`
@@ -1033,6 +1036,7 @@ Total files: 1099
 - `specs/17_DELIVERABLE_QUALITY_SCHEMA.example.json`
 - `src/agentik_station/__init__.py`
 - `src/agentik_station/agent_rules.py`
+- `src/agentik_station/bootstrap_state.py`
 - `src/agentik_station/cli.py`
 - `src/agentik_station/configuration.py`
 - `src/agentik_station/constants.py`
@@ -1047,10 +1051,13 @@ Total files: 1099
 - `src/agentik_station/installer.py`
 - `src/agentik_station/maturity.py`
 - `src/agentik_station/models.py`
+- `src/agentik_station/onboarding.py`
 - `src/agentik_station/os_contract.py`
+- `src/agentik_station/os_lifecycle.py`
 - `src/agentik_station/os_runtime.py`
 - `src/agentik_station/paths.py`
 - `src/agentik_station/planner.py`
+- `src/agentik_station/projects.py`
 - `src/agentik_station/providers/__init__.py`
 - `src/agentik_station/providers/backup.py`
 - `src/agentik_station/providers/composio.py`
@@ -1086,9 +1093,12 @@ Total files: 1099
 - `tests/contract/test_zone_schema.py`
 - `tests/install/test_core_install.py`
 - `tests/install/test_temp_install.py`
+- `tests/security/test_bootstrap_state.py`
 - `tests/security/test_bootstrap_workflow.py`
 - `tests/security/test_doctor_boundaries.py`
 - `tests/security/test_os_compiler_boundaries.py`
+- `tests/security/test_os_lifecycle.py`
+- `tests/security/test_project_creation.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
 - `tests/security/test_strix_boundaries.py`
@@ -1100,4 +1110,7 @@ Total files: 1099
 - `tests/unit/test_hermes_update_receipt.py`
 - `tests/unit/test_identifiers.py`
 - `tests/unit/test_models.py`
+- `tests/unit/test_onboarding.py`
+- `tests/unit/test_orchestration_cli.py`
+- `tests/unit/test_release_generation.py`
 - `tests/unit/test_tailscale_readiness.py`
