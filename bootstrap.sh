@@ -295,10 +295,61 @@ for line in 'export PATH="$HOME/.local/bin:$PATH"' 'export NPM_CONFIG_PREFIX="$H
 done
 bootstrap_checkpoint operator-profile success
 
+# Pinned Hermes retry checks: inspect before upstream may update or recreate code.
+hermes_git() {
+  sudo -u "$STATION_USER" -H env GIT_OPTIONAL_LOCKS=0 \
+    git -C "$hermes_install_dir" "$@"
+}
+
+check_hermes_retry() {
+  local config actual dirty stashes ahead
+  if [[ -e "$STATION_HOME/.hermes" || -L "$STATION_HOME/.hermes" ]]; then
+    [[ -d "$STATION_HOME/.hermes" && ! -L "$STATION_HOME/.hermes" ]] || {
+      echo 'ERROR: Hermes user state must be a real directory; preserve it for reviewed repair.' >&2; return 2;
+    }
+    for config in .env config.yaml SOUL.md; do
+      if [[ -e "$STATION_HOME/.hermes/$config" || -L "$STATION_HOME/.hermes/$config" ]]; then
+        [[ -f "$STATION_HOME/.hermes/$config" && ! -L "$STATION_HOME/.hermes/$config" ]] || {
+          echo 'ERROR: Hermes user configuration must be regular files; preserve it for reviewed repair.' >&2; return 2;
+        }
+      fi
+    done
+  fi
+  [[ -e "$hermes_install_dir" || -L "$hermes_install_dir" ]] || return 0
+  [[ -d "$hermes_install_dir" && ! -L "$hermes_install_dir" \
+     && -d "$hermes_install_dir/.git" && ! -L "$hermes_install_dir/.git" ]] || {
+    echo 'ERROR: Existing Hermes code is incomplete or unsafe; preserve it for reviewed repair.' >&2; return 2;
+  }
+  [[ ! -e "$hermes_install_dir/.env" && ! -L "$hermes_install_dir/.env" ]] || {
+    echo 'ERROR: Shared Hermes code contains an environment file; review its ownership before retrying.' >&2; return 2;
+  }
+  actual="$(hermes_git rev-parse --verify HEAD)" || return 2
+  [[ "$actual" == "$HERMES_COMMIT" ]] || {
+    echo 'ERROR: Existing Hermes HEAD differs from the reviewed pin; no automatic downgrade or migration.' >&2; return 2;
+  }
+  dirty="$(hermes_git status --porcelain --untracked-files=all)" || return 2
+  stashes="$(hermes_git stash list --format=%H)" || return 2
+  [[ -z "$dirty" && -z "$stashes" ]] || {
+    echo 'ERROR: Hermes has local changes or a stash; preserve and review them before retrying.' >&2; return 2;
+  }
+  # Upstream checks out main and can reset that branch before applying --commit.
+  # Other local branches are not its update target and need no restriction here.
+  if hermes_git show-ref --verify --quiet refs/heads/main; then
+    ahead="$(hermes_git rev-list --count refs/heads/main --not refs/remotes/origin/main)" || return 2
+    [[ "$ahead" == 0 ]] || {
+      echo 'ERROR: Hermes main contains local-only commits; preserve them before retrying.' >&2; return 2;
+    }
+  fi
+}
+# End pinned Hermes retry checks.
+
 if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   bootstrap_checkpoint hermes running
   # shellcheck disable=SC1091
   source "$source_root/config/versions.lock"
+  hermes_install_dir="/opt/station/tools/hermes/current"
+  hermes_python_dir="/opt/station/tools/hermes/python"
+  check_hermes_retry
   tmp="$(mktemp)"
   curl --fail --silent --show-error --location "$HERMES_INSTALL_URL" --output "$tmp"
   printf '%s  %s\n' "$HERMES_INSTALL_SHA256" "$tmp" | sha256sum --check --status || {
@@ -307,8 +358,6 @@ if [[ "$INSTALL_HERMES" -eq 1 ]]; then
     exit 2
   }
   chmod 0755 "$tmp"
-  hermes_install_dir="/opt/station/tools/hermes/current"
-  hermes_python_dir="/opt/station/tools/hermes/python"
   install -d -m 0755 -o "$STATION_USER" -g "$STATION_USER" \
     /opt/station/tools/hermes "$hermes_python_dir" "$hermes_python_dir/bin"
   # Execute the downloaded upstream installer as the dedicated account, pinned to the reviewed release commit.
@@ -317,8 +366,21 @@ if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   sudo -u "$STATION_USER" -H env HERMES_HOME="$STATION_HOME/.hermes" \
     UV_PYTHON_INSTALL_DIR="$hermes_python_dir" UV_PYTHON_BIN_DIR="$hermes_python_dir/bin" \
     UV_PYTHON_PREFERENCE=only-managed bash "$tmp" \
-    --dir "$hermes_install_dir" --branch main --commit "$HERMES_COMMIT" --skip-setup --non-interactive
+    --dir "$hermes_install_dir" --branch main --commit "$HERMES_COMMIT" --force-commit --skip-setup --non-interactive
   [[ -x "$STATION_HOME/.local/bin/hermes" ]] || { echo 'ERROR: Hermes launcher was not created.' >&2; exit 2; }
+  # Upstream may otherwise ignore --commit after fetching a newer main.
+  check_hermes_retry
+  sudo -u "$STATION_USER" -H env -i HOME="$STATION_HOME" \
+    HERMES_HOME="$STATION_HOME/.hermes" PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 \
+    "$hermes_install_dir/venv/bin/python" - "$hermes_python_dir" <<'PY'
+import pathlib, ssl, sys
+shared = pathlib.Path(sys.argv[1]).resolve(strict=True)
+base = pathlib.Path(sys.base_prefix).resolve(strict=True)
+executable = pathlib.Path(sys.executable).resolve(strict=True)
+if sys.version_info[:2] != (3, 11) or not base.is_relative_to(shared) or not executable.is_relative_to(shared):
+    raise SystemExit('ERROR: Hermes requires its reviewed shared Python 3.11 interpreter.')
+print('Hermes shared Python 3.11 sanity OK')
+PY
   install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes" /usr/local/bin/hermes
   rm -f "$tmp"
   bootstrap_checkpoint hermes success

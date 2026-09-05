@@ -1,5 +1,18 @@
 # Changelog
 
+## 11.16 — Native installer retry correctness (2026-09-05)
+
+- disable lifecycle scripts specifically during npm self-upgrade, together with
+  automatic bin linking, so native Arborist preserves existing managed launchers
+  until validated Station publication;
+- keep a repeated Hermes install on the reviewed commit rather than allowing an
+  upstream `main` pull to silently bypass that pin; reject unreviewed checkout
+  changes before invoking the upstream installer;
+- refresh immutable GitHub Actions pins to Node 24-based upstream releases.
+
+The live installation campaign and its remaining acceptance gates are tracked in
+`VALIDATION.md`. No external account or bot authentication is implied.
+
 ## 11.15 — Live VPS bootstrap repairs (2026-09-05)
 
 - explicitly assign the operator's `.local` parent and tool directories to its

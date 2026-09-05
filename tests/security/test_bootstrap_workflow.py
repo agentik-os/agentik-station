@@ -290,7 +290,8 @@ def test_native_installer_receives_shared_managed_python_without_changing_privat
     end = source.index('\n  [[ -x "$STATION_HOME/.local/bin/hermes" ]]', start)
     command = source[start:end]
     installer = tmp_path / "upstream fixture.sh"
-    installer.write_text("printf '%s\\n' \"$HERMES_HOME\" \"$UV_PYTHON_INSTALL_DIR\" \"$UV_PYTHON_BIN_DIR\" \"$UV_PYTHON_PREFERENCE\"\n")
+    installer.write_text("[[ \" $* \" == *\" --force-commit \"* ]] || exit 81\n"
+                         "printf '%s\\n' \"$HERMES_HOME\" \"$UV_PYTHON_INSTALL_DIR\" \"$UV_PYTHON_BIN_DIR\" \"$UV_PYTHON_PREFERENCE\"\n")
     home = tmp_path / "private operator"
     shared = tmp_path / "shared code" / "python"
     result = subprocess.run([shell, "-c", "sudo() { shift 3; \"$@\"; };\n" + command],
@@ -300,3 +301,141 @@ def test_native_installer_receives_shared_managed_python_without_changing_privat
                             text=True, capture_output=True, check=True)
     assert result.stdout.splitlines() == [str(home / ".hermes"), str(shared), str(shared / "bin"), "only-managed"]
     assert not home.exists()
+
+
+@pytest.fixture
+def hermes_retry(tmp_path):
+    repo = tmp_path / "shared hermes"
+    repo.mkdir()
+    home = tmp_path / "private operator"
+    (home / ".hermes").mkdir(parents=True)
+    for name in (".env", "config.yaml", "SOUL.md"):
+        (home / ".hermes" / name).write_text("preserve this user data\n")
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True,
+                              check=True, env=dict(os.environ, GIT_CONFIG_NOSYSTEM="1")) .stdout.strip()
+
+    git("init", "-b", "main")
+    git("config", "user.email", "fixture@example.invalid")
+    git("config", "user.name", "Fixture")
+    (repo / "tracked.txt").write_text("reviewed\n")
+    (repo / ".gitignore").write_text("venv/\nnode_modules/\n.env\n")
+    git("add", ".")
+    git("commit", "-m", "Reviewed fixture")
+    pin = git("rev-parse", "HEAD")
+    git("update-ref", "refs/remotes/origin/main", pin)
+    git("checkout", "--detach", pin)
+    source = (ROOT / "bootstrap.sh").read_text()
+    functions = source.split("# Pinned Hermes retry checks:", 1)[1].split("# End pinned Hermes retry checks.", 1)[0]
+    functions = functions[functions.index("hermes_git()") :]
+
+    def run(shell, command="check_hermes_retry"):
+        return subprocess.run([shell, "-c", "set -euo pipefail\nsudo() { shift 3; \"$@\"; };\n" + functions + command],
+                              capture_output=True, text=True, timeout=10,
+                              env=dict(os.environ, STATION_USER="fixture", STATION_HOME=str(home),
+                                       hermes_install_dir=str(repo), HERMES_COMMIT=pin))
+
+    return SimpleNamespace(repo=repo, home=home, git=git, pin=pin, run=run)
+
+
+def test_clean_pinned_hermes_retry_preserves_user_configuration(shell, hermes_retry):
+    (hermes_retry.repo / "venv").mkdir()
+    (hermes_retry.repo / "venv" / "generated").write_text("managed environment")
+    result = hermes_retry.run(shell)
+    assert result.returncode == 0, result.stderr
+    assert hermes_retry.git("rev-parse", "HEAD") == hermes_retry.pin
+    for name in (".env", "config.yaml", "SOUL.md"):
+        assert (hermes_retry.home / ".hermes" / name).read_text() == "preserve this user data\n"
+
+
+def test_missing_hermes_checkout_is_allowed_without_creating_it(shell, hermes_retry):
+    preserved = hermes_retry.repo.with_name("preserved fixture")
+    hermes_retry.repo.rename(preserved)
+    result = hermes_retry.run(shell)
+    assert result.returncode == 0, result.stderr
+    assert not hermes_retry.repo.exists()
+    assert preserved.is_dir()
+
+
+@pytest.mark.parametrize("state", ["tracked-edit", "untracked", "unpinned", "main-divergence", "stash", "source-env"])
+def test_hermes_retry_refuses_unreviewed_state_without_changing_it(shell, hermes_retry, state):
+    repo, git = hermes_retry.repo, hermes_retry.git
+    if state == "tracked-edit":
+        (repo / "tracked.txt").write_text("private change\n")
+    elif state == "untracked":
+        (repo / "work.txt").write_text("private change\n")
+    elif state in {"unpinned", "main-divergence"}:
+        if state == "main-divergence":
+            git("checkout", "main")
+        (repo / "tracked.txt").write_text("private commit\n")
+        git("commit", "-am", "Local work")
+        if state == "main-divergence":
+            git("checkout", "--detach", hermes_retry.pin)
+    elif state == "stash":
+        (repo / "tracked.txt").write_text("private stash\n")
+        git("stash", "push", "-m", "Local work")
+    else:
+        (repo / ".env").write_text("SECRET_SENTINEL=private\n")
+    before = (git("rev-parse", "HEAD"), git("status", "--porcelain", "--untracked-files=all"),
+              git("stash", "list", "--format=%H"))
+    result = hermes_retry.run(shell, "check_hermes_retry\nprintf 'UPSTREAM_WOULD_RUN\\n'")
+    assert result.returncode != 0
+    assert "UPSTREAM_WOULD_RUN" not in result.stdout
+    assert "SECRET_SENTINEL" not in result.stdout + result.stderr
+    after = (git("rev-parse", "HEAD"), git("status", "--porcelain", "--untracked-files=all"),
+             git("stash", "list", "--format=%H"))
+    assert after == before
+    if state == "source-env":
+        assert (repo / ".env").read_text() == "SECRET_SENTINEL=private\n"
+
+
+@pytest.mark.parametrize("state", ["incomplete", "checkout-link", "config-link", "config-directory"])
+def test_hermes_retry_preserves_incomplete_or_unsafe_paths(shell, hermes_retry, state):
+    if state in {"incomplete", "checkout-link"}:
+        saved = hermes_retry.repo.with_name("preserved checkout")
+        hermes_retry.repo.rename(saved)
+        if state == "incomplete":
+            hermes_retry.repo.mkdir()
+            (hermes_retry.repo / "partial").write_text("keep")
+        else:
+            hermes_retry.repo.symlink_to(saved, target_is_directory=True)
+    else:
+        config = hermes_retry.home / ".hermes/config.yaml"
+        saved = config.with_name("preserved.yaml")
+        config.rename(saved)
+        if state == "config-link":
+            config.symlink_to(saved)
+        else:
+            config.mkdir()
+    result = hermes_retry.run(shell)
+    assert result.returncode != 0
+    assert saved.exists()
+    if state == "incomplete":
+        assert (hermes_retry.repo / "partial").read_text() == "keep"
+
+
+def test_installer_success_with_wrong_head_is_rejected_before_stage_success(shell, hermes_retry):
+    source = (ROOT / "bootstrap.sh").read_text()
+    post = source.split("# Upstream may otherwise ignore --commit after fetching a newer main.", 1)[1]
+    post = post.split('  install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes"', 1)[0]
+    (hermes_retry.repo / "tracked.txt").write_text("unexpected upstream version\n")
+    hermes_retry.git("commit", "-am", "Unexpected version")
+    result = hermes_retry.run(shell, post + "printf 'STAGE_SUCCESS\\n'")
+    assert result.returncode != 0
+    assert "STAGE_SUCCESS" not in result.stdout
+
+
+def test_hermes_venv_sanity_rejects_private_operator_interpreter(shell, hermes_retry):
+    source = (ROOT / "bootstrap.sh").read_text()
+    probe = source.split("# Upstream may otherwise ignore --commit after fetching a newer main.", 1)[1]
+    probe = probe.split('  install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes"', 1)[0]
+    bindir = hermes_retry.repo / "venv/bin"
+    bindir.mkdir(parents=True)
+    (bindir / "python").symlink_to(sys.executable)
+    shared = hermes_retry.repo.parent / "shared-python"
+    shared.mkdir()
+    result = hermes_retry.run(shell, f"hermes_python_dir={str(shared)!r}\n" + probe + "printf 'STAGE_SUCCESS\\n'")
+    assert result.returncode != 0
+    assert "reviewed shared Python" in result.stderr
+    assert "STAGE_SUCCESS" not in result.stdout

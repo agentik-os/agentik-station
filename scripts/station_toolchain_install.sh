@@ -395,10 +395,11 @@ install_node_clis() {
   local dest="$STATION_HOME/.local/lib/node-v${NODE_VERSION#v}-linux-${NODE_ARCH}"
   manage_node_launchers "$dest" check
   # Bootstrap through the immutable bundle, not a launcher npm will replace.
-  # npm's default global bin check rejects earlier bundled/Hermes links with
-  # EEXIST. Suppress only its bin publication, then safely hand off exact links.
+  # Arborist checks existing global bins even with --bin-links=false unless
+  # lifecycle scripts are also disabled. npm self-install needs neither; leave
+  # predecessor links intact until success, then safely hand off exact links.
   as_station "$dest/bin/node" "$dest/lib/node_modules/npm/bin/npm-cli.js" \
-    install --global --bin-links=false "npm@${NPM_VERSION}"
+    install --global --ignore-scripts --bin-links=false "npm@${NPM_VERSION}"
   manage_node_launchers "$dest" npm
   verify_npm_integrity vercel "$VERCEL_CLI_VERSION" "$VERCEL_CLI_INTEGRITY"
   verify_npm_integrity shadcn "$SHADCN_CLI_VERSION" "$SHADCN_CLI_INTEGRITY"

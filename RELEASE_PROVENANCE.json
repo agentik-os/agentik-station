@@ -7,7 +7,7 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.15",
+  "release": "11.16",
   "schema_version": "agk-release-provenance/v1",
   "subject_count": 1122,
   "subjects": [
@@ -38,19 +38,19 @@
     {
       "executable": false,
       "path": ".github/workflows/ci.yml",
-      "sha256": "812f4fe18ab7fa90f8040ff8cd5f5c0b13da061a94499e873ad26d1902666e9c",
+      "sha256": "7e843999bdbf3ccaa6422f5dd0b7c0804dfe66c61480664e0fa16325659e4ad2",
       "size": 8979
     },
     {
       "executable": false,
       "path": ".github/workflows/release-provenance.yml",
-      "sha256": "d3e209e9c252ad79bbf74ac86ab9dee1dada0223b5bc57106256c9ce273cef82",
+      "sha256": "5732de6495e27ea9e4c05c8065c51186a4c7d13e04a7ec75b07976047d47de3f",
       "size": 1616
     },
     {
       "executable": false,
       "path": ".github/workflows/vps-acceptance.yml",
-      "sha256": "307a88342de0140f1025186075696911cbe1c14326b20f727e2d66da6c141ab6",
+      "sha256": "5d3de82af2f51be45bbdcd1c09e6c5df946424c4f482ac74df94e965f1c8470c",
       "size": 1455
     },
     {
@@ -80,8 +80,8 @@
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "588fc5d87c99b2bb9059c318e993535ed96a523304302bf1fc293ad1709cf990",
-      "size": 10663
+      "sha256": "34b335c58e4ca6944c098fb4858e6a1504c240716b4dcca7fd6d763d9b66cf5b",
+      "size": 11364
     },
     {
       "executable": false,
@@ -110,7 +110,7 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "09a586c25b5d3c834451797ba7c607a70b0e9f847446f434d24d363bd69ec10a",
+      "sha256": "0de5fd7f566fcb1b586381013bc1bf4f38197b4c975293debc261f600c0ac44a",
       "size": 19712
     },
     {
@@ -134,7 +134,7 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "f9485d15420d6a2341cc8b3e8e7658c009e8614eca7dd757c7ec83a5d2451b99",
+      "sha256": "6198f09e1bb535c4455e9eba8c9d1acecf3630139a4c279aa679351ac1cf9229",
       "size": 42806
     },
     {
@@ -146,7 +146,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "f31296ff86a55f45aedf753500b2ee4cb92eea2dd5b5e3d45d31987c1f0cb046",
+      "sha256": "549af93a4d039ee796a99a1d14bbed6e9ba3ea6657ef35f792fd7c9bd6f1cd32",
       "size": 83216
     },
     {
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "50cc66d51c63fb7333ed9005d7f4f647f954345c55b8e2a61374e0d142016a52",
-      "size": 4243
+      "sha256": "0505d8f8bc435ddacc08954a5f83847a39322efa7ed9d180eb1d4f8d6ce6cbd7",
+      "size": 5085
     },
     {
       "executable": false,
@@ -188,13 +188,13 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "4369bf8a8037ebaa35ffc6898d4e9b54de4f6cffec099cd1d6d7fbd66d9431df",
+      "sha256": "8dff38e24368d6b2548514b18116b7540b537e5c34c911058a521a9feef6f468",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "c51d1813ebd9d4d52748c1f84da78438e8569b0f7c784c55da2384ae8542db79",
+      "sha256": "fc66a10f1bbe2ec364d3d49a5afefa90f34b61237ece1e2f8b6cc6f993c36516",
       "size": 59022
     },
     {
@@ -206,8 +206,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "2e62c70d662ed38e04f2da4c2d3bc85cab0cbfbd4a5d0366f08ee01a4241406d",
-      "size": 24725
+      "sha256": "001b5803ce9dfb12d912a697894aeafff0017c8ed9fe842b93d9aa5ff8ed70da",
+      "size": 28015
     },
     {
       "executable": false,
@@ -1310,7 +1310,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "00b3043aa9839f949e15cef9584f79ef02aab71667516e57fbdbdc89917cf70a",
+      "sha256": "56c2c6c9423a7cb0f035728abf309f88eb0b3d9fa7d2309ef86dfb3b88a8132b",
       "size": 2339
     },
     {
@@ -2792,7 +2792,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "7f0a551e495eb7ed200142a4f6593b2f15b3556337fc99701ad11fdb7f5a5932",
+      "sha256": "50d37de20a2a66fd479d44b325f2921108c6bc0b346a9efd7b438a1b716c1129",
       "size": 10340
     },
     {
@@ -3038,7 +3038,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "e3f5e0cbf00652e6f64a14dfaac38bbb9ab86b8509e7f45fbb48af791da5c3fb",
+      "sha256": "e9d8d2041ce0c498566eb81aa0ceb723d64842198ba89f07b4ce4cb22fde6af5",
       "size": 3188
     },
     {
@@ -5804,7 +5804,7 @@
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "e406f2700a5439be55535b77577c7f01714739f50f02562ee562b38981f6ebbe",
+      "sha256": "4a31c2520f71769e9eeaffdc245f8cabe0f62e7a976749d28955c342f6486d38",
       "size": 720
     },
     {
@@ -6086,8 +6086,8 @@
     {
       "executable": true,
       "path": "scripts/station_toolchain_install.sh",
-      "sha256": "920f3e9a53a4d678009d432811467fb7715ec466eb3355d62f08496404d5e274",
-      "size": 18492
+      "sha256": "bac2c91303a9a6507d8e278e7ce60bdc5baf75015de04c5fe99adef1ed7e6eab",
+      "size": 18584
     },
     {
       "executable": false,
@@ -6230,7 +6230,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "4838ef0f1031f2056121ca5fd6a674a85491533c2aac2928106698f17633b965",
+      "sha256": "e1bb8b29701e5f9ca84af0958f620bfa49ab075af6165e41752bc97babc7722a",
       "size": 1851
     },
     {
@@ -6578,8 +6578,8 @@
     {
       "executable": false,
       "path": "tests/security/test_bootstrap_workflow.py",
-      "sha256": "cc18a71cb16d04217383a4683a02ce37bcd83f78106f6b88c14663788d29c614",
-      "size": 15013
+      "sha256": "439c590040877c1d7aeda3ec1eb9018fd0b84fce344a7c2ef65be148d8223423",
+      "size": 21801
     },
     {
       "executable": false,
@@ -6740,8 +6740,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_toolchain_launchers.py",
-      "sha256": "9f1a98c5eee73c29f52e5fbad9a62041fc8983a4f174c4129e026745b468ea24",
-      "size": 10056
+      "sha256": "b8e68a200d27ac9d7bdb68c2f46f8c3cd4940dd5183f7cda020aa4fb3fd559a8",
+      "size": 12631
     }
   ]
 }

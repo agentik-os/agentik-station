@@ -2736,10 +2736,10 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/agentik-station@11.15",
+      "bom-ref": "pkg:generic/agentik-station@11.16",
       "name": "agentik-station",
       "type": "application",
-      "version": "11.15"
+      "version": "11.16"
     },
     "properties": [
       {
@@ -2752,7 +2752,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:1e559a79-6138-5964-8575-fd1b254b3151",
+  "serialNumber": "urn:uuid:752350fd-6022-5c2d-b35d-ffdea0290654",
   "specVersion": "1.6",
   "version": 1
 }

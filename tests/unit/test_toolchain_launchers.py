@@ -80,13 +80,20 @@ def seed_links(layout, kind):
         (bins / binary).symlink_to(target)
 
 
+def native_npm():
+    npm, node = shutil.which("npm"), shutil.which("node")
+    override = os.environ.get("STATION_TEST_NPM_ROOT")
+    if not node or (not npm and not override):
+        pytest.skip("native npm/node unavailable; launcher tests remain mandatory")
+    root = Path(override) if override else Path(npm).resolve().parents[1]
+    return root, node
+
+
 @pytest.mark.parametrize("kind", ["bundled", "hermes"])
 def test_native_npm_reproduces_old_global_bin_conflict(layout, kind):
     """Exercise installed npm's own ownership checker, not a simulated error."""
-    npm, node = shutil.which("npm"), shutil.which("node")
-    if not npm or not node:
-        pytest.skip("native npm/node unavailable; launcher tests remain mandatory")
-    checker = Path(npm).resolve().parents[1] / "node_modules/bin-links/lib/check-bin.js"
+    npm_root, node = native_npm()
+    checker = npm_root / "node_modules/bin-links/lib/check-bin.js"
     if not checker.is_file():
         pytest.skip("installed npm does not expose its native bin-links checker")
     seed_links(layout, kind)
@@ -102,6 +109,50 @@ check({bin:'npm',path:process.argv[2],top:true,global:true,force:false})
     (layout[1] / "npm").symlink_to("../lib/node_modules/npm/bin/npm-cli.js")
     accepted = subprocess.run(command, capture_output=True, text=True, timeout=15, check=True)
     assert accepted.stdout == "ACCEPTED"
+
+
+@pytest.mark.parametrize("kind", ["bundled", "hermes"])
+def test_native_arborist_requires_both_flags_to_skip_global_bin_conflict(layout, kind):
+    """Real rebuild queue reproduces the live failure that check-bin missed."""
+    npm_root, node = native_npm()
+    arborist = npm_root / "node_modules/@npmcli/arborist"
+    if not arborist.is_dir():
+        pytest.skip("installed npm does not expose its native Arborist")
+    seed_links(layout, kind)
+    root = make_global_npm(layout)
+    marker = layout[0] / "install-script-must-not-run"
+    package = json.loads((root / "package.json").read_text())
+    package.update(bin={name: f"bin/{name}-cli.js" for name in ("npm", "npx")},
+                   scripts={"install": f"touch {marker}"})
+    (root / "package.json").write_text(json.dumps(package))
+    before = {name: (os.readlink(layout[1] / name), (layout[1] / name).lstat().st_ino)
+              for name in ("npm", "npx")}
+    program = """
+const Arborist = require(process.argv[1]);
+const arb = new Arborist({path:process.argv[2],global:true,binLinks:false,
+  ignoreScripts:process.argv[3]==='true',force:false});
+(async () => {
+  const tree = await arb.loadActual();
+  const npm = tree.children.get('npm');
+  if (!npm || !npm.globalTop) throw Error('fixture must be an actual globalTop npm');
+  try {
+    await arb.rebuild({nodes:[npm]});
+    process.stdout.write('ACCEPTED');
+  } catch (error) { process.stdout.write(error.code || error.message); }
+})().catch(error => { process.stderr.write(String(error)); process.exitCode=1; });
+"""
+    base = [node, "-e", program, str(arborist), str(layout[0] / ".local/lib")]
+    rejected = subprocess.run([*base, "false"], capture_output=True, text=True, timeout=20, check=True)
+    assert rejected.stdout == "EEXIST", rejected.stderr
+    accepted = subprocess.run([*base, "true"], capture_output=True, text=True, timeout=20, check=True)
+    assert accepted.stdout == "ACCEPTED", accepted.stderr
+    assert not marker.exists()
+    assert before == {name: (os.readlink(layout[1] / name), (layout[1] / name).lstat().st_ino)
+                      for name in before}
+    handoff = run_shell(layout, 'manage_node_launchers "$BUNDLE" npm')
+    assert handoff.returncode == 0, handoff.stderr
+    for name in before:
+        assert os.readlink(layout[1] / name) == f"../lib/node_modules/npm/bin/{name}-cli.js"
 
 
 def test_fresh_node_does_not_seed_conflicting_or_missing_launchers(layout):
@@ -222,7 +273,7 @@ for name in ('npm', 'npx'):
     result = run_shell(layout, "install_node_clis", extra_env={"FAIL_NPM": "1" if failure else "0"})
     assert json.loads((home / "bootstrap-argv.json").read_text()) == [
         str(bundle / "lib/node_modules/npm/bin/npm-cli.js"),
-        "install", "--global", "--bin-links=false", f"npm@{NPM_VERSION}",
+        "install", "--global", "--ignore-scripts", "--bin-links=false", f"npm@{NPM_VERSION}",
     ]
     assert result.returncode == (23 if failure else 0), result.stderr
     assert os.readlink(bins / "npm") == (before if failure else "../lib/node_modules/npm/bin/npm-cli.js")

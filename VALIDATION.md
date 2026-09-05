@@ -1,4 +1,4 @@
-# Agentik Station 11.15 Validation
+# Agentik Station 11.16 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -16,9 +16,21 @@
 - Repository Doctor, shell syntax, diff hygiene and regenerated release metadata
   checks passed before publication of this corrective candidate.
 
-Full corrected bootstrap, real named-instance installation and external
-provider/chat/recovery acceptance are still pending at this checkpoint. A passing
-source test or a prepared plan is not a successful VPS installation.
+All six 11.15 GitHub Actions jobs passed, including real web-library/Chromium
+checks. A second VPS attempt successfully installed the pinned Hermes source and
+its shared Python 3.11.16 environment, then exposed a native npm Arborist conflict
+with Hermes' existing `npm`/`npx` launchers. That failed receipt is preserved.
+The shared interpreter, SSL and Hermes imports were independently exercised as
+the unprivileged `nobody` identity from `/`, while the operator home remains 0750.
+
+11.16 repairs npm self-upgrade's lifecycle handling and pins repeated Hermes
+installation to the reviewed commit. Its complete Station/Factory suite passed
+**825 tests**, including native npm Arborist and real-Git retry regressions.
+The three GitHub Actions dependencies now use verified immutable Node 24-based
+release pins; jobs, permissions, gates and the Python matrix are unchanged.
+Corrected full bootstrap, real named-instance
+installation and external provider/chat/recovery acceptance remain pending at
+this checkpoint. Source tests are not a successful VPS installation.
 
 ## Previous client-instance validation — 11.14
 
