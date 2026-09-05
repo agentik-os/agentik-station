@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.24
+## Supported base for Station 11.25
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.24",
+  "release_version": "11.25",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -176,6 +176,13 @@ sudo ./install --spec ./install-spec.json
 Unknown fields, malformed booleans, path syntax, shell syntax, invalid environments, and role/category mismatches are rejected.
 
 ## What apply performs
+
+Toolchain installation/version checks are separate from account health. From
+11.25, native CLI version probes use disposable non-root HOME/HERMES_HOME/XDG
+directories and a cleared environment, with bounded execution. A version flag
+can still write its private temporary configuration/cache; it must not load or
+normalize the real operator's credentials merely to identify installed software.
+The installer's authenticated setup paths remain explicitly operator-owned.
 
 1. validates repository version and supported Host;
 2. acquires a single Station operation lock;
@@ -354,7 +361,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22/11.23 installation needing the current controls, publish the
-11.24 immutable Station kernel first, preserving the Host's desired state. Then
+11.25 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -453,7 +460,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.24 publishes beside earlier releases; it never overwrites an old
+Station 11.25 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

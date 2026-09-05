@@ -1,5 +1,16 @@
 # Changelog
 
+## 11.25 — Account-independent installation probes (2026-09-05)
+
+- Run native CLI version probes with a cleared environment and disposable,
+  non-root HOME/HERMES_HOME/XDG directories, with bounded process supervision.
+  Real operator/provider configuration is no longer a version-check input.
+- Preserve evidence of the final 11.24 native AGK, full VPS and CI acceptance,
+  including two unattributed operator-config changes rather than claiming that
+  every protected file stayed unchanged throughout a live multi-session audit.
+- Retain all 11.24 TUI/controller/installer/Discord fixes without rebuilding
+  unchanged native binaries or enrolling external accounts.
+
 ## 11.24 — AGK feature audit and scoped Discord setup (2026-09-05)
 
 - Preserve Hermes profiles across forks, restore restarted sessions to the visible

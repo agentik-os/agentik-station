@@ -20,6 +20,7 @@ Codex CLI, Composio CLI and shadcn CLI. Hermes is installed separately by bootst
 Also installs the pinned discord.js SDK into an isolated, non-gateway resource directory.
 Publishes verified code-only runtimes under /opt/station/tools/toolchain for Zone users.
 Account login and external connections are never performed automatically.
+Version checks require Linux and use disposable, credential-free homes.
 USAGE
 }
 
@@ -52,7 +53,7 @@ as_station() {
 }
 
 print_plan() {
-  cat <<EOF
+  /bin/cat <<EOF
 Station pinned operator toolchain
   Python latest stable: ${PYTHON_VERSION} (operator default)
   Python AI runtime:    ${AI_PYTHON_VERSION} (isolated SDK/tool compatibility)
@@ -72,6 +73,70 @@ Authentication: NOT PERFORMED
 EOF
 }
 
+run_version_probe() {
+  # A native --version may initialize/normalize its HOME before parsing argv.
+  # Keep installer actions on as_station(), but never give version probes the
+  # operator's profile or inherited credentials. This is not a same-UID sandbox.
+  # Do not use as_station here: its legacy installation PATH may include
+  # operator-writable tools before sudo drops privilege.
+  local runner=(/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8
+                /usr/bin/python3 -I -S -B - "$ROOT" "$STATION_USER" "$tool_path" "$@")
+  if [[ "$(/usr/bin/id -un)" != "$STATION_USER" ]]; then
+    runner=(/usr/bin/sudo -n -u "$STATION_USER" -H "${runner[@]}")
+  fi
+  "${runner[@]}" <<'PY'
+import os
+from pathlib import Path
+import pwd
+import re
+import sys
+import tempfile
+
+root, user, tool_path, binary, *arguments = sys.argv[1:]
+if sys.platform != "linux":
+    sys.exit("Version checks require Linux; --plan remains available on other hosts")
+if os.geteuid() == 0 or pwd.getpwuid(os.geteuid()).pw_name != user:
+    sys.exit("Version checks require the configured non-root operator")
+if not all(Path(value).is_absolute() for value in (root, tool_path, binary)):
+    sys.exit("Version checks require absolute software paths")
+
+# Import only the Station supervisor, not Hermes or any provider SDK. Its
+# process-group cleanup completes before TemporaryDirectory removes this home.
+try:
+    sys.path.insert(0, str(Path(root) / "src"))
+    from agentik_station.native_process import run_bounded_native
+
+    with tempfile.TemporaryDirectory(prefix="station-toolchain-check-", dir="/tmp") as temporary:
+        home = Path(temporary)
+        for relative in (".hermes", ".managed", ".config", ".cache", ".local", ".local/share", "tmp"):
+            (home / relative).mkdir(mode=0o700)
+        command = [
+            "/usr/bin/env", "-i", f"--chdir={temporary}",
+            f"HOME={temporary}", f"HERMES_HOME={home / '.hermes'}",
+            # Avoid the native fallback to the host's /etc/hermes managed scope.
+            # This is an installation probe, not execution under runtime policy.
+            f"HERMES_MANAGED_DIR={home / '.managed'}",
+            f"XDG_CONFIG_HOME={home / '.config'}", f"XDG_CACHE_HOME={home / '.cache'}",
+            f"XDG_DATA_HOME={home / '.local/share'}", f"TMPDIR={home / 'tmp'}",
+            f"PATH={tool_path}:/usr/bin:/bin", "LANG=C.UTF-8", "LC_ALL=C.UTF-8",
+            "PYTHONDONTWRITEBYTECODE=1", "CI=1", "DO_NOT_TRACK=1",
+            binary, *arguments,
+        ]
+        completed = run_bounded_native(command, timeout=60, capture=True)
+        if completed.returncode:
+            raise ValueError("failed version probe")
+        # Only a bounded first version line is public. Never replay failure
+        # output or exception strings, even though this child has no credentials.
+        output = (completed.stdout or completed.stderr).decode("utf-8")
+        line = re.sub(r"\x1b\[[0-9;]*m", "", output.splitlines()[0])
+        if not line or len(line) > 500 or not line.isprintable():
+            raise ValueError("unsupported version output")
+        print(line)
+except (Exception, KeyboardInterrupt):
+    sys.exit("Isolated version probe failed; no account readiness was checked")
+PY
+}
+
 check_tool() {
   local label="$1"
   local binary="$2"
@@ -81,7 +146,7 @@ check_tool() {
     return 1
   fi
   local output
-  output="$(as_station "$binary" "$@" 2>&1)" || {
+  output="$(run_version_probe "$binary" "$@" 2>&1)" || {
     output="${output%%$'\n'*}"
     printf 'FAILED  %-12s %s\n' "$label" "$output"
     return 1
@@ -100,7 +165,7 @@ check_pinned_tool() {
     return 1
   fi
   local output
-  output="$(as_station "$binary" "$@" 2>&1)" || {
+  output="$(run_version_probe "$binary" "$@" 2>&1)" || {
     output="${output%%$'\n'*}"
     printf 'FAILED  %-12s %s\n' "$label" "$output"
     return 1
@@ -114,6 +179,10 @@ check_pinned_tool() {
 }
 
 check_toolchain() {
+  [[ "$(/usr/bin/uname -s)" == Linux ]] || {
+    echo 'ERROR: version checks require Linux; use --plan on other hosts' >&2
+    return 1
+  }
   local failures=0
   check_pinned_tool python "$tool_path/python-latest" "$PYTHON_VERSION" --version || failures=$((failures + 1))
   check_pinned_tool python-ai "$tool_path/python-ai" "$AI_PYTHON_VERSION" --version || failures=$((failures + 1))
@@ -133,7 +202,7 @@ check_toolchain() {
     failures=$((failures + 1))
   else
     local observed_discord
-    observed_discord="$(as_station "$tool_path/node" -e 'process.stdout.write(require(process.argv[1]).version)' "$discord_sdk")" || observed_discord="ERROR"
+    observed_discord="$(run_version_probe "$tool_path/node" -e 'process.stdout.write(require(process.argv[1]).version)' "$discord_sdk")" || observed_discord="ERROR"
     if [[ "$observed_discord" != "$DISCORD_JS_VERSION" ]]; then
       printf 'DRIFT   %-12s expected=%s observed=%s\n' discord.js "$DISCORD_JS_VERSION" "$observed_discord"
       failures=$((failures + 1))
@@ -142,8 +211,10 @@ check_toolchain() {
     fi
   fi
   if [[ "$CHECK_HERMES" -eq 1 ]]; then
-    if command -v hermes >/dev/null 2>&1 || [[ -x "$tool_path/hermes" ]]; then
-      check_tool hermes "$(command -v hermes 2>/dev/null || printf '%s' "$tool_path/hermes")" --version \
+    local hermes_binary="$tool_path/hermes"
+    [[ -x "$hermes_binary" ]] || hermes_binary=/usr/local/bin/hermes
+    if [[ -x "$hermes_binary" ]]; then
+      check_tool hermes "$hermes_binary" --version \
         || failures=$((failures + 1))
     else
       printf 'MISSING %-12s install through bootstrap.sh\n' hermes

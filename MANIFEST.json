@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "name": "agentik-station",
-  "release": "11.24",
+  "release": "11.25",
   "blueprint_version": 11,
   "posture": "final-repository-candidate",
   "archive_root": "agentik-station",
@@ -32,7 +32,7 @@
     "builder_librarian_gates": "7/7 PASS",
     "agk_tui_component_tests": 225
   },
-  "file_count": 1155,
+  "file_count": 1156,
   "files": [
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -1186,6 +1186,7 @@
     "tests/unit/test_release_generation.py",
     "tests/unit/test_station_voice_provider.py",
     "tests/unit/test_tailscale_readiness.py",
+    "tests/unit/test_toolchain_hermes_check.py",
     "tests/unit/test_toolchain_launchers.py",
     "tests/unit/test_voice_check.py",
     "tests/unit/test_voice_enrollment.py"

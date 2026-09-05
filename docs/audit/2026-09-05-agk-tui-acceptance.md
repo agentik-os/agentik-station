@@ -115,3 +115,65 @@ The test-only RMUX socket/registry must never be replaced with the operator's
 existing sessions. Live provider billing/authentication, Discord exchange,
 gateway activation, guild provisioning and other external account enrollment
 remain explicitly unaccepted by this mission's offline tests.
+
+### Observed 11.24 VPS acceptance and supplemental 11.25 plan
+
+Commit `3482519925d1f2002566b9ea30f004bc7aba7413` passed all six GitHub CI
+jobs and was published beside immutable 11.23. The actual installed controller
+then passed create/input/native pane readback, rename, respawn, archive/restart
+visibility and purge with only a private synthetic session. The real Rust TUI
+passed ten palette-selected views, three sizes (64x16, 100x24, 140x40), and exit
+status zero while that session stayed alive. The test session/private server
+were subsequently removed; real operator sessions were not stopped. Initial
+PTY assertions were corrected from mixed-case `Sessions` to the real uppercase
+body title, with resize-forced fresh frames rather than matching ANSI deltas.
+Final synthetic fixture: `/tmp/agk-1124-ivj_4j5n`.
+
+Full VPS acceptance passed nine gates, and the final Station Doctor passed
+192 checks with zero issues. All eight deployed software hashes/modes match
+the immutable source. Evidence: `/tmp/station-vps-acceptance.20260905-11-24.json`.
+The Discord setup plans resolved the bootstrap Zone and the namespaced Atlas
+instance correctly; no wizard or gateway activation was performed.
+
+Protected-file comparison did **not** pass an all-unchanged claim: 15 of 17
+matched. The operator's `.hermes/.env` content hash changed with an mtime before
+deployment, and `.hermes/config.yaml` changed later. Both retained UID/GID 1001
+and mode 0600. All protected Zone files matched. No writer was identified;
+timestamps alone cannot attribute the changes. Neither file was restored,
+printed or copied. Existing operator Hermes processes remained running.
+
+Source review of the pinned native Hermes CLI then established an independent
+risk: `--version` can take a profile-dependent startup path that loads and
+normalizes `.env`; even its fast path can write caches. This establishes that
+the old version check was not reliably passive, **not** the cause of either
+observed change.
+
+Supplemental Plan First: the toolchain owner will isolate installation-version
+probes in a disposable, non-root HOME/HERMES_HOME with a cleared environment,
+bounded execution and exact temporary cleanup. Regression probes must attempt
+config writes and inspect their environment, including on failure, without
+touching real accounts. Root owns 11.25 release metadata, full verification,
+publication and a new immutable deployment; 11.24 must not be overwritten.
+No provider enrollment, credential restoration or live gateway start is added
+to this scope. The version check remains software acceptance, not account health.
+
+Final 11.25 source verification passed **1,513 Station/Factory tests**, with
+21 Linux/non-root cases skipped on macOS, plus 80 release/contract checks after
+the final small shell adjustment. Focused probe/launcher verification passed
+41 tests with six Linux skips. Independent review found and fixed privileged
+command resolution through an operator-prefixed PATH (`id`, `sudo`, `env`,
+and the plan's `cat`), and missing `-B` under isolated Python. All version/SDK
+probes now use a fresh HOME/HERMES_HOME/XDG/managed scope, a cleared environment,
+non-root identity and the existing bounded process supervisor. This is not a
+network or same-UID sandbox; actual account readiness is not tested.
+
+Before publication, the exact candidate probe functions were exercised on the
+VPS against all twelve installed tool/SDK targets, reusing the unchanged 11.24
+process supervisor. They passed. The newly captured 17 protected-file
+fingerprints all matched afterward, and Hermes remained at the reviewed commit
+with no tracked working-tree changes. The shared Hermes checkout is owned by
+the updater/operator (UID 1001), **not** an immutable root-owned Station release;
+its repository `.env` was absent. No owner or credential was changed to make
+the check pass. Native AGK/controller files are unchanged from the successful
+11.24 acceptance above. Post-publication 11.25 Host evidence is recorded under
+`/var/backups/station/repair-11.25-20260905`.

@@ -1,4 +1,20 @@
-# Agentik Station 11.24 Validation
+# Agentik Station 11.25 Validation
+
+## Isolated installation-version probes — 11.25
+
+The final AGK Host audit below led to an additional native-startup finding:
+`hermes --version` is not guaranteed free of configuration/cache writes. The
+[audit record](docs/audit/2026-09-05-agk-tui-acceptance.md) preserves both the
+successful 11.24 software acceptance and the unattributed operator-config drift,
+and defines the separate isolation fix and regression gate for 11.25.
+
+Final verification: **1,513 Station/Factory tests passed**, with 21 Linux-only
+cases skipped locally; 80 final release/contract checks also passed. Focused
+probe/launcher tests passed 41 cases (six Linux skips). The exact candidate
+probe passed all twelve real installed VPS tool/SDK targets; all 17 newly
+fingerprinted protected files remained unchanged. The AGK software is unchanged
+from the 520-test component and native acceptance recorded for 11.24. This does
+not identify the writer of the earlier configuration changes or accept accounts.
 
 ## AGK feature audit and Discord setup — 11.24
 

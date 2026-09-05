@@ -5,8 +5,10 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import pwd
 import shutil
 import subprocess
+import sys
 import tarfile
 
 import pytest
@@ -369,6 +371,8 @@ def test_script_has_valid_shell_syntax():
 
 
 @pytest.mark.parametrize("tool_exit", [0, 17])
+@pytest.mark.skipif(sys.platform != "linux" or os.geteuid() == 0,
+                    reason="real version probes require the Linux non-root operator")
 def test_toolchain_uses_native_hermes_version_flag_and_preserves_exit_status(layout, tool_exit):
     home, bins, _ = layout
     hermes = bins / "hermes"
@@ -385,15 +389,20 @@ def test_toolchain_uses_native_hermes_version_flag_and_preserves_exit_status(lay
     sdk.parent.mkdir(parents=True)
     sdk.write_text('{}')
     source = SCRIPT.read_text()
-    checks = source[source.index("check_tool() {"):source.index("\nlinux_arches() {")]
+    checks = source[source.index("run_version_probe() {"):source.index("\nlinux_arches() {")]
     body = ("set -Eeo pipefail\nas_station() { \"$@\"; }\n" + checks
             + "\ncheck_pinned_tool() { :; }\ncheck_toolchain\n")
     result = subprocess.run(["bash", "-c", body], cwd=home, capture_output=True, text=True,
                             timeout=15, env={**os.environ, "STATION_HOME": str(home),
+                                            "ROOT": str(ROOT), "STATION_USER": pwd.getpwuid(os.geteuid()).pw_name,
                                             "tool_path": str(bins), "INSTALL_CODEX": "0",
                                             "CHECK_HERMES": "1", "DISCORD_JS_VERSION": "14.27.0",
                                             "PATH": str(bins) + ":/usr/bin:/bin"})
     assert result.returncode == (0 if tool_exit == 0 else 1), result.stderr
     assert ("READY   hermes" if tool_exit == 0 else "FAILED  hermes") in result.stdout
-    assert "Hermes Agent fixture" in result.stdout
+    if tool_exit == 0:
+        assert "Hermes Agent fixture" in result.stdout
+    else:
+        assert "Hermes Agent fixture" not in result.stdout
+        assert "Isolated version probe failed" in result.stdout
     assert "SECONDARY_VERSION_DETAIL" not in result.stdout

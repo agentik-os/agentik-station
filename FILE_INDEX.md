@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1155
+Total files: 1156
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -1154,6 +1154,7 @@ Total files: 1155
 - `tests/unit/test_release_generation.py`
 - `tests/unit/test_station_voice_provider.py`
 - `tests/unit/test_tailscale_readiness.py`
+- `tests/unit/test_toolchain_hermes_check.py`
 - `tests/unit/test_toolchain_launchers.py`
 - `tests/unit/test_voice_check.py`
 - `tests/unit/test_voice_enrollment.py`
