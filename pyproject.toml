@@ -13,7 +13,7 @@ dependencies = ["PyYAML==6.0.3"]
 
 [project.optional-dependencies]
 dev = [
-  "pytest==8.4.2",
+  "pytest==9.1.1",
   "PyYAML==6.0.3",
   "jsonschema==4.25.1",
   "Pillow==12.3.0",
