@@ -2,6 +2,13 @@
 
 Builder compiles the OS contract onto existing runtime primitives instead of building a second agent kernel.
 
+Reusable package role IDs remain stable. At instance installation, Station maps
+every persistent role through `role_profile_map` to a native profile ID namespaced
+by Zone, instance and role. The Director's gateway uses that mapping and the
+instance's dedicated Hermes home; it must not select another instance's bare role.
+Instances and Projects share their Zone UID, so logical role/workspace separation
+is not a hard filesystem sandbox. See [client-owned instances](../organization/05_OS_INSTANCES.md).
+
 | AGK OS v2 primitive | Runtime implementation |
 |---|---|
 | Nano Director | persistent Hermes Profile/Bot + dedicated Discord identity |

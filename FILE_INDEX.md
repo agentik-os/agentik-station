@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1112
+Total files: 1121
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -405,6 +405,7 @@ Total files: 1112
 - `docs/organization/03_CLIENT_EXAMPLE_GENERIC.md`
 - `docs/organization/04_TEAM_MEMBER_SCOPES.md`
 - `docs/organization/04_TENANCY_AND_BOUNDARIES.md`
+- `docs/organization/05_OS_INSTANCES.md`
 - `docs/os/00_WHAT_IS_AN_OS_V2.md`
 - `docs/os/01_OS_PACKAGE_SPEC.md`
 - `docs/os/02_RECURSIVE_OS.md`
@@ -1052,7 +1053,9 @@ Total files: 1112
 - `src/agentik_station/maturity.py`
 - `src/agentik_station/models.py`
 - `src/agentik_station/onboarding.py`
+- `src/agentik_station/organizations.py`
 - `src/agentik_station/os_contract.py`
+- `src/agentik_station/os_instances.py`
 - `src/agentik_station/os_lifecycle.py`
 - `src/agentik_station/os_runtime.py`
 - `src/agentik_station/paths.py`
@@ -1096,12 +1099,16 @@ Total files: 1112
 - `tests/security/test_bootstrap_state.py`
 - `tests/security/test_bootstrap_workflow.py`
 - `tests/security/test_doctor_boundaries.py`
+- `tests/security/test_existing_zone_identity.py`
+- `tests/security/test_organizations.py`
 - `tests/security/test_os_compiler_boundaries.py`
+- `tests/security/test_os_instances.py`
 - `tests/security/test_os_lifecycle.py`
 - `tests/security/test_project_creation.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
 - `tests/security/test_strix_boundaries.py`
+- `tests/security/test_zone_compilation.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`
@@ -1109,6 +1116,8 @@ Total files: 1112
 - `tests/unit/test_hermes_platforms.py`
 - `tests/unit/test_hermes_update_receipt.py`
 - `tests/unit/test_identifiers.py`
+- `tests/unit/test_instance_cli.py`
+- `tests/unit/test_instance_onboarding.py`
 - `tests/unit/test_models.py`
 - `tests/unit/test_onboarding.py`
 - `tests/unit/test_orchestration_cli.py`

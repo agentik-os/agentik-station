@@ -12,20 +12,20 @@
 
 ### AI teams deserve an operating system.
 
-**Chief AI Officer AIOS — a governed agentic environment for your VPS.** Station provides the Linux foundation, policy, Zones and evidence. **Hermes is the central execution brain.** Installable Operative Systems give it specialized teams; Discord and other Hermes chat platforms give you a place to direct the work.
+**Chief AI Officer AIOS — a governed agentic environment for your VPS.** Station provides the Linux foundation, policy, Zones and evidence. **Hermes is the central execution brain.** Operative Systems turn domain expertise into client-owned operating capabilities: teams, state, workflows, connected tools, interfaces and verification—not just bots. Discord and other Hermes platforms give you a place to direct the work.
 
 Bring your projects, models and tools. Give every mission an owner, a workspace and a verification gate.
 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.13.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. External accounts, live chat, OS execution, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.14.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
-An agent can run a command. An operational system also needs to know **whose project it is, which identity may act, where the work belongs, and what proves it succeeded.**
+An agent can run a command. An operational system also needs to know **which client and OS own the mission, which identity may act, where the work belongs, and what proves it succeeded.**
 
-- **A place for everything.** Hosts run Zones; Zones own identities and runtime state; Projects own repos, knowledge, worktrees, credentials and evidence.
+- **A place for everything.** Clients own environment Zones; OS instances and Projects are siblings inside them. Instances own domain operations; Projects own bounded work and its assets.
 - **One execution engine.** Hermes provides profiles, sessions, delegation, Skills, Kanban, hooks and tools. Station builds around it, not a competing scheduler.
 - **AI departments, not loose prompts.** Each OS packages a Director, specialists, workflows, provider routes, evaluations and recovery instructions.
 - **Chat as the cockpit.** Direct work through Hermes messaging, with Station's Discord progress cards and protected setup flows. Chat is the interface, not the source of truth.
@@ -36,10 +36,30 @@ These are the architecture and workflow contracts. They are **not** a claim that
 ## The whole system
 
 <p align="center">
-  <img src="docs/assets/readme/station-system-map.svg" width="800" alt="Human intent is governed by Station's configuration and placement contracts. Fleet places Zones on Hosts. Each Zone owns a Unix identity and Hermes runtime. Hermes runs OS teams using selected tools on Project-owned work. Evidence returns to Station. Other Hosts retain independent Zones.">
+  <img src="docs/assets/readme/station-system-map.svg" width="800" alt="Station records configuration, placement and evidence. Hosts contain independent Zone identities. Within a client Zone, Hermes runs each OS instance's mapped team and domain workspace, using selected tools and optional sibling Project assets. Instance Hermes homes share the Zone Unix home. Evidence returns to Station.">
 </p>
 
-**Read the map from the outside in:** a **Host** is the machine; a **Zone** is its operational identity and isolation boundary; a **Project** owns the work; an **OS** supplies a team; **Hermes** runs it. **Fleet** describes the placement of those Zones across Hosts. **Station Control** records desired state, policies and evidence indexes.
+**Read the map from the outside in:** a **Host** is the machine; a **Zone** is its operational identity and isolation boundary. The client owns **OS instances** and **Projects** inside that Zone. An OS definition supplies the domain operating contract; its instance runs through **Hermes**. Projects are work the instance may serve—not containers for the client or its OS. **Fleet** records placement; **Station Control** records desired state, policies and evidence indexes.
+
+```mermaid
+flowchart TB
+    Client["Client Organization"] --> Dev["Development Zone · own Unix identity"]
+    Client --> Prod["Production Zone · separate identity"]
+    Dev --> Instance["OS instance · domain workspace and runtime"]
+    Dev --> Project["Project · repositories and work assets"]
+    Package["Reusable OS definition · no client secrets"] -->|install and configure| Instance
+    Instance -. declared work scope .-> Project
+    Instance --> Team["Mapped Director and specialists · Hermes"]
+    Team --> Gates["Domain capabilities need implementation and acceptance"]
+    classDef ink fill:#10161c,color:#e6edf3,stroke:#7c8b99;
+    classDef lime fill:#c5f277,color:#10161c,stroke:#10161c;
+    class Client,Dev,Prod,Project,Package,Team,Gates ink;
+    class Instance lime;
+```
+
+This is ownership and placement, not a live deployment. Same-Zone instances and
+Projects share a UID; the dotted work-scope relation is **not a filesystem ACL**.
+[Definition versus instance versus Project →](docs/organization/05_OS_INSTANCES.md)
 
 | Piece | What it owns | What it does not replace |
 | :--- | :--- | :--- |
@@ -47,7 +67,7 @@ These are the architecture and workflow contracts. They are **not** a claim that
 | **Host & Fleet** | Linux machines, inventory and declared Zone placement | Zone identity or Project ownership |
 | **Zone** | Unix identity, `HOME`, `HERMES_HOME`, credentials, memory and logs | A per-profile sandbox; profiles in one Zone share a trust domain |
 | **Project & Workspaces** | Repositories, knowledge, task worktrees, resources, artifacts and evidence | A global dumping ground for all clients' data |
-| **OS & Hermes** | Director, specialists, sessions, delegation, Skills and tools | A second Linux distribution or another competing scheduler |
+| **OS instance & Hermes** | Domain workspace/state, mapped Director/team, sessions, declared capabilities and evidence | A Project container, per-role Unix sandbox or automatically implemented domain app |
 | **Discord / other chat / AGK-TUI** | Human interaction and progress projections | The canonical state, permission or secret store |
 | **Providers & integrations** | Model inference, CLIs, APIs, MCP and connected capabilities | Permission to change scope, read another Zone or bypass review |
 
@@ -110,8 +130,8 @@ An unenrolled Tailnet leaves the local setup broker waiting for enrollment; it m
 
 ```bash
 sudo station setup --json
-# Once you choose a Zone, Project and OS:
-sudo station setup --zone <zone-id> --project <project-id> --os devops-os
+# Once the client's matching Zone is registered and its instance selected:
+sudo station setup --organization acme --zone acme-dev --instance engineering --json
 ```
 
 The setup report reads local evidence and returns ordered gates, missing selections
@@ -120,10 +140,12 @@ credential values or authenticate accounts. Integrity checks read profile config
 not `.env`, authentication or session files. `--probe` explicitly adds a bounded systemd
 service observation; an active service is still not an accepted chat route.
 
-Full/core bootstrap creates Zones; `sudo station project create --zone <zone-id> --id <project-id> --plan`
-previews a new Project inside one of them. OS installation then records the exact
-team and Project. `station os setup` opens that Director's provider wizard;
-`station platform setup --os …` opens its chat wizard. See the complete
+Full/core bootstrap creates Zones; client team mode creates the requested
+ORGANIZATIONS Zone. `station organization register` validates its existing owner.
+`station os instance install` creates the instance's workspace and mapped team
+without requiring a Project. `station os instance setup` opens its Director's
+provider wizard; `station platform setup --instance …` opens its chat wizard.
+`station project create --plan` previews separate Project assets when needed. See the complete
 [clean VPS → first verified mission](docs/operations/06_FIRST_MISSION.md) sequence.
 
 <details>
@@ -182,7 +204,7 @@ For lower-level control, `./station plan` and `sudo ./install` expose the typed 
 <details>
 <summary><strong>01 / Scope — a message becomes owned work.</strong></summary>
 
-Resolve the human principal, Host, Zone, Project, environment and requested capability. The OS Director receives the brief through the owning Hermes profile. An unresolved account or production target is a reason to stop, not guess.
+Resolve the human principal, Organization, Host, Zone, instance, environment and requested capability; select the Project when its assets are needed. The OS Director receives the brief through its mapped Hermes profile. An unresolved account or production target is a reason to stop, not guess.
 
 **Contract:** [Zone and credential boundaries](SECURITY.md#zone-boundaries). **Expected output:** explicit scope and acceptance criteria. Discord remains a projection of the mission, not its authority store.
 
@@ -228,14 +250,14 @@ Production or destructive actions require the policy-defined human authorization
 
 </details>
 
-**The whole model in one line:** Station governs → Hermes orchestrates → OS teams work → Projects retain the assets → verification feeds the next decision.
+**The whole model in one line:** Station governs → Hermes orchestrates → OS instances operate domains → instances and Projects retain owned state/evidence → verification feeds the next decision.
 
 ## Operative Systems
 
-An **Operative System (OS)** is an installable AI department, not another Linux distribution. It bundles a Nano Director, a specialist NanoTeam, knowledge, ordered Skills, tools, workflows, memory policy, evaluations and recovery contracts.
+An **Operative System (OS)** is a governed domain operating capability, not another Linux distribution or merely a bot team. Its four planes are **definition**, **Hermes runtime**, **connected capabilities**, and **state/evidence/interfaces**. It includes durable domain schemas, views, processes, workflows, governance and recovery alongside its Director and specialists. The reusable package is not the client's configured instance.
 
 <p align="center">
-  <img src="docs/assets/readme/station-os-map.svg" width="800" alt="Canonical OS source compiles into a versioned Hermes distribution. Inside the owning Zone, a Nano Director coordinates specialist Hermes profiles using the team's skills, tools, knowledge, evaluations and recovery contract. Their work belongs to the assigned Project.">
+  <img src="docs/assets/readme/station-os-map.svg" width="800" alt="A reusable OS definition compiles into a client-owned instance with an OS-owned workspace and mapped Director and team. Projects are optional declared work scope, not containers for the OS. The full contract includes domain state, views, workflows, capabilities and recovery. Profile installation does not implement or accept every capability.">
 </p>
 
 ### Inside an OS
@@ -247,14 +269,15 @@ An **Operative System (OS)** is an installable AI department, not another Linux 
 | **Workflows & programs** | Plan First graph, deterministic operations and handoff rules | Tools, hooks and native task mechanisms |
 | **Integration & provider routes** | Which model, CLI, MCP, API or connected account serves a capability | Explicit configuration and scoped credentials; never secrets baked into a package |
 | **Memory policy** | What can persist, where, for whom and how long | Zone-owned runtime state and selected memory services |
+| **Domain state & views** | Business objects, transitions, migrations and useful interfaces | Explicit implementations and runtime bindings; not automatically created by profile installation |
 | **Evaluations & recovery** | What proves success; how to detect and repair failure | Tests, Doctor, readback and fresh-session acceptance |
 | **Human interface** | Director bot, primary channel, commands and progress | Hermes messaging; Station-specific presentation where supported |
 
 ### How Builder makes one
 
-**Brief → Librarian research → OS design → canonical package → Hermes distribution → installation → acceptance.** Librarian gathers verified sources, operator knowledge and contrary evidence. Builder's Director delegates domain scoping, architecture, programs, integrations, tests, evaluations, Discord experience, security and recovery. Independent review checks the complete package before it is treated as installable.
+**Brief → Librarian research → domain contract/schema/views → team and programs → capabilities/governance → evals/recovery → canonical package → client instance → acceptance.** Builder is a factory for complete operating capabilities. Its Director delegates domain scoping, architecture, programs, workflows, integrations, tests, interface design, security and recovery. Independent review checks the complete package; client credentials and raw memory never become reusable Factory inputs by default.
 
-The compiler translates those contracts into Hermes-native distributions; it does not start a new orchestrator. Published artifacts live at `/opt/station/os-distributions/<zone>/<project>/<os>/<version>/`. They are immutable outputs—not a second editable OS source. See [Builder](os/builder/README.md) and the [native mapping](docs/builder/03_HERMES_NATIVE_MAPPING.md).
+The compiler translates supported contracts into Hermes-native distributions; it does not start a new orchestrator or automatically implement every domain app. Instance artifacts live at `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`. They are immutable outputs—not a second editable OS source. `role_profile_map` maps canonical roles to Zone/instance/role-native identities for the entire team. See [Builder](os/builder/README.md) and the [native mapping](docs/builder/03_HERMES_NATIVE_MAPPING.md).
 
 | OS source | Its job |
 | :--- | :--- |
@@ -268,7 +291,7 @@ The compiler translates those contracts into Hermes-native distributions; it doe
 Canonical source lives only in `os/`. The compiler produces Hermes Profile Distributions; installation, bindings, profile Doctor and fresh-session acceptance are separate steps. The [catalog](os/CATALOG.json) currently marks these packages **`INSTALLABLE` / `NOT_INSTALLED`**, not running teams.
 
 > [!IMPORTANT]
-> **Current activation limits:** One OS per Zone, bound to one Project. A trusted installation record rejects cross-Project reuse of Zone-scoped profile names. Unchanged recorded installations can resume missing profiles without `--force`; existing untracked or damaged profiles require explicit repair. Use `--os` for the intended Director, otherwise the platform command explicitly uses `default`. Local profile verification is durable, but live routing, provider and fresh-session acceptance remain separate. See the [operating workflow](docs/operations/06_FIRST_MISSION.md).
+> **Activation boundary:** Prefer named client-owned instances and `--instance` selection. Each gets an OS-owned workspace, Hermes home and full native role mapping; a Project is optional work scope. Allowed Projects are a policy/routing list, not a same-UID sandbox. Legacy schema-2 Project-bound runtimes keep `--os` and are never automatically migrated. Untracked/damaged profiles require repair, not `--force`. Local verification is not live provider, chat or business-workflow acceptance. See the [operating workflow](docs/operations/06_FIRST_MISSION.md).
 
 ### Meet the DevOps team
 
@@ -317,13 +340,13 @@ The [web-product recipe](resources/stacks/web-product/README.md) provides the de
 The community server is separate from your private Station deployment. Your own guild, accounts, tokens and permissions remain under your control.
 
 <p align="center">
-  <img src="docs/assets/readme/station-chat-map.svg" width="800" alt="A human uses Discord or another Hermes transport. Identity, Zone and Director bindings lead to the Hermes OS team and Project work. For account enrollment, the bot provides a short-lived private Tailscale link to a one-use setup form or allowlisted provider flow. Secrets do not belong in chat.">
+  <img src="docs/assets/readme/station-chat-map.svg" width="800" alt="A human authorizes a Director bot for an OS instance and enrolls the Host in the Tailnet. The instance gateway routes to its mapped role. Native instance wizards handle enrollment; separate short-lived private links handle Zone-base credentials and approved provider flows. Tokens never belong in chat. Every instance route still needs live acceptance.">
 </p>
 
-The intended topology is **one installed OS → one Nano Director → one dedicated bot identity and primary channel**. Specialists collaborate inside Hermes; public bots should not create recursive bot-to-bot conversations.
+The default topology is **one installed OS instance → one Nano Director → one dedicated bot identity and primary channel**. Specialists collaborate inside Hermes. `--role forge` can explicitly select a mapped worker for a separately justified external topology; it does not create a bot token, grant permissions or prove acceptance. Public bots should not create recursive bot-to-bot conversations.
 
 1. **Enroll the first bot and Tailnet as the human owner.** A bot token cannot create more Discord applications or mint their tokens.
-2. **Bind the bot to its Zone and OS.** Verify channel permissions, commands and message readback in a test guild. Remove any temporary bootstrap administrator elevation.
+2. **Bind the bot to its Zone and instance.** Use `station platform setup --instance …` for the mapped Director. Verify channel permissions, commands and message readback in a test guild. Remove any temporary bootstrap administrator elevation.
 3. **Use guided setup for subsequent accounts.** After enrollment, short-lived, one-use private Tailnet links can open secret forms or allowlisted OAuth/device flows. Never paste credentials into Discord.
 4. **Follow semantic mission progress.** Station's Discord experience is designed around editable progress cards, actions and linked evidence rather than raw tool chatter.
 
@@ -340,7 +363,7 @@ The first human enrollment remains unavoidable. Afterwards, guided links and pro
 One **Station namespace**, with Linux responsibilities kept in their proper places. `/srv/station` is the human navigation root—not a replacement for the filesystem hierarchy.
 
 <p align="center">
-  <img src="docs/assets/readme/station-filesystem-map.svg" width="800" alt="Station uses Linux filesystem responsibilities: etc for desired state, opt for immutable software, srv for human navigation and Projects, var/lib for runtime state, var/log for logs, var/backups for recovery staging and run for ephemeral files. Each Zone owns its Projects and each Project owns its work.">
+  <img src="docs/assets/readme/station-filesystem-map.svg" width="800" alt="Station separates desired state, immutable code, human assets, runtime state, logs, recovery and ephemeral files across exact FHS roots. Each Zone contains sibling OS instance workspaces and Project trees. Instances have distinct Hermes homes but share the Zone Unix home and UID.">
 </p>
 
 ```text
@@ -353,7 +376,15 @@ One **Station namespace**, with Linux responsibilities kept in their proper plac
 /run/station          Ephemeral runtime files and locks
 ```
 
-Each Zone has its own Unix identity and `HERMES_HOME`. Each Project owns `repos/`, `docs/`, `knowledge/`, `resources/`, `worktrees/`, `credentials/`, `artifacts/` and `evidence/`. Local versus remote is Host placement, not a different tree.
+Each Zone has its own Unix identity. Instances have Hermes homes under `<zone-state>/os-instances/<instance>/hermes` and domain workspaces under `<zone>/os/instances/<instance>/workspace`. Projects separately own `repos/`, `docs/`, `knowledge/`, `resources/`, `worktrees/`, `credentials/`, `artifacts/` and `evidence/`. Local versus remote is Host placement, not a different tree.
+
+Instance `HERMES_HOME` namespaces Hermes profiles, configuration and sessions;
+gateway processes retain the Zone `HOME`, so other CLI logins and caches may be
+shared within that Zone. New instance enrollment uses the CLI/native Hermes flow.
+The existing TUI/Fleet client controller is not automatically instance-registry
+aware: `station client --legacy …` explicitly selects the separate shared-operator
+workflow (`~/workspace/clients`, `~/.hermes`), not client Zone registration or
+isolation. No existing data is automatically migrated.
 
 <details>
 <summary><strong>Open the full navigation tree and source-code map.</strong></summary>
@@ -446,9 +477,9 @@ The CI badge reports **repository checks**, not the health of your VPS. The [mod
 
 ### What these diagrams promise
 
-Every map is a **repository-owned, self-contained SVG** with a text equivalent nearby. The signal animation is decorative, runs briefly and respects reduced-motion preferences; the complete architecture remains visible without motion. GitHub clients may display a static frame. These are architecture explanations, **not live telemetry**, permission enforcement proofs or deployment acceptance receipts.
+The illustrated maps are **repository-owned, self-contained SVGs** with text equivalents nearby; static Mermaid diagrams clarify ownership and role relationships. The SVG signal animation is decorative, brief and reduced-motion-aware. Existing circuit maps show representative Project missions; the client/instance diagram above defines the broader ownership model. These are explanations, **not live telemetry**, permission enforcement proofs or deployment acceptance receipts.
 
-The earlier [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md) identified the OS-instance, routing and resumability gaps addressed in 11.13. Live acceptance and the explicitly deferred security/tenancy decisions still need their own evidence.
+The earlier [VPS workflow review](docs/audit/2026-09-05-vps-workflow-review.md) identified bootstrap, OS-instance and routing gaps. The 11.13 bootstrap work and 11.14 client-instance workflow address bounded parts of that review. Live acceptance and explicitly deferred security/tenancy decisions still need their own evidence.
 
 The [11.13 control-plane review](docs/audit/2026-09-05-operational-control-plane.md)
 records the implementation: bootstrap checkpoints, safe Project creation,
@@ -463,6 +494,7 @@ remain historical evidence; they are not a substitute for the current workflow.
 | Install a fresh VPS | [Installation](INSTALL.md) · [AI operator brief](AI_INSTALL_PROMPT.md) |
 | Connect accounts, chat and voice | [Setup gates](SETUP.md) · [Voice & guided setup](docs/dependencies/VOICE_AND_GUIDED_SETUP.md) |
 | Build or understand an OS | [Builder](os/builder/README.md) · [Hermes-native mapping](docs/builder/03_HERMES_NATIVE_MAPPING.md) |
+| Register a client and install its domain OS | [OS instances](docs/organization/05_OS_INSTANCES.md) · [First mission](docs/operations/06_FIRST_MISSION.md) |
 | Inspect the DevOps workflow | [DevOps OS](os/devops/README.md) · [Strix team](resources/strix/README.md) |
 | Evaluate security and maturity | [Security contract](SECURITY.md) · [Deep audit](docs/audit/2026-09-05-station-deep-audit.md) |
 | Browse the source and verification rules | [Documentation index](docs/README.md) · [Agent contract](AGENTS.md) · [Changelog](CHANGELOG.md) |

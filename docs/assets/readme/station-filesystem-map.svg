@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1230" viewBox="0 0 800 1230" role="img" aria-labelledby="title description">
   <title id="title">A home for every boundary</title>
-  <desc id="description">Station uses exact FHS roots: /etc/station for desired state, /opt/station for immutable code, /srv/station for human assets, /var/lib/station for runtime state, /var/log/station for logs, /var/backups/station for recovery staging, and /run/station for ephemeral runtime. The human Zone path is 2_ZONES/category/name, with an environment directory only for ORGANIZATIONS and PROJECTS. Each Zone owns Projects and their assets, plus independent HOME and HERMES_HOME state. There is no global shared HOME. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <desc id="description">Station uses exact FHS roots: /etc/station for desired state, /opt/station for immutable code, /srv/station for human assets, /var/lib/station for runtime state, /var/log/station for logs, /var/backups/station for recovery staging, and /run/station for ephemeral runtime. The human Zone path is 2_ZONES/category/name, with an environment directory only for ORGANIZATIONS and PROJECTS. OS instance workspaces and Project asset trees are siblings within a Zone. Runtime state contains the Zone Unix home, its base Hermes home and distinct os-instances/instance/hermes homes. Instances share their Zone Unix HOME and UID; other CLI authentication and caches can therefore be shared within that Zone. There is no global shared HOME across Zones. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
   <defs>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
@@ -45,16 +45,16 @@
   <text x="56" y="640" font-size="29" font-weight="700">Human tree /srv/station/</text>
   <text x="56" y="677" font-size="23" class="mono lime">2_ZONES/&lt;category&gt;/&lt;name&gt;/</text>
   <text x="56" y="709" font-size="22" class="muted">Then &lt;env&gt;/ for ORGANIZATIONS or PROJECTS.</text>
-  <path d="M66 721V739H88" fill="none" stroke="#78906a" stroke-width="2"/>
-  <text x="98" y="747" font-size="24" class="mono">projects/&lt;project&gt;/</text>
-  <text x="98" y="787" font-size="22" class="muted">repos/ · docs/ · knowledge/ · resources/</text>
-  <text x="98" y="824" font-size="22" class="muted">workspaces/ · worktrees/ · artifacts/ · evidence/</text>
-  <text x="98" y="861" font-size="22" class="muted">integrations/ · credentials/ · state/ · ops/</text>
+  <path d="M66 721V779H88M66 739H88" fill="none" stroke="#78906a" stroke-width="2"/>
+  <text x="98" y="747" font-size="22" class="mono">os/instances/&lt;instance&gt;/workspace/</text>
+  <text x="98" y="787" font-size="24" class="mono">projects/&lt;project&gt;/</text>
+  <text x="98" y="824" font-size="22" class="muted">repos/ · docs/ · knowledge/ · resources/</text>
+  <text x="98" y="861" font-size="22" class="muted">worktrees/ · artifacts/ · evidence/ · state/</text>
   <rect class="card" x="32" y="918" width="736" height="183" rx="12"/>
   <text x="56" y="958" font-size="29" font-weight="700">Each Zone has its own state</text>
   <text x="56" y="997" font-size="22" class="mono lime">/var/lib/station/zones/&lt;zone-id&gt;/</text>
-  <text x="56" y="1034" font-size="23" class="mono">home/      hermes/ (HERMES_HOME)</text>
-  <text x="56" y="1076" font-size="22" class="muted">Credentials · sessions · memory stay in this Zone.</text>
+  <text x="56" y="1034" font-size="22" class="mono">home/ (shared in Zone) · hermes/ (base)</text>
+  <text x="56" y="1076" font-size="22" class="mono">os-instances/&lt;instance&gt;/hermes/</text>
   <text x="83" y="1148" font-size="25" class="lime" font-weight="700">Shared code. One independent HOME per Zone.</text>
   <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M400 564V599"/></circle></g>
   <path d="M32 1176H768" stroke="#34434d"/>

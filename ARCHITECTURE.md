@@ -60,6 +60,20 @@ Zones
 | Operative System | versioned governed operational capability executed through Hermes |
 | Workspace | temporary mission execution boundary, worktree, sandbox, or scratch space |
 
+### Organization, definition and instance
+
+The business hierarchy is **Organization → Macro Domain → Domain → OS**. Runtime
+placement is **Organization → environment Zone → OS instances and Projects**.
+These are complementary views, not a requirement to put the Organization inside
+a Project. A reusable OS definition packages domain expertise, schema/state,
+workflows, views, governance, Director/team and recovery. A client-owned instance
+binds that definition to the client's accounts, runtime and operating evidence.
+Projects are bounded bodies of work the instance may serve.
+
+Organization registration validates existing canonical ORGANIZATIONS Zones; it
+does not rename, migrate or transfer them. See the
+[OS instance contract](docs/organization/05_OS_INSTANCES.md).
+
 ## 4. Host-independent placement
 
 Placement does not alter identity or structure.
@@ -110,6 +124,7 @@ Runs the minimum system control/worker Zones required for future Fleet execution
 ├── station.yaml
 ├── hosts.d/
 ├── zones.d/
+├── organizations.d/          client ownership metadata for existing Zones
 ├── policies.d/
 └── bindings.d/
 
@@ -137,10 +152,13 @@ Runs the minimum system control/worker Zones required for future Fleet execution
 ├── receipts/
 ├── observed/
 ├── registry/
+│   ├── os-instances/<zone>/<instance>.json  schema-3 instance authority
+│   └── os/<zone>/<os>.json    legacy schema-2 Project-bound authority
 ├── doctor/
 └── zones/<zone-id>/
     ├── home/
     ├── hermes/
+    ├── os-instances/<instance>/hermes/
     ├── mission-state/
     ├── databases/
     ├── connector-state/
@@ -194,6 +212,7 @@ Human Zone layout:
 ├── README.md
 ├── projects/
 ├── os/
+│   └── instances/<instance>/workspace/
 ├── integrations/
 ├── credentials/
 ├── evidence/
@@ -239,7 +258,8 @@ Rules:
 ```text
 Control Plane
     │ declares desired state
-    │ resolves Host + Zone + Project + OS + profile + environment
+    │ resolves Organization + Host + Zone + instance + profile + environment
+    │ selects a Project when required by the mission
     │ issues explicit operation
     ▼
 System/Worker Zone
@@ -271,22 +291,57 @@ Logs                              Hermes logs/events
 Learning                          Hermes learning + AGK promotion governance
 ```
 
-Station 11.13 declares desired OS packages as `NOT_INSTALLED` and includes a deterministic AGK OS → Hermes Profile Distribution compiler for the Nano Director and persistent worker profiles. `station os install` installs compiled profiles into the target Zone-local `HERMES_HOME`. A root-owned ledger under `/var/lib/station/registry/os/<zone>/<os>.json` binds the complete team, immutable bundle digest and one owning Project. One OS may not silently reuse its native profile names for another Project in the same Zone.
+The instance workflow separates reusable package identity from client runtime
+identity. `station os instance install` binds a package to an explicit Zone and
+instance, with Organization ownership for client Zones and optional allowed
+Projects. It creates an OS-owned workspace at
+`<zone>/os/instances/<instance>/workspace` and a dedicated Hermes home at
+`<zone-state>/os-instances/<instance>/hermes`. No Project is required to create
+the OS runtime. The schema-3 root-owned ledger lives at
+`/var/lib/station/registry/os-instances/<zone>/<instance>.json`.
+Its immutable distribution is published under
+`/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.
+
+Every canonical role maps to a native profile ID namespaced by Zone, instance and
+role, including the Director and the complete persistent team. Package roles such
+as Atlas remain stable; use the ledger's `role_profile_map`, not a guessed bare
+profile name. Runtime state, sessions and connected accounts belong to the client
+instance, never the shared package. All instances still share their Zone UID:
+allowed Projects are a routing/policy contract, not a filesystem sandbox.
+Their Hermes homes namespace Hermes configuration and sessions, but gateways
+retain the same canonical Zone `HOME`; other CLI authentication and caches under
+that home can be shared. No per-instance CLI/account sandbox or automatic copying
+of authentication is implied.
 
 Installation records every profile checkpoint and resumes only an unchanged bundle;
-it never uses unattended `--force`. `station os verify` rechecks the entire expected
+it never uses unattended `--force`. `station os instance verify` rechecks the entire expected
 team and records local Doctor evidence bound to profile configuration hashes. A
 changed configuration invalidates the previous local verification. Zone-owned
 runtime projections are not installation authority. Boards, dedicated Discord
 enrollment, connector readback and fresh-session acceptance remain separate gates
 before `OPERATIONAL`.
 
-`station os setup` opens the selected Director's native provider wizard. Gateway
-commands accept `--os` and resolve that Director through the trusted ledger; without
-it they explicitly select Hermes `default`, never a sticky active profile.
+`station os instance setup` opens the selected Director's native provider wizard.
+Gateway commands take `--instance` and resolve its namespaced Director and Hermes
+home through the trusted ledger. One Director bot/channel is the default external
+surface; specialists remain internal unless a separate topology is justified.
+Explicit `--role forge` on instance setup or platform commands selects the mapped
+worker when its provider enrollment or justified external surface is required.
 `station setup --json` is a read-only operating report, not another scheduler.
 It lists dependencies and next actions; humans or an authorized executor decide
 which to run. A running gateway cannot prove account authorization or chat routing.
+
+The older `station os install/setup/verify` and gateway `--os` flow remains a
+**legacy schema-2 Project-bound runtime**. It is not automatically migrated to an
+instance; preserved credentials, profiles and ledgers require reviewed migration.
+With neither OS selector, legacy platform commands explicitly target Zone
+`default`; that is not an instance enrollment shortcut.
+
+The full [locked OS contract](docs/builder/02_OS_CONTRACT_LOCKED.md) spans definition,
+runtime, connected capabilities, and state/evidence/interfaces. Compiling and
+installing a team does not automatically instantiate every declared domain
+database, schema migration, workflow, app view, automation or enforcement layer.
+Each selected capability still needs implementation, scoped binding and acceptance.
 
 ## 11. Credentials and connected accounts
 

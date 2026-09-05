@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200" role="img" aria-labelledby="title description">
   <title id="title">Chat is the human doorway</title>
-  <desc id="description">A human creates and authorizes the first bot and enrolls the Host into the Tailnet. The target topology has one dedicated bot and primary channel per installed OS, routed by the Hermes gateway to the owning Zone profile. One-time scoped private links handle credentials and approved OAuth or device flows. No account tokens enter chat. Each OS route still requires live acceptance. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <desc id="description">A human creates and authorizes the first bot and enrolls the Host into the Tailnet. The default topology has one dedicated Director bot and primary channel per OS instance, routed through its Hermes gateway to the trusted mapped role. Specialist external bots require an explicit justified topology. Instance-aware native wizards enroll its provider and chat configuration; the separate one-time private setup broker handles Zone-base credentials and does not automatically enroll instances. Approved OAuth or device flows remain private. No account tokens enter chat. Each instance route still requires live acceptance. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
   <defs>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
@@ -28,10 +28,10 @@
   <text x="80" y="390" font-size="23" class="muted">Private access before guided setup</text>
   <path class="route" d="M400 409V449"/>
   <rect x="32" y="449" width="736" height="269" rx="14" fill="none" stroke="#c5f277" stroke-width="1.5"/>
-  <text x="56" y="487" font-size="22" class="lime" font-weight="700">OWNING ZONE / UNIX USER + HERMES_HOME</text>
+  <text x="56" y="487" font-size="22" class="lime" font-weight="700">ZONE UID / INSTANCE HERMES_HOME</text>
   <rect class="card" x="56" y="518" width="216" height="123" rx="12"/>
-  <text x="76" y="557" font-size="28" font-weight="700">OS bot</text>
-  <text x="76" y="591" font-size="22" class="muted">1 per installed OS</text>
+  <text x="76" y="557" font-size="28" font-weight="700">Director bot</text>
+  <text x="76" y="591" font-size="22" class="muted">1 per OS instance</text>
   <text x="76" y="623" font-size="22" class="muted">Primary channel</text>
   <path class="route" d="M272 579H290"/>
   <rect class="card" x="290" y="518" width="218" height="123" rx="12"/>
@@ -39,19 +39,19 @@
   <text x="309" y="596" font-size="22" class="muted">Inbound + reply</text>
   <path class="route" d="M508 579H526"/>
   <rect class="card" x="526" y="518" width="218" height="123" rx="12"/>
-  <text x="547" y="557" font-size="28" font-weight="700">OS profile</text>
+  <text x="547" y="557" font-size="28" font-weight="700">Mapped role</text>
   <text x="547" y="596" font-size="22" class="muted">Nano Director</text>
   <text x="90" y="685" font-size="25" class="lime">Target topology · accept each route live</text>
   <path class="route" d="M400 718V766"/>
   <rect class="card" x="56" y="766" width="688" height="206" rx="12"/>
-  <text x="80" y="807" font-size="29" font-weight="700">One-time private setup link</text>
+  <text x="80" y="807" font-size="29" font-weight="700">Separate Zone-base setup link</text>
   <text x="80" y="843" font-size="22" class="muted">Tailnet HTTPS · short-lived · scoped to the Zone</text>
   <text x="80" y="879" font-size="23">Secret form → Zone credential store</text>
   <text x="80" y="914" font-size="23">OAuth / device link → approved provider</text>
   <text x="80" y="951" font-size="24" class="lime" font-weight="700">No account tokens in chat.</text>
   <path class="route" d="M400 972V1010"/>
   <rect class="card" x="56" y="1010" width="688" height="101" rx="12"/>
-  <text x="80" y="1050" font-size="29" font-weight="700">Per-OS route acceptance</text>
+  <text x="80" y="1050" font-size="29" font-weight="700">Per-instance acceptance</text>
   <text x="80" y="1086" font-size="22" class="muted">Pending until live routing + permission tests pass.</text>
   <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M272 579H290"/></circle></g>
   <path d="M32 1146H768" stroke="#34434d"/>

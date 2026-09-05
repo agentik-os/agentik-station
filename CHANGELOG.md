@@ -1,5 +1,26 @@
 # Changelog
 
+## 11.14 — Client-owned OS instances and complete Hermes teams (2026-09-05)
+
+- make Organizations explicit owners of their existing environment Zones; OS
+  instances and Projects are siblings, never clients nested inside Projects;
+- install an instance's full Director/NanoTeam into its own Hermes root and
+  OS-owned workspace, with explicit declared Project scope;
+- compile stable instance-qualified native profiles and role maps so two copies
+  of an OS do not reuse profiles or native gateway service names;
+- reuse native Hermes installation, resumable checkpoints and full-team local
+  verification; preserve legacy Project-bound ledgers without automatic migration;
+- add instance and canonical-role selectors to provider/chat setup, enabling a
+  Director bot by default and explicitly selected specialist bots;
+- reject conflicting Zone declarations and existing identity/account collisions
+  before privileged reconciliation; fix seed Project planning after deduplication;
+- restore the client/OS-first README, atlas, universal rules and first-mission
+  guide, distinguishing the full AIOS contract from implemented profile runtime.
+
+Instances within one Zone still share its Unix UID. Declared Project scope is not
+a filesystem sandbox, configuration is not account acceptance, and real delegated
+missions, Discord readback and recovery remain required external gates.
+
 ## 11.13 — Owned orchestration and first-mission workflow (2026-09-05)
 
 - add a bootstrap-wide lock and durable stage receipts, preserve failure codes,

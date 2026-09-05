@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
+import re
 import shutil
 import stat
 from pathlib import Path
@@ -13,6 +15,88 @@ from .os_contract import doctor_os_source
 from .filesystem import SafeFS
 
 
+def instance_profile_map(zone_id: str, instance_id: str, roles: list[str]) -> dict[str, str]:
+    """Stable names within the Zone's single native user-service namespace.
+
+    Package versions do not alter identity. The ledger additionally reserves the
+    generated names: a truncated hash is not treated as collision-free authority.
+    """
+    validate_identifier(zone_id, "Zone id")
+    validate_identifier(instance_id, "OS instance id")
+    if not roles or len(set(roles)) != len(roles):
+        raise ValidationError("An instance requires unique canonical roles")
+    mapping = {}
+    for role in roles:
+        validate_identifier(role, "OS role")
+        digest = hashlib.sha256(f"{zone_id}\0{instance_id}\0{role}".encode()).hexdigest()[:20]
+        mapping[role] = validate_identifier(f"i-{digest}-{role[:25].rstrip('-')}", "instance profile")
+    return mapping
+
+
+def _map_role_references(value: Any, mapping: dict[str, str]) -> Any:
+    """Rewrite exact structured role values, not arbitrary strings or prose."""
+    if isinstance(value, str):
+        return mapping.get(value, value)
+    if isinstance(value, list):
+        return [_map_role_references(item, mapping) for item in value]
+    if isinstance(value, dict):
+        return {key: _map_role_references(item, mapping) for key, item in value.items()}
+    return value
+
+
+def _instance_routing(destination: Path, mapping: dict[str, str], *, zone_id: str, instance_id: str,
+                      workspace_root: Path, organization_id: str | None, allowed_project_ids: list[str],
+                      voice_defaults: dict[str, Any]) -> None:
+    """Compile routing bindings into the artifact; source OS roles remain canonical."""
+    import yaml
+
+    config_path = destination / "config.yaml"
+    config = _unique_config_yaml(config_path.read_text(encoding="utf-8"))
+    config_path.write_text(yaml.safe_dump(_merge_defaults(voice_defaults, config), sort_keys=False), encoding="utf-8")
+    routing = {"schema_version": 1, "zone_id": zone_id, "instance_id": instance_id,
+               "organization_id": organization_id, "allowed_project_ids": allowed_project_ids,
+               "workspace_root": str(workspace_root), "role_profile_map": mapping,
+               "project_scope": "DECLARED_NOT_UNIX_ENFORCED", "orchestrator": "hermes"}
+    (destination / "INSTANCE.json").write_text(json.dumps(routing, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path = destination / "distribution.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    manifest["distribution_owned"].append("INSTANCE.json")
+    manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    for name in ("COMMANDS.yaml", "STRIX_TEAM.json"):
+        path = destination / name
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8")) if name.endswith(".json") else yaml.safe_load(path.read_text(encoding="utf-8"))
+        data = _map_role_references(data, mapping)
+        path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n" if name.endswith(".json") else yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    # Add an explicit governing map to each prompt and rewrite only machine-form
+    # selectors (backticked profile identifiers and native --profile/-p flags).
+    # Ordinary role prose is a label and must not be globally string-replaced.
+    for path in destination.rglob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        for role, profile in mapping.items():
+            text = text.replace(f"`{role}`", f"`{profile}`")
+            text = re.sub(r"(?P<flag>--profile\s+|-p\s+)" + re.escape(role) + r"(?=$|[\s`\"'])",
+                          lambda match, value=profile: match.group("flag") + value, text)
+        path.write_text(text, encoding="utf-8")
+    soul = destination / "SOUL.md"
+    header = ("# Instance-local native routing\n\n"
+              f"OS instance: {instance_id}; Zone: {zone_id}. Native working directory: {workspace_root}.\n"
+              "This instance owns OS coordination work, not its client's Project repositories.\n"
+              "Canonical role names in source prose are labels only, never native profile selectors.\n"
+              "For every delegation use the exact native profile below in this instance's HERMES_HOME; "
+              "never route by a bare role, another instance, or the Zone default profile. "
+              "If a required role is absent, stop rather than invent a worker. Hermes remains the sole orchestrator.\n\n"
+              + "\n".join(f"- {role}: `{profile}`" for role, profile in mapping.items())
+              + "\n\nDeclared allowed Projects: " + (", ".join(allowed_project_ids) or "none")
+              + ". This declaration is not a Unix isolation boundary; same-Zone profiles share a UID. "
+              "Resolve an allowed Project explicitly before Project work; never infer permission from this text.\n\n")
+    soul.write_text(header + soul.read_text(encoding="utf-8"), encoding="utf-8")
+    for path in destination.rglob("*"):
+        if path.is_file():
+            os.chmod(path, 0o640)
+
+
 def require_root_owned_directory_chain(path: Path) -> None:
     """Privileged publication must never traverse an agent-writable parent."""
     SafeFS._assert_existing_absolute_chain(path)
@@ -22,8 +106,7 @@ def require_root_owned_directory_chain(path: Path) -> None:
             raise SecurityError(f"Publication ancestor must be root-owned and not group/world writable: {parent}")
 
 
-def _profile_config(template: str, profile_id: str, project_root: Path) -> dict[str, Any]:
-    """Merge mappings, never append duplicate YAML sections or interpolate YAML source."""
+def _unique_config_yaml(template: str) -> dict[str, Any]:
     import yaml
 
     class UniqueLoader(yaml.SafeLoader):
@@ -45,6 +128,40 @@ def _profile_config(template: str, profile_id: str, project_root: Path) -> dict[
         raise ValidationError("OS config must be valid, unambiguous YAML") from exc
     if not isinstance(config, dict):
         raise ValidationError("OS config must be a mapping")
+    return config
+
+
+def _merge_defaults(defaults: dict, overrides: dict) -> dict:
+    """Only source-defined overrides, never operator credentials or Zone config."""
+    merged = dict(defaults)
+    for key, value in overrides.items():
+        merged[key] = _merge_defaults(merged[key], value) if isinstance(merged.get(key), dict) and isinstance(value, dict) else value
+    return merged
+
+
+def _instance_voice_defaults(source: Path) -> dict:
+    path = source.parents[1] / "config/hermes/voice.default.yaml"
+    SafeFS._assert_existing_absolute_chain(path.absolute().parent)
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > 65536:
+            raise ValidationError("Canonical instance voice defaults must be a bounded single-link regular file")
+        with os.fdopen(fd, "rb", closefd=False) as stream:
+            data = stream.read(65537)
+    finally:
+        os.close(fd)
+    if len(data) > 65536:
+        raise ValidationError("Canonical instance voice defaults are oversized")
+    defaults = _unique_config_yaml(data.decode("utf-8"))
+    if set(defaults) != {"voice", "stt", "tts"} or any(not isinstance(value, dict) for value in defaults.values()):
+        raise ValidationError("Canonical instance voice defaults must contain only voice, stt and tts mappings")
+    return defaults
+
+
+def _profile_config(template: str, profile_id: str, project_root: Path) -> dict[str, Any]:
+    """Merge mappings, never append duplicate YAML sections or interpolate YAML source."""
+    config = _unique_config_yaml(template)
     if "plugins" in config:
         raise ValidationError("OS config template plugins section is reserved for the distribution compiler")
     for section in ("profile", "terminal"):
@@ -155,7 +272,30 @@ def _profile_distribution(
             os.chmod(path, 0o750)
 
 
-def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> dict[str, Any]:
+def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path | None = None,
+                         workspace_root: Path | None = None, profile_mapping: dict[str, str] | None = None,
+                         zone_id: str | None = None, instance_id: str | None = None,
+                         organization_id: str | None = None, allowed_project_ids: tuple[str, ...] = ()) -> dict[str, Any]:
+    instance = workspace_root is not None
+    if instance:
+        if project_root is not None or zone_id is None or instance_id is None:
+            raise ValidationError("Instance compilation requires explicit Zone/instance/workspace, not a Project owner")
+        validate_identifier(zone_id, "Zone id")
+        validate_identifier(instance_id, "OS instance id")
+        if organization_id is not None:
+            validate_identifier(organization_id, "Organization id")
+        for project in allowed_project_ids:
+            validate_identifier(project, "allowed Project id")
+        if len(set(allowed_project_ids)) != len(allowed_project_ids):
+            raise ValidationError("Allowed Project declarations must be unique")
+        target_root = Path(workspace_root)
+        if not target_root.is_absolute() or ".." in target_root.parts:
+            raise ValidationError("Instance workspace must be an absolute canonical path")
+        SafeFS._assert_existing_absolute_chain(target_root)
+    elif project_root is None or profile_mapping is not None or any((zone_id, instance_id, organization_id, allowed_project_ids)):
+        raise ValidationError("Legacy compilation requires only its owning Project root")
+    else:
+        target_root = Path(project_root).resolve(strict=False)
     source = Path(source)
     SafeFS._assert_existing_absolute_chain(source.absolute())
     for current, dirs, files in os.walk(source, followlinks=False):
@@ -178,21 +318,25 @@ def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> d
     os_version = str(contract["version"])
     director = validate_identifier(str(contract["nano_director"]), "Nano Director profile")
     workers = [validate_identifier(str(value), "NanoTeam profile") for value in contract["nanoteam"]]
-    profiles = [director, *[value for value in workers if value != director]]
-
-    project_root = Path(project_root).resolve(strict=False)
-    if not project_root.is_absolute():
-        raise ValidationError("project_root must resolve to an absolute path")
+    roles = [director, *[value for value in workers if value != director]]
+    if len(roles) != len(set(roles)):
+        raise ValidationError("OS team contains duplicate roles")
+    mapping = instance_profile_map(zone_id, instance_id, roles) if instance else {role: role for role in roles}
+    if profile_mapping is not None and profile_mapping != mapping:
+        raise ValidationError("Instance profile mapping must match its stable Zone/instance namespace")
+    profiles = [mapping[role] for role in roles]
+    voice_defaults = _instance_voice_defaults(source) if instance else None
 
     output.mkdir(parents=True, mode=0o750)
     profiles_root = output / "profiles"
     profiles_root.mkdir()
 
-    for profile_id in profiles:
-        if profile_id == director:
+    for role in roles:
+        profile_id = mapping[role]
+        if role == director:
             profile_text = (source / "director/PROFILE.md").read_text(encoding="utf-8")
         else:
-            profile_path = source / "profiles" / profile_id / "PROFILE.md"
+            profile_path = source / "profiles" / role / "PROFILE.md"
             if not profile_path.is_file() or profile_path.is_symlink():
                 raise ValidationError(f"Missing persistent profile source: {profile_path}")
             profile_text = profile_path.read_text(encoding="utf-8")
@@ -204,21 +348,30 @@ def compile_os_to_hermes(source: Path, output: Path, *, project_root: Path) -> d
             profile_id=profile_id,
             profile_text=profile_text,
             station_rules=station_rules,
-            project_root=project_root,
+            project_root=target_root,
         )
+        if instance:
+            _instance_routing(profiles_root / profile_id, mapping, zone_id=zone_id, instance_id=instance_id,
+                              workspace_root=target_root, organization_id=organization_id,
+                              allowed_project_ids=sorted(allowed_project_ids), voice_defaults=voice_defaults)
 
     compiled = {
         "schema_version": 2,
         "os_id": os_id,
         "os_version": os_version,
-        "nano_director": director,
+        "nano_director": mapping[director],
         "profiles": profiles,
-        "project_root": str(project_root),
+        "project_root": str(target_root),
         "source_contract": "AGK OS v2",
         "runtime_target": "Hermes Profile Distributions",
         "claim": "COMPILED_NOT_INSTALLED",
         "next_gate": "Install every profile into the target Zone HERMES_HOME, then run Hermes/plugin Doctor and fresh-session acceptance.",
     }
+    if instance:
+        compiled.pop("project_root")
+        compiled.update(schema_version=3, zone_id=zone_id, instance_id=instance_id,
+                        organization_id=organization_id, allowed_project_ids=sorted(allowed_project_ids),
+                        workspace_root=str(target_root), role_profile_map=mapping)
     (output / "COMPILED.json").write_text(json.dumps(compiled, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return compiled
 

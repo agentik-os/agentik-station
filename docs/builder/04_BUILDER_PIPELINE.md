@@ -32,6 +32,14 @@ OS request
 
 No OS is released because “the agent answered correctly once”. It is released when the complete installed organization passes its contract against a fresh deployed context and recoverability is proven.
 
+The reusable output is a domain operating definition, including state/schema,
+views and processes—not a collection of bots alone. Client deployment creates a
+named [OS instance](../organization/05_OS_INSTANCES.md) in the client's environment
+Zone, with its own workspace, native role map, accounts and evidence. A Project may
+be declared as work scope; it is not required to own or contain the OS instance.
+Installing profiles does not by itself implement or accept every declared domain
+database, view, workflow, connector or automation.
+
 
 ## Research Gate v2
 

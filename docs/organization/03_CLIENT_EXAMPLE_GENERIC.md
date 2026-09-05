@@ -2,6 +2,10 @@
 
 This is deliberately different from Operator.
 
+This is a business-domain map, not a filesystem tree. Each deployed capability
+becomes a client-owned OS instance in the appropriate development/production Zone;
+client Projects are separate work objects that those instances may serve.
+
 ```text
 Example Client Capital
 ├── Investment Operations
@@ -51,3 +55,8 @@ Vertical OSs are organization/industry-specific:
 - Searcher Scoring
 - Investment Committee
 - Capital Call
+
+Reuse the **definition**, not another client's configured runtime. Credentials,
+connected accounts, databases, memory, sessions and evidence stay with the owning
+client environment. The [instance contract](05_OS_INSTANCES.md) describes registration,
+Director/team namespacing, private setup and the current implementation boundary.

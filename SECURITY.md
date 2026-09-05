@@ -29,9 +29,15 @@ Compiled OS distributions are published under root-owned
 `/opt/station/os-distributions/<zone>/<project>/<os>/<version>`, never by root inside
 a Zone-writable parent. Cross-identity CLI launches clear the inherited environment.
 
-The 11.13 OS ledger is root-owned under `/var/lib/station/registry/os`. It binds the
-exact compiled distribution, Project and complete native team. Zone-writable
-profile files are read back, not accepted as an authoritative installation record.
+New client-owned OS instances use root-owned schema-3 ledgers at
+`/var/lib/station/registry/os-instances/<zone>/<instance>.json`. A ledger binds
+Organization/Zone/instance, the exact compiled distribution, full native role map,
+workspace and declared allowed Projects. Organization registration under
+`/etc/station/organizations.d` may reference only existing matching ORGANIZATIONS
+Zones; it cannot relabel a Zone, transfer its owner or create a new Unix boundary.
+Legacy schema-2 ledgers under `/var/lib/station/registry/os` remain Project-bound
+and are not automatically migrated or adopted. Zone-writable profile files are
+read back, not accepted as an authoritative installation record.
 New standalone Projects reserve previously absent human/runtime roots before
 writing; existing or substituted roots fail closed. Partial creation is reported
 for deliberate repair rather than broad deletion.
@@ -78,6 +84,34 @@ Each Zone receives:
 - default-deny cross-Zone filesystem, credentials, and memory.
 
 A Hermes Profile is not treated as a filesystem sandbox. Linux/Zone isolation remains mandatory.
+
+An OS instance has its own workspace and Hermes home beneath its Zone. Native
+Director and specialist identifiers are namespaced by Zone, instance and role so
+gateway/service selection cannot collide merely because two packages use the same
+role name. This is runtime naming and state separation, **not separate Unix
+authority**: instances, members and Projects inside one Zone share its UID. The
+allowed-Project list is a routing/policy declaration, not an enforced filesystem
+allowlist. Isolate different clients and sensitive environments with separate
+Zones; do not copy tokens, provider logins, sessions or raw memory across them.
+
+Instance `HERMES_HOME` separates Hermes profiles, configuration and sessions, but
+gateway processes retain the canonical Zone `HOME`. Other CLI authentication and
+caches under that home may be shared within the Zone. This is not per-instance
+CLI/account isolation; enrollment must not automatically copy authentication.
+Instance runtime roots are inode-bound. A copied/restored replacement is not
+automatically trusted; it requires reviewed repair or re-enrollment. No automatic
+instance restore or migration is provided in 11.14.
+
+Instance setup opens the selected Director's native wizard. The existing guided
+setup broker's Zone-base credential forms do not automatically enroll an instance.
+Dedicated bot applications/tokens remain human-owned. Specialist external bots
+require justified topology and independent permission/readback acceptance.
+
+The opt-in `station client --legacy …` and direct bundled `agk client …` controller
+use the operator's `~/workspace/clients` and `~/.hermes` profiles. They do not
+register canonical Station client Zones or enforce separate client Unix identities.
+Treat them as a distinct shared-operator compatibility workflow, not an isolation
+or instance-enrollment mechanism. Existing legacy data is preserved, not migrated.
 
 The bootstrap operator currently receives broad passwordless sudo by default.
 `--sudo-mode password` changes the account's authentication requirement; it is not

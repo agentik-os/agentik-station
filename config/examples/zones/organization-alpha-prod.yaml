@@ -3,7 +3,7 @@ category: ORGANIZATIONS
 organization: organization-alpha
 environment: production
 host: organization-alpha-prod-01
-unix_user: z-organization-alpha-prod
-hermes_home: /srv/station/2_ZONES/4_ORGANIZATIONS/organization-alpha/prod/runtime/hermes
+unix_user: z-o-organization-alpha-prod
+hermes_home: /var/lib/station/zones/organization-alpha-prod/hermes
 projects:
   - platform

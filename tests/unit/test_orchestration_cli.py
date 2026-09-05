@@ -24,7 +24,8 @@ def test_setup_cli_passes_explicit_scope_without_executing_next_actions(monkeypa
     monkeypatch.setattr(cli.subprocess, "run", lambda *a, **k: pytest.fail("Setup executed a next action"))
     assert cli.main(["setup", "--zone", "example-dev", "--project", "platform", "--os", "devops-os", "--json"]) == 0
     assert json.loads(capsys.readouterr().out) == report
-    assert calls == [{"zone_id": "example-dev", "project_id": "platform", "os_id": "devops-os", "probe": False}]
+    assert calls == [{"zone_id": "example-dev", "project_id": "platform", "os_id": "devops-os", "probe": False,
+                      "organization_id": None, "instance_id": None}]
 
 
 def test_provider_setup_cli_selects_os_director_and_preserves_plan(monkeypatch):

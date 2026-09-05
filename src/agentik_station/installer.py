@@ -150,6 +150,7 @@ class StationInstaller:
         self._enabled_doctor_timer = False
 
     def print_plan(self, *, as_json: bool = False) -> None:
+        self._preflight_zone_identities()
         payload = {
             "kind": "AgentikStationInstallPlan",
             "version": self.spec.release_version,
@@ -178,11 +179,15 @@ class StationInstaller:
             )
         require_root(self.paths, self.dry_run)
         validate_supported_host(self.paths)
+        self._preflight_zone_identities()
         if self.dry_run:
             self.print_plan()
             return "PLAN_READY"
 
         with install_lock(self.paths, self.spec.operation_id):
+            # Recheck while serialized, before receipts, apt, ownership changes,
+            # or the rollback handler (which itself can write failure evidence).
+            self._preflight_zone_identities()
             # Establish receipt storage before the rest of reconciliation.
             self.fs.mkdir(self.paths.varlib, 0o711)
             self.fs.mkdir(self.paths.receipts, 0o750)
@@ -476,6 +481,108 @@ class StationInstaller:
             0o640,
             owner,
         )
+
+    def _preflight_zone_identities(self) -> None:
+        """Never convert an existing client's paths/account into another scope.
+
+        This only reads trusted records and account metadata. A missing record
+        is not consent to adopt surviving runtime files or a Unix identity.
+        """
+        from .doctor import _validate_local_zone_record, _validate_remote_zone_record
+        from .organizations import _read_json
+        from .os_lifecycle import _directory
+
+        def occupied(path: Path) -> bool:
+            SafeFS._assert_existing_absolute_chain(path.parent)
+            try:
+                os.lstat(path)
+                return True
+            except FileNotFoundError:
+                return False
+
+        host_path = self.paths.config / "station.json"
+        if occupied(host_path):
+            host = _read_json(self.paths, host_path)
+            if (type(host.get("schema_version")) is not int or host["schema_version"] != 1
+                    or host.get("host_id") != self.spec.host_id):
+                raise ReconcileError("Existing Host identity differs; explicit migration is required")
+
+        root = self.paths.config / "zones.d"
+        try:
+            with _directory(root, uid=os.getuid() if self.paths.test_mode else 0,
+                            trusted_root=self.paths.config if self.paths.test_mode else None) as fd:
+                names = os.listdir(fd)
+                if len(names) > 2000:
+                    raise ValidationError("Zone registry exceeds its entry limit")
+                for name in names:
+                    if not name.endswith(".json") or not stat.S_ISREG(os.stat(name, dir_fd=fd, follow_symlinks=False).st_mode):
+                        raise SecurityError("Unexpected entry in the trusted Zone registry")
+        except FileNotFoundError:
+            names = []
+        except OSError as exc:
+            raise SecurityError("Cannot safely inspect the trusted Zone registry") from exc
+
+        existing: dict[str, ZoneSpec] = {}
+        identities: dict[str, ZoneSpec] = {}
+        for name in sorted(names):
+            record_path = root / name
+            value = _read_json(self.paths, record_path)
+            try:
+                if value.get("placement") == "REMOTE_DESIRED_NOT_APPLIED":
+                    _validate_remote_zone_record(value, record_path=record_path)
+                    continue
+                zone, _, _, user = _validate_local_zone_record(
+                    value, record_path=record_path, paths=self.paths, expected_host_id=self.spec.host_id)
+            except (ValueError, TypeError, KeyError) as exc:
+                raise ValidationError("Existing Zone record is unsafe or belongs to another Host") from exc
+            if user in identities and identities[user] != zone:
+                raise ReconcileError("Existing Zones alias one Unix identity; explicit repair is required")
+            existing[zone.zone_id], identities[user] = zone, zone
+
+        for zone in self._compiled_zones:
+            user = zone_unix_user(zone.category, zone.name, zone.environment)
+            prior = existing.get(zone.zone_id)
+            if prior is not None and prior != zone:
+                raise ReconcileError("Existing Zone identity conflicts with requested category/client/environment/Host")
+            if user in identities and identities[user] != zone:
+                raise ReconcileError("Requested Zones alias one Unix identity; explicit isolation is required")
+            identities[user] = zone
+            if prior is None:
+                for path in (self._zone_human_path(zone), self.paths.zones_state / zone.zone_id,
+                             self.paths.log / "zones" / zone.zone_id,
+                             self.paths.run / "zones" / zone.zone_id,
+                             self.paths.backups / "zones" / zone.zone_id,
+                             self.paths.varlib / "zone-bindings" / f"{zone.zone_id}.json"):
+                    if occupied(path):
+                        raise ReconcileError("Zone state exists without its trusted identity record; explicit repair is required")
+        if not self.paths.test_mode:
+            self._audit_zone_accounts(identities, existing)
+
+    def _audit_zone_accounts(self, identities: dict[str, ZoneSpec], existing: dict[str, ZoneSpec]) -> None:
+        """Read existing accounts; never reassign names, homes, UIDs or groups."""
+        seen_uids: dict[int, str] = {}
+        seen_gids: dict[int, str] = {}
+        for user, zone in identities.items():
+            try:
+                entry = pwd.getpwnam(user)
+            except KeyError:
+                entry = None
+            try:
+                group = grp.getgrnam(user)
+            except KeyError:
+                group = None
+            if zone.zone_id not in existing:
+                if entry is not None or group is not None:
+                    raise ReconcileError("Unix Zone account exists without its trusted identity record; explicit repair is required")
+                continue
+            if (entry is None or group is None or entry.pw_uid == 0 or entry.pw_gid == 0
+                    or entry.pw_gid != group.gr_gid
+                    or Path(entry.pw_dir) != self.paths.zones_state / zone.zone_id / "home"
+                    or entry.pw_shell not in {"/usr/sbin/nologin", "/sbin/nologin", "/bin/false"}):
+                raise ReconcileError("Existing Zone Unix identity differs from its trusted home/group contract")
+            if entry.pw_uid in seen_uids or entry.pw_gid in seen_gids:
+                raise ReconcileError("Different Zones share a Unix UID or group; explicit repair is required")
+            seen_uids[entry.pw_uid], seen_gids[entry.pw_gid] = user, user
 
     def _zone_human_path(self, zone: ZoneSpec) -> Path:
         base = self.paths.runtime / "2_ZONES" / CATEGORIES[zone.category]

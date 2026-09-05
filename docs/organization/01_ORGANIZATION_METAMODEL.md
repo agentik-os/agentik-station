@@ -19,6 +19,13 @@ The execution system is universal.
 
 The business hierarchy is not.
 
+An OS in this hierarchy is a complete governed domain capability, not merely a
+bot team. Its reusable definition and the client's configured instance are
+different objects. Environment Zones contain client-owned **OS instances and
+Projects as siblings**; Projects are bounded work, not the container of the
+Organization. See [OS instances](05_OS_INSTANCES.md) for the executable ownership
+and runtime mapping, including routing scope versus Unix isolation.
+
 Agentik should be capable of modeling:
 - a single person
 - a startup

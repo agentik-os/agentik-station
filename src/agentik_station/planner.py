@@ -88,11 +88,13 @@ def build_plan(spec: InstallSpec, config: StationConfig) -> list[PlanStep]:
             )
         )
     if spec.seed and spec.seed.project:
+        seed_zone = ZoneSpec(spec.seed.category, spec.seed.name, spec.seed.environment,
+                             spec.host_id, spec.seed.organization)
         steps.append(
             PlanStep(
                 f"project-{spec.seed.project}",
                 "Reconcile the Project inside the seeded Zone with correct Zone ownership.",
-                {"project_id": spec.seed.project, "zone_id": zones[-1].zone_id},
+                {"project_id": spec.seed.project, "zone_id": seed_zone.zone_id},
             )
         )
     steps.extend(

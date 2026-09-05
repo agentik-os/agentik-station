@@ -97,8 +97,37 @@ def test_readme_preserves_system_explanation_and_readiness_boundaries() -> None:
         "readiness-without-the-fine-print",
     } <= _anchors(text)
     assert "./bootstrap.sh --mode full --with-ai-stack --plan" in text
-    assert "Current activation limits" in text
-    assert "Zone-scoped profile names" in text
-    assert "trusted installation record" in text
-    assert "One OS per Zone, bound to one Project" in text
+    assert "Activation boundary" in text
+    assert "role_profile_map" in text
+    assert "--instance" in text
+    assert "OS instances and Projects are siblings" in text
+    assert "same-UID sandbox" in text
+    assert "Legacy schema-2 Project-bound runtimes" in text
+    assert "gateway processes retain the Zone `HOME`" in text
+    assert "station client --legacy" in text
     assert "Project repository" in text
+
+
+def test_readme_maps_preserve_instance_ownership_and_acceptance_boundaries() -> None:
+    def visible_text(name: str) -> str:
+        root = ET.fromstring((ROOT / f"docs/assets/readme/{name}.svg").read_text())
+        return " ".join(
+            "".join(element.itertext())
+            for element in root.iter()
+            if element.tag.rsplit("}", 1)[-1] == "text"
+        )
+
+    system = visible_text("station-system-map")
+    assert "OS instance" in system and "Sibling Projects" in system
+    assert "OS = Nano Director" not in system
+    os_map = visible_text("station-os-map")
+    assert "os-instance-distributions" in os_map
+    assert "<zone>/<instance>/<os>/<version>" in os_map
+    assert "OS-owned domain workspace" in os_map
+    assert "Domain capabilities need acceptance" in os_map
+    assert "Owned Project" not in os_map
+    filesystem = visible_text("station-filesystem-map")
+    assert "os/instances/<instance>/workspace/" in filesystem
+    assert "os-instances/<instance>/hermes/" in filesystem
+    assert "home/ (shared in Zone)" in filesystem
+    assert "Per-instance acceptance" in visible_text("station-chat-map")

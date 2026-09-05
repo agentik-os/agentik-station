@@ -70,6 +70,7 @@ def build_gateway_argv(
     hermes_binary: Path,
     runuser_binary: Path = Path("/usr/sbin/runuser"),
     director_profile: str | None = None,
+    instance_id: str | None = None,
 ) -> list[str]:
     """Build a native command; callers must resolve Directors from the OS ledger.
 
@@ -82,8 +83,13 @@ def build_gateway_argv(
     state_root = Path(str(zone.get("state_root", "")))
     hermes_home = Path(str(zone.get("hermes_home", "")))
     expected_home = state_root / "hermes"
-    if not state_root.is_absolute() or hermes_home != expected_home:
+    if not state_root.is_absolute() or ".." in state_root.parts or hermes_home != expected_home:
         raise ValidationError("Zone Hermes home must be the dedicated <state_root>/hermes directory")
+    if instance_id is not None:
+        instance_id = validate_identifier(instance_id, "OS instance id")
+        if director_profile in (None, "default"):
+            raise ValidationError("An OS instance requires its explicit native Director profile")
+        hermes_home = state_root / "os-instances" / instance_id / "hermes"
     if not hermes_binary.is_absolute() or not runuser_binary.is_absolute():
         raise ValidationError("Hermes and runuser binaries must use absolute paths")
     if runtime_uid < 0:

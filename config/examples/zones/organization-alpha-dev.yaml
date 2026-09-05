@@ -3,7 +3,7 @@ category: ORGANIZATIONS
 organization: organization-alpha
 environment: development
 host: station-core-01
-unix_user: z-organization-alpha-dev
-hermes_home: /srv/station/2_ZONES/4_ORGANIZATIONS/organization-alpha/dev/runtime/hermes
+unix_user: z-o-organization-alpha-dev
+hermes_home: /var/lib/station/zones/organization-alpha-dev/hermes
 projects:
   - platform

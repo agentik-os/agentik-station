@@ -244,8 +244,21 @@ def cmd_setup(args: argparse.Namespace) -> int:
     report = build_onboarding_report(
         LayoutPaths.live(), repository_root(),
         zone_id=args.zone, project_id=args.project, os_id=args.os, probe=args.probe,
+        organization_id=args.organization, instance_id=args.instance,
     )
     print(json.dumps(report, indent=2, sort_keys=True) if args.json else render_onboarding_report(report))
+    return 0
+
+
+def cmd_organization(args: argparse.Namespace) -> int:
+    from .organizations import load_organization, register_organization
+
+    paths = LayoutPaths.live()
+    if args.organization_command == "register":
+        result = register_organization(paths, organization_id=args.id, zone_ids=args.zone, plan=args.plan)
+    else:
+        result = load_organization(paths, organization_id=args.id)
+    print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
 
@@ -315,10 +328,7 @@ def cmd_zone_create(args: argparse.Namespace) -> int:
     host_id, role = _load_installed_host()
     target_host = validate_identifier(args.host or host_id, "host_id")
     if target_host != host_id:
-        if os.geteuid() != 0:
-            raise StationError("Registering remote desired state requires root")
         paths = LayoutPaths.live()
-        fs = SafeFS(paths.allowed_roots)
         from .models import SeedSpec
 
         seed = SeedSpec(args.category, args.name, args.env, args.organization, args.project)
@@ -334,6 +344,13 @@ def cmd_zone_create(args: argparse.Namespace) -> int:
             "runtime_state": "NOT_INSTALLED",
             "next_repair_action": "Bootstrap/reconcile the target Host with this desired Zone spec.",
         }
+        if args.plan:
+            print(json.dumps({"kind": "RemoteZoneRegistrationPlan", "desired": payload,
+                              "mutates": False, "operational": False}, indent=2, sort_keys=True))
+            return 0
+        if os.geteuid() != 0:
+            raise StationError("Registering remote desired state requires root")
+        fs = SafeFS(paths.allowed_roots)
         fs.write_text(
             paths.config / "zones.d" / f"remote-{target_host}-{zone_id}.json",
             json.dumps(payload, indent=2, sort_keys=True) + "\n",
@@ -545,7 +562,13 @@ def _agk_launcher() -> Path:
 
 
 def cmd_client(args: argparse.Namespace) -> int:
-    """Expose the AGK client organization controller through the Station CLI."""
+    """Explicit compatibility entrypoint, not Station Organization enrollment."""
+    if not args.legacy:
+        raise ValidationError(
+            "The legacy AGK client controller uses operator-home workspaces/profiles, not Station Zones. "
+            "Use station organization register and station os instance for new clients. "
+            "Only for an inspected existing legacy deployment, opt in with station client --legacy <arguments>."
+        )
     target = _agk_launcher()
     forwarded = list(args.client_args or [])
     if forwarded and forwarded[0] == "--":
@@ -744,13 +767,30 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
     zone = _load_zone_record(args.zone)
     requested_platform = normalize_platform(getattr(args, "platform", None))
     runtime = None
-    if getattr(args, "os", None):
+    instance_id = getattr(args, "instance", None)
+    role = getattr(args, "role", None)
+    if role and not instance_id:
+        raise ValidationError("An explicit team --role requires --instance")
+    if instance_id and getattr(args, "os", None):
+        raise ValidationError("Select either --instance or legacy --os, never both")
+    if instance_id:
+        from .os_instances import load_os_instance_record
+        runtime = load_os_instance_record(
+            LayoutPaths.live(), zone=zone, instance_id=instance_id, require_configured=True,
+        )
+    elif getattr(args, "os", None):
         from .os_lifecycle import load_os_runtime_record
         runtime = load_os_runtime_record(
             LayoutPaths.live(), zone=zone, os_id=args.os, require_configured=True,
         )
-        if runtime["state"] == "DEGRADED" and args.platform_command in {"install", "start", "restart"}:
-            raise ValidationError("Repair the selected Director and rerun station os verify before starting its gateway")
+    if runtime and runtime["state"] == "DEGRADED" and args.platform_command in {"install", "start", "restart"}:
+        raise ValidationError("Repair the selected Director and rerun OS verification before starting its gateway")
+    profile = runtime["nano_director"] if runtime else "default"
+    if role:
+        role = validate_identifier(role, "OS team role")
+        profile = runtime["role_profile_map"].get(role)
+        if profile is None:
+            raise ValidationError("Requested role is not in this instance's trusted Hermes team")
     hermes = next(
         (path for path in (Path("/usr/local/bin/hermes"), Path(shutil.which("hermes") or "")) if path.is_absolute() and path.is_file()),
         None,
@@ -777,14 +817,19 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         runtime_uid=zone_user.pw_uid,
         hermes_binary=hermes,
         runuser_binary=runuser,
-        director_profile=runtime["nano_director"] if runtime else None,
+        director_profile=profile,
+        instance_id=instance_id,
     )
     payload = {
         "schema_version": 1,
         "zone_id": args.zone,
         "os_id": runtime["os_id"] if runtime else None,
-        "project_id": runtime["project_id"] if runtime else None,
-        "profile": runtime["nano_director"] if runtime else "default",
+        "project_id": runtime.get("project_id") if runtime else None,
+        "instance_id": instance_id,
+        "organization_id": runtime.get("organization_id") if runtime else None,
+        "allowed_project_ids": runtime.get("allowed_project_ids", []) if runtime else [],
+        "profile": profile,
+        "role": role,
         "bundle_sha256": runtime["bundle_sha256"] if runtime else None,
         "platform": requested_platform,
         "platform_selection": "operator-intent-only; actions target the selected profile's whole gateway",
@@ -990,6 +1035,40 @@ def cmd_os_setup(args: argparse.Namespace) -> int:
     return cmd_platform_gateway(args)
 
 
+def cmd_os_instance(args: argparse.Namespace) -> int:
+    """Resolve an instance explicitly; a reusable package is never a tenant."""
+    if args.instance_command == "setup":
+        args.os = None
+        args.platform_command = "configure"
+        return cmd_platform_gateway(args)
+    from .os_instances import install_os_instance, load_os_instance_record, verify_os_instance
+
+    paths, zone = LayoutPaths.live(), _load_zone_record(args.zone)
+    if args.instance_command == "show":
+        record = load_os_instance_record(paths, zone=zone, instance_id=args.instance, require_configured=False)
+    else:
+        if os.geteuid() != 0:
+            raise StationError("OS instance installation/verification requires the Station root authority")
+        hermes, runuser = shutil.which("hermes"), shutil.which("runuser")
+        if not hermes or not runuser:
+            raise StationError("Hermes and runuser must be available before OS instance execution")
+        if args.instance_command == "install":
+            item, source = _os_catalog_entry(args.id)
+            record = install_os_instance(
+                source, paths=paths, zone=zone, instance_id=args.instance,
+                organization_id=args.organization, allowed_project_ids=args.allow_project,
+                os_id=item["id"], os_version=item["version"],
+                hermes_binary=hermes, runuser_binary=runuser,
+            )
+        else:
+            record = verify_os_instance(paths, zone=zone, instance_id=args.instance,
+                                        hermes_binary=hermes, runuser_binary=runuser)
+    print(json.dumps(record, indent=2, sort_keys=True))
+    if args.instance_command == "show":
+        return 0
+    return 0 if record["state"] in ({"VERIFIED"} if args.instance_command == "verify" else {"CONFIGURED", "VERIFIED"}) else 1
+
+
 def cmd_strix(args: argparse.Namespace) -> int:
     try:
         return _cmd_strix(args)
@@ -1167,10 +1246,24 @@ def build_parser() -> argparse.ArgumentParser:
     setup = sub.add_parser("setup")
     setup.add_argument("--zone", help="Inspect a specific owning Zone")
     setup.add_argument("--project", help="Project inside the selected Zone")
-    setup.add_argument("--os", help="OS whose Director and setup gates to inspect")
+    setup.add_argument("--organization", help="Owning Organization registry identity")
+    setup_selector = setup.add_mutually_exclusive_group()
+    setup_selector.add_argument("--os", help="Legacy Project-bound OS package selector")
+    setup_selector.add_argument("--instance", help="Client/Zone-owned OS instance whose Director to inspect")
     setup.add_argument("--json", action="store_true", help="Machine-readable observations and next actions")
     setup.add_argument("--probe", action="store_true", help="Explicit bounded read-only local service observation")
     setup.set_defaults(handler=cmd_setup)
+
+    organization = sub.add_parser("organization", help="Register an Organization over its existing environment Zones")
+    organization_sub = organization.add_subparsers(dest="organization_command", required=True)
+    organization_register = organization_sub.add_parser("register")
+    organization_register.add_argument("--id", required=True)
+    organization_register.add_argument("--zone", action="append", required=True, help="Repeat for each existing local environment Zone")
+    organization_register.add_argument("--plan", action="store_true")
+    organization_register.set_defaults(handler=cmd_organization)
+    organization_show = organization_sub.add_parser("show")
+    organization_show.add_argument("--id", required=True)
+    organization_show.set_defaults(handler=cmd_organization)
 
     project = sub.add_parser("project", help="Create a new owned Project without re-running Host installation")
     project_sub = project.add_subparsers(dest="project_command", required=True)
@@ -1367,6 +1460,21 @@ def build_parser() -> argparse.ArgumentParser:
     os_verify.add_argument("--zone", required=True)
     os_verify.set_defaults(handler=cmd_os_verify)
 
+    os_instance = os_sub.add_parser("instance", help="First-class Zone-owned OS teams; no mandatory owning Project")
+    instance_sub = os_instance.add_subparsers(dest="instance_command", required=True)
+    for action in ("install", "setup", "verify", "show"):
+        command = instance_sub.add_parser(action)
+        command.add_argument("--zone", required=True)
+        command.add_argument("--instance", required=True)
+        if action == "install":
+            command.add_argument("--id", required=True, help="Reusable OS package id")
+            command.add_argument("--organization", help="Required for an ORGANIZATIONS Zone")
+            command.add_argument("--allow-project", action="append", default=[], help="Explicit Project scope; repeat to authorize multiple existing Projects")
+        if action == "setup":
+            command.add_argument("--plan", action="store_true")
+            command.add_argument("--role", help="Configure this canonical team role; default is the Director")
+        command.set_defaults(handler=cmd_os_instance)
+
     rootless = sub.add_parser("rootless")
     rootless_sub = rootless.add_subparsers(dest="rootless_command", required=True)
     rootless_status = rootless_sub.add_parser("status")
@@ -1409,7 +1517,8 @@ def build_parser() -> argparse.ArgumentParser:
     tui.add_argument("tui_args", nargs=argparse.REMAINDER, help="Optional args forwarded to agk")
     tui.set_defaults(handler=cmd_tui)
 
-    client = sub.add_parser("client", help="Manage isolated client organizations through the AGK controller")
+    client = sub.add_parser("client", help="Legacy AGK controller compatibility; new clients use organization/OS instances")
+    client.add_argument("--legacy", action="store_true", help="Explicitly use the older operator-home client workspace/profile model")
     client.add_argument("client_args", nargs=argparse.REMAINDER, help="Arguments forwarded to `agk client`")
     client.set_defaults(handler=cmd_client)
 
@@ -1446,7 +1555,10 @@ def build_parser() -> argparse.ArgumentParser:
         command = platform_sub.add_parser(action)
         command.add_argument("--zone", required=True)
         command.add_argument("--platform", help="Platform intent/name; native actions affect the selected profile's whole gateway")
-        command.add_argument("--os", help="Use this installed OS Director instead of the Zone's default profile")
+        selector = command.add_mutually_exclusive_group()
+        selector.add_argument("--os", help="Legacy installed OS Director instead of the Zone's default profile")
+        selector.add_argument("--instance", help="Installed OS instance Director; never inferred from a package name")
+        command.add_argument("--role", help="Explicit instance team role; requires --instance and a justified external bot topology")
         command.add_argument("--plan", action="store_true")
         command.set_defaults(handler=cmd_platform_gateway)
 

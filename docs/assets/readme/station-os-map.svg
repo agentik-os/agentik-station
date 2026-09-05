@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1140" viewBox="0 0 800 1140" role="img" aria-labelledby="title description">
-  <title id="title">An OS becomes a Hermes team</title>
-  <desc id="description">Canonical OS source under os/ is compiled into Hermes distributions and installed inside an independent Zone. The Nano Director coordinates specialist profiles using the OS Skills, tools, approved knowledge, evals and recovery contract. Work belongs to the assigned Project. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <title id="title">From OS definition to instance</title>
+  <desc id="description">Canonical OS source under os/ compiles into a client-owned instance inside an independent Zone. Its Nano Director and full specialist team receive instance-specific native profiles. The OS owns its domain workspace and may serve declared sibling Projects; a Project is not required. The full operating contract includes schemas, views, Skills, capabilities, workflows, evals and recovery. Installing profiles does not implement or accept every domain capability. Instances share their Zone UID and Unix HOME but have distinct Hermes homes. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
   <defs>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
@@ -17,22 +17,22 @@
   <rect x=".75" y=".75" width="798.5" height="1138.5" fill="none" stroke="#2c3943" stroke-width="1.5"/>
   <path d="M32 40h18m-9-9v18M750 40h18m-9-9v18" stroke="#748594"/>
   <text x="65" y="47" class="mono lime" font-size="19" letter-spacing="2">AGENTIK / STATION</text>
-  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">An OS becomes a Hermes team</text>
-  <text x="32" y="144" class="muted" font-size="22">Canonical source → distribution → isolated execution.</text>
+  <text x="32" y="105" font-size="39" font-weight="700" letter-spacing="-.8">From OS definition to instance</text>
+  <text x="32" y="144" class="muted" font-size="22">A runtime envelope. Domain capabilities need acceptance.</text>
   <rect class="card" x="64" y="180" width="672" height="90" rx="12"/>
   <text x="88" y="219" font-size="29" class="lime" font-weight="700">Canonical os/</text>
-  <text x="88" y="254" font-size="23" class="muted">Contract · team · Skills · evals · recovery</text>
+  <text x="88" y="254" font-size="23" class="muted">Domain contract · state · views · team · workflows</text>
   <path class="route" d="M400 270V302"/>
   <rect class="card" x="64" y="302" width="672" height="116" rx="12"/>
   <text x="88" y="341" font-size="29" font-weight="700">Compiled Hermes distributions</text>
-  <text x="88" y="374" font-size="22" class="mono muted">/opt/station/os-distributions/</text>
-  <text x="88" y="404" font-size="22" class="mono muted">&lt;zone&gt;/&lt;project&gt;/&lt;os&gt;/&lt;version&gt;</text>
+  <text x="88" y="374" font-size="22" class="mono muted">/opt/station/os-instance-distributions/</text>
+  <text x="88" y="404" font-size="22" class="mono muted">&lt;zone&gt;/&lt;instance&gt;/&lt;os&gt;/&lt;version&gt;</text>
   <path class="route" d="M400 418V449"/>
   <rect x="32" y="449" width="736" height="633" rx="14" fill="none" stroke="#c5f277" stroke-width="1.5"/>
-  <text x="56" y="488" font-size="23" class="lime" font-weight="700">ZONE / ITS UNIX USER + HERMES_HOME</text>
+  <text x="56" y="488" font-size="23" class="lime" font-weight="700">INSTANCE / RUNS INSIDE ITS ZONE</text>
   <rect class="card" x="194" y="524" width="412" height="94" rx="12"/>
   <text x="224" y="565" font-size="31" font-weight="700">Nano Director</text>
-  <text x="224" y="599" font-size="23" class="muted">Owns the OS mission</text>
+  <text x="224" y="599" font-size="23" class="muted">Mapped instance profile</text>
   <path class="route" d="M400 618V641H168V662"/>
   <path class="route" d="M400 641V662"/>
   <path class="route" d="M400 641H632V662"/>
@@ -46,13 +46,13 @@
   <text x="546" y="703" font-size="25" font-weight="700">Specialist C</text>
   <text x="546" y="737" font-size="22" class="muted">Hermes profile</text>
   <rect class="card" x="64" y="787" width="672" height="117" rx="12"/>
-  <text x="88" y="825" font-size="27" font-weight="700">The team's operating contract</text>
+  <text x="88" y="825" font-size="27" font-weight="700">The OS operating contract</text>
   <text x="88" y="857" font-size="23" class="muted">Skills · tools · approved knowledge</text>
-  <text x="88" y="888" font-size="23" class="muted">Evals · recovery · scoped provider routes</text>
+  <text x="88" y="888" font-size="23" class="muted">Capabilities · workflows · evals · recovery</text>
   <path class="route" d="M400 904V974"/>
   <rect class="card" x="64" y="974" width="672" height="98" rx="12"/>
-  <text x="88" y="1014" font-size="30" font-weight="700">Owned Project</text>
-  <text x="88" y="1051" font-size="23" class="muted">Repos · workspaces · artifacts · evidence</text>
+  <text x="88" y="1014" font-size="30" font-weight="700">OS-owned domain workspace</text>
+  <text x="88" y="1051" font-size="23" class="muted">Optional Project scope · shared Zone UID</text>
   <g class="motion"><circle r="4" fill="#c5f277" opacity="0"><animate attributeName="opacity" values="0;1;1;0" dur="4s" repeatCount="1" fill="freeze"/><animateMotion dur="4s" repeatCount="1" path="M400 270V302"/></circle></g>
   <path d="M32 1086H768" stroke="#34434d"/>
   <text x="32" y="1115" class="mono muted" font-size="17" letter-spacing=".5">ARCHITECTURE ILLUSTRATION · NOT LIVE STATUS</text>

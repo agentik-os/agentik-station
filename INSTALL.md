@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.13
+## Supported base for Station 11.14
 
 The current safe-kernel provider supports:
 
@@ -115,6 +115,22 @@ sudo ./install \
 
 This Host receives System Zones plus `organization-alpha/prod`. It does not receive Operator Private, Agentik Development, Factory, LAB, or unrelated organization Projects.
 
+`--seed-project` is optional. The Organization owns the environment Zone, OS
+instances and Projects; it is not itself a Project. After the foundation passes,
+register the existing matching Zone and install a client-owned instance:
+
+```bash
+sudo station organization register --id organization-alpha --zone organization-alpha-prod --plan
+sudo station organization register --id organization-alpha --zone organization-alpha-prod
+sudo station os instance install --organization organization-alpha --zone organization-alpha-prod \
+  --instance engineering --id devops-os
+```
+
+This is an installation example, not permission to run production missions.
+Registration cannot relabel or create a Zone. Instance installation does not
+require a Project; `--allow-project platform` declares an existing Project as
+intended work scope, not a Unix ACL. Follow [SETUP.md](SETUP.md) before activation.
+
 ## Personal project Host
 
 ```bash
@@ -135,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.13",
+  "release_version": "11.14",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -286,7 +302,7 @@ shadcn CLI
 
 Bootstrap also installs at least the reviewed Tailscale stable version from its signed Ubuntu/Debian repository after verifying the archive-key checksum. It starts `tailscaled` but never invents a tailnet identity or authentication; the human owner completes `sudo tailscale up`, checks the device in the admin console, and then enables Station's private Serve path.
 
-Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there: each Zone uses its own `/var/lib/station/zones/<zone-id>/hermes`.
+Hermes code lives at `/opt/station/tools/hermes/current` with a shared `/usr/local/bin/hermes` launcher. Runtime state never lives there. Zone-base state remains at `/var/lib/station/zones/<zone-id>/hermes`; named instances use `/var/lib/station/zones/<zone-id>/os-instances/<instance>/hermes` under that Zone's UID.
 
 Once the Host is enrolled in Tailscale, enable the private guided-setup path:
 
@@ -341,9 +357,9 @@ sudo ./scripts/station_deps_install.sh --all   # optional; installs/stages, then
 Multi-platform bots are executed under the owning Zone identity:
 
 ```bash
-sudo station platform setup --zone organization-alpha-dev --platform slack
-sudo station platform install --zone organization-alpha-dev
-sudo station platform status --zone organization-alpha-dev
+sudo station platform setup --zone organization-alpha-dev --instance engineering --platform slack
+sudo station platform install --zone organization-alpha-dev --instance engineering
+sudo station platform status --zone organization-alpha-dev --instance engineering
 ```
 
 See [`docs/dependencies/HERMES_PLATFORMS.md`](docs/dependencies/HERMES_PLATFORMS.md).
@@ -364,18 +380,25 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.13 publishes beside 11.12; it never overwrites the old immutable release.
-Its OS lifecycle uses a new root-owned ledger and does not automatically adopt
-legacy Zone-owned receipts or untracked native profiles. Back up and inspect an
-existing installation before supervised migration.
+Station 11.14 publishes beside earlier releases; it never overwrites an old
+immutable release. New schema-3 instance ledgers live under
+`/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
+live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.
+The full `role_profile_map` names every native Director/specialist by Zone,
+instance and role. Client runtime never enters reusable `os/` package source.
 
-For installations tracked by the new ledger, `station os install` can retry the
+Instance commands do not automatically adopt or migrate legacy schema-2
+Project-bound ledgers, Zone-owned receipts or untracked native profiles. Back up
+and inspect the existing installation before designing migration. See
+[the instance contract](docs/organization/05_OS_INSTANCES.md).
+
+For **legacy schema-2 installations** tracked by their ledger, `station os install` can retry the
 **same OS, version, Zone, Project and compiled bytes**: complete profiles are read
 back and preserved; missing profiles are installed and checkpointed. An occupied
 untracked name, partial profile, tombstone, changed bundle or different owning
 Project is a repair/migration boundary. Native `--force` is never used.
 
-`sudo station os verify --zone <zone-id> --id <os-id>` checks the entire expected
+Legacy `sudo station os verify --zone <zone-id> --id <os-id>` checks the entire expected
 team and persists local Doctor evidence. Provider configuration changes make prior
 verification stale; rerun verification after setup. A failed Doctor can be repaired
 through `station os setup` and verified again without reinstalling the team.

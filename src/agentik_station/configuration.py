@@ -162,8 +162,26 @@ def load_station_config(repo_root: Path) -> StationConfig:
 
 
 def compile_zones(spec: InstallSpec, config: StationConfig) -> tuple[list[ZoneSpec], dict[str, tuple[str, ...]]]:
-    zones: list[ZoneSpec] = []
+    zones: dict[str, ZoneSpec] = {}
     desired_os: dict[str, tuple[str, ...]] = {}
+
+    def add_zone(zone: ZoneSpec, requested_os: tuple[str, ...] | None) -> None:
+        previous = zones.get(zone.zone_id)
+        if previous is not None:
+            # The ID omits category (and some environments), while runtime,
+            # credential and evidence namespaces are keyed by this ID alone.
+            # Never let first-Zone/last-OS ordering merge different principals.
+            if previous != zone:
+                raise ValidationError(
+                    f"Conflicting Zone definitions share id {zone.zone_id!r}; "
+                    "category, name, environment, organization and Host must all agree"
+                )
+            if requested_os is not None and set(desired_os[zone.zone_id]) != set(requested_os):
+                raise ValidationError(f"Conflicting requested OS packages for Zone {zone.zone_id!r}")
+            return
+        zones[zone.zone_id] = zone
+        desired_os[zone.zone_id] = requested_os if requested_os is not None else ()
+
     for template in config.templates_for(spec.role):
         zone = ZoneSpec(
             category=template.category,
@@ -172,8 +190,7 @@ def compile_zones(spec: InstallSpec, config: StationConfig) -> tuple[list[ZoneSp
             host_id=spec.host_id,
             organization=template.organization,
         )
-        zones.append(zone)
-        desired_os[zone.zone_id] = template.requested_os
+        add_zone(zone, template.requested_os)
     if spec.seed:
         zone = ZoneSpec(
             category=spec.seed.category,
@@ -182,14 +199,8 @@ def compile_zones(spec: InstallSpec, config: StationConfig) -> tuple[list[ZoneSp
             host_id=spec.host_id,
             organization=spec.seed.organization,
         )
-        zones.append(zone)
-        desired_os.setdefault(zone.zone_id, ())
+        # SeedSpec selects an identity/Project, not an OS declaration. An
+        # identical existing Zone therefore retains its declared OS selection.
+        add_zone(zone, None)
 
-    ordered: list[ZoneSpec] = []
-    seen: set[str] = set()
-    for zone in zones:
-        if zone.zone_id in seen:
-            continue
-        seen.add(zone.zone_id)
-        ordered.append(zone)
-    return ordered, desired_os
+    return list(zones.values()), desired_os

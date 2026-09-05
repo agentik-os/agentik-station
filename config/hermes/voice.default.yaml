@@ -1,5 +1,6 @@
-# Seeded only when a Zone has no Hermes config yet. Credentials stay in the
-# Zone's mode-0600 hermes/.env or Hermes credential pool, never in this file.
+# Seeded for new Zone config and compiled into new OS instance profiles.
+# Nonsecret defaults only: credentials belong to the selected instance/profile's
+# private Hermes credential store, never in this file or another client's scope.
 voice:
   max_recording_seconds: 120
   auto_tts: true

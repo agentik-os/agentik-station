@@ -4,11 +4,15 @@ These rules apply to Hermes profiles, LLM providers, coding CLIs, subagents, aut
 
 ## Resolve scope before action
 
-1. Identify the Host, Zone, Project, environment, repository, worktree, principal and requested capability.
-2. Stop if the owning Zone or Project cannot be resolved without guessing.
+1. Identify the Organization when applicable, Host, Zone, OS instance, environment, principal and requested capability; identify the Project/repository/worktree when the mission acts on Project assets.
+2. Stop if the owning Zone, OS instance or required Project cannot be resolved without guessing. An OS domain mission may use its declared instance workspace without inventing a Project.
 3. Treat the Zone as the hard identity, credential, memory, log and runtime boundary.
 4. Treat the Project as the owner of repositories, documentation, knowledge, resources, integrations, credentials, workspaces, worktrees, artifacts and evidence.
 5. Development receives no production credential or production write authority by default.
+6. A client owns its environment Zones, OS instances and Projects. OS instances and Projects are siblings; reusable OS packages contain no client runtime state or secrets.
+7. An instance's allowed-Project list constrains routing and policy intent, not Unix access inside its Zone. Use separate Zones for hard client/environment isolation.
+8. Instance gateways retain the canonical Zone `HOME`; other CLI logins and caches can be shared within that Zone. Dedicated `HERMES_HOME` roots do not imply per-instance CLI/account isolation. Never copy authentication automatically.
+9. `station client --legacy …` explicitly selects the shared-operator compatibility workflow, not canonical client Zone registration or instance enrollment. Do not relabel or automatically migrate its existing data.
 
 ## Respect the Station filesystem
 
@@ -22,6 +26,7 @@ These rules apply to Hermes profiles, LLM providers, coding CLIs, subagents, aut
 - Repositories belong under the owning Project `repos/` directory.
 - Parallel coding belongs in the owning Project `worktrees/` or an explicitly declared workspace.
 - Project-selected reusable inputs belong in the owning Project `resources/` directory and reference the canonical Station resource catalog.
+- OS-owned domain work belongs in `<zone>/os/instances/<instance>/workspace`; its Hermes runtime belongs in `<zone-state>/os-instances/<instance>/hermes`. Project code remains in the selected Project repository/worktree.
 - Never place Project work in `/root`, `/tmp`, `/var/www`, an arbitrary home directory or an undeclared container volume.
 - Never create a second editable copy of a canonical OS. Canonical OS source lives only under `os/` in the active Station source/release.
 
@@ -74,7 +79,8 @@ Do not skip directly from generated output to a completion claim. Preserve the d
 ## Discord
 
 - Discord is a human control surface and projection, not the source of truth.
-- One installed OS has one Nano Director Hermes profile, one dedicated Discord bot identity and one primary channel unless an explicit topology contract says otherwise.
+- One installed OS instance has one Nano Director Hermes profile, one dedicated Discord bot identity and one primary channel unless an explicit topology contract says otherwise. Canonical package roles map to instance-namespaced native profiles; never select a bare role name from another instance.
+- Use the instance-aware native platform wizard for its bot token. A bot cannot mint other Discord application tokens, and profile installation is not guild provisioning.
 - A bootstrap bot may receive temporary broad guild permissions during an approved maintenance window. The server owner must verify and remove that elevation before acceptance.
 - Runtime bots use only their required guild/channel permissions and immutable ID bindings.
 - A token is entered only in the owning Zone's Hermes/credential setup and is never stored in the repository or Control projection.

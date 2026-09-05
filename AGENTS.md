@@ -33,6 +33,10 @@ For non-trivial work:
 - Do not append redundant `-zone`, `-client`, or `-project` suffixes when the parent already carries the category.
 - Local/remote is Host placement, not a separate tree.
 - Every Zone has an independent Unix identity, HERMES_HOME, state, log, credential, memory, and evidence namespace.
+- A client Organization owns its environment Zones. Client-owned OS instances and Projects are siblings inside a Zone; a Project is not the container of the Organization or its OS.
+- A reusable OS package is an immutable domain definition. An OS instance owns its configured domain runtime, workspace and evidence; Projects own bounded bodies of work. An instance may declare existing allowed Projects, but needs none for OS-owned work.
+- Instance-specific Hermes homes and namespaced Director/team profiles avoid runtime/service collisions, but share the Zone Unix identity. An allowed-Project list is a routing/policy contract, not a filesystem sandbox.
+- Instance gateways retain the canonical Zone `HOME`; other CLI authentication and caches there may be shared even though Hermes profiles/configuration/sessions use distinct `HERMES_HOME` roots. Never imply per-instance CLI/account isolation or copy authentication automatically.
 - Every Project owns its repos, docs, knowledge, integrations, credentials, workspaces, worktrees, state references, artifacts, evidence, and operations.
 - Control holds desired state/metadata and evidence indexes, not every Zone's secret material.
 - Factory uses synthetic/sanitized fixtures and never consumes client raw data by default.
@@ -68,11 +72,16 @@ readback can establish `CONFIGURED`. Full-team Doctor evidence establishes local
 separate applicable external readback and acceptance gates.
 
 For an existing Zone, create new Projects through `station project create`; do not
-rerun Host installation or overwrite partial workspace state. Install an OS into
-its explicit owning Project, use `station os setup` for its Director's provider
-wizard, and pass `--os` to gateway commands. Never bypass ledger conflicts with
-forced profile replacement or infer credentials from another profile. Bootstrap
-incomplete-attempt acknowledgement requires reviewed repair, not automatic retry.
+rerun Host installation or overwrite partial workspace state. Register client
+ownership only against existing matching ORGANIZATIONS Zones. Prefer
+`station os instance install` with explicit Zone, instance and Organization;
+use `station os instance setup` and gateway `--instance` for its Director.
+Legacy schema-2 Project-bound OS runtimes retain their `--os` commands and are
+never automatically adopted or migrated. Never bypass ledger conflicts with
+forced profile replacement or infer credentials from another instance/profile.
+`station client --legacy …` is a separate shared-operator compatibility controller,
+not canonical client Zone registration or instance enrollment. Preserve its data.
+Bootstrap incomplete-attempt acknowledgement requires reviewed repair, not automatic retry.
 
 ## Hermes and OS rules
 
@@ -80,7 +89,7 @@ Hermes is the engine. Prefer native Profiles/Bot Mode, sessions, Kanban, delegat
 
 Builder must use Librarian's multi-lane intelligence protocol: topic map, canonical books, current web research, expert/operator knowledge, source verification, contrarian/failure evidence, editorial `bestseller` synthesis, contradictions/limitations, and actionable inputs.
 
-Each installed OS has one dedicated Discord Nano Director bot and primary channel. Specialists remain internal Hermes Profiles/Bots/workers unless a separate external identity is justified.
+Each installed OS instance has one dedicated Discord Nano Director bot and primary channel by default. Specialists remain internal Hermes Profiles/Bots/workers unless a separate external identity is justified by an explicit topology. Installing profiles does not provision a guild, mint bot tokens or instantiate every domain database, view and automation in the full OS contract.
 
 ## Completion contract
 

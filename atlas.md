@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.13`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.14`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Visual companion:** the [README system maps](README.md#the-whole-system) explain
 the full topology, VPS install, OS factory, chat enrollment, filesystem and evidence
@@ -14,11 +14,12 @@ resumability decisions. Begin a fresh Host with
 for confirmation, exact-spec apply and the boundary of kernel rollback.
 
 **Current operating entry point:** `sudo station setup --json` reads local bootstrap,
-Zone and trusted OS evidence and returns dependency-ordered next steps. Use
-`station project create` to provision an owning Project without rerunning the Host
-installer, `station os install` for tracked resumable profile installation,
-`station os setup` for the Director's provider login, and `station platform … --os`
-for its chat gateway. The [first-mission guide](docs/operations/06_FIRST_MISSION.md)
+Organization/Zone/instance evidence and returns dependency-ordered next steps. Use
+`station organization register` only for existing matching client Zones,
+`station os instance install` for a named client-owned runtime without a mandatory
+Project, `station os instance setup` for its mapped Director's provider login,
+and `station platform … --instance` for its gateway. `station project create`
+provisions separate work assets without rerunning the Host installer. The [first-mission guide](docs/operations/06_FIRST_MISSION.md)
 contains the exact order and repair boundaries.
 
 ## 1. The system in one sentence
@@ -32,9 +33,10 @@ Human intent
   │
   ▼
 Station policy + identity + desired state
-  │  resolves Host → Zone → Project → OS → mission → capabilities
+  │  resolves Organization → Host/Zone → OS instance → mission → capabilities
+  │  selects Project scope only when the work requires it
   ▼
-Hermes central execution fabric (one isolated HERMES_HOME per Zone)
+Hermes execution fabric (instance homes inside the owning Zone's UID boundary)
   ├── Nano Director profile
   ├── specialist profiles / Bot Mode / delegated workers
   ├── sessions + Kanban + mission graph
@@ -63,7 +65,9 @@ The phrase “Hermes is the central brain” means Hermes coordinates runtime ex
 | Layer | Owns | Must not own |
 |---|---|---|
 | Station | constitution, desired state, isolation, placement, capability policy, releases, receipts and evidence gates | free-form model reasoning or every provider's implementation |
+| Organization | its client environment Zones, OS instances, Projects, accounts and operating data | another client's state or reusable package secrets |
 | Zone | one operational/security boundary, Unix identity, HERMES_HOME, credentials, memory, logs and runtime state | another Zone's data or accounts |
+| OS instance | configured domain capability, workspace, mapped team, runtime, connected-account scope and evidence | the Organization itself or every Project by default |
 | Project | repos, docs, knowledge, resources, workspaces, worktrees, artifacts and evidence | global Station policy or unrelated Project data |
 | Hermes | sessions, profiles, Bot Mode, delegation, Skills, plugins, tools, provider routing, gateway, memory and mission execution | self-authorized privilege or Station's source of truth |
 | Nano Director | one OS outcome and its mission graph | unlimited Host access or automatic production approval |
@@ -81,7 +85,8 @@ The power comes from this split. Hermes can use many providers and tools without
 - **Control Plane** — desired state, registries, bindings, placement, releases and evidence indexes.
 - **Zone** — the only canonical operational/isolation boundary. Each Zone has its own Unix identity and HERMES_HOME.
 - **Project** — the owner of one body of source, knowledge, resources, integrations, credentials, execution spaces and evidence.
-- **Operative System (OS)** — a versioned domain operating capability compiled into a Hermes team. It is not a computer operating system.
+- **Operative System (OS)** — a governed domain operating capability across definition, runtime, connected capabilities, and state/evidence/interfaces. Its reusable package is not merely the team or a computer operating system.
+- **OS instance** — the client's configured runtime of an OS definition in one environment Zone; owns a domain workspace and may serve declared Projects.
 - **Nano Director** — the persistent Hermes profile accountable for one OS outcome.
 - **NanoTeam** — the persistent specialists and bounded workers coordinated by the Nano Director.
 - **Mission** — durable work with an objective, graph, owners, gates, state and evidence.
@@ -104,6 +109,7 @@ Everything belongs to the Station namespace, but it is deliberately not placed i
 ├── station.yaml
 ├── hosts.d/
 ├── zones.d/
+├── organizations.d/             protected ownership for existing client Zones
 ├── policies.d/
 └── bindings.d/
 
@@ -137,10 +143,13 @@ Everything belongs to the Station namespace, but it is deliberately not placed i
 ├── receipts/
 ├── observed/
 ├── registry/
+│   ├── os-instances/<zone>/<instance>.json  schema-3 instance ledger
+│   └── os/<zone>/<os>.json       legacy Project-bound ledger
 ├── doctor/
 └── zones/<zone-id>/
     ├── home/
-    ├── hermes/                  this Zone's HERMES_HOME
+    ├── hermes/                  Zone-base/legacy Hermes home
+    ├── os-instances/<instance>/hermes/  instance-specific Hermes home
     ├── mission-state/
     ├── databases/
     ├── connector-state/
@@ -160,7 +169,33 @@ Source-of-truth rules:
 4. `/srv/station` is the operator-friendly view and contains human Project assets.
 5. Secrets never enter Git, `1_CONTROL`, Discord messages, evidence or shared release code.
 
-## 5. Zone and Project anatomy
+## 5. Client, OS instance and Project anatomy
+
+The business hierarchy is **Organization → Macro Domain → Domain → OS**. Its
+deployment is not “client inside Project”: client environment Zones contain
+**OS instances and Projects as siblings**. A reusable package can be installed for
+different clients without sharing their runtime, tokens, sessions or raw memory.
+
+```mermaid
+flowchart TB
+    Definition["Reusable OS definition<br/>expertise · schema · workflows · views · team"] --> Install["Compile and install supported runtime assets"]
+    Client["Client Organization"] --> Zone["Environment Zone<br/>hard Unix boundary"]
+    Zone --> Instance["Named OS instance<br/>workspace · Hermes home · role map"]
+    Zone --> Project["Project<br/>bounded work and assets"]
+    Install --> Instance
+    Instance --> Native["Director and team<br/>Zone + instance + role identifiers"]
+    Instance -. declared routing scope only .-> Project
+    Native --> Acceptance["Implement and accept selected domain capabilities<br/>accounts · state · views · workflows · recovery"]
+    classDef ink fill:#10161c,color:#e6edf3,stroke:#7c8b99;
+    classDef lime fill:#c5f277,color:#10161c,stroke:#10161c;
+    class Definition,Install,Client,Zone,Project,Native,Acceptance ink;
+    class Instance lime;
+```
+
+The map describes contracts, not live status. Instance installation does not
+automatically generate every domain app/database/workflow in the definition.
+Same-Zone instances and Projects share a UID; the declared Project list is not a
+filesystem sandbox. See [the complete instance contract](docs/organization/05_OS_INSTANCES.md).
 
 A Zone is the security envelope:
 
@@ -177,6 +212,15 @@ Zone
 ```
 
 A Project is the work envelope:
+
+An OS instance has its own `<zone>/os/instances/<instance>/workspace` and
+`<zone-state>/os-instances/<instance>/hermes`. Root authority is the schema-3 ledger
+under `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; its
+`role_profile_map` resolves every canonical role to the native instance ID.
+Instance Hermes homes separate Hermes configuration and sessions; gateways retain
+the Zone's canonical Unix `HOME`. Other CLI authentication and caches under that
+home may be shared within the Zone; this is not per-instance account isolation.
+Project code remains separately owned in the tree below.
 
 ```text
 <zone>/projects/<project-id>/
@@ -227,7 +271,7 @@ The installer appends one marked, idempotent adapter block and preserves existin
 Every executor follows the same order:
 
 ```text
-resolve Host/Zone/Project/repo/environment/principal
+resolve Organization/Host/Zone/instance/environment/principal, plus Project/repo when needed
 → inspect current state
 → Plan First
 → select allowlisted capabilities
@@ -248,9 +292,9 @@ Station installs one reviewed Hermes codebase in `/opt/station/tools/hermes/curr
 ```text
 runuser --user <zone-unix-user> --
   HOME=<zone-state-root>/home
-  HERMES_HOME=<zone-state-root>/hermes
+  HERMES_HOME=<zone-state-root>/os-instances/<instance>/hermes
   XDG_RUNTIME_DIR=/run/user/<zone-uid>
-  /usr/local/bin/hermes <action>
+  /usr/local/bin/hermes --profile <mapped-native-role> <action>
 ```
 
 That design provides:
@@ -261,6 +305,10 @@ That design provides:
 - a common bot protocol across Discord, Slack, Telegram and other surfaces;
 - native delegation between OS teams without public bots talking in loops;
 - consistent Skills, tool filtering, logging, Doctor and evidence hooks.
+
+Use Station's `--instance`/optional `--role` selectors to obtain this mapped
+invocation; never guess the native profile name. Zone-base/legacy commands retain
+their separate home. Instance separation does not add a Unix sandbox within a Zone.
 
 Hermes maps Station concepts this way:
 
@@ -344,11 +392,11 @@ Builder OS
 Station OS compiler
   ├── validates AGK OS v2 source
   ├── compiles every profile distribution
-  ├── injects Project root and universal rules
+  ├── binds instance workspace, role mapping, declared Project scope and universal rules
   └── emits COMPILED_NOT_INSTALLED
   ↓
-Zone installation
-  ├── Hermes profile install in that Zone's HERMES_HOME
+Client-owned instance installation
+  ├── namespaced Hermes profile install in that instance's HERMES_HOME
   ├── provider/credential enrollment
   ├── Discord/connector binding
   ├── Hermes and plugin Doctor
@@ -361,19 +409,30 @@ Repository OS packages currently include Station Maintainer, Discord Bootstrap, 
 station os catalog
 station os doctor --all
 station os compile --id devops-os --project-root /absolute/project --output /new/output
-sudo station os install --id devops-os --zone <zone-id> --project <project-id>
-sudo station os setup --id devops-os --zone <zone-id>
-sudo station os verify --id devops-os --zone <zone-id>
+sudo station os instance install --id devops-os --zone <zone-id> --instance engineering --organization <client-id>
+sudo station os instance setup --zone <zone-id> --instance engineering
+sudo station os instance verify --zone <zone-id> --instance engineering
+sudo station os instance show --zone <zone-id> --instance engineering
 ```
 
 Compile is not install; install is not external acceptance; profile Doctor is not Discord/deployment readback.
+
+The low-level `os compile --project-root` remains a package/compiler interface;
+new instance installation owns its runtime mapping. The full locked OS spans
+durable domain schema/state, useful views, workflows, connected capabilities,
+governance and recovery. Each selected capability still needs an implementation
+and acceptance; creating profiles alone does not materialize every declared plane.
+
+Legacy `station os install/setup/verify` and platform `--os` remain schema-2
+Project-bound commands. No profile, account, token or ledger is automatically
+migrated into a new instance.
 
 ## 9. End-to-end mission flow
 
 Example: “deploy the application” arrives in the DevOps Discord channel.
 
 1. The Hermes gateway receives the Discord event inside the owning Zone.
-2. Immutable guild/channel/user bindings resolve the Zone, Project, OS and `atlas` profile.
+2. Immutable guild/channel/user bindings resolve the Organization, Zone, instance and mapped Director, plus the Project when this mission requires it.
 3. Authorization checks the human principal, channel and requested capability.
 4. Atlas creates or resumes the Hermes session and durable Station mission.
 5. Atlas clarifies target environment and acceptance; production is denied unless explicitly approved.
@@ -492,17 +551,24 @@ A bot token is a secret and the Discord server owner controls guild authorizatio
 Use the Zone-isolated wizard:
 
 ```bash
-sudo station platform setup --zone <zone-id> --platform discord --plan
-sudo station platform setup --zone <zone-id> --platform discord
-sudo station platform install --zone <zone-id>
-sudo station platform start --zone <zone-id>
-sudo station platform status --zone <zone-id>
-sudo station platform doctor --zone <zone-id>
+sudo station platform setup --zone <zone-id> --instance engineering --platform discord --plan
+sudo station platform setup --zone <zone-id> --instance engineering --platform discord
+sudo station os instance verify --zone <zone-id> --instance engineering
+sudo station platform install --zone <zone-id> --instance engineering
+sudo station platform start --zone <zone-id> --instance engineering
+sudo station platform status --zone <zone-id> --instance engineering
+sudo station platform doctor --zone <zone-id> --instance engineering
 ```
 
 Tokens are entered only through Hermes' interactive setup, never as a command argument. Discord's official documentation treats bot tokens like passwords and applies permissions at guild authorization; it also documents role hierarchy limits. See [OAuth2 and permissions](https://docs.discord.com/developers/platform/oauth2-and-permissions) and [server/channel management](https://docs.discord.com/developers/platform/server-and-channel-management).
 
-Important limitation: a guild bot token cannot safely mint all the separate Discord applications and secret tokens required by a strict “one public bot per OS” topology. Humans create and authorize those applications/tokens unless a separately governed control plane is introduced. Internal specialist profiles normally stay behind the OS Nano Director, so they do not each need public bots.
+Important limitation: a guild bot token cannot mint all the separate Discord applications and secret tokens required by a “one default Director bot per instance” topology. Humans create and authorize those applications/tokens unless a separately governed control plane is introduced. Internal specialist profiles normally stay behind the OS Nano Director, so they do not each need public bots.
+
+The default is one Director surface **per instance**. For a justified specialist
+surface, `station platform setup --zone <zone-id> --instance engineering --role forge
+--platform discord` selects the mapped Forge role. It does not authorize topology,
+mint a token or validate permissions. Enroll a separate intended identity and prove
+its route, scopes and restart behavior; do not share one token across concurrent gateways.
 
 ### Bot-guided secure setup after bootstrap
 
@@ -571,11 +637,11 @@ Discord is one adapter. The same Zone-isolated Hermes Messaging Gateway can conn
 For any supported platform:
 
 ```bash
-sudo station platform setup --zone <zone-id> --platform <platform>
-sudo station platform install --zone <zone-id>
-sudo station platform start --zone <zone-id>
-sudo station platform status --zone <zone-id>
-sudo station platform doctor --zone <zone-id>
+sudo station platform setup --zone <zone-id> --instance engineering --platform <platform>
+sudo station platform install --zone <zone-id> --instance engineering
+sudo station platform start --zone <zone-id> --instance engineering
+sudo station platform status --zone <zone-id> --instance engineering
+sudo station platform doctor --zone <zone-id> --instance engineering
 ```
 
 Each connector still needs its own human/account enrollment, allowed users/channels and bidirectional message readback. Hermes makes platforms easy to attach; it does not erase each platform's security model.
@@ -652,20 +718,25 @@ clear while avoiding 17 independent agents competing for state.
 
 Client delivery uses `agk-work-tracker/v1`: the AGK durable work record is
 canonical, Linear is the default adapter, and GitHub Issues/manual adapters can
-be selected by contract. The current automated client controller remains
+be selected by contract. The legacy automated client controller remains
 Linear-first. Normal work uses the compact view; regulated work exposes every
 QA, security and release state. Both enforce the same gates. Default autonomy
 is `decide → act → verify → record → continue`; `BLOCKED` is legal only when no
 useful path remains and records blocker, attempts, impact, need and exact resume
 point. Corrections always reuse the same issue, branch, PR and Hermes session.
 
-Each client also owns `.client/operations.yaml`. It closes the operational gap
+The legacy controller's client tree also owns `.client/operations.yaml`. It closes the operational gap
 between “code merged” and “service owned”: service catalog, environment/data
 classification, pipelines and artifact identities, SLI/SLO/error budgets,
 alerts, incidents/on-call/postmortems, encrypted off-Host backup with RPO/RTO
 and restore rehearsal, dependency/vulnerability/license policy, cost controls,
-access reviews, offboarding, ADRs and runbooks. Use the same controller via
-`station client ...` or `agk client ...`.
+access reviews, offboarding, ADRs and runbooks. This controller is a separate
+compatibility workflow, invoked explicitly via `station client --legacy …` or
+direct bundled `agk client …`. It creates `~/workspace/clients` and `~/.hermes`
+profiles under the operator identity. It does **not** register canonical client
+Zones, install first-class instances or provide separate client Unix identities.
+Its TUI/Fleet views are not automatically schema-3 instance-registry-aware.
+Preserve existing data; prefer Organization/instance commands for new enrollment.
 
 ## 15. GitHub, Vercel, Composio and external tools
 
@@ -699,7 +770,8 @@ station provider status
 station provider composio-discord plan --zone <zone-id>
 sudo station provider composio-discord link --zone <zone-id>
 sudo station provider composio-discord verify --zone <zone-id>
-station client doctor <client-id> --online
+# Legacy shared-operator controller only; not instance verification:
+station client --legacy doctor <client-id> --online
 ```
 
 ## 16. Fresh Host installation: exact path
@@ -768,7 +840,7 @@ Review and apply the stack plan inside that repository if the Project chose it.
 4. authenticate only required GitHub/Vercel/Composio/model principals, preferably through the bot's short Tailnet setup buttons after that point;
 5. create and separate development/staging/production provider projects;
 6. configure scoped credential references in the owning Zone/Project;
-7. install selected OS packages into the correct Zone and Project;
+7. register existing matching client Zones and install selected OS instances with their own workspaces and optional declared Projects;
 8. configure any additional Hermes platform gateways;
 9. run provider-specific Doctor and safe read/write probes;
 10. verify live voice/message/deployment/connector readback.
@@ -870,6 +942,7 @@ Repository-verified or implemented:
 - reviewed/pinned operator toolchain installer including shadcn CLI;
 - reviewed Hermes install/update path with isolated Zone homes;
 - canonical OS sources, source Doctor and Hermes profile compiler;
+- client Organization registration and named OS instances with dedicated runtime homes, full native role maps and no mandatory Project;
 - universal provider/CLI rule distribution;
 - resource catalog and exact web-product stack plan;
 - Hermes multi-platform gateway lifecycle wrapper;
@@ -935,6 +1008,7 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - `SECURITY.md` — threat model and security constraints.
 - `INSTALL.md` — Host plan/apply contract.
 - `SETUP.md` — external enrollment and acceptance gates.
+- `docs/organization/05_OS_INSTANCES.md` — client ownership, definition/instance/Project distinction, role mapping and legacy boundaries.
 - `config/versions.lock` — reviewed tool/dependency pins.
 - `config/deps/stack.yaml` — optional AI dependency roles and maturity.
 - `resources/CATALOG.json` — reusable resources and preferred stack recipe.
@@ -976,11 +1050,13 @@ Concrete locations:
 | Dedicated key | `<Zone state>/credentials/strix-api-key`; `0600`, submitted through protected setup, never ambient Hermes `.env` |
 | Approval | `/var/lib/station/security/strix/<zone>/<project>/<job>.json`; root-owned, expiring, Zone-group-readable |
 | Summary | `<Project>/evidence/strix/<job>/summary.json`; never an automatic security acceptance |
-| Installed-source distributions | `/opt/station/os-distributions/<zone>/<project>/<os>/<version>/`; root-owned immutable public source |
+| Instance distributions | `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`; root-owned immutable compiled source |
+| Legacy Project-bound distributions | `/opt/station/os-distributions/<zone>/<project>/<os>/<version>/`; retained, not automatically migrated |
 | Zone-readable binding | `/var/lib/station/zone-bindings/<zone>.json`; generated root-owned projection, not another editable source |
 
-The OS compiler now merges YAML structurally: each profile receives its own ID,
-the Project cwd and `terminal.home_mode: profile`, with no duplicate `terminal`
+The OS compiler merges YAML structurally: each profile receives its mapped ID,
+the instance workspace (or Project cwd for legacy distributions) and
+`terminal.home_mode: profile`, with no duplicate `terminal`
 mapping. Native distribution ownership includes command/research assets and the
 DevOps security plugin. Cross-identity process launches clear inherited secrets.
 Mixed system/Zone parent directories permit traversal (`0711`) while private

@@ -27,6 +27,13 @@ agentik-station/
 
 Canonical editable OS sources live only in `os/`; Builder orchestration programs live in `factory/programs/`. Generated Hermes distributions are disposable artifacts, never parallel editable source trees.
 
+Client ownership is implemented by `src/agentik_station/organizations.py`; native
+instance runtime by `os_instances.py`, the shared `os_lifecycle.py` engine and
+`os_runtime.py` compiler. `onboarding.py` only reports local evidence and next steps.
+See [the OS instance contract](docs/organization/05_OS_INSTANCES.md): Organizations
+own environment Zones, whose OS instances and Projects are siblings. The reusable
+`os/` packages contain no client credentials or private memory.
+
 ## Operator entry points
 
 - `station` — canonical Python CLI and source of truth.

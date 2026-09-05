@@ -46,12 +46,27 @@ failed stage, surviving processes and repair action; it starts a fresh attempt,
 not a rollback or stage-skipping resume.
 
 Continue with [the first-mission guide](docs/operations/06_FIRST_MISSION.md): choose
-a local Zone, plan/create its Project with `station project create`, install the
-owned OS, and use `station os setup` for its Director's native provider wizard.
-Use `station platform setup --os <os-id>` for that Director's chat identity. Do not
-fall back silently to the Zone default profile. Full/core does not invent Projects.
-Safe OS retries preserve verified installed files; existing untracked profiles,
-changed bundles and cross-Project reuse require explicit repair or migration.
+the owning local Zone; for a client, explicitly register its existing environment
+Zones with `station organization register --id <client> --zone <zone> --plan`, then
+apply the reviewed registration. Install the client's OS with `station os instance
+install --zone <zone> --instance <name> --organization <client> --id <package>`.
+System/Factory/non-client Zones omit `--organization`. Every instance owns its
+Director, full Hermes team, runtime and workspace. Projects are separate client
+assets, not OS owners. Create required Projects with `station project create` and
+declare each intended execution target using `--allow-project` at installation.
+
+Use `station os instance setup --zone <zone> --instance <name>` for the Director;
+add `--role <canonical-role>` for a specialist's provider setup. Use `station
+platform setup --zone <zone> --instance <name> --platform discord` for its chat
+identity, then instance verification and exact-instance gateway install/start.
+Do not guess native profile names or fall back to the Zone default. A specialist
+bot additionally needs an explicit topology and the corresponding `--role`.
+
+Safe retries preserve complete native profile files. Existing untracked roots,
+changed bundles, different owners or changed Project scope require explicit
+repair/migration. Never use the older operator-home client controller for new
+Station clients; `station client --legacy` is deliberate legacy compatibility,
+not Organization enrollment. Do not move or relabel its existing data automatically.
 
 The installation report must separate:
 
@@ -78,3 +93,11 @@ enroll every named Director. Never copy credentials across profiles to bypass th
 boundary. `station setup --json` describes ordered actions without executing them;
 `--probe` only observes the selected user service. Preserve the distinction between
 local Doctor evidence and a fresh, authorized, bidirectional live mission.
+
+Separate instance `HERMES_HOME` directories prevent accidental Hermes profile/state
+reuse; they are not Linux sandboxes. Same-Zone teams share a Unix UID and canonical
+Zone `HOME`, including other CLIs' home-based account/cache state. Keep different
+clients/environments in separate Zones, and never claim per-Project tool ACLs merely
+because an allowlist or prompt exists. The full AIOS domain state/views/workflows,
+fresh Director-to-worker delegation and external account/chat/recovery behavior
+need their own acceptance beyond compiling and installing profiles.

@@ -191,7 +191,7 @@ def _context(paths: LayoutPaths, zone: dict, project_id: str | None = None) -> d
             info = os.fstat(fd)
             if info.st_uid != entry.pw_uid or info.st_mode & 0o022:
                 raise SecurityError("Zone directory identity/permissions differ from its contract")
-    context = {"zone": desired, "spec": spec, "uid": entry.pw_uid, "user": user,
+    context = {"zone": desired, "spec": spec, "uid": entry.pw_uid, "gid": entry.pw_gid, "user": user,
                "hermes_home": state / "hermes", "home": state / "home"}
     if project_id is not None:
         project_id = validate_identifier(project_id, "Project id")
@@ -243,13 +243,14 @@ def _manifest(root: Path, paths: LayoutPaths, record: dict) -> tuple[dict, dict]
                  trusted_root=paths.software if paths.test_mode else None)
     manifest = _trusted_json(root / "COMPILED.json", paths, paths.software)
     profiles = manifest.get("profiles")
-    if (manifest.get("schema_version") != 2 or not isinstance(profiles, list) or not profiles
+    if (manifest.get("schema_version") != record["schema_version"] or not isinstance(profiles, list) or not profiles
             or not all(isinstance(x, str) for x in profiles)
             or len(profiles) != len(set(profiles)) or manifest.get("nano_director") not in profiles):
         raise ValidationError("Compiled team is incomplete or ambiguous")
     for profile in profiles:
         _profile_id(profile)
-    for field in ("os_id", "os_version", "nano_director", "project_root"):
+    binding_fields = ("workspace_root", "zone_id", "instance_id", "organization_id", "allowed_project_ids", "role_profile_map") if record["schema_version"] == 3 else ("project_root",)
+    for field in ("os_id", "os_version", "nano_director", *binding_fields):
         if manifest.get(field) != record.get(field):
             raise SecurityError("Compiled OS identity differs from its trusted ledger")
     if profiles != record.get("expected_profiles") or _digest(tree) != record.get("bundle_sha256"):
@@ -338,7 +339,7 @@ def _readback(record: dict, profile: str, context: dict, paths: LayoutPaths) -> 
     config, required = _yaml(config_data), _yaml(expected["config.yaml"])
     terminal, identity, plugins = config.get("terminal", {}), config.get("profile", {}), config.get("plugins", {})
     if (not all(isinstance(x, dict) for x in (terminal, identity, plugins))
-            or identity.get("id") != profile or terminal.get("cwd") != record["project_root"]
+            or identity.get("id") != profile or terminal.get("cwd") != record.get("workspace_root", record.get("project_root"))
             or terminal.get("home_mode") != "profile"):
         raise ValidationError("Native profile has an unsafe Project binding")
     enabled, entries = plugins.get("enabled"), plugins.get("entries")
@@ -451,6 +452,8 @@ def _install_locked(source, paths, context, project_id, os_id, os_version, herme
         for profile in profiles:
             _profile_id(profile)
         if record is None:
+            from .os_instances import check_instance_reservations
+            check_instance_reservations(paths, context["zone"], profiles)
             for profile in profiles:
                 if _profile_present(context, profile):
                     raise ValidationError("Untracked native profile already occupies an OS team name; explicit adoption/repair is required")
@@ -491,55 +494,68 @@ def _install_locked(source, paths, context, project_id, os_id, os_version, herme
                       "profile_states": {p: {"state": "PENDING", "returncode": None, "reason": "Not attempted"} for p in profiles},
                       "state": "INSTALLABLE", "verification": {}, "operational": False,
                       "updated_at": utc_now(), "next_repair_action": "Resume OS install."}
-        previously_configured = record["state"] in {"CONFIGURED", "VERIFIED", "DEGRADED"}
-        record["verification"] = {}
-        record["state"] = "INSTALLABLE"
-        _save(paths, record)
-        for profile in profiles:
-            checkpoint = record["profile_states"][profile]
-            if _profile_present(context, profile):
-                try:
-                    _readback(record, profile, context, paths)
-                except (OSError, ValidationError, SecurityError):
-                    checkpoint.update(state="FAILED", reason="Existing profile failed local readback; explicit repair required")
-                    record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
-                    _save(paths, record)
-                    return record
-                checkpoint.update(state="INSTALLED", reason="Complete native distribution read back")
-                _save(paths, record)
-                continue
-            checkpoint.update(state="INSTALLING", returncode=None, reason="Native install started")
-            _save(paths, record)
-            code = _native(context, hermes_binary, runuser_binary,
-                           ["--profile", "default", "profile", "install", str(final / "profiles" / profile), "--name", profile, "--yes"])
-            checkpoint["returncode"] = code
-            try:
-                _readback(record, profile, context, paths)
-                complete = True
-            except (OSError, ValidationError, SecurityError):
-                complete = False
-            if code != 0 or not complete:
-                checkpoint.update(state="FAILED", reason="Native install failed" if code else "Native install returned success without complete local readback")
-                record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
-                _save(paths, record)
-                return record
-            checkpoint.update(state="INSTALLED", reason="Native install and complete local readback passed")
-            _save(paths, record)
-        # A later native startup can touch an earlier profile. Recheck the whole
-        # expected team after all native actions, not just each exit in isolation.
-        for profile in profiles:
-            try:
-                _readback(record, profile, context, paths)
-            except (OSError, ValidationError, SecurityError):
-                record["profile_states"][profile].update(state="FAILED", reason="Final complete-team readback failed")
-                record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
-                _save(paths, record)
-                return record
-        record.update(state="CONFIGURED", next_repair_action=NEXT_GATE)
-        _save(paths, record)
-        return record
+        return _install_profiles(record, context, paths, hermes_binary, runuser_binary, save=_save)
     finally:
         fs.remove_tree_strict(stage)
+
+
+def _install_profiles(record: dict, context: dict, paths: LayoutPaths, hermes_binary: str,
+                      runuser_binary: str, *, save, validate_context=lambda: None) -> dict:
+    """One native install/resume engine for validated legacy and instance targets.
+
+    Callers hold install_lock and have validated the record, runtime target and
+    immutable publication. The callback persists only that target's authority.
+    """
+    previously_configured = record["state"] in {"CONFIGURED", "VERIFIED", "DEGRADED"}
+    record["verification"] = {}
+    record["state"] = "INSTALLABLE"
+    save(paths, record)
+    for profile in record["expected_profiles"]:
+        validate_context()
+        checkpoint = record["profile_states"][profile]
+        if _profile_present(context, profile):
+            try:
+                _readback(record, profile, context, paths)
+            except (OSError, ValidationError, SecurityError):
+                checkpoint.update(state="FAILED", reason="Existing profile failed local readback; explicit repair required")
+                record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
+                save(paths, record)
+                return record
+            checkpoint.update(state="INSTALLED", reason="Complete native distribution read back")
+            save(paths, record)
+            continue
+        checkpoint.update(state="INSTALLING", returncode=None, reason="Native install started")
+        save(paths, record)
+        code = _native(context, hermes_binary, runuser_binary,
+                       ["--profile", "default", "profile", "install", str(Path(record["compiled_distribution"]) / "profiles" / profile), "--name", profile, "--yes"])
+        checkpoint["returncode"] = code
+        validate_context()
+        try:
+            _readback(record, profile, context, paths)
+            complete = True
+        except (OSError, ValidationError, SecurityError):
+            complete = False
+        if code != 0 or not complete:
+            checkpoint.update(state="FAILED", reason="Native install failed" if code else "Native install returned success without complete local readback")
+            record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
+            save(paths, record)
+            return record
+        checkpoint.update(state="INSTALLED", reason="Native install and complete local readback passed")
+        save(paths, record)
+    # A later startup can change an earlier profile: verify the final whole team.
+    for profile in record["expected_profiles"]:
+        validate_context()
+        try:
+            _readback(record, profile, context, paths)
+        except (OSError, ValidationError, SecurityError):
+            record["profile_states"][profile].update(state="FAILED", reason="Final complete-team readback failed")
+            record.update(state="DEGRADED" if previously_configured else "INSTALLABLE", next_repair_action=REPAIR)
+            save(paths, record)
+            return record
+    validate_context()
+    record.update(state="CONFIGURED", next_repair_action=NEXT_GATE)
+    save(paths, record)
+    return record
 
 
 def verify_os_runtime(paths: LayoutPaths, *, zone: dict, os_id: str,
@@ -549,26 +565,36 @@ def verify_os_runtime(paths: LayoutPaths, *, zone: dict, os_id: str,
     with install_lock(paths, new_operation_id()):
         record = load_os_runtime_record(paths, zone=zone, os_id=os_id, require_configured=True)
         context = _context(paths, zone, record["project_id"])
-        checks, hashes, passed = {}, {}, True
-        for profile in record["expected_profiles"]:
-            code = _native(context, hermes_binary, runuser_binary, ["--profile", profile, "doctor"])
-            try:
-                hashes[profile] = _readback(record, profile, context, paths)
-                complete = True
-            except (OSError, ValidationError, SecurityError):
-                complete = False
-            checks[profile] = {"returncode": code, "reason": "Doctor and local readback passed" if code == 0 and complete else "Doctor or local readback failed"}
-            passed = passed and code == 0 and complete
-        for profile in record["expected_profiles"]:
-            try:
-                hashes[profile] = _readback(record, profile, context, paths)
-            except (OSError, ValidationError, SecurityError):
-                passed = False
-                checks[profile]["reason"] = "Final complete-team readback failed"
-        record["verification"] = {"state": "PASSED" if passed else "FAILED", "checked_at": utc_now(),
-                                  "profiles": checks, "config_sha256": hashes,
-                                  "claim": "LOCAL_PROFILE_DOCTOR_ONLY_NOT_EXTERNAL_ACCEPTANCE"}
-        record.update(state="VERIFIED" if passed else "DEGRADED", operational=False,
-                      next_repair_action="Prove fresh-session/provider/chat acceptance; no operational claim." if passed else REPAIR)
-        _save(paths, record)
-        return record
+        return _verify_profiles(record, context, paths, hermes_binary, runuser_binary, save=_save)
+
+
+def _verify_profiles(record: dict, context: dict, paths: LayoutPaths, hermes_binary: str,
+                     runuser_binary: str, *, save, validate_context=lambda: None) -> dict:
+    """Native full-team Doctor plus local file readback; no external acceptance."""
+    checks, hashes, passed = {}, {}, True
+    for profile in record["expected_profiles"]:
+        validate_context()
+        code = _native(context, hermes_binary, runuser_binary, ["--profile", profile, "doctor"])
+        validate_context()
+        try:
+            hashes[profile] = _readback(record, profile, context, paths)
+            complete = True
+        except (OSError, ValidationError, SecurityError):
+            complete = False
+        checks[profile] = {"returncode": code, "reason": "Doctor and local readback passed" if code == 0 and complete else "Doctor or local readback failed"}
+        passed = passed and code == 0 and complete
+    for profile in record["expected_profiles"]:
+        validate_context()
+        try:
+            hashes[profile] = _readback(record, profile, context, paths)
+        except (OSError, ValidationError, SecurityError):
+            passed = False
+            checks[profile]["reason"] = "Final complete-team readback failed"
+    validate_context()
+    record["verification"] = {"state": "PASSED" if passed else "FAILED", "checked_at": utc_now(),
+                              "profiles": checks, "config_sha256": hashes,
+                              "claim": "LOCAL_PROFILE_DOCTOR_ONLY_NOT_EXTERNAL_ACCEPTANCE"}
+    record.update(state="VERIFIED" if passed else "DEGRADED", operational=False,
+                  next_repair_action="Prove fresh-session/provider/chat acceptance; no operational claim." if passed else REPAIR)
+    save(paths, record)
+    return record

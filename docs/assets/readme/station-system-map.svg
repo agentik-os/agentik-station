@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1140" viewBox="0 0 800 1140" role="img" aria-labelledby="title description">
   <title id="title">One Station. Many Hosts.</title>
-  <desc id="description">Human chat, CLI or UI intent reaches Station policy and desired state. Fleet places independent Zones on Hosts. Each Zone has its own Unix identity, HOME, HERMES_HOME, credentials and memory. Hermes runs OS teams and selected tools with declared scope against Project-owned assets. Observed evidence returns to Station Control. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
+  <desc id="description">Human intent is governed by Station configuration and placement contracts. Fleet describes independent Zones on Hosts. Each Zone has its own Unix identity and HOME. The client owns OS instances and Projects as siblings in its Zone. Hermes executes each instance's mapped Director and team with selected tools; work uses the instance workspace or declared Project assets. Instance Hermes homes are distinct but share their Zone UID and Unix HOME. Observed evidence returns to Station Control. Architecture illustration, not live status. The complete diagram is static; a decorative signal runs once and is hidden when reduced motion is preferred.</desc>
   <defs>
     <style>
       text { font-family: Arial, Helvetica, sans-serif; fill: #edf3f7; }
@@ -33,10 +33,10 @@
   <text x="56" y="380" font-size="22" class="mono muted">HOST A / LINUX OR VPS</text>
   <rect x="56" y="410" width="664" height="452" rx="12" fill="none" stroke="#c5f277" stroke-width="1.5"/>
   <text x="80" y="448" font-size="23" class="lime" font-weight="700">ZONE / INDEPENDENT UNIX IDENTITY</text>
-  <text x="80" y="481" font-size="22" class="muted">HOME · HERMES_HOME · credentials · memory</text>
+  <text x="80" y="481" font-size="22" class="muted">One Zone HOME · instance-specific Hermes homes</text>
   <rect class="card" x="80" y="510" width="616" height="98" rx="12"/>
-  <text x="104" y="551" font-size="31" class="lime" font-weight="700">Hermes execution</text>
-  <text x="104" y="586" font-size="22">OS = Nano Director + specialist profiles</text>
+  <text x="104" y="551" font-size="31" class="lime" font-weight="700">OS instance · Hermes execution</text>
+  <text x="104" y="586" font-size="22">Mapped Director + team · domain workspace</text>
   <path class="route" d="M388 608V628H226V650"/>
   <path class="route" d="M388 628H546V650"/>
   <rect class="card" x="80" y="650" width="286" height="142" rx="12"/>
@@ -45,9 +45,9 @@
   <text x="104" y="763" font-size="22" class="muted">Declared scope</text>
   <path class="route" d="M366 724H390"/>
   <rect class="card" x="390" y="650" width="306" height="142" rx="12"/>
-  <text x="414" y="692" font-size="28" font-weight="700">Owned Project</text>
+  <text x="414" y="692" font-size="28" font-weight="700">Sibling Projects</text>
   <text x="414" y="729" font-size="22" class="muted">Repos · knowledge</text>
-  <text x="414" y="763" font-size="22" class="muted">Workspaces · evidence</text>
+  <text x="414" y="763" font-size="22" class="muted">Optional mission scope</text>
   <path class="route" d="M543 792V819"/>
   <text x="91" y="841" font-size="24" class="lime">Observed evidence returns to Station</text>
   <path class="route" d="M696 832H742V313H719V292"/>
