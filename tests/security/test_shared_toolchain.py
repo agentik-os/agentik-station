@@ -7,6 +7,9 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import pwd
+import shlex
+import shutil
 import stat
 import subprocess
 import sys
@@ -27,9 +30,11 @@ PINS = {
     "VERCEL_CLI_VERSION": "59.11.2",
     "CODEX_CLI_VERSION": "0.110.0",
     "SHADCN_CLI_VERSION": "3.8.0",
+    "CHATBOTX_CLI_VERSION": "0.1.3",
+    "CHATBOTX_CLI_ENTRY_SHA256": hashlib.sha256(b"console.log('0.1.3');\n").hexdigest(),
 }
 EXPORTS = {"node", "npm", "npx", "python-latest", "python-ai", "gh", "uv", "uvx",
-           "vercel", "codex", "shadcn"}
+           "vercel", "codex", "shadcn", "chatbotx"}
 
 
 def write(path: Path, text: str, *, executable: bool = False) -> Path:
@@ -92,15 +97,21 @@ def layout(tmp_path, publisher):
         ("vercel", "VERCEL_CLI_VERSION", {"vercel": "dist/vc.js"}),
         ("shadcn", "SHADCN_CLI_VERSION", {"shadcn": "dist/index.js"}),
         ("@openai/codex", "CODEX_CLI_VERSION", {"codex": "bin/codex.js"}),
+        ("chatbotx", "CHATBOTX_CLI_VERSION", {"chatbotx": "dist/index.cjs"}),
     )
     for name, pin, entrypoints in definitions:
-        package = local / "lib/node_modules" / name
+        package = (local / "share/station-clis/chatbotx/node_modules/chatbotx" if name == "chatbotx"
+                   else local / "lib/node_modules" / name)
         packages[name] = package
         write(package / "package.json", json.dumps({
             "name": name, "version": PINS[pin], "bin": entrypoints,
         }))
         for entrypoint in entrypoints.values():
-            write(package / entrypoint, "#!/usr/bin/env node\n// synthetic CLI\n", executable=True)
+            content = "console.log('0.1.3');\n" if name == "chatbotx" else "#!/usr/bin/env node\n// synthetic CLI\n"
+            write(package / entrypoint, content, executable=name != "chatbotx")
+        if name == "chatbotx":
+            for relative in ("README.md", "dist/index.mjs", "dist/index.d.cts", "dist/index.d.mts"):
+                write(package / relative, "// synthetic bundled support file\n")
         dependency = package / "node_modules/synthetic-dependency"
         write(dependency / "package.json", '{"name":"synthetic-dependency","version":"1.0.0"}')
         write(dependency / "bin/helper.js", "// internal dependency\n", executable=True)
@@ -126,6 +137,7 @@ def layout(tmp_path, publisher):
     write(home / ".env", "SYNTHETIC_PRIVATE_VALUE=never-copy-this\n")
     write(home / ".config/gh/hosts.yml", "synthetic private account state\n")
     write(home / ".codex/auth.json", '{"synthetic":"private account state"}')
+    write(home / ".chatbotX/config.json", '{"token":"SYNTHETIC_PRIVATE_CHATBOTX_TOKEN"}')
     shared = root / "shared"
     public = root / "public-bin"
     public.mkdir()
@@ -209,7 +221,7 @@ def test_publish_complete_private_state_free_toolchain_and_idempotent_retry(layo
         assert "HERMES_HOME=" not in wrapper
         assert "HOME=" not in wrapper
     assert (release / "node/include/node/node.h").is_file()
-    for name in ("npm", "vercel", "shadcn", "codex"):
+    for name in ("npm", "vercel", "shadcn", "codex", "chatbotx"):
         package = release / "npm" / name
         link = package / "node_modules/.bin/helper"
         assert link.is_symlink()
@@ -221,7 +233,7 @@ def test_publish_complete_private_state_free_toolchain_and_idempotent_retry(layo
         assert (runtime / f"lib/libpython{minor}.so.1.0").is_file()
         assert (runtime / "bin/python").resolve().is_relative_to(runtime)
     for path in release.rglob("*"):
-        assert path.name not in {".env", "auth.json", "hosts.yml"}
+        assert path.name not in {".env", "auth.json", "hosts.yml", ".chatbotX"}
         assert path.lstat().st_uid == os.getuid()
         if not path.is_symlink():
             assert not path.stat().st_mode & 0o022
@@ -257,6 +269,255 @@ def test_actual_wrapper_preserves_caller_accounts_and_literal_arguments(layout, 
     ]
 
 
+@pytest.mark.parametrize("kind", ["operator", "shared"])
+@pytest.mark.parametrize("existing_account", [False, True])
+def test_chatbotx_wrappers_execute_shebang_free_code_and_keep_caller_accounts_private(
+        layout, publisher, kind, existing_account):
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("native Node unavailable for shebang-free CLI acceptance")
+    write(layout.node / "bin/node", "#!/bin/sh\nexec " + shlex.quote(node) + ' "$@"\n', executable=True)
+    entry = layout.packages["chatbotx"] / "dist/index.cjs"
+    code = """const fs = require('node:fs');
+const path = require('node:path');
+const account = path.join(process.env.HOME, '.chatbotX');
+fs.mkdirSync(account, {recursive: true});
+fs.writeFileSync(path.join(account, 'new-config.json'), '{}');
+console.log(JSON.stringify({home: process.env.HOME, hermes: process.env.HERMES_HOME,
+  args: process.argv.slice(2), prefix: process.env.NPM_CONFIG_PREFIX || null}));
+"""
+    write(entry, code)
+    pins = {**PINS, "CHATBOTX_CLI_ENTRY_SHA256": hashlib.sha256(code.encode()).hexdigest()}
+    original = snapshot(layout.home)
+    if kind == "operator":
+        publisher.__globals__["_private_chatbotx_launcher"](
+            layout.home, layout.node / "bin/node", pins["CHATBOTX_CLI_VERSION"], pins["CHATBOTX_CLI_ENTRY_SHA256"])
+        command = layout.bins / "chatbotx"
+    else:
+        layout.publish(pins=pins, probe=lambda *args: None)
+        command = layout.public / "chatbotx"
+    caller = layout.root / "calling-zone"
+    caller.mkdir(mode=0o700)
+    (caller / "home").mkdir(mode=0o700)
+    account = caller / "home/.chatbotX"
+    if existing_account:
+        existing = write(account / "config.json", '{"token":"synthetic; preserve"}')
+        account.chmod(0o750)
+        existing.chmod(0o640)
+    existing_before = snapshot(caller)
+    env = {"HOME": str(caller / "home"), "HERMES_HOME": str(caller / "instance-hermes")}
+    literal = "literal ; argument $(no-subprocess)"
+    completed = subprocess.run([str(command), literal], env=env, cwd=caller,
+                               check=True, capture_output=True, text=True, timeout=10)
+    assert json.loads(completed.stdout) == {"home": env["HOME"], "hermes": env["HERMES_HOME"],
+                                           "args": [literal], "prefix": None}
+    assert stat.S_IMODE(account.stat().st_mode) == (0o750 if existing_account else 0o700)
+    assert stat.S_IMODE((account / "new-config.json").stat().st_mode) == 0o600
+    if existing_account:
+        assert snapshot(caller)["home/.chatbotX/config.json"] == existing_before["home/.chatbotX/config.json"]
+    assert entry.read_text() == code
+    assert snapshot(layout.home)[".chatbotX/config.json"] == original[".chatbotX/config.json"]
+
+
+@pytest.mark.parametrize("kind", ["unrelated", "symlink", "hardlink", "fifo", "wrong-version", "wrong-bin"])
+def test_private_chatbotx_launcher_rejects_unsafe_existing_files_and_metadata(layout, publisher, kind):
+    wrapper = layout.bins / "chatbotx"
+    sentinel = write(layout.root / "preserved-file", "preserve\n")
+    if kind == "unrelated":
+        write(wrapper, "#!/bin/sh\nexit 0\n", executable=True)
+    elif kind == "symlink":
+        wrapper.symlink_to(sentinel)
+    elif kind == "hardlink":
+        os.link(sentinel, wrapper)
+    elif kind == "fifo":
+        os.mkfifo(wrapper)
+    else:
+        manifest = layout.packages["chatbotx"] / "package.json"
+        value = json.loads(manifest.read_text())
+        value["version" if kind == "wrong-version" else "bin"] = "0.0.0" if kind == "wrong-version" else "unexpected.js"
+        manifest.write_text(json.dumps(value))
+    original = snapshot(layout.home)
+    with pytest.raises((OSError, ValueError, RuntimeError)):
+        publisher.__globals__["_private_chatbotx_launcher"](
+            layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"])
+    assert snapshot(layout.home) == original
+    assert sentinel.read_text() == "preserve\n"
+
+
+def test_private_chatbotx_wrapper_supports_reviewed_node_upgrade_and_repeat(layout, publisher):
+    helper = publisher.__globals__["_private_chatbotx_launcher"]
+    helper(layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"])
+    wrapper = layout.bins / "chatbotx"
+    old = wrapper.read_bytes()
+    helper(layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"], check=True)
+    assert wrapper.read_bytes() == old
+    newer = layout.local / "lib/node-v24.20.1-linux-x64/bin/node"
+    write(newer, "#!/bin/sh\nexit 0\n", executable=True)
+    with pytest.raises(ValueError, match="pinned Node runtime"):
+        helper(layout.home, newer, PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"], verify=True)
+    assert wrapper.read_bytes() == old
+    helper(layout.home, newer, PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"])
+    assert str(newer) in wrapper.read_text() and wrapper.read_bytes() != old
+
+
+@pytest.mark.parametrize("relative", ["node_modules", "node_modules/chatbotx", "node_modules/chatbotx/dist"])
+def test_private_chatbotx_preflight_rejects_symlinked_install_parents(layout, publisher, relative):
+    prefix = layout.local / "share/station-clis/chatbotx"
+    path = prefix / relative
+    moved = path.with_name(path.name + "-preserved")
+    path.rename(moved)
+    path.symlink_to(moved, target_is_directory=True)
+    original = snapshot(layout.home)
+    with pytest.raises((OSError, ValueError, RuntimeError)):
+        publisher.__globals__["_private_chatbotx_launcher"](
+            layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"], check=True)
+    assert snapshot(layout.home) == original
+
+
+@pytest.mark.parametrize("root_name", ["npm", "chatbotx"])
+def test_chatbotx_account_namespace_inside_software_is_rejected_before_read(layout, publisher, monkeypatch, root_name):
+    private = write(layout.packages[root_name] / ".chatbotX/config.json", '{"token":"synthetic"}')
+    observed = forbid_content_read(publisher, monkeypatch, private)
+    with pytest.raises(ValueError, match="Private state is forbidden"):
+        layout.publish()
+    assert private not in observed
+    assert_no_exports(layout)
+
+
+@pytest.mark.parametrize("missing", ["README.md", "dist/index.cjs", "dist/index.mjs", "dist/index.d.cts", "dist/index.d.mts"])
+def test_chatbotx_missing_reviewed_support_file_blocks_publication(layout, missing):
+    (layout.packages["chatbotx"] / missing).unlink()
+    with pytest.raises((OSError, ValueError)):
+        layout.publish()
+    assert_no_exports(layout)
+
+
+@pytest.mark.parametrize("stage", ["operator-install", "operator-check", "shared"])
+def test_modified_regular_chatbotx_entry_is_rejected_before_execution(layout, publisher, stage):
+    helper = publisher.__globals__["_private_chatbotx_launcher"]
+    entry = layout.packages["chatbotx"] / "dist/index.cjs"
+    wrapper = layout.bins / "chatbotx"
+    if stage == "operator-check":
+        helper(layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"])
+    entry.write_text("console.log('0.1.3'); // altered regular file\n")
+    original = snapshot(layout.home)
+    with pytest.raises(ValueError, match="reviewed SHA-256"):
+        if stage == "shared":
+            layout.publish(probe=lambda *args: pytest.fail("modified CLI must not be probed"))
+        else:
+            helper(layout.home, layout.node / "bin/node", PINS["CHATBOTX_CLI_VERSION"], PINS["CHATBOTX_CLI_ENTRY_SHA256"],
+                   verify=stage == "operator-check")
+    assert snapshot(layout.home) == original
+    assert wrapper.exists() == (stage == "operator-check")
+    assert_no_exports(layout)
+
+
+@pytest.mark.parametrize("already_published", [False, True])
+def test_chatbotx_change_between_source_validation_and_inventory_cannot_be_published(
+        layout, publisher, monkeypatch, already_published):
+    if already_published:
+        layout.publish()
+    before_shared, before_public = snapshot(layout.shared), snapshot(layout.public)
+    original_sources = publisher.__globals__["_sources"]
+
+    def changed_after_validation(*args, **kwargs):
+        sources = original_sources(*args, **kwargs)
+        (sources["npm/chatbotx"] / "dist/index.cjs").write_text("console.log('0.1.3'); // concurrent replacement\n")
+        return sources
+
+    monkeypatch.setitem(publisher.__globals__, "_sources", changed_after_validation)
+    with pytest.raises(ValueError, match="Inventoried ChatbotX entrypoint differs"):
+        layout.publish(probe=lambda *args: pytest.fail("changed inventoried code must not be probed"))
+    assert snapshot(layout.shared) == before_shared
+    assert snapshot(layout.public) == before_public
+
+
+@pytest.mark.parametrize("entry_hash", [None, "", "0" * 63, "g" * 64, "0" * 64])
+def test_invalid_or_wrong_chatbotx_hash_pin_blocks_shared_publication(layout, entry_hash):
+    pins = {**PINS, "CHATBOTX_CLI_ENTRY_SHA256": entry_hash}
+    if entry_hash is None:
+        del pins["CHATBOTX_CLI_ENTRY_SHA256"]
+    with pytest.raises(ValueError):
+        layout.publish(pins=pins, probe=lambda *args: pytest.fail("invalid digest must not be probed"))
+    assert_no_exports(layout)
+
+
+def test_installer_chatbotx_check_verifies_package_before_native_execution(tmp_path):
+    source = (ROOT / "scripts/station_toolchain_install.sh").read_text()
+    function = source[source.index("check_pinned_tool() {"):source.index("\ncheck_toolchain() {")]
+    binary = write(tmp_path / "chatbotx", "#!/bin/sh\nexit 0\n", executable=True)
+    result = subprocess.run(["bash", "-c", """set -Eeuo pipefail
+manage_chatbotx_launcher() { [[ "$1" == verify ]]; return 1; }
+run_version_probe() { printf 'UNVERIFIED_CODE_WAS_EXECUTED'; }
+""" + function + '\ncheck_pinned_tool chatbotx "$BINARY" 0.1.3 --version'],
+                            env={"BINARY": str(binary)}, capture_output=True, text=True, timeout=5)
+    assert result.returncode == 1
+    assert "reviewed package/launcher verification failed" in result.stdout
+    assert "UNVERIFIED_CODE_WAS_EXECUTED" not in result.stdout + result.stderr
+
+
+def test_chatbotx_readonly_verifier_clears_inherited_account_environment(tmp_path):
+    source = (ROOT / "scripts/station_toolchain_install.sh").read_text()
+    function = source[source.index("manage_chatbotx_launcher() {"):source.index("\ninstall_chatbotx_cli() {")]
+    helper_root = tmp_path / "station-source"
+    write(helper_root / "scripts/station_shared_toolchain.py", """import os
+def _private_chatbotx_launcher(home, node, version, entry_sha256, *, check, verify):
+    assert check is False and verify is True
+    assert 'CHATBOTX_API_KEY' not in os.environ
+    assert 'NODE_OPTIONS' not in os.environ
+    assert 'HOME' not in os.environ
+    assert os.environ['PATH'] == '/usr/bin:/bin'
+    assert version == '0.1.3' and entry_sha256 == 'a' * 64
+    print('ISOLATED_PACKAGE_VERIFIED')
+""")
+    harness = "set -Eeuo pipefail\nas_station() { echo UNSAFE_INSTALL_ENVIRONMENT; return 99; }\n"
+    result = subprocess.run(["/bin/bash", "-c", harness + function + "\nmanage_chatbotx_launcher verify"],
+                            env={"ROOT": str(helper_root), "STATION_HOME": str(tmp_path / "operator"),
+                                 "STATION_USER": pwd.getpwuid(os.geteuid()).pw_name, "NODE_ARCH": "x64",
+                                 "NODE_VERSION": "24.20.0", "CHATBOTX_CLI_VERSION": "0.1.3",
+                                 "CHATBOTX_CLI_ENTRY_SHA256": "a" * 64, "HOME": str(tmp_path / "private-home"),
+                                 "CHATBOTX_API_KEY": "SYNTHETIC_PRIVATE_TOKEN", "NODE_OPTIONS": "--require /absent",
+                                 "PATH": "/usr/bin:/bin"}, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "ISOLATED_PACKAGE_VERIFIED\n"
+
+
+@pytest.mark.parametrize("failure", ["none", "wrong-version", "version-error", "help-error", "wrong-help"])
+def test_shared_chatbotx_acceptance_requires_exact_version_and_help_with_disposable_home(
+        layout, publisher, monkeypatch, failure):
+    calls = []
+    module = publisher.__globals__
+    monkeypatch.setenv("CHATBOTX_API_KEY", "SYNTHETIC_MUST_NOT_REACH_PROBE")
+    monkeypatch.setenv("NODE_PATH", "/synthetic/dependencies/must-not-reach-probe")
+    monkeypatch.setattr(module["shutil"], "which", lambda name: "/usr/sbin/runuser")
+    monkeypatch.setattr(module["os"], "chown", lambda *args: None)
+
+    def run(command, **options):
+        calls.append((command, options))
+        assert command[:7] == ["/usr/sbin/runuser", "--user", "fixture", "--", "/usr/bin/env", "-i", f"HOME={options['cwd']}"]
+        assert options["cwd"] != str(layout.home)
+        assert Path(options["cwd"]).is_dir()
+        assert not any(value.startswith(("CHATBOTX_", "NODE_PATH=")) for value in command)
+        if command[-1] == "--version":
+            return subprocess.CompletedProcess(command, 1 if failure == "version-error" else 0,
+                                               "10.1.3\n" if failure == "wrong-version" else "0.1.3\n", "")
+        if command[-1] == "--help":
+            return subprocess.CompletedProcess(command, 1 if failure == "help-error" else 0,
+                                               "unexpected help" if failure == "wrong-help" else "chatbotx <group> <action> [options]\n", "")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(module["subprocess"], "run", run)
+    if failure == "none":
+        module["_probe"](layout.root / "candidate", {"chatbotx": "npm/chatbotx/dist/index.cjs"},
+                         PINS, "fixture", os.getuid(), os.getgid())
+    else:
+        with pytest.raises(ValueError, match="verification failed"):
+            module["_probe"](layout.root / "candidate", {"chatbotx": "npm/chatbotx/dist/index.cjs"},
+                             PINS, "fixture", os.getuid(), os.getgid())
+    assert calls and not Path(calls[0][1]["cwd"]).exists()
+    assert any(command[-1] == "--help" for command, _ in calls) == (failure not in {"wrong-version", "version-error"})
+
+
 def test_same_owner_pin_upgrade_preserves_previous_immutable_release(layout):
     layout.publish()
     previous = final_root(layout)
@@ -284,7 +545,7 @@ def test_same_owner_pin_upgrade_preserves_previous_immutable_release(layout):
         assert (layout.public / name).resolve() == current / "bin" / name
 
 
-@pytest.mark.parametrize("source", ["node", "npm", "python", "standalone"])
+@pytest.mark.parametrize("source", ["node", "npm", "python", "standalone", "chatbotx"])
 def test_same_pin_source_content_drift_is_rejected(layout, source):
     layout.publish()
     release = final_root(layout)
@@ -292,7 +553,7 @@ def test_same_pin_source_content_drift_is_rejected(layout, source):
     path = {"node": layout.node / "include/node/node.h",
             "npm": layout.packages["npm"] / "bin/npm-cli.js",
             "python": layout.runtimes["python-ai"] / "lib/python3.13/encodings/__init__.py",
-            "standalone": layout.bins / "gh"}[source]
+            "standalone": layout.bins / "gh", "chatbotx": layout.packages["chatbotx"] / "dist/index.cjs"}[source]
     path.write_text("changed source under the same pins\n")
     with pytest.raises((ValueError, OSError, RuntimeError)):
         layout.publish()
@@ -300,7 +561,8 @@ def test_same_pin_source_content_drift_is_rejected(layout, source):
 
 
 @pytest.mark.parametrize("relative", ["node/bin/node", "npm/npm/bin/npm-cli.js",
-                                      "python/ai/lib/python3.13/encodings/__init__.py", "bin/node"])
+                                      "python/ai/lib/python3.13/encodings/__init__.py", "bin/node",
+                                      "npm/chatbotx/dist/index.cjs", "bin/chatbotx"])
 def test_published_file_drift_is_rejected_without_repairing_in_place(layout, relative):
     layout.publish()
     target = final_root(layout) / relative
@@ -375,9 +637,9 @@ def test_escaping_or_unresolvable_internal_symlink_is_rejected(layout, kind):
 
 
 @pytest.mark.parametrize("secret", [".env", ".env.production", "auth.json", "credentials.json", ".npmrc"])
-@pytest.mark.parametrize("location", ["npm", "python"])
+@pytest.mark.parametrize("location", ["npm", "python", "chatbotx"])
 def test_secret_shaped_files_inside_explicit_software_root_are_rejected(layout, secret, location):
-    root = layout.packages["npm"] if location == "npm" else layout.runtimes["python-ai"]
+    root = layout.runtimes["python-ai"] if location == "python" else layout.packages[location]
     path = write(root / "nested" / secret, "synthetic private material; never publish\n")
     with pytest.raises((ValueError, OSError, RuntimeError)):
         layout.publish()
@@ -540,8 +802,9 @@ def test_tampered_managed_export_target_is_not_silently_repaired(layout):
 
 
 @pytest.mark.parametrize("field", ["name", "version", "bin"])
-def test_package_metadata_must_match_approved_pinned_package_and_entrypoint(layout, field):
-    manifest = layout.packages["npm"] / "package.json"
+@pytest.mark.parametrize("package", ["npm", "chatbotx"])
+def test_package_metadata_must_match_approved_pinned_package_and_entrypoint(layout, field, package):
+    manifest = layout.packages[package] / "package.json"
     payload = json.loads(manifest.read_text())
     payload[field] = {"name": "unrelated-package", "version": "0.0.0",
                       "bin": {"npm": "../../private-state", "npx": "bin/npx-cli.js"}}[field]
@@ -555,6 +818,7 @@ def test_package_metadata_must_match_approved_pinned_package_and_entrypoint(layo
     ("shadcn", "./dist/index.js"),
     ("vercel", {"vercel": "./dist/vc.js", "vc": "./dist/vc.js"}),
     ("npm", {"npm": "./bin/npm-cli.js", "npx": "./bin/npx-cli.js"}),
+    ("chatbotx", {"chatbotx": "./dist/index.cjs"}),
 ])
 def test_standard_package_bin_forms_and_additional_aliases_are_supported(layout, package, entrypoints):
     manifest = layout.packages[package] / "package.json"
@@ -688,3 +952,43 @@ def test_plan_and_check_exit_before_any_shared_toolchain_publication():
     assert "check) print_plan; check_toolchain; exit $?;;" in branches
     assert "publish_shared_toolchain" not in branches
     assert "station_shared_toolchain.py" not in branches
+
+
+@pytest.mark.parametrize("failure", ["none", "preflight", "integrity", "install"])
+def test_chatbotx_install_gates_wrapper_publication_on_integrity_and_install_success(tmp_path, failure):
+    source = (ROOT / "scripts/station_toolchain_install.sh").read_text()
+    function = source[source.index("install_chatbotx_cli() {"):source.index("\ninstall_composio() {")]
+    log = tmp_path / "actions"
+    harness = """set -Eeuo pipefail
+manage_chatbotx_launcher() {
+  printf '%s\\n' "launcher:$1" >> "$ACTION_LOG"
+  [[ "$FAILURE" != preflight || "$1" != check ]]
+}
+verify_npm_integrity() {
+  printf '%s\\n' "integrity:$1:$2:$3" >> "$ACTION_LOG"
+  [[ "$FAILURE" != integrity ]]
+}
+as_station() {
+  printf '%s\\n' "$@" >> "$ACTION_LOG"
+  [[ "$FAILURE" != install ]]
+}
+"""
+    integrity = "sha512-THfVVu1dCnOTep1xy1hsVk+wH7CeLyyBK/xtA0EYMls834riJ2QnlmICQCuSoPSXI8cgg16uXu2FBIA4uiQCjA=="
+    result = subprocess.run(["bash", "-c", harness + function + "\ninstall_chatbotx_cli"],
+                            env={"PATH": os.environ["PATH"], "STATION_HOME": str(tmp_path),
+                                 "tool_path": str(tmp_path / ".local/bin"), "ACTION_LOG": str(log),
+                                 "CHATBOTX_CLI_VERSION": "0.1.3", "CHATBOTX_CLI_NPM_INTEGRITY": integrity,
+                                 "FAILURE": failure}, capture_output=True, text=True, timeout=10)
+    actions = log.read_text().splitlines()
+    assert (result.returncode == 0) == (failure == "none"), result.stderr
+    assert actions[0] == "launcher:check"
+    if failure != "preflight":
+        assert actions[1] == f"integrity:chatbotx:0.1.3:{integrity}"
+    if failure in {"none", "install"}:
+        assert actions[2:11] == [str(tmp_path / ".local/bin/npm"), "install", "--global=false",
+                                 "--ignore-scripts", "--bin-links=false", "--omit=dev", "--prefix",
+                                 str(tmp_path / ".local/share/station-clis/chatbotx"), "chatbotx@0.1.3"]
+    assert ("launcher:publish" in actions) == (failure == "none")
+    _, dispatch = source.rsplit('case "$MODE" in\n', 1)
+    assert "\ninstall_chatbotx_cli\n" in dispatch
+    assert 'check_pinned_tool chatbotx "$tool_path/chatbotx" "$CHATBOTX_CLI_VERSION" --version' in source

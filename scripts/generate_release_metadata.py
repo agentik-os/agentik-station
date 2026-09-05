@@ -84,6 +84,7 @@ def sbom_payload() -> dict[str, Any]:
         ("Codex CLI", "application", pins["CODEX_CLI_VERSION"], "https://www.npmjs.com/package/@openai/codex"),
         ("Composio CLI", "application", pins["COMPOSIO_CLI_VERSION"], "https://composio.dev"),
         ("shadcn CLI", "application", pins["SHADCN_CLI_VERSION"], "https://www.npmjs.com/package/shadcn"),
+        ("ChatbotX CLI", "application", pins["CHATBOTX_CLI_VERSION"], "https://github.com/ChatbotXIO/ChatbotX"),
         ("Ponytail", "library", pins["PONYTAIL_RELEASE"], "https://github.com/DietrichGebert/ponytail"),
         ("Langfuse", "application", pins["LANGFUSE_RELEASE"], "https://github.com/langfuse/langfuse"),
         ("Honcho", "library", pins["HONCHO_PYTHON_VERSION"], "https://github.com/plastic-labs/honcho"),

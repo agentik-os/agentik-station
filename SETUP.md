@@ -126,6 +126,13 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 
 ## Gate 4 — Composio connected capability plane
 
+ChatbotX is a separate default-installed client capability. Follow
+[resources/chatbotx/README.md](resources/chatbotx/README.md) for its private
+workspace credentials, API/schema-origin review and optional disabled Hermes
+MCP template. Its native CLI has no masked setup prompt: never put a workspace
+token in `config set` flags. Installing it neither authenticates Composio nor
+deploys a ChatbotX server or enables marketing actions.
+
 - map a stable Station principal to the correct organization and Zone;
 - inspect `station provider composio-discord plan --zone <zone-id>`;
 - run `sudo station provider composio-discord link --zone <zone-id>` and complete the hosted OAuth flow;

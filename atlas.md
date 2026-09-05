@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.26`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.27`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Laptop/existing machine:** [Station Workstation](docs/distribution/workstation.md)
 provides a personal macOS/Linux Hermes+AGK installation under one folder. It does
@@ -478,8 +478,17 @@ Optional AI components have distinct jobs:
 | Crawl4AI | HTML-to-Markdown extraction | default explicit fallback, no LLM key, same public-IP/redirect policy |
 | TigerVNC | private remote graphical session when needed | private network, authentication, firewall and viewer readback |
 | Composio | scoped connected-account capability plane | stable principal plus explicit toolkit/account allowlist |
+| ChatbotX | default marketing application CLI, invoked by Hermes | private workspace credentials; exact Node wrapper/byte checks; disabled MCP template and full app deployment remain explicit gates |
 
 Use `station deps list` and install only declared components. `--with-ai-stack` stages all of them but does not authenticate, expose or accept them.
+
+ChatbotX's client is part of the default toolchain, not a new Station OS or
+gateway. Its state follows the calling Unix HOME (`.chatbotX`), not a Hermes
+profile name; same-Zone profiles can therefore share its CLI account. The
+Workstation wrapper redirects that state into `station/personal/home` and does
+not inherit personal tokens. See [the scoped connection contract](resources/chatbotx/README.md)
+before using the client or enabling its optional native MCP entry. No marketing
+messages or database-backed ChatbotX application are started by installation.
 
 ## 11. Resource catalog and the preferred product stack
 

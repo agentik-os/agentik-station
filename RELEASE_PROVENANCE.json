@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.26",
+  "release": "11.27",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1186,
+  "subject_count": 1195,
   "subjects": [
     {
       "executable": false,
@@ -80,8 +80,8 @@
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "e6009eda069814cfb0f81d9023d924a0c9e51145a2a3c069c086e569b82086b0",
-      "size": 19646
+      "sha256": "b0669d31e76719c18633bea48ca8b12a219c63810406651f0ba30812582826a5",
+      "size": 20558
     },
     {
       "executable": false,
@@ -110,8 +110,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "260738e4bf02a1ce631ac1300dd22082220d46f02c23dedb9cf97ed48ba96b16",
-      "size": 24511
+      "sha256": "8fa1171c5d85e58187bb6350c8e4d4ea0101828de6aac3004712f756005df690",
+      "size": 24579
     },
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "93b6eb435edd676b8d468ba8949b0b0dc51f8eddfedc75a273e57827b19898f9",
-      "size": 46700
+      "sha256": "d11f78f651d1e054563ed4527bd3ea2a653c0b4e7a177a06366d77756b4c824a",
+      "size": 47238
     },
     {
       "executable": false,
@@ -146,8 +146,8 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "de3e7542d65194ca6210e86cce2e145ddbc95c7045ff7f3dc8cc49129bb52541",
-      "size": 83216
+      "sha256": "50c1860f582c67a735802cb2cf6d3375516a2008fac39771181d3ac8ff8709d3",
+      "size": 83506
     },
     {
       "executable": false,
@@ -158,20 +158,20 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "701c711519644dd8b7c9695aba4e373d217fb683a25ca14d22da3786cb3685cf",
-      "size": 19029
+      "sha256": "969f4f3a535abed186bc5d762ed074a3e56124d8b8edf6f860a7641ae327da16",
+      "size": 19464
     },
     {
       "executable": false,
       "path": "THIRD_PARTY.md",
-      "sha256": "bf6f99126ae0a6a842d01cc28a9339559586e373c8bcc8c956eb3c3ef09d223b",
-      "size": 1846
+      "sha256": "3a0f48f998a11164e89dffef89172c871a7b49a63079e09d04c53c69b00dcd91",
+      "size": 2186
     },
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "cedf94a7a4039fd9c00e74cefc8cdc7cf67078fcfa16b91ede1beeb8877e3c99",
-      "size": 25472
+      "sha256": "465862e6d0b3c1dcc71da91e505f04632199d8a3c9a2393ee6477ac0958950c7",
+      "size": 26366
     },
     {
       "executable": false,
@@ -188,14 +188,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "a773de67cd41bcb35045f8fe5cab77abd736ddb560004ba33ea7746579cb6dff",
+      "sha256": "58a1657af3e364bf5a1880e784181e01820fcb67194ff99e438bb4ced1893784",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "1c4e0304eb288183e2eebf53378c68f0cf47500378f3a9743ecb0ee19cefbcf4",
-      "size": 60146
+      "sha256": "b553d3a4fba7bb1f45b5db1f14ad15fd159f07eb1defc53eaa3a65d01c289736",
+      "size": 60908
     },
     {
       "executable": true,
@@ -206,8 +206,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "921a87e2252884714c1ecb9ec4b0b98273cbf57c49b2cce2907fc9b775fcf203",
-      "size": 29289
+      "sha256": "4d0fbe46ba97d6288239775dbf11e43a41cca906488aab7b66c0a2d22dab7981",
+      "size": 30297
     },
     {
       "executable": false,
@@ -1106,8 +1106,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "07144cb962e2b338904d3fcebc4ac8a95dd7c8220012a938ac9493a2e98e8340",
-      "size": 6141
+      "sha256": "843f4991879d6fc8b3c90e07e5effe84505a315aa03200c94f17cd4ee2d1db1d",
+      "size": 6767
     },
     {
       "executable": false,
@@ -1340,8 +1340,8 @@
     {
       "executable": false,
       "path": "config/versions.lock",
-      "sha256": "520f62324b283fe8c045c4244f9ce698645799cf8e683829db1b01250d72634a",
-      "size": 3650
+      "sha256": "980a5fe09c983c509036b2cd3ac374ecfa4a8490ae9448e71692b6b0bbb8153f",
+      "size": 3995
     },
     {
       "executable": false,
@@ -1364,7 +1364,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "a2882dcf294a184117db6b9884c80f53333868cef6679e24ec8f111f99c4fb15",
+      "sha256": "dd29fb11536407c90b17b1c215a9fd848321aa12b326b04a32500e85f0ab3053",
       "size": 2339
     },
     {
@@ -1525,6 +1525,18 @@
     },
     {
       "executable": false,
+      "path": "docs/audit/2026-09-05-chatbotx-acceptance.md",
+      "sha256": "97c68c853efc8bc3ffe5c1e1fc2b40d2b6360b7f70631abb9de14ab7289699a9",
+      "size": 6951
+    },
+    {
+      "executable": false,
+      "path": "docs/audit/2026-09-05-chatbotx-install-plan.md",
+      "sha256": "5cca2f2f8c0caa588dcbe71e0d7714f62511d3ff36bebb9ec2dc5dc7f9aaa061",
+      "size": 3369
+    },
+    {
+      "executable": false,
       "path": "docs/audit/2026-09-05-operational-control-plane.md",
       "sha256": "189e5a1aa55e900ec891e386239f174f946568742b415d5190527ab15b455532",
       "size": 7543
@@ -1676,8 +1688,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "a4c0767dbdef7b00d016f495f7041a2b5a6f10fd1001952ea45687ea8dff9777",
-      "size": 7879
+      "sha256": "27d449ea2e63ab1005e6a8f17fcead697b5ad8fa64d935be5ace89700aebd6b5",
+      "size": 8085
     },
     {
       "executable": false,
@@ -1892,8 +1904,8 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "5746bc098705793ed5258d697752565bf620ec1638ae28afe49d9724a724f668",
-      "size": 13467
+      "sha256": "c3c600f8a8d3309793169be9fef94341b10fcf27edb195dc901b381cae7a1e0e",
+      "size": 13929
     },
     {
       "executable": false,
@@ -2870,8 +2882,8 @@
     {
       "executable": true,
       "path": "installer/npm/cli.mjs",
-      "sha256": "0f4b61d27d08ba01f37b30a6530f4ce8c5316776147abe9971673a89c73c5358",
-      "size": 13100
+      "sha256": "2c63a83d32e7c68579b101fade8cca3d9ea9c16c0d3c539ce51d063c8eab7098",
+      "size": 13112
     },
     {
       "executable": false,
@@ -2906,8 +2918,8 @@
     {
       "executable": false,
       "path": "installer/npm/runtime.mjs",
-      "sha256": "27500d1ec6460590c31774259e322766ac1068b0daf0b2de6d3b9d9907f8fe0a",
-      "size": 27676
+      "sha256": "78fa25d8ac7c383b1b044350392ff323a5905d3afd6882cd69b1d4d782b3d53c",
+      "size": 32237
     },
     {
       "executable": false,
@@ -2920,6 +2932,12 @@
       "path": "installer/npm/supervisor.mjs",
       "sha256": "0a06d046d6ec4e6944695c97fac2eac3b9b710982d5e0edf7afda65c8ff9846f",
       "size": 956
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/chatbotx.test.mjs",
+      "sha256": "7e8d8681f0881b420fb05d8a6d9b7b3323b1f4a63c123417f3902edfbf0140b0",
+      "size": 8816
     },
     {
       "executable": false,
@@ -2941,9 +2959,15 @@
     },
     {
       "executable": false,
+      "path": "installer/npm/test/native-chatbotx-smoke.py",
+      "sha256": "e19a42b44a64868a304f129c0155baa75d3ee63232f3f3b18c29fd446ff411c1",
+      "size": 6950
+    },
+    {
+      "executable": false,
       "path": "installer/npm/test/native-install.mjs",
-      "sha256": "6f14ecb16400ff38bc84bb755cfddf56db0f212df0c0b813d408375dc8444641",
-      "size": 5558
+      "sha256": "470d508ee40d83f7c88607e4795b1837932f21d1ce8e9a4efd89c8e336106b42",
+      "size": 6013
     },
     {
       "executable": false,
@@ -2966,8 +2990,8 @@
     {
       "executable": false,
       "path": "installer/npm/test/pack-smoke.mjs",
-      "sha256": "c81e0fe4a53babc27235822314b74f4af9b472cc5b689832dd6342357a9c9488",
-      "size": 2821
+      "sha256": "65abbd0d99a90cd63b67eb9d6f5c60c32acc20df961d714b76c56ded0d182da4",
+      "size": 3004
     },
     {
       "executable": false,
@@ -3038,8 +3062,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "9a1e49b5153b968b57da423d0f64a44eea1826fab780979006655018bc7d135e",
-      "size": 10769
+      "sha256": "a31f9f315c9bad0f593f2c049d4172eea52a49ea495d37f08c47097b883afaf2",
+      "size": 11380
     },
     {
       "executable": false,
@@ -3284,7 +3308,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "f307596c66eaaa9220ac94095ed6207b1411dd3555e026bd8aac7f2c51666a9b",
+      "sha256": "be1dfd07d0a9a83bebe0c13b6d1f6bca502b840df142db0c5c004e7ec7da05c3",
       "size": 3188
     },
     {
@@ -6050,26 +6074,50 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "8683b56888d8068797fcd6641ccb06699e9c91bdf1c4a1322046645b13f5111b",
+      "sha256": "9a8309bbe318e911c8886de3e24b3df7b0cd3e025ad9ac8b1d5d1c1d72a9c466",
       "size": 1064
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "0f4f57f477a8a5169ea81118b4683ee55254deae13b6d90bca746f3c72150630",
+      "sha256": "5d7897d3959f084301cb39f5970b56f6ebc8159be403eaa9108713f96a933240",
       "size": 720
     },
     {
       "executable": false,
       "path": "resources/CATALOG.json",
-      "sha256": "3cae4f08fd86c9ee7c594308ee9515a7a0d9013bbd2c236c81b115f37a535be7",
-      "size": 3282
+      "sha256": "84c8e28983892c0a35e58744fd141b2060a4a38114bd17a2f0fef526c8442708",
+      "size": 3849
     },
     {
       "executable": false,
       "path": "resources/README.md",
       "sha256": "a039751064a4f7452fe00129274005eeb18f5fc2ccda29107062c41069c64f0b",
       "size": 1154
+    },
+    {
+      "executable": false,
+      "path": "resources/chatbotx/LICENSE.upstream",
+      "sha256": "92620ef696e1a14c2be01f8717fa69f50ee091c213aa98c7b7b246d641aad47f",
+      "size": 1612
+    },
+    {
+      "executable": false,
+      "path": "resources/chatbotx/README.md",
+      "sha256": "c09d94c0bc4eed12db4a72a1e8ce36158dfe288b648c26a1289fce1f27498d47",
+      "size": 10114
+    },
+    {
+      "executable": false,
+      "path": "resources/chatbotx/RESOURCE.json",
+      "sha256": "2074fd6084bc383f615a52a8cf912b0f91eec8d525ae0eed53866572af8eb161",
+      "size": 4153
+    },
+    {
+      "executable": false,
+      "path": "resources/chatbotx/hermes-mcp.example.yaml",
+      "sha256": "54d100da36ab0ca3e162a6fa45ea8b96498331c208cf8c17137213ada7450095",
+      "size": 1087
     },
     {
       "executable": false,
@@ -6296,8 +6344,8 @@
     {
       "executable": true,
       "path": "scripts/ci_vps_acceptance.sh",
-      "sha256": "326b6ec317b93ebd758686de67dcb9485400501b0ce0b46a25f7472032fc1451",
-      "size": 8754
+      "sha256": "f4868f8dfb3e0fb11df5c63b90b76e341a31f48e88d917f65cee9d4bd6ab1d2a",
+      "size": 9619
     },
     {
       "executable": false,
@@ -6308,8 +6356,8 @@
     {
       "executable": true,
       "path": "scripts/generate_release_metadata.py",
-      "sha256": "01089d3f02a51b68dcec2d1bf0aa70cf841d723110dfb4c51ff5b10d15642a5e",
-      "size": 9976
+      "sha256": "53fc264a41aa1c1fd0be76381a0517800fbc6ba2e2bc20e32baa236d7a7b18ec",
+      "size": 10089
     },
     {
       "executable": true,
@@ -6356,14 +6404,14 @@
     {
       "executable": false,
       "path": "scripts/station_shared_toolchain.py",
-      "sha256": "894e60419b3bbc83320ca06ed5c92c3492f4f14d76471ecb373dc646b49f7051",
-      "size": 24389
+      "sha256": "f18384fd31644cf7c9c6a355e2af56de87023c9d5136a13c327326b955898886",
+      "size": 29281
     },
     {
       "executable": true,
       "path": "scripts/station_toolchain_install.sh",
-      "sha256": "8e80e9f559cdf9081cc8dc0b7c609664f0c5672de7ba445dd1453b56e3d5e7d3",
-      "size": 26123
+      "sha256": "b0cc9bedae345273907b4e4eaf3c4cc2705999b37a7746a47477c568868831f4",
+      "size": 28583
     },
     {
       "executable": false,
@@ -6518,7 +6566,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "9df92850fa28621b84ec99a48bf1a5dcaf98469d3ced73aae3297de1af4edbfa",
+      "sha256": "5b34f624f0bb6e92a115bf5fc5ea9d3207899a0921697a580532a46d77e4f860",
       "size": 1851
     },
     {
@@ -6787,6 +6835,12 @@
     },
     {
       "executable": false,
+      "path": "tests/contract/test_chatbotx_install.py",
+      "sha256": "02d5348559abd33fb0f9f94ec8aaa7aaafcba5ed417b3fc42ba389829956c180",
+      "size": 4942
+    },
+    {
+      "executable": false,
       "path": "tests/contract/test_deps_stack.py",
       "sha256": "e47abff3eb818ed81feb1734168a19fee821713bc154f5336cceba74b1c1b0dd",
       "size": 7604
@@ -6962,8 +7016,8 @@
     {
       "executable": false,
       "path": "tests/security/test_shared_toolchain.py",
-      "sha256": "78a21e54be21ec4067ca96adc2616b39603b705adba9809aa6e28c63fba09696",
-      "size": 29764
+      "sha256": "534ccd7c32da4c4ad874ebf179b223f419b2da4681d7c80183e2038583687c82",
+      "size": 47287
     },
     {
       "executable": false,
@@ -6986,8 +7040,8 @@
     {
       "executable": false,
       "path": "tests/security/test_vps_zone_toolchain_acceptance.py",
-      "sha256": "2da87eca655fed7e1b5ce0bc132fc2b08ea7a35f60bdb5880a8bcb6e28dad09e",
-      "size": 10445
+      "sha256": "1518137a9b1be2ac65be0858092b996244b9fbadf6333d0810fcc5e2c0dacf6f",
+      "size": 11072
     },
     {
       "executable": false,

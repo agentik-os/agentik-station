@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.26",
+  "release": "11.27",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -11,6 +11,13 @@
     "DEGRADED"
   ],
   "modules": [
+    {
+      "id": "chatbotx",
+      "maturity": "INSTALLABLE",
+      "claim": "Default pinned ChatbotX CLI with private Workstation and shared Host Node launchers, account-free native checks and a disabled Hermes remote-MCP resource. No account, campaign, local MCP server or self-hosted application is activated.",
+      "binary_probes": [],
+      "next_repair_action": "Run the owning installer verification, then review resources/chatbotx/README.md and explicitly enroll one scoped workspace. Native configured version commands can fetch a schema; use the installer account-free check."
+    },
     {
       "id": "strix",
       "maturity": "INSTALLABLE",
@@ -46,7 +53,7 @@
     {
       "id": "operator-toolchain",
       "maturity": "INSTALLABLE",
-      "claim": "The bootstrap installs pinned operator-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI and shadcn CLI with checksum or registry-integrity verification. Allowlisted software is also published as verified root-owned shared code; public launchers preserve each Zone HOME and never copy authentication. External account authentication is never inferred.",
+      "claim": "The bootstrap installs pinned operator-local Python 3.14 plus a Python 3.13 AI compatibility runtime, Node.js, npm, GitHub CLI, Vercel CLI, Codex CLI, Composio CLI, shadcn CLI and ChatbotX CLI with checksum or registry-integrity verification. Allowlisted software is also published as verified root-owned shared code; public launchers preserve each Zone HOME and never copy authentication. External account authentication is never inferred.",
       "binary_probes": ["python-latest", "python-ai", "node", "gh", "vercel", "codex", "composio", "shadcn"],
       "next_repair_action": "Run station deps toolchain-install, then toolchain-check and complete least-privilege login/readback for each provider actually needed."
     },

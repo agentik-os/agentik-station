@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "id": "chatbotx",
+  "repository": "https://github.com/ChatbotXIO/ChatbotX",
+  "commit": "77bd6b17b23dcfb15a0a7031374bde31ceec9b86",
+  "package": "chatbotx",
+  "version": "0.1.3",
+  "tarball": "https://registry.npmjs.org/chatbotx/-/chatbotx-0.1.3.tgz",
+  "integrity": "sha512-THfVVu1dCnOTep1xy1hsVk+wH7CeLyyBK/xtA0EYMls834riJ2QnlmICQCuSoPSXI8cgg16uXu2FBIA4uiQCjA==",
+  "host_node": "24.20.0",
+  "workstation_node": ">=22.14.0 (Station minimum; exact runtime acceptance remains required)",
+  "entry_point": "dist/index.cjs",
+  "entry_sha256": "ca4c5f859da1c5fbb47d5436b5848c4e9785bdd380a3a2b1b6c8e526f6593942",
+  "command": "chatbotx",
+  "role": "Native marketing application CLI invoked under Hermes orchestration",
+  "install_command": "station deps toolchain-install",
+  "install_scope": "default-client-software-only-host-and-personal-workstation",
+  "runtime_claim": "NOT_INSTALLED",
+  "connection_claim": "NOT_CONFIGURED",
+  "paths": {
+    "workstation_package": "<workstation>/station/resources/cli/node_modules/chatbotx",
+    "workstation_launcher": "<workstation>/station/bin/chatbotx",
+    "host_operator_package": "<operator-home>/.local/share/station-clis/chatbotx/node_modules/chatbotx",
+    "host_shared_package": "/opt/station/tools/toolchain/<pin-set>/npm/chatbotx"
+  },
+  "configuration": {
+    "api_url": "https://app.chatbotx.io/api",
+    "api_key_environment": "CHATBOTX_API_KEY",
+    "api_url_environment": "CHATBOTX_API_URL",
+    "native_config": "<process-home>/.chatbotX/config.json",
+    "native_cache": "<process-home>/.chatbotX/openapi-cache.json",
+    "credential_policy": "explicit-owning-profile-enrollment-no-argv-no-cross-zone-copy",
+    "workstation_credential_delivery": "private-native-config-entered-by-editor-launcher-clears-ambient-environment",
+    "host_credential_delivery": "selected-zone-process-environment-or-explicit-private-native-config",
+    "home_boundary": "Unix-HOME-not-HERMES_HOME"
+  },
+  "mcp": {
+    "enabled": false,
+    "runtime_claim": "NOT_CONFIGURED",
+    "template": "hermes-mcp.example.yaml",
+    "url": "https://app.chatbotx.io/mcp/sse",
+    "workspace_token_header": "x-workspace-token",
+    "source_package": "chatbotx-mcp-server",
+    "source_version": "0.1.0",
+    "npm_published_at_review": false,
+    "local_server_installed": false
+  },
+  "self_hosted_application": {
+    "installed": false,
+    "runtime_claim": "NOT_CONFIGURED",
+    "repository": "https://github.com/ChatbotXIO/chatbotx-docker-compose",
+    "deployment_policy": "separate-reviewed-explicit-deployment-no-auto-start"
+  },
+  "license": {
+    "source": "MIT outside apps/builder/src/enterprise; enterprise has a separate Commercial License",
+    "notice": "LICENSE.upstream",
+    "npm_tarball_includes_license": false,
+    "mcp_manifest_license": "ISC",
+    "mcp_license_note": "Source package metadata differs from the repository license; do not infer one uniform application license."
+  },
+  "security": {
+    "automatic_account_enrollment": false,
+    "automatic_mcp_connection": false,
+    "automatic_message_sending": false,
+    "automatic_self_hosting": false,
+    "install_scripts": false,
+    "probe_policy": "private-clean-home-no-account-native-version-and-help",
+    "api_spec_policy": "review-configured-origin-and-spec-server-targets-before-credential-use",
+    "mutation_policy": "owning-principal-explicit-policy-and-external-readback"
+  },
+  "limitations": [
+    "CLI acceptance proves installed client software, not an authenticated workspace or deployed application.",
+    "The published CLI entry point has no shebang; Station must launch it with the managed Node runtime.",
+    "Native CLI config writes plaintext without explicit private modes or atomic replacement and offers no masked enrollment prompt.",
+    "Configured native version/help can fetch a remote schema; the configured version branch reports 0.1.0 rather than package 0.1.3.",
+    "API commands and MCP tools are derived from the remote schema and can mutate workspace data or send messages.",
+    "An installed client or disabled template does not authorize cloud or self-hosted account access."
+  ]
+}

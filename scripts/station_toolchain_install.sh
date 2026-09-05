@@ -16,7 +16,7 @@ usage() {
 usage: station_toolchain_install.sh [--plan|--install|--check] [--without-codex] [--without-hermes]
 
 Installs pinned, user-local Python, Node.js, GitHub CLI, Vercel CLI,
-Codex CLI, Composio CLI and shadcn CLI. Hermes is installed separately by bootstrap.sh.
+Codex CLI, Composio CLI, ChatbotX CLI and shadcn CLI. Hermes is installed separately by bootstrap.sh.
 Also installs the pinned discord.js SDK into an isolated, non-gateway resource directory.
 Publishes verified code-only runtimes under /opt/station/tools/toolchain for Zone users.
 Account login and external connections are never performed automatically.
@@ -66,6 +66,7 @@ Station pinned operator toolchain
   Composio CLI:         ${COMPOSIO_CLI_VERSION}
   discord.js SDK:       ${DISCORD_JS_VERSION} (isolated; no gateway)
   shadcn CLI:           ${SHADCN_CLI_VERSION}
+  ChatbotX CLI:         ${CHATBOTX_CLI_VERSION} (client software; no account enrollment)
 
 Install root: ${STATION_HOME}/.local
 Zone executables: root-owned /opt/station/tools/toolchain via /usr/local/bin
@@ -160,6 +161,10 @@ check_pinned_tool() {
   local binary="$2"
   local expected="$3"
   shift 3
+  if [[ "$label" == chatbotx ]] && ! manage_chatbotx_launcher verify >/dev/null 2>&1; then
+    printf 'FAILED  %-12s reviewed package/launcher verification failed\n' "$label"
+    return 1
+  fi
   if [[ ! -x "$binary" ]]; then
     printf 'MISSING %-12s %s\n' "$label" "$binary"
     return 1
@@ -171,7 +176,7 @@ check_pinned_tool() {
     return 1
   }
   output="${output%%$'\n'*}"
-  if [[ "$output" != *"$expected"* ]]; then
+  if [[ "$output" != *"$expected"* || ( "$label" == chatbotx && "$output" != "$expected" ) ]]; then
     printf 'DRIFT   %-12s expected=%s observed=%s\n' "$label" "$expected" "$output"
     return 1
   fi
@@ -196,6 +201,7 @@ check_toolchain() {
   fi
   check_pinned_tool composio "$tool_path/composio" "$COMPOSIO_CLI_VERSION" --version || failures=$((failures + 1))
   check_pinned_tool shadcn "$tool_path/shadcn" "$SHADCN_CLI_VERSION" --version || failures=$((failures + 1))
+  check_pinned_tool chatbotx "$tool_path/chatbotx" "$CHATBOTX_CLI_VERSION" --version || failures=$((failures + 1))
   local discord_sdk="$STATION_HOME/.local/share/station-sdk/discord-js/node_modules/discord.js/package.json"
   if [[ ! -f "$discord_sdk" ]]; then
     printf 'MISSING %-12s %s\n' discord.js "$discord_sdk"
@@ -221,7 +227,7 @@ check_toolchain() {
       failures=$((failures + 1))
     fi
   fi
-  echo "AUTH    GitHub/Vercel/Composio/Hermes login remains operator-owned."
+  echo "AUTH    GitHub/Vercel/Composio/ChatbotX/Hermes login remains operator-owned."
   ((failures == 0))
 }
 
@@ -570,6 +576,50 @@ install_discord_sdk() {
   as_station "$tool_path/npm" ci --ignore-scripts --omit=dev --prefix "$destination"
 }
 
+manage_chatbotx_launcher() {
+  local node_arch="${NODE_ARCH:-}"
+  if [[ -z "$node_arch" ]]; then
+    case "$(/usr/bin/uname -m)" in
+      x86_64) node_arch=x64;;
+      aarch64|arm64) node_arch=arm64;;
+      *) echo "ERROR: unsupported ChatbotX Node architecture" >&2; return 1;;
+    esac
+  fi
+  local arguments=("$ROOT" "$STATION_HOME"
+                   "$STATION_HOME/.local/lib/node-v${NODE_VERSION#v}-linux-${node_arch}/bin/node"
+                   "$CHATBOTX_CLI_VERSION" "$CHATBOTX_CLI_ENTRY_SHA256" "$1")
+  local runner=(as_station /usr/bin/python3 -I -B - "${arguments[@]}")
+  if [[ "$1" == verify ]]; then
+    # Read-only checks use the same safe privilege drop as native probes.
+    runner=(/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 /usr/bin/python3 -I -S -B - "${arguments[@]}")
+    if [[ "$(/usr/bin/id -un)" != "$STATION_USER" ]]; then
+      runner=(/usr/bin/sudo -n -u "$STATION_USER" -H "${runner[@]}")
+    fi
+  fi
+  "${runner[@]}" <<'PY'
+from pathlib import Path
+import runpy
+import sys
+
+root, home, node, version, entry_sha256, action = sys.argv[1:]
+if action not in {"check", "publish", "verify"}:
+    sys.exit("Invalid ChatbotX launcher action")
+helper = runpy.run_path(str(Path(root) / "scripts/station_shared_toolchain.py"))
+helper["_private_chatbotx_launcher"](Path(home), Path(node), version, entry_sha256,
+                                   check=action == "check", verify=action == "verify")
+PY
+}
+
+install_chatbotx_cli() {
+  # Upstream 0.1.3 lacks a shebang. Keep its bytes intact and reserve an
+  # isolated npm prefix so npm never owns/replaces Station's operator wrapper.
+  manage_chatbotx_launcher check
+  verify_npm_integrity chatbotx "$CHATBOTX_CLI_VERSION" "$CHATBOTX_CLI_NPM_INTEGRITY"
+  as_station "$tool_path/npm" install --global=false --ignore-scripts --bin-links=false --omit=dev \
+    --prefix "$STATION_HOME/.local/share/station-clis/chatbotx" "chatbotx@${CHATBOTX_CLI_VERSION}"
+  manage_chatbotx_launcher publish
+}
+
 install_composio() {
   local tmp
   tmp="$(mktemp)"
@@ -615,6 +665,7 @@ install_github_cli
 install_uv
 install_python
 install_node_clis
+install_chatbotx_cli
 install_discord_sdk
 install_composio
 check_toolchain

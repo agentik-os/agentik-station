@@ -1,4 +1,19 @@
-# Agentik Station 11.26 Validation
+# Agentik Station 11.27 Validation
+
+## Default ChatbotX client — 11.27
+
+The [integration acceptance record](docs/audit/2026-09-05-chatbotx-acceptance.md)
+tracks pinned default installation on Host and Workstation, explicit Node
+launchers, account-free probes, actual Hermes MCP SDK support and disabled
+connection/tool defaults. Software, native template compatibility, live accounts,
+production VPS deployment and npm publication are distinct gates.
+
+Local validation passed 1,572 Station/Factory tests (21 Linux-only skips), 168
+npm tests and 170 final focused checks. A fresh packed macOS consumer passed all
+21 required software checks, actual SDK/template compatibility, 10 TUI views,
+three terminal sizes and synthetic session lifecycle. All 14 protected personal
+files were unchanged. Native Linux acceptance is also a mandatory CI job; live
+accounts, production deployment and npm publication are not inferred from it.
 
 ## Personal Workstation — 11.26
 

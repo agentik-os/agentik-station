@@ -21,7 +21,7 @@ const DIAGNOSTIC_CHECKS = new Set([
   ...['revision', 'tracked-source', 'macos-attribution-exclusion', 'imports', 'plugin:agentik_os', 'plugin:platforms/discord', 'plugin-discovery'].map(name => `hermes:${name}`),
   ...['socket-path', 'version', 'launcher-context'].map(name => `rmux:${name}`),
   ...['commands', 'controller', 'inventory'].map(name => `agk:${name}`),
-  ...['vercel', 'codex', 'shadcn', 'gh', 'composio'].map(name => `cli:${name}`),
+  ...['vercel', 'codex', 'shadcn', 'gh', 'composio', 'chatbotx'].map(name => `cli:${name}`),
   'sdk:discord.js', 'web:crawl4ai', 'web:scrapegraphai',
 ]);
 const DIAGNOSTIC_STATUSES = new Set(['verified', 'failed', 'blocked', 'not-configured', 'unavailable', 'ready-for-setup']);

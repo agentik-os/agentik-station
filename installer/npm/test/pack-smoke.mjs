@@ -14,6 +14,7 @@ try {
   const info=JSON.parse(packed.stdout)[0], names=new Set(info.files.map(f=>f.path));
   for(const required of ['installer/npm/cli.mjs','installer/npm/supervisor.mjs','installer/npm/runtime.mjs','installer/npm/gateway.mjs','installer/npm/web.mjs','config/versions.lock','components/agk-tui/apps/agk-tui/Cargo.lock','components/agk-tui/scripts/sync-rules.py','components/agk-tui/hermes/dashboard-themes/agentik-shadcn.yaml','components/agk-tui/hermes/dashboard-themes/agentik-shadcn-light.yaml','components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/index.js','components/agk-tui/hermes/plugins/agentik_os/dashboard/dist/style.css']) assert.ok(names.has(required),`Missing package runtime asset: ${required}`);
   for(const name of names) assert.ok(!/(^|\/)(\.env(?:$|\.(?!example$))|\.npmrc$|\.git\/|node_modules\/|__pycache__\/|target\/)|\.py[co]$/.test(name),`Unwanted package artifact: ${name}`);
+  for(const name of ['RESOURCE.json','README.md','hermes-mcp.example.yaml','LICENSE.upstream']) assert.ok(names.has('resources/chatbotx/'+name),`Missing ChatbotX resource: ${name}`);
   const prefix=path.join(temp,'consumer');
   await run('npm',['install','--offline','--ignore-scripts','--no-audit','--no-fund','--prefix',prefix,path.join(temp,info.filename)],{cwd:temp,env,timeoutMs:120000});
   const cli=path.join(prefix,'node_modules/@agentik-os/station/installer/npm/cli.mjs');

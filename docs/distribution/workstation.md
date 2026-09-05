@@ -46,9 +46,9 @@ dedicated directory whose parent exists. Existing directories, including empty
 unmanaged ones, are refused rather than adopted. Keep the path short enough for
 RMUX's native Unix socket limit. Paths containing spaces are supported.
 
-The repository prepares `@agentik-os/station` version `11.26.0`; this documentation
+The repository prepares `@agentik-os/station` version `11.27.0`; this documentation
 does **not** claim that npm publication has happened. After an authorized registry
-publication, `npx @agentik-os/station@11.26.0` can launch the same installer.
+publication, `npx @agentik-os/station@11.27.0` can launch the same installer.
 The package has no dependencies or npm lifecycle installation scripts: npm
 install alone never installs Hermes, modifies the OS or starts a gateway.
 The npm package/cache itself lives in npm's chosen prefix/cache; Station-managed
@@ -85,7 +85,7 @@ allowlisted check identifiers and statuses, never captured tool output or tokens
 ### What gets installed and what remains a gate
 
 - Hermes at the reviewed Git commit, with its frozen dependency lock and
-  messaging/voice extras, using a private Python 3.11 environment.
+  messaging/voice/MCP extras, using a private Python 3.11 environment.
 - The complete AGK support tree, Rust TUI, Python controller, dashboard assets,
   themes, rules and native plugins. RMUX has its own socket and verified native
   release; existing user daemons are not repaired or terminated.
@@ -98,6 +98,12 @@ allowlisted check identifiers and statuses, never captured tool output or tokens
   extraction workflow.
 - GitHub and Composio native connectors have their own pinned artifacts and
   version checks. Authentication is an explicit subsequent account action.
+- ChatbotX CLI `0.1.3` is installed by default, with a private Node launcher and
+  exact executable checksum. Its version/help probes use a fresh HOME, because
+  its configured startup can fetch a remote schema. The copied
+  `resources/chatbotx` guide, license and disabled native MCP example are checked
+  byte-for-byte. Workspace enrollment and full application deployment remain
+  separate; no local npm MCP server package exists at the reviewed version.
 - Linux service recipes are **not** silently converted into macOS services.
   Parakeet, memory servers, Tailscale and TigerVNC have separate installation and
   acceptance requirements. Strix remains an approved disposable Linux LAB

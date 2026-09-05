@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1189
+Total files: 1198
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -257,6 +257,8 @@ Total files: 1189
 - `docs/assets/readme/station-os-map.svg`
 - `docs/assets/readme/station-system-map.svg`
 - `docs/audit/2026-09-05-agk-tui-acceptance.md`
+- `docs/audit/2026-09-05-chatbotx-acceptance.md`
+- `docs/audit/2026-09-05-chatbotx-install-plan.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
 - `docs/audit/2026-09-05-portable-install-plan.md`
@@ -490,9 +492,11 @@ Total files: 1189
 - `installer/npm/runtime.mjs`
 - `installer/npm/state.mjs`
 - `installer/npm/supervisor.mjs`
+- `installer/npm/test/chatbotx.test.mjs`
 - `installer/npm/test/cli.test.mjs`
 - `installer/npm/test/connectors.test.mjs`
 - `installer/npm/test/gateway.test.mjs`
+- `installer/npm/test/native-chatbotx-smoke.py`
 - `installer/npm/test/native-install.mjs`
 - `installer/npm/test/native-session-smoke.py`
 - `installer/npm/test/native-tui-smoke.py`
@@ -1015,6 +1019,10 @@ Total files: 1189
 - `pyproject.toml`
 - `resources/CATALOG.json`
 - `resources/README.md`
+- `resources/chatbotx/LICENSE.upstream`
+- `resources/chatbotx/README.md`
+- `resources/chatbotx/RESOURCE.json`
+- `resources/chatbotx/hermes-mcp.example.yaml`
 - `resources/crawl4ai/README.md`
 - `resources/crawl4ai/RESOURCE.json`
 - `resources/discord-js-sdk/README.md`
@@ -1134,6 +1142,7 @@ Total files: 1189
 - `tests/conftest.py`
 - `tests/contract/test_agk_tui_integration.py`
 - `tests/contract/test_atlas_and_resources.py`
+- `tests/contract/test_chatbotx_install.py`
 - `tests/contract/test_deps_stack.py`
 - `tests/contract/test_devops_os_semantics.py`
 - `tests/contract/test_discord_plugin.py`

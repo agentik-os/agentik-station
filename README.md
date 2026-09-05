@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.26.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.27.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -116,6 +116,11 @@ agentik-station tui --root "$HOME/station"
 Prefer no global npm entry? Replace `agentik-station` with
 `node installer/npm/cli.mjs`. `npm install` alone only installs the CLI package;
 it has **no lifecycle hook** that installs tools or starts services.
+
+[ChatbotX](resources/chatbotx/README.md) is included by default as a pinned CLI
+on Workstation and Host. Hermes can invoke it through the scoped tool PATH;
+workspace authentication is explicit. The optional native MCP example stays
+disabled, and installing the client does not deploy the full ChatbotX app.
 
 ```text
 Your computer
@@ -366,6 +371,7 @@ For a **Strix mission**, Architect scopes sanitized source, a human approves dis
 | :--- | :--- | :--- |
 | **Execution** | Hermes; Python, AI Python, Node.js, npm, uv | Pinned runtimes; Hermes configuration and sessions belong to each Zone. |
 | **Operator tools** | GitHub CLI, Vercel CLI, Codex CLI, Composio CLI, shadcn CLI, AGK-TUI | Bootstrap installs tools; account login and scoped readback are separate. |
+| **Marketing workspace** | [ChatbotX CLI](resources/chatbotx/README.md) + optional native Hermes MCP | Default client installation with exact executable checks; no automatic account connection, campaign or full app deployment. |
 | **Chat & voice** | Hermes messaging, Discord, discord.js, OpenAI audio, local Parakeet | Default voice layer and isolated SDK; bot tokens, audio keys and live round trips need setup. |
 | **Web extraction** | [Crawl4AI](resources/crawl4ai/README.md), [ScrapeGraphAI](resources/scrapegraphai/README.md), Playwright | Default web resources. Station adapters fetch public HTML **without JavaScript**; Crawl4AI yields Markdown, ScrapeGraphAI uses a Zone key for structured extraction. |
 | **Security assessment** | [Strix](resources/strix/README.md) | Optional CLI, included with `--with-ai-stack`. No automatic scans or Docker grants; execution needs an accepted disposable LAB and human approval. |

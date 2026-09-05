@@ -85,10 +85,11 @@ TOOLS = {
     'node': 'NODE_VERSION', 'npm': 'NPM_VERSION', 'npx': 'NPM_VERSION',
     'gh': 'GITHUB_CLI_VERSION', 'vercel': 'VERCEL_CLI_VERSION', 'codex': 'CODEX_CLI_VERSION',
     'shadcn': 'SHADCN_CLI_VERSION', 'uv': 'UV_VERSION', 'uvx': 'UV_VERSION',
+    'chatbotx': 'CHATBOTX_CLI_VERSION',
     'python-latest': 'PYTHON_VERSION', 'python-ai': 'AI_PYTHON_VERSION',
 }
 
-ZONE_TOOL_PROBE = '''import json, os, re, shutil, subprocess, sys
+ZONE_TOOL_PROBE = '''import json, os, re, shutil, subprocess, sys, tempfile
 expected = json.loads(sys.argv[1])
 pins = json.loads(sys.argv[2])
 assert os.getuid() == expected['uid'] != 0, 'Probe must run as the selected non-root Zone'
@@ -101,8 +102,19 @@ for name, version in pins.items():
     executable = '/usr/local/bin/' + name
     assert shutil.which(name) == executable, 'Public Zone command unavailable: ' + name
     try:
-        result = subprocess.run([executable, '--version'], env=environment, cwd='/',
-                                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        if name == 'chatbotx':
+            # Its configured --version fetches a schema and reports an old
+            # version. Retain the actual Zone UID and shared PATH, but never
+            # load or normalize an enrolled ChatbotX account for this probe.
+            with tempfile.TemporaryDirectory(prefix='station-chatbotx-check-') as check_home:
+                private = {**environment, 'HOME': check_home, 'HERMES_HOME': check_home,
+                           'XDG_CONFIG_HOME': check_home, 'XDG_CACHE_HOME': check_home,
+                           'XDG_DATA_HOME': check_home}
+                result = subprocess.run([executable, '--version'], env=private, cwd=check_home,
+                                        stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+        else:
+            result = subprocess.run([executable, '--version'], env=environment, cwd='/',
+                                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError):
         raise RuntimeError('Zone version probe failed: ' + name) from None
     if result.returncode or not re.search(r'(?<![0-9.])' + re.escape(version) + r'(?![0-9.])',

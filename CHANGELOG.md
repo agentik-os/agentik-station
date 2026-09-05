@@ -1,5 +1,20 @@
 # Changelog
 
+## 11.27 — Default ChatbotX client (2026-09-05)
+
+- Install the locked Hermes MCP client extra on Workstation and require native
+  MCP SDK imports on both installer paths; never accept a missing SDK silently.
+
+- Add the reviewed ChatbotX CLI to default Workstation and Linux Host toolchains,
+  with npm integrity and executable SHA256 verification before native probes.
+- Use explicit Node launchers for the upstream shebang-free bundle, private
+  new-file permissions and disposable account-free version/help checks.
+- Publish only immutable Host code; keep each Zone's native CLI HOME and account
+  separate from the operator. Workstation never adopts personal ChatbotX state.
+- Ship a verified resource guide, upstream license notice and disabled native
+  Hermes MCP template. No guessed npm MCP package, server deployment, account
+  connection or marketing action is performed by the default installation.
+
 ## 11.26 — Personal Workstation and npm entry (2026-09-05)
 
 - Add a dependency-free, branded npm installer with reviewed personal macOS/Linux

@@ -34,6 +34,7 @@ Project applications declare/install their own SDK dependency.
 | ScrapeGraphAI | 2.2.2 + Playwright Chromium 1.62.0 | default versioned read-only Python 3.13 runtime; `station_scrapegraph` uses a Zone OpenAI key |
 | Crawl4AI | 0.9.3 + Playwright Chromium 1.62.0 | default versioned read-only Python 3.13 runtime; `station_crawl4ai` requires no LLM key |
 | shadcn CLI | 4.21.0 | pinned npm package + locked registry integrity; components remain Project-owned source |
+| ChatbotX CLI | 0.1.3 | default isolated package + exact executable SHA256 + Node wrapper; private account-free version/help verification; [connection and MCP limits](../../resources/chatbotx/README.md) |
 | Hermes Agent | v2026.8.31 / reviewed commit | checksum-locked upstream installer executed as `agk-station`, shared launcher, isolated Zone homes |
 | Hermes voice | explicit `voice,messaging` extras | OpenAI `gpt-transcribe` primary STT; OpenAI `gpt-4o-mini-tts` / `alloy`; Zone-local credential |
 | Tailscale | minimum reviewed 1.102.3, stable track | signed Ubuntu/Debian repository with checksum-locked archive key; normal stable apt upgrade path |

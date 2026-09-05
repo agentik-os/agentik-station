@@ -373,12 +373,30 @@ if [[ "$INSTALL_HERMES" -eq 1 ]]; then
   sudo -u "$STATION_USER" -H env -i HOME="$STATION_HOME" \
     HERMES_HOME="$STATION_HOME/.hermes" PATH=/usr/bin:/bin PYTHONDONTWRITEBYTECODE=1 \
     "$hermes_install_dir/venv/bin/python" - "$hermes_python_dir" <<'PY'
-import pathlib, ssl, sys
+import os, pathlib, ssl, sys, tempfile
 shared = pathlib.Path(sys.argv[1]).resolve(strict=True)
 base = pathlib.Path(sys.base_prefix).resolve(strict=True)
 executable = pathlib.Path(sys.executable).resolve(strict=True)
 if sys.version_info[:2] != (3, 11) or not base.is_relative_to(shared) or not executable.is_relative_to(shared):
     raise SystemExit('ERROR: Hermes requires its reviewed shared Python 3.11 interpreter.')
+with tempfile.TemporaryDirectory(prefix='station-hermes-mcp-check-') as temporary:
+    # Native imports must not consult the operator's enrolled configuration.
+    home = pathlib.Path(temporary)
+    for child in ('hermes', 'managed', 'config', 'cache', 'data'):
+        (home / child).mkdir(mode=0o700)
+    os.environ.clear()
+    os.environ.update(HOME=temporary, HERMES_HOME=str(home / 'hermes'),
+                      HERMES_MANAGED_DIR=str(home / 'managed'),
+                      XDG_CONFIG_HOME=str(home / 'config'), XDG_CACHE_HOME=str(home / 'cache'),
+                      XDG_DATA_HOME=str(home / 'data'), PATH='/usr/bin:/bin', PYTHONDONTWRITEBYTECODE='1')
+    os.chdir(home)
+    try:
+        import mcp, httpx2
+        from tools.mcp_tool import _ensure_mcp_sdk
+        if not _ensure_mcp_sdk():
+            raise SystemExit('ERROR: Hermes MCP client dependencies are missing or incompatible; the upstream fallback install is not accepted.')
+    finally:
+        os.chdir(home.parent)
 print('Hermes shared Python 3.11 sanity OK')
 PY
   install -m 0755 -o root -g root "$STATION_HOME/.local/bin/hermes" /usr/local/bin/hermes

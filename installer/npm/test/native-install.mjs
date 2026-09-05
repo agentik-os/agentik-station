@@ -15,7 +15,7 @@ const sourceRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../.
 if(process.getuid()===0) throw new Error('Native Workstation acceptance must run without sudo.');
 const base=await fs.realpath(await fs.mkdtemp(path.join(process.platform==='darwin'?'/private/tmp':'/tmp','stnf.')));
 const root=path.join(base,'station'), account=os.userInfo().homedir;
-const protectedFiles=['.zprofile','.zshrc','.profile','.npmrc','.hermes/.env','.hermes/config.yaml','.codex/config.toml','.codex/auth.json','.codex/AGENTS.md','.claude/CLAUDE.md','.config/rmux/rmux.conf','.rustup/settings.toml'];
+const protectedFiles=['.zprofile','.zshrc','.profile','.npmrc','.hermes/.env','.hermes/config.yaml','.codex/config.toml','.codex/auth.json','.codex/AGENTS.md','.claude/CLAUDE.md','.config/rmux/rmux.conf','.rustup/settings.toml','.chatbotX/config.json','.chatbotX/openapi-cache.json'];
 async function fingerprint() {
   const result={};
   for(const name of protectedFiles) {
@@ -54,6 +54,9 @@ try {
   assert.ok(definition.includes(ctx.home) && definition.includes(ctx.profile) && definition.includes('/usr/bin/env'));
   await assert.rejects(fs.lstat(target),{code:'ENOENT'});
   result.serviceTemplate='verified-without-activation';
+  console.log('Checking native Hermes MCP template with synthetic tools and no network...');
+  const chatbotx=await run(path.join(root,'tools/hermes/venv/bin/python'),['-I','-B',path.join(sourceRoot,'installer/npm/test/native-chatbotx-smoke.py'),root],{env:{PATH:env.PATH,HOME:base,PYTHONDONTWRITEBYTECODE:'1'},cwd:base,timeoutMs:60000});
+  result.chatbotxNativeTemplate=JSON.parse(chatbotx.stdout);
   for(const name of ['native-tui-smoke.py','native-session-smoke.py']) {
     console.log(`Running ${name} (synthetic; no models)...`);
     const native=await run(path.join(root,'tools/agk-terminal/venv/bin/python'),[path.join(sourceRoot,'installer/npm/test',name),root],{env:{PATH:env.PATH,HOME:account,PYTHONDONTWRITEBYTECODE:'1'},cwd:base,timeoutMs:180000});

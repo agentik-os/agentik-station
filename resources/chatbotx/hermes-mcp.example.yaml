@@ -1,0 +1,27 @@
+# Prepared only: copy/review for one explicitly selected owning Hermes profile.
+# Never merge into shared defaults or enable during software installation.
+# Native contract: NousResearch/hermes-agent at
+# 29112bef099274229cadff79cdff7bf7b99c4b77, tools/mcp_tool.py.
+# The actual token belongs in that profile's private credential environment.
+# Header values use native environment interpolation, not a token in this file.
+mcp_servers:
+  chatbotx:
+    enabled: false
+    # Do not register historical cached utilities before live filter review.
+    lazy: false
+    url: https://app.chatbotx.io/mcp/sse
+    transport: sse
+    strict_redirect_headers: true
+    headers:
+      x-workspace-token: '${CHATBOTX_API_KEY}'
+    tools:
+      # Empty include blocks native server tools (including lazy discovery).
+      # Resource/prompt utilities need their own explicit disable switches.
+      # Select exact reviewed discovered names before account acceptance.
+      include: []
+      resources: false
+      prompts: false
+    sampling:
+      enabled: false
+    elicitation:
+      enabled: false

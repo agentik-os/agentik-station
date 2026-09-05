@@ -44,6 +44,7 @@ toolchain:
     composio_cli: 0.4.0
     discord_js_sdk: 14.27.0
     shadcn_cli: 4.21.0
+    chatbotx_cli: 0.1.3
     note: Remote installer scripts are checksum-locked; package/archive integrity is verified before install.
   tailscale:
     minimum_reviewed: 1.102.3
@@ -55,6 +56,18 @@ resources:
   default_stack: web-product
   policy: Stack recipes are defaults, not a vendor lock; exact Project choices remain contract-driven.
 components:
+  - id: chatbotx
+    repository: https://github.com/ChatbotXIO/ChatbotX
+    role: Marketing application client invoked by Hermes under the owning workspace principal
+    package: chatbotx
+    version: 0.1.3
+    commit_pin: 77bd6b17b23dcfb15a0a7031374bde31ceec9b86
+    install: default-toolchain-cli-and-disabled-mcp-resource
+    runtime: explicit-node-launcher-private-account-free-native-checks
+    account_setup: explicit-private-config-no-token-argv
+    mcp: disabled-template-no-published-npm-server
+    self_hosted_application: separate-reviewed-deployment-not-installed
+    maturity: INSTALLABLE
   - id: strix
     repository: https://github.com/usestrix/strix
     role: Subordinate security assessment tool controlled by the existing Hermes DevOps team

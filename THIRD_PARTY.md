@@ -18,6 +18,7 @@ Station integrates with external projects rather than relicensing them. Before d
 - [OpenAI Codex CLI](https://github.com/openai/codex) — Apache-2.0
 - [Composio CLI](https://github.com/ComposioHQ/composio) — MIT
 - [discord.js](https://github.com/discordjs/discord.js) — Apache-2.0
+- [ChatbotX CLI](https://github.com/ChatbotXIO/ChatbotX) — reviewed root MIT notice retained in [resources/chatbotx/LICENSE.upstream](resources/chatbotx/LICENSE.upstream); enterprise code is separately licensed and not installed. The optional MCP source's ISC metadata differs from the root notice; no local MCP package is redistributed.
 - [Tailscale](https://github.com/tailscale/tailscale) — BSD-3-Clause
 - Podman and its runtime dependencies
 - Restic

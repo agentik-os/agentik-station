@@ -122,9 +122,21 @@ def test_child_checks_all_public_pins_and_preserves_zone_environment(child, monk
     def run(argv, **kwargs):
         calls.append(argv)
         assert argv == ["/usr/local/bin/" + Path(argv[0]).name, "--version"]
-        assert kwargs["env"] == child
-        assert kwargs["env"]["HOME"] == EXPECTED["home"]
-        assert kwargs["cwd"] == "/" and kwargs["stdin"] == subprocess.DEVNULL
+        if Path(argv[0]).name == "chatbotx":
+            isolated = Path(kwargs["env"]["HOME"])
+            assert isolated.name.startswith("station-chatbotx-check-")
+            assert str(isolated) != EXPECTED["home"]
+            assert isolated.stat().st_mode & 0o777 == 0o700
+            assert kwargs["env"]["HERMES_HOME"] == str(isolated)
+            assert kwargs["env"]["XDG_CONFIG_HOME"] == str(isolated)
+            assert kwargs["env"]["XDG_CACHE_HOME"] == str(isolated)
+            assert kwargs["env"]["PATH"] == child["PATH"]
+            assert kwargs["cwd"] == str(isolated)
+        else:
+            assert kwargs["env"] == child
+            assert kwargs["env"]["HOME"] == EXPECTED["home"]
+            assert kwargs["cwd"] == "/"
+        assert kwargs["stdin"] == subprocess.DEVNULL
         assert kwargs["timeout"] == 30
         return SimpleNamespace(returncode=0, stdout="native v1.2.3\n", stderr="unused-private-output")
 

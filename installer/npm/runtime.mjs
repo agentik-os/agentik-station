@@ -15,6 +15,7 @@ const CLI_PACKAGES = [
   ['vercel', 'VERCEL_CLI_VERSION', 'VERCEL_CLI_INTEGRITY', 'vercel'],
   ['@openai/codex', 'CODEX_CLI_VERSION', 'CODEX_CLI_INTEGRITY', 'codex'],
   ['shadcn', 'SHADCN_CLI_VERSION', 'SHADCN_CLI_INTEGRITY', 'shadcn'],
+  ['chatbotx', 'CHATBOTX_CLI_VERSION', 'CHATBOTX_CLI_NPM_INTEGRITY', 'chatbotx'],
   ['discord.js', 'DISCORD_JS_VERSION', 'DISCORD_JS_INTEGRITY', null],
 ];
 const EXCLUDED = new Set(['.git', 'node_modules', 'target', '__pycache__', '.pytest_cache', '.DS_Store']);
@@ -182,16 +183,16 @@ export async function prerequisites(ctx, { run } = {}) {
   return { found, checks };
 }
 
-export function launcher(ctx, executablePath, argv = [], { hermes = false, agk = false } = {}) {
+export function launcher(ctx, executablePath, argv = [], { hermes = false, agk = false, privateFiles = false } = {}) {
   const env = privateEnv(ctx, agk ? { HERMES_HOME: runtimePaths(ctx).profile } : {});
   const entries = Object.entries(env).filter(([key]) => key !== 'TERM').map(([key, value]) => shellQuote(`${key}=${value}`));
-  return `#!/bin/sh\n# Station personal Workstation; same Unix user, not a Zone sandbox.\nexec /usr/bin/env -i ${entries.join(' ')} "TERM=\${TERM:-xterm-256color}" ${shellQuote(executablePath)} ${[...(hermes ? ['--profile', ctx.profile] : []), ...argv].map(shellQuote).join(' ')} "$@"\n`;
+  return `#!/bin/sh\n# Station personal Workstation; same Unix user, not a Zone sandbox.\n${privateFiles ? 'umask 077\n' : ''}exec /usr/bin/env -i ${entries.join(' ')} "TERM=\${TERM:-xterm-256color}" ${shellQuote(executablePath)} ${[...(hermes ? ['--profile', ctx.profile] : []), ...argv].map(shellQuote).join(' ')} "$@"\n`;
 }
 
 async function installHermes(ctx, found, run) {
   const p = runtimePaths(ctx), env = privateEnv(ctx);
   await checkoutHermes(ctx, { git: found.git, run, env });
-  await run(found.uv, ['sync', '--frozen', '--no-dev', '--extra', 'voice', '--extra', 'messaging', '--python', ctx.pins.HERMES_PYTHON_VERSION], {
+  await run(found.uv, ['sync', '--frozen', '--no-dev', '--extra', 'voice', '--extra', 'messaging', '--extra', 'mcp', '--python', ctx.pins.HERMES_PYTHON_VERSION], {
     cwd: p.source, env: { ...env, UV_PROJECT_ENVIRONMENT: p.venv }, timeoutMs: 1200000,
   });
   await createWorkstationProfile(ctx, { run, env });
@@ -299,7 +300,7 @@ async function installAGK(ctx, found, run) {
   await run(path.join(p.agk, 'venv/bin/python'), [path.join(p.agk, 'scripts/sync-rules.py')], { env });
 }
 
-async function installCLIs(ctx, found, run) {
+export async function installCLIs(ctx, found, run) {
   const p = runtimePaths(ctx), env = privateEnv(ctx);
   const dependencies = Object.fromEntries(CLI_PACKAGES.map(([name, version]) => [name, ctx.pins[version]]));
   await writeOwned(ctx, path.join(p.npm, 'package.json'), JSON.stringify({ name: 'station-workstation-tools', version: '1.0.0', private: true, dependencies }, null, 2) + '\n');
@@ -313,8 +314,65 @@ async function installCLIs(ctx, found, run) {
       const manifest = JSON.parse(await fs.readFile(path.join(directory, 'package.json'), 'utf8'));
       const script = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[bin];
       if (typeof script !== 'string' || !script || path.isAbsolute(script) || script.split('/').includes('..')) throw new Error(`Invalid npm executable path: ${name}`);
-      await writeOwned(ctx, path.join(ctx.bin, bin), launcher(ctx, process.execPath, [path.join(directory, script)]), 0o700);
+      if (bin === 'chatbotx') {
+        if (script !== './dist/index.cjs') throw new Error('Unexpected ChatbotX entrypoint');
+        await verifyChatbotXEntry(ctx, path.join(directory, script));
+      }
+      await writeOwned(ctx, path.join(ctx.bin, bin), launcher(ctx, process.execPath, [path.join(directory, script)], { privateFiles: bin === 'chatbotx' }), 0o700);
     }
+  }
+  await copyTree(ctx, path.join(ctx.sourceRoot, 'resources/chatbotx'), path.join(ctx.resources, 'chatbotx'));
+}
+
+async function verifyChatbotXEntry(ctx, script) {
+  await ownedPath(ctx, script);
+  const stat = await fs.lstat(script);
+  if (!stat.isFile() || stat.nlink !== 1 || stat.size > 1024 * 1024
+    || crypto.createHash('sha256').update(await fs.readFile(script)).digest('hex') !== ctx.pins.CHATBOTX_CLI_ENTRY_SHA256) {
+    throw new Error('ChatbotX executable does not match reviewed package bytes');
+  }
+}
+
+/** ChatbotX's configured --version fetches a schema and reports an old version.
+ * Verify the actual entrypoint with a fresh HOME, never the enrolled account.
+ * The published entrypoint has no shebang; managed launchers invoke Node.
+ */
+export async function verifyChatbotX(ctx, { run }) {
+  const p = runtimePaths(ctx), id = 'cli:chatbotx';
+  let probeHome;
+  try {
+    const manifestPath = path.join(p.npm, 'node_modules/chatbotx/package.json');
+    const script = path.join(p.npm, 'node_modules/chatbotx/dist/index.cjs');
+    const wrapper = path.join(ctx.bin, 'chatbotx');
+    for (const target of [manifestPath, script, wrapper, path.join(p.npm, 'package-lock.json')]) await ownedPath(ctx, target);
+    const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
+    const lock = JSON.parse(await fs.readFile(path.join(p.npm, 'package-lock.json'), 'utf8'));
+    const record = lock.packages?.['node_modules/chatbotx'];
+    if (manifest.version !== ctx.pins.CHATBOTX_CLI_VERSION || manifest.bin?.chatbotx !== './dist/index.cjs'
+      || record?.version !== ctx.pins.CHATBOTX_CLI_VERSION || record?.integrity !== ctx.pins.CHATBOTX_CLI_NPM_INTEGRITY
+      || await fs.readFile(wrapper, 'utf8') !== launcher(ctx, process.execPath, [path.join(p.npm, 'node_modules/chatbotx', manifest.bin.chatbotx)], { privateFiles: true })
+      || !((await fs.stat(wrapper)).mode & 0o100)) throw new Error('ChatbotX package or launcher mismatch');
+    await verifyChatbotXEntry(ctx, script);
+    for (const name of ['RESOURCE.json', 'README.md', 'hermes-mcp.example.yaml', 'LICENSE.upstream']) {
+      const target = path.join(ctx.resources, 'chatbotx', name);
+      await ownedPath(ctx, target);
+      if (!(await fs.readFile(target)).equals(await fs.readFile(path.join(ctx.sourceRoot, 'resources/chatbotx', name)))) throw new Error('ChatbotX resource is missing or changed');
+    }
+    await directory(ctx, ctx.cache);
+    probeHome = await fs.mkdtemp(path.join(ctx.cache, 'chatbotx-probe-'));
+    const env = {
+      HOME: probeHome, PATH: `${path.dirname(process.execPath)}:/usr/bin:/bin`,
+      XDG_CONFIG_HOME: probeHome, XDG_CACHE_HOME: probeHome, XDG_DATA_HOME: probeHome,
+      NO_COLOR: '1', CI: 'true', LANG: 'C.UTF-8',
+    };
+    const version = await run(process.execPath, [script, '--version'], { env, cwd: probeHome, timeoutMs: 30000, allowFailure: true });
+    const help = await run(process.execPath, [script, '--help'], { env, cwd: probeHome, timeoutMs: 30000, allowFailure: true });
+    if (version.code !== 0 || version.stdout.trim() !== ctx.pins.CHATBOTX_CLI_VERSION || help.code !== 0 || !/config/i.test(help.stdout)) throw new Error('ChatbotX native probe failed');
+    return { id, status: 'verified', required: true, detail: 'Pinned CLI and Node launcher verified with fresh private HOME; no account, MCP connection or hosted application acceptance.' };
+  } catch {
+    return { id, status: 'failed', required: true, detail: 'ChatbotX package, private Node launcher or account-free native probe failed; inspect explicit repair.' };
+  } finally {
+    if (probeHome) await fs.rm(probeHome, { recursive: true, force: true });
   }
 }
 
@@ -354,7 +412,7 @@ export async function verify(ctx, { run, emit = () => {} }) {
     try { okay = await fs.readFile(path.join(p.source, '.git/info/sparse-checkout'), 'utf8') === MACOS_SPARSE_RULES; } catch { /* failed evidence below */ }
     checks.push({ id: 'hermes:macos-attribution-exclusion', status: okay ? 'verified' : 'failed', required: true, detail: 'macOS omits only contributors/emails case-colliding attribution; all runtime source must remain tracked and clean.' });
   }
-  await probe('hermes:imports', p.python, ['-c', "import importlib.metadata as m; import hermes_cli.main, discord, nacl.secret, openai, yaml; assert m.version('hermes-agent'); print('imports-ok')"], value => value.includes('imports-ok'));
+  await probe('hermes:imports', p.python, ['-c', "import importlib.metadata as m; import hermes_cli.main, discord, nacl.secret, openai, yaml, mcp, httpx2; from tools.mcp_tool import _ensure_mcp_sdk; assert m.version('hermes-agent') and _ensure_mcp_sdk(); print('imports-ok')"], value => value.includes('imports-ok'));
   await probe('rmux:version', p.rmux, ['-V'], value => value.trim() === `rmux ${ctx.pins.RMUX_VERSION}`);
   let launcherOkay = false;
   try {
@@ -370,7 +428,8 @@ export async function verify(ctx, { run, emit = () => {} }) {
   for (const name of ['agentik_os', 'platforms/discord']) await probe(`hermes:plugin:${name}`, p.hermes, ['--profile', ctx.profile, 'plugins', 'doctor', '--ci', path.join(p.profile, 'plugins', name)]);
   await probe('hermes:plugin-discovery', p.python, ['-c', "from hermes_cli.plugins import discover_plugins,get_plugin_manager; discover_plugins(); rows=get_plugin_manager().list_plugins(); expected={'agentik-os','platforms/discord'}; active={r.get('key') or r['name'] for r in rows if r['enabled'] and not r.get('error')}; assert expected<=active, 'Station plugins not natively enabled'; print('plugins-enabled')"], value => value.includes('plugins-enabled'), { env: { ...env, HERMES_HOME: p.profile } });
   for (const [name, version, , bin] of CLI_PACKAGES) {
-    if (bin) await probe(`cli:${bin}`, path.join(ctx.bin, bin), ['--version'], value => value.includes(ctx.pins[version]));
+    if (bin === 'chatbotx') { checks.push(await verifyChatbotX(ctx, { run })); emit({ phase: 'verify', status: checks.at(-1).status, message: 'cli:chatbotx' }); }
+    else if (bin) await probe(`cli:${bin}`, path.join(ctx.bin, bin), ['--version'], value => value.includes(ctx.pins[version]));
     else await probe('sdk:discord.js', process.execPath, ['--input-type=module', '-e', `import {createRequire} from 'node:module';const require=createRequire(${JSON.stringify(path.join(p.npm, 'package.json'))});const d=require('discord.js');if(d.version!==${JSON.stringify(ctx.pins[version])})process.exit(1);console.log('sdk-ok')`], value => value.includes('sdk-ok'));
   }
   checks.push(...await verifyConnectors(ctx, { run, emit }));
@@ -378,6 +437,7 @@ export async function verify(ctx, { run, emit = () => {} }) {
   for (const [id, detail] of [
     ['gateway', 'Software prepared; enroll the exact profile and explicitly activate. No Discord or other chat readback has occurred.'],
     ['accounts', 'Hermes model, GitHub, Vercel, Codex and Composio identities require separate enrollment; no personal credentials were copied.'],
+    ['chatbotx:connection', 'CLI installed; choose the owning ChatbotX workspace/API and explicitly enroll its credential. MCP template is disabled; no full application, campaign or account was activated. See resources/chatbotx/README.md.'],
     ['voice:native-libraries', 'Hermes voice/messaging Python extras installed; ffmpeg, Opus and PortAudio plus a real audio/account roundtrip still require acceptance.'],
     ['services', 'Parakeet, memory servers, Tailscale and TigerVNC are not activated on Workstation. Host service recipes are not portable acceptance.'],
     ['strix', 'Security scans require an approved disposable Linux LAB; never run them implicitly on this personal Workstation.'],

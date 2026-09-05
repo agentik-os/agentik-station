@@ -61,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.26 Host
+## Supported base for Station 11.27 Host
 
 The current safe-kernel provider supports:
 
@@ -161,7 +161,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.26",
+  "release_version": "11.27",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -315,6 +315,7 @@ Vercel CLI
 Codex CLI
 Composio CLI
 shadcn CLI
+ChatbotX CLI (explicit Node launcher; no login or marketing action)
 ```
 
 After those operator checks pass, bootstrap publishes an explicit **software-only**
@@ -371,7 +372,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22/11.23 installation needing the current controls, publish the
-11.26 immutable Station kernel first, preserving the Host's desired state. Then
+11.27 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -470,7 +471,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.26 publishes beside earlier releases; it never overwrites an old
+Station 11.27 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

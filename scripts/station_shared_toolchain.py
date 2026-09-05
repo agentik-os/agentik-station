@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import pwd
 import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -32,9 +33,10 @@ class SharedToolchainError(ValueError):
 
 CACHES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
 PRIVATE = {".env", ".npmrc", ".netrc", "auth.json", "credentials.json", ".git",
-           ".config", ".cache", ".npm", ".ssh", ".codex", ".hermes"}
+           ".config", ".cache", ".npm", ".ssh", ".codex", ".hermes", ".chatbotX"}
 KEYS = ("NODE_VERSION", "NPM_VERSION", "PYTHON_VERSION", "AI_PYTHON_VERSION",
-        "GITHUB_CLI_VERSION", "UV_VERSION", "VERCEL_CLI_VERSION", "SHADCN_CLI_VERSION")
+        "GITHUB_CLI_VERSION", "UV_VERSION", "VERCEL_CLI_VERSION", "SHADCN_CLI_VERSION", "CHATBOTX_CLI_VERSION",
+        "CHATBOTX_CLI_ENTRY_SHA256")
 MAX_FILE = 512 * 1024 * 1024
 MAX_FILES = 200_000
 
@@ -65,13 +67,13 @@ def _read(path: Path, owners: set[int], *, limit=MAX_FILE) -> bytes:
             os.close(fd)
 
 
-def _package(path: Path, name: str, version: str, owners: set[int]):
+def _package(path: Path, name: str, version: str, owners: set[int], *, entry_sha256=None):
     value = json.loads(_read(path / "package.json", owners, limit=1024 * 1024))
     if value.get("name") != name or value.get("version") != version:
         raise SharedToolchainError(f"Software package does not match its reviewed pin: {name}")
     expected = {"npm": {"npm": "bin/npm-cli.js", "npx": "bin/npx-cli.js"},
                 "vercel": {"vercel": "dist/vc.js"}, "shadcn": {"shadcn": "dist/index.js"},
-                "@openai/codex": {"codex": "bin/codex.js"}}[name]
+                "@openai/codex": {"codex": "bin/codex.js"}, "chatbotx": {"chatbotx": "dist/index.cjs"}}[name]
     bins = value.get("bin")
     if isinstance(bins, str):
         bins = {name.rsplit("/", 1)[-1]: bins}
@@ -85,6 +87,14 @@ def _package(path: Path, name: str, version: str, owners: set[int]):
         normalized[command] = str(Path(target))
     if any(normalized.get(command) != target for command, target in expected.items()):
         raise SharedToolchainError(f"Package entrypoint differs from its reviewed layout: {name}")
+    if name == "chatbotx":
+        if (not isinstance(entry_sha256, str) or not re.fullmatch(r"[a-f0-9]{64}", entry_sha256)
+                or hashlib.sha256(_read(path / "dist/index.cjs", owners)).hexdigest() != entry_sha256):
+            raise SharedToolchainError("ChatbotX entrypoint differs from its reviewed SHA-256")
+        # The reviewed tarball contains these six files (including package.json).
+        # It bundles runtime dependencies into its CJS/ESM entries.
+        for relative in ("README.md", "dist/index.cjs", "dist/index.mjs", "dist/index.d.cts", "dist/index.d.mts"):
+            _read(path / relative, owners)
 
 
 def _source_parents(home: Path, sources: dict[str, Path], owners: set[int]):
@@ -95,6 +105,55 @@ def _source_parents(home: Path, sources: dict[str, Path], owners: set[int]):
             if not parent.is_relative_to(home):
                 break
             _checked(parent, owners, directory=True)
+
+
+def _private_chatbotx_launcher(home: Path, node: Path, version: str, entry_sha256: str, *, check=False, verify=False):
+    """Manage only Station's private wrapper; the upstream JS has no shebang."""
+    owners = {os.geteuid()}
+    prefix = home / ".local/share/station-clis/chatbotx"
+    package = prefix / "node_modules/chatbotx"
+    target = package / "dist/index.cjs"
+    wrapper = home / ".local/bin/chatbotx"
+    node_pattern = re.escape(str(home / ".local/lib/node-v")) + r"\d+\.\d+\.\d+-linux-(x64|arm64)/bin/node"
+    if (not home.is_absolute() or ".." in home.parts or home == Path("/")
+            or not re.fullmatch(node_pattern, str(node)) or not re.fullmatch(r"\d+\.\d+\.\d+", version)):
+        raise SharedToolchainError("Invalid private ChatbotX software paths or pin")
+    for path in (package / "dist", wrapper.parent, node.parent):
+        SafeFS._assert_existing_absolute_chain(path)
+        for parent in (path, *path.parents):
+            if not parent.is_relative_to(home):
+                break
+            if parent.exists():
+                _checked(parent, owners, directory=True)
+    for path in (prefix / "package.json", prefix / "package-lock.json", prefix / "npm-shrinkwrap.json",
+                 prefix / "node_modules/.package-lock.json", package / "package.json", target):
+        if os.path.lexists(path):
+            _read(path, owners)
+
+    def body(runtime):
+        return ("#!/bin/sh\n# Station ChatbotX code; caller-owned account/configuration.\numask 077\nexec "
+                + shlex.quote(str(runtime)) + " " + shlex.quote(str(target)) + ' "$@"\n').encode()
+
+    if os.path.lexists(wrapper):
+        previous = _read(wrapper, owners, limit=8192)
+        lines = previous.decode().splitlines()
+        command = shlex.split(lines[3]) if len(lines) == 4 else []
+        if (len(command) != 4 or command[0] != "exec" or command[2:] != [str(target), "$@"]
+                or not re.fullmatch(node_pattern, command[1]) or previous != body(command[1])):
+            raise SharedToolchainError("Refusing unrelated private ChatbotX launcher")
+        if verify and previous != body(node):
+            raise SharedToolchainError("Private ChatbotX launcher does not select the pinned Node runtime")
+    elif verify:
+        raise SharedToolchainError("Private ChatbotX launcher is missing")
+    if check:
+        return
+    _read(node, owners)
+    _source_parents(home, {"chatbotx": package}, owners)
+    _checked(package, owners, directory=True)
+    _package(package, "chatbotx", version, owners, entry_sha256=entry_sha256)
+    _read(target, owners)
+    if not verify:
+        SafeFS([wrapper.parent]).write_bytes(wrapper, body(node), 0o755)
 
 
 def _destination_parents(path: Path, owner: int):
@@ -125,6 +184,9 @@ def _sources(home: Path, pins: dict, arch: str, codex: bool, owners: set[int]):
                                  ("shadcn", "SHADCN_CLI_VERSION", "shadcn")):
         sources["npm/" + folder] = home / ".local/lib/node_modules" / package
         _package(sources["npm/" + folder], package, pins[key], owners)
+    sources["npm/chatbotx"] = home / ".local/share/station-clis/chatbotx/node_modules/chatbotx"
+    _package(sources["npm/chatbotx"], "chatbotx", pins["CHATBOTX_CLI_VERSION"], owners,
+             entry_sha256=pins["CHATBOTX_CLI_ENTRY_SHA256"])
     if codex:
         sources["npm/codex"] = home / ".local/lib/node_modules/@openai/codex"
         _package(sources["npm/codex"], "@openai/codex", pins["CODEX_CLI_VERSION"], owners)
@@ -205,7 +267,8 @@ def _inventory(sources: dict[str, Path], owners: set[int]):
 def _exports(pins, codex):
     result = {"node": "node/bin/node", "npm": "npm/npm/bin/npm-cli.js", "npx": "npm/npm/bin/npx-cli.js",
               "gh": "standalone/gh", "uv": "standalone/uv", "uvx": "standalone/uvx",
-              "vercel": "npm/vercel/dist/vc.js", "shadcn": "npm/shadcn/dist/index.js"}
+              "vercel": "npm/vercel/dist/vc.js", "shadcn": "npm/shadcn/dist/index.js",
+              "chatbotx": "npm/chatbotx/dist/index.cjs"}
     for alias, folder, key in (("python-latest", "latest", "PYTHON_VERSION"), ("python-ai", "ai", "AI_PYTHON_VERSION")):
         result[alias] = "python/" + folder + "/bin/python" + ".".join(pins[key].split(".")[:2])
     if codex:
@@ -216,12 +279,12 @@ def _exports(pins, codex):
 def _launcher(final: Path, name: str, target: str) -> bytes:
     # All interpolation is validated canonical installation paths, never a
     # reconstructed user command. Account-related environment is left untouched.
-    import shlex
     command = [str(final / target)]
-    if name in {"npm", "npx", "vercel", "shadcn", "codex"}:
+    if name in {"npm", "npx", "vercel", "shadcn", "codex", "chatbotx"}:
         command.insert(0, str(final / "node/bin/node"))
     npm_prefix = 'export NPM_CONFIG_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.local}"\n' if name in {"npm", "npx"} else ""
-    return ("#!/bin/sh\n# Station shared code; caller-owned account/configuration.\n" + npm_prefix
+    private_mode = "umask 077\n" if name == "chatbotx" else ""
+    return ("#!/bin/sh\n# Station shared code; caller-owned account/configuration.\n" + npm_prefix + private_mode
             + "exec " + " ".join(shlex.quote(item) for item in command) + ' "$@"\n').encode()
 
 
@@ -287,12 +350,20 @@ def _probe(final: Path, exports: dict, pins: dict, user: str, uid: int, gid: int
                   f"PATH={final / 'bin'}:/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE=1"]
         expected = {"node": "NODE_VERSION", "npm": "NPM_VERSION", "npx": "NPM_VERSION", "gh": "GITHUB_CLI_VERSION",
                     "uv": "UV_VERSION", "uvx": "UV_VERSION", "vercel": "VERCEL_CLI_VERSION", "shadcn": "SHADCN_CLI_VERSION",
-                    "codex": "CODEX_CLI_VERSION", "python-latest": "PYTHON_VERSION", "python-ai": "AI_PYTHON_VERSION"}
+                    "codex": "CODEX_CLI_VERSION", "chatbotx": "CHATBOTX_CLI_VERSION",
+                    "python-latest": "PYTHON_VERSION", "python-ai": "AI_PYTHON_VERSION"}
         for name in exports:
             completed = subprocess.run([*prefix, str(final / "bin" / name), "--version"],
                                        cwd=temporary, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
-            if completed.returncode or pins[expected[name]] not in completed.stdout + completed.stderr:
+            output = completed.stdout + completed.stderr
+            if (completed.returncode or pins[expected[name]] not in output
+                    or (name == "chatbotx" and output.strip() != pins[expected[name]])):
                 raise SharedToolchainError(f"Shared {name} version verification failed; public commands were not changed")
+        if "chatbotx" in exports:
+            completed = subprocess.run([*prefix, str(final / "bin/chatbotx"), "--help"],
+                                       cwd=temporary, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+            if completed.returncode or "chatbotx <group> <action> [options]" not in completed.stdout:
+                raise SharedToolchainError("Shared ChatbotX help verification failed; public commands were not changed")
         code = """import pathlib, ssl, sqlite3, sys, tempfile, venv, subprocess
 expected = pathlib.Path(sys.argv[1]).resolve()
 assert pathlib.Path(sys.base_prefix).resolve() == expected
@@ -323,12 +394,17 @@ def publish_toolchain(*, station_home: Path, station_uid: int, station_gid: int,
             raise SharedToolchainError("Shared software must not live in the operator home")
         required = (*KEYS, *(("CODEX_CLI_VERSION",) if include_codex else ()))
         for key in required:
-            if not re.fullmatch(r"[0-9]+(?:\.[0-9]+){1,3}", pins.get(key, "")):
+            pattern = r"[a-f0-9]{64}" if key == "CHATBOTX_CLI_ENTRY_SHA256" else r"[0-9]+(?:\.[0-9]+){1,3}"
+            if not re.fullmatch(pattern, pins.get(key, "")):
                 raise SharedToolchainError(f"Missing/invalid toolchain pin: {key}")
         owners = {station_uid}
         sources = _sources(home, pins, node_arch, include_codex, owners)
         _source_parents(home, sources, owners)
         entries, originals = _inventory(sources, owners)
+        chatbotx_entry = entries.get("npm/chatbotx/dist/index.cjs", {})
+        if (chatbotx_entry.get("type") != "file"
+                or chatbotx_entry.get("sha256") != pins["CHATBOTX_CLI_ENTRY_SHA256"]):
+            raise SharedToolchainError("Inventoried ChatbotX entrypoint differs from its reviewed SHA-256")
         exports = _exports(pins, include_codex)
         identity = {"schema_version": 1, "pins": pins, "node_arch": node_arch, "codex": include_codex}
         release_id = "v1-" + hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:24]

@@ -2434,6 +2434,18 @@
       "version": "8.21.3"
     },
     {
+      "bom-ref": "station:chatbotx-cli@0.1.3",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/ChatbotXIO/ChatbotX"
+        }
+      ],
+      "name": "ChatbotX CLI",
+      "type": "application",
+      "version": "0.1.3"
+    },
+    {
       "bom-ref": "station:codex-cli@0.153.2",
       "externalReferences": [
         {
@@ -2736,10 +2748,10 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/agentik-station@11.26",
+      "bom-ref": "pkg:generic/agentik-station@11.27",
       "name": "agentik-station",
       "type": "application",
-      "version": "11.26"
+      "version": "11.27"
     },
     "properties": [
       {
@@ -2752,7 +2764,7 @@
       }
     ]
   },
-  "serialNumber": "urn:uuid:b48237c6-e0a7-5b5a-ba50-542cfe143639",
+  "serialNumber": "urn:uuid:2e3324e0-d444-5f03-abc4-3b1e2acb55a4",
   "specVersion": "1.6",
   "version": 1
 }
