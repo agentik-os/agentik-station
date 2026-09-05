@@ -24,10 +24,15 @@ class TokenError(Exception):
 
 def _open_directory(path: str, uid: int) -> int:
     """Walk from /, retaining nofollow descriptors across every component."""
-    fd = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+    traverse = getattr(os, 'O_PATH', os.O_RDONLY)
+    fd = os.open("/", traverse | os.O_DIRECTORY)
     try:
-        for part in path.strip("/").split("/"):
-            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+        parts = path.strip("/").split("/")
+        for index, part in enumerate(parts):
+            # Canonical Station parents are execute-only (0711) to Zone users.
+            # Only our own final directory needs a readable/fsync-capable FD.
+            access = os.O_RDONLY if index == len(parts) - 1 else traverse
+            child = os.open(part, access | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
             os.close(fd)
             fd = child
             st = os.fstat(fd)

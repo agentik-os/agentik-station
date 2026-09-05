@@ -719,6 +719,22 @@ def test_reviewed_base_python_setuptools_shim(trust_tree):
         preflight.validate_startup_file(shim, source, roots, owners)
 
 
+def test_token_uses_traverse_only_ancestor_descriptors(tmp_path, monkeypatch):
+    traverse = getattr(os, 'O_PATH', 0x200000)
+    monkeypatch.setattr(token_helper.os, 'O_PATH', traverse, raising=False)
+    calls, real_open = [], os.open
+    def record(path, flags, **kwargs):
+        calls.append((path, flags))
+        # macOS has no O_PATH; preserve the requested Linux flags for assertion.
+        return real_open(path, flags & ~traverse, **kwargs)
+    monkeypatch.setattr(token_helper.os, 'open', record)
+    monkeypatch.setattr(token_helper.os, 'fstat', lambda fd: SimpleNamespace(st_uid=os.getuid(), st_mode=0o40700))
+    fd = token_helper._open_directory(str(tmp_path), os.getuid())
+    os.close(fd)
+    assert all(flags & traverse for _, flags in calls[:-1])
+    assert not calls[-1][1] & traverse
+
+
 def test_preflight_rejects_excluded_tree_links_and_loops(trust_tree):
     source, _, roots, owners = trust_tree
     excluded = source / ".git"

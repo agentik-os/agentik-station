@@ -1,6 +1,6 @@
 {
   "name": "@agentik-os/station",
-  "version": "11.36.0",
+  "version": "11.37.0",
   "description": "Agentik Station — a reviewed, personal macOS/Linux AI workstation installer and Linux Host guide",
   "type": "module",
   "engines": { "node": ">=22.14.0" },

@@ -62,3 +62,21 @@ from API-key authentication: <https://learn.chatgpt.com/docs/auth>.
 This installation uses pinned Hermes's Codex subscription adapter, not an
 invented OpenAI API key. Broker compatibility with that adapter requires separate
 native acceptance; the OpenAI documentation does not certify this Station design.
+
+## Native preflight findings
+
+The initial 11.36 Host candidate exposed an ancestry bug in the new capability
+helper: Zone users can traverse `0711` Station parents but cannot list them.
+The corrected 11.37 helper uses Linux `O_PATH` for ancestors and a readable
+descriptor only for its own directory. Native readback as Moonbase's Zone UID
+passed without relaxing parent permissions. The six reviewed historical cache/
+lock modes were normalized; the resulting preflight checked 35,661 source/runtime
+entries and 1,054 confined links. Nested web `node_modules` remain outside Python
+import roots, while redirects into them are rejected. The managed base Python's
+exact setuptools startup shim is explicitly recognized.
+
+Local baseline verification before that final ancestry patch: 2,577 Station/
+Factory tests passed (23 platform-specific skips), 529 AGK component tests passed
+(2 unavailable library skips), 263 npm tests passed, and packed-consumer install
+verification passed. Final ancestry and release checks must run again, followed
+by real model acceptance; these baseline counts alone do not prove live inference.
