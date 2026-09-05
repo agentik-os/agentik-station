@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.22.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.23.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -443,16 +443,23 @@ Hermes, coding CLIs, providers and humans share the same **[Station agent rules]
 
 ```bash
 station status                  # Observed Host state
-station doctor --full           # Installed-Host checks
+sudo station doctor --full      # Installed-Host checks with protected readback
 station module status           # Maturity and next repair actions
 station deps toolchain-check    # Observed tools versus reviewed pins
 station resource list           # Reusable resource catalog
 station resource stack-plan     # Inspect the preferred Project stack
-station tui                     # Open AGK-TUI (also available as agk)
+station tui                     # Open AGK-TUI (also agk or agk tui)
 ```
 
 AGK-TUI opens Hermes, Codex, Claude Code and terminal sessions; it is a control
 surface, not a replacement execution engine. See [the AGK-TUI integration guide](INTEGRATION_AGK_TUI.md).
+After bootstrap, the public `agk` launcher uses the dedicated `agk-station`
+operator identity through your existing sudo authorization. You can launch it
+directly from your normal SSH account; Zone homes stay private. Bare `station`
+prints help. Existing installations missing the public launcher can use the
+[targeted repair procedure](INSTALL.md#agk-tui), without rerunning Host bootstrap.
+For Discord, follow [the instance-first bot guide](docs/dependencies/HERMES_PLATFORMS.md):
+configure the selected Director, verify it, then install/start its native gateway.
 Account enrollment and external actions still follow [SETUP.md](SETUP.md).
 
 </details>

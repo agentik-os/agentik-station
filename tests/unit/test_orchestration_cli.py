@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from agentik_station import cli
+from agentik_station import native_process
 from agentik_station.errors import SecurityError, ValidationError
 from agentik_station.paths import LayoutPaths
 
@@ -73,6 +74,7 @@ def gateway(monkeypatch, tmp_path):
                 "bundle_sha256": "a" * 64, "state": "CONFIGURED"}
     monkeypatch.setitem(sys.modules, "agentik_station.os_lifecycle", SimpleNamespace(load_os_runtime_record=load))
     monkeypatch.setattr(cli.subprocess, "run", lambda *a, **k: pytest.fail("Plan executed a command"))
+    monkeypatch.setattr(native_process, "run_bounded_native", lambda *a, **k: pytest.fail("Plan executed a native command"))
     return zone, calls
 
 
@@ -109,7 +111,7 @@ def test_untrusted_or_partial_os_stops_before_any_gateway_command(gateway, monke
 
 def test_gateway_json_does_not_export_native_account_material(gateway, monkeypatch, capsys):
     monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
-    monkeypatch.setattr(cli.subprocess, "run", lambda *a, **k: SimpleNamespace(
+    monkeypatch.setattr(native_process, "run_bounded_native", lambda *a, **k: SimpleNamespace(
         returncode=0, stdout="synthetic-private-key", stderr="synthetic-private-account"))
     assert cli.main(["platform", "status", "--zone", "example-dev", "--os", "devops-os"]) == 0
     text = capsys.readouterr().out
@@ -123,14 +125,53 @@ def test_gateway_timeout_is_bounded_and_sanitized(gateway, monkeypatch, capsys):
     monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
     def timeout(*a, **k):
         raise cli.subprocess.TimeoutExpired("synthetic-private-command", 300, output="synthetic-private-key")
-    monkeypatch.setattr(cli.subprocess, "run", timeout)
+    monkeypatch.setattr(native_process, "run_bounded_native", timeout)
     assert cli.main(["platform", "status", "--zone", "example-dev", "--os", "devops-os"]) == 124
     text = capsys.readouterr().out
     assert "synthetic-private" not in text
     assert json.loads(text)["claim"] == "COMMAND_FAILED_NOT_ACCEPTED"
 
 
-@pytest.mark.parametrize("failure", ["timeout", "missing", "nonzero"])
+def test_gateway_service_uses_supervised_group_without_output_capture(gateway, monkeypatch, capsys):
+    monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
+    calls = []
+    def run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return SimpleNamespace(returncode=0)
+    monkeypatch.setattr(native_process, "run_bounded_native", run)
+    assert cli.main(["platform", "start", "--zone", "example-dev"]) == 0
+    assert len(calls) == 1
+    assert calls[0][0][-4:] == ["--profile", "default", "gateway", "start"]
+    assert calls[0][1] == {"timeout": 300}
+    assert json.loads(capsys.readouterr().out)["native_output_exported"] is False
+
+
+@pytest.mark.parametrize("error", [OSError, cli.subprocess.SubprocessError, InterruptedError])
+def test_gateway_supervision_errors_never_export_native_material(gateway, monkeypatch, capsys, error):
+    monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
+    def fail(*args, **kwargs):
+        raise error("synthetic-private-output")
+    monkeypatch.setattr(native_process, "run_bounded_native", fail)
+    assert cli.main(["platform", "status", "--zone", "example-dev"]) == 127
+    text = capsys.readouterr().out
+    assert "synthetic-private" not in text
+    assert json.loads(text)["claim"] == "COMMAND_FAILED_NOT_ACCEPTED"
+
+
+def test_gateway_wizard_preserves_human_terminal_without_detached_supervisor(gateway, monkeypatch, capsys):
+    monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
+    calls = []
+    def run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return SimpleNamespace(returncode=0)
+    monkeypatch.setattr(cli.subprocess, "run", run)
+    assert cli.main(["platform", "setup", "--zone", "example-dev"]) == 0
+    assert calls[0][1] == {"check": False}
+    assert calls[0][0][-4:] == ["--profile", "default", "gateway", "setup"]
+    assert "native_output_exported" not in json.loads(capsys.readouterr().out)
+
+
+@pytest.mark.parametrize("failure", ["timeout", "missing", "supervisor", "nonzero"])
 def test_service_prerequisite_failure_is_bounded_private_and_stops_native(gateway, monkeypatch, capsys, failure):
     monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
     existing_which = cli.shutil.which
@@ -141,13 +182,15 @@ def test_service_prerequisite_failure_is_bounded_private_and_stops_native(gatewa
     def fail(argv, **kwargs):
         calls.append(argv)
         assert kwargs["timeout"] == 30
-        assert kwargs["stdout"] == kwargs["stderr"] == cli.subprocess.DEVNULL
+        assert kwargs == {"timeout": 30}
         if failure == "timeout":
             raise cli.subprocess.TimeoutExpired("synthetic-private-command", 30)
         if failure == "missing":
             raise OSError("synthetic-private-path")
+        if failure == "supervisor":
+            raise cli.subprocess.SubprocessError("synthetic-private-output")
         return SimpleNamespace(returncode=1, stderr="synthetic-private-account")
-    monkeypatch.setattr(cli.subprocess, "run", fail)
+    monkeypatch.setattr(native_process, "run_bounded_native", fail)
     assert cli.main(["platform", "install", "--zone", "example-dev", "--os", "devops-os"]) == 2
     assert len(calls) == 1
     assert calls[0][1] == "enable-linger"

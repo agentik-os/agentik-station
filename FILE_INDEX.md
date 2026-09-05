@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1145
+Total files: 1150
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -146,6 +146,7 @@ Total files: 1145
 - `components/agk-tui/scripts/install-hermes-fleet-dashboard.sh`
 - `components/agk-tui/scripts/install-shared-hermes.sh`
 - `components/agk-tui/scripts/provider.sh`
+- `components/agk-tui/scripts/refresh-controls.py`
 - `components/agk-tui/scripts/repair-rmux-daemon.sh`
 - `components/agk-tui/scripts/sync-hermes.sh`
 - `components/agk-tui/scripts/sync-rules.py`
@@ -164,6 +165,7 @@ Total files: 1145
 - `components/agk-tui/tests/test_cli.py`
 - `components/agk-tui/tests/test_client_control.py`
 - `components/agk-tui/tests/test_composio_inventory.py`
+- `components/agk-tui/tests/test_controls_refresh.py`
 - `components/agk-tui/tests/test_discord_session_panel.py`
 - `components/agk-tui/tests/test_fleet_dashboard.py`
 - `components/agk-tui/tests/test_gateway_watchdog.py`
@@ -1046,6 +1048,7 @@ Total files: 1145
 - `specs/17_DELIVERABLE_QUALITY_SCHEMA.example.json`
 - `src/agentik_station/__init__.py`
 - `src/agentik_station/agent_rules.py`
+- `src/agentik_station/agk_launcher.py`
 - `src/agentik_station/bootstrap_state.py`
 - `src/agentik_station/cli.py`
 - `src/agentik_station/configuration.py`
@@ -1125,11 +1128,13 @@ Total files: 1145
 - `tests/security/test_safe_filesystem.py`
 - `tests/security/test_shared_toolchain.py`
 - `tests/security/test_strix_boundaries.py`
+- `tests/security/test_systemd_runtime_links.py`
 - `tests/security/test_vps_acceptance_evidence.py`
 - `tests/security/test_vps_zone_toolchain_acceptance.py`
 - `tests/security/test_zone_compilation.py`
 - `tests/security/test_zone_home_directories.py`
 - `tests/unit/test_agent_rules.py`
+- `tests/unit/test_agk_public_launcher.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`
 - `tests/unit/test_guided_setup_enable.py`

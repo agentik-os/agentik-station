@@ -122,3 +122,31 @@ def test_preexisting_symlink_in_managed_zone_blocks_apply_without_touching_targe
     with pytest.raises(SecurityError):
         StationInstaller(ROOT, _spec("op-symlink-block"), paths=paths).apply()
     assert victim.read_text() == "safe"
+
+
+@pytest.mark.parametrize("existing", [False, True])
+@pytest.mark.parametrize("failed_step", ["_install_system_packages", "_run_doctor"])
+def test_failed_reconcile_keeps_zone_traversal_and_private_failure_evidence(
+    tmp_path: Path, monkeypatch, existing: bool, failed_step: str,
+) -> None:
+    paths = LayoutPaths.under(tmp_path.resolve() / "root")
+    if existing:
+        StationInstaller(ROOT, _spec("op-before-failure"), paths=paths).apply()
+    installer = StationInstaller(ROOT, _spec("op-traversal-failure"), paths=paths)
+
+    def fail():
+        raise RuntimeError("Synthetic reconciliation failure")
+
+    monkeypatch.setattr(installer, failed_step, fail)
+    with pytest.raises(RuntimeError, match="Synthetic reconciliation failure"):
+        installer.apply()
+
+    assert stat.S_IMODE(paths.varlib.stat().st_mode) == 0o711
+    assert stat.S_IMODE(paths.receipts.stat().st_mode) == 0o750
+    receipt = paths.receipts / "op-traversal-failure.json"
+    assert stat.S_IMODE(receipt.stat().st_mode) & 0o007 == 0
+    assert json.loads((paths.observed / "host.json").read_text())["state"] == "DEGRADED"
+    if existing:
+        home = paths.zones_state / "organization-alpha-prod" / "home"
+        assert home.is_dir()
+        assert stat.S_IMODE(home.stat().st_mode) == 0o700

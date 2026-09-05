@@ -115,6 +115,45 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 
 ## Gate 5 — Dedicated Discord OS bots
 
+Choose the bot's existing ownership first. If the first Station token is already
+in `/var/lib/station/zones/discord-bootstrap/hermes/.env`, keep the
+[`discord-bootstrap / default` route](docs/dependencies/HERMES_PLATFORMS.md#keep-the-existing-first-station-bot-in-discord-bootstrap--default):
+configure its own provider and gateway, without printing that file or moving its
+token into Atlas. That first Station bot does not require a control OS instance.
+
+For a separate installed instance, use its own enrollment, not the operator home
+or another bot's credentials. In the DevOps instance `dev / engineering`, the
+default human-facing Director is Atlas:
+
+```bash
+sudo station os instance show --zone dev --instance engineering
+sudo station os instance setup --zone dev --instance engineering --plan
+sudo station os instance setup --zone dev --instance engineering
+sudo station platform setup --zone dev --instance engineering --platform discord --plan
+sudo station platform setup --zone dev --instance engineering --platform discord
+# Finish the human and channel restrictions below before continuing.
+sudo station os instance verify --zone dev --instance engineering
+sudo station platform install --zone dev --instance engineering
+sudo station platform start --zone dev --instance engineering
+sudo station setup --zone dev --instance engineering --probe --json
+```
+
+In the native platform wizard, choose Discord, enter the token at the masked
+prompt, supply explicit numeric authorized-user IDs, choose the home channel,
+then finish with **Done**. Decline any early gateway start, install or restart
+offer, including one at wizard entry: keep **configure → verify → install →
+start**. Do not leave human admission empty or enable wildcard/allow-all or
+public bot-to-bot replies.
+
+The home channel is for notifications, not authorization. Configure
+`discord.allowed_channels` separately, review any existing environment or managed
+policy overrides, and test both a wrong user and a wrong channel. Enable Message
+Content Intent; at the pinned Hermes revision, Members Intent is conditional on
+username/role admission, not numeric user IDs alone. Grant only the needed
+channel permissions, not runtime Administrator. The
+[complete Discord walkthrough](docs/dependencies/HERMES_PLATFORMS.md) includes
+the exact Atlas channel-ACL command, official sources and live acceptance gates.
+
 For every OS instance that is actually installed:
 
 - have a human server owner create one dedicated Nano Director Discord application/bot, authorize it to the guild, and retain control of token rotation;
@@ -132,6 +171,11 @@ full guild topology provisioner is not claimed externally accepted; use a test
 guild and keep the module below operational acceptance until its
 create/edit/permission/command/readback gate passes.
 
+The System Zone `discord-bootstrap` is a separate choice. Without `--instance`,
+its platform wizard selects Zone `default`; that neither installs
+`discord-bootstrap-os` nor grants admin authority. See the
+[Control / Bootstrap OS contract](docs/os/07_CONTROL_BOOTSTRAP_OS.md).
+
 Specialists remain internal by default. Only for a justified external topology,
 select a canonical worker role explicitly, for example:
 
@@ -145,7 +189,7 @@ This selects Forge's mapped profile; it does not approve the topology or create 
 token. Enroll a separate intended bot identity, verify least-privilege permissions,
 then test route/restart/readback. Never run two gateways concurrently with one token.
 
-After the first bot and Tailscale enrollment, run `sudo ./scripts/station_guided_setup_enable.sh`. The Discord account picker can then return an ephemeral one-time Tailnet button. The bearer token is stored only as a hash, expires in at most 15 minutes and is consumed once. Secret forms write directly to the owning Zone's mode-0600 Hermes environment; Composio/OAuth/device flows redirect only to an allowlisted host. Never paste the credential into Discord. Slack/Telegram can reuse the provider-neutral card contract, but their live renderers remain an acceptance gate.
+After the first bot and Tailscale enrollment, run `sudo ./scripts/station_guided_setup_enable.sh`. Supported Station chat surfaces can then return an ephemeral one-time Tailnet button; broker installation alone does not prove a native Director exposes the AGK account picker. The bearer token is stored only as a hash, expires in at most 15 minutes and is consumed once. Secret forms write directly to the owning Zone's mode-0600 Hermes environment; Composio/OAuth/device flows redirect only to an allowlisted host. Never paste the credential into Discord. Slack/Telegram can reuse the provider-neutral card contract, but their live renderers remain an acceptance gate.
 
 That broker currently writes **Zone-base** credentials, not every named Director's
 private profile or instance. Use `station os instance setup` and

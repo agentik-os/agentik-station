@@ -542,21 +542,28 @@ def cmd_provider_status(args: argparse.Namespace) -> int:
 
 
 def _agk_launcher() -> Path:
+    from .agk_launcher import PUBLIC_LAUNCHER, validate_public_launcher
+
+    # Prefer the administrator-published identity handoff, not private software
+    # found in root's inherited PATH. The source component is not an install.
+    if PUBLIC_LAUNCHER.exists() or PUBLIC_LAUNCHER.is_symlink():
+        try:
+            validate_public_launcher()
+        except OSError:
+            raise StationError("The public AGK launcher is unsafe; administrator repair is required") from None
+        return PUBLIC_LAUNCHER
     candidates: list[Path] = []
-    discovered = shutil.which("agk")
-    if discovered:
-        candidates.append(Path(discovered))
-    candidates.extend(
-        [
-            Path.home() / ".local" / "bin" / "agk",
-            Path("/usr/local/bin/agk"),
-            repository_root() / "components" / "agk-tui" / "bin" / "agk",
-        ]
-    )
-    target = next((path for path in candidates if path.is_file() and os.access(path, os.X_OK)), None)
+    if os.geteuid() != 0:
+        discovered = shutil.which("agk")
+        if discovered:
+            candidates.append(Path(discovered))
+        candidates.append(Path.home() / ".local/bin/agk")
+    target = next((path for path in candidates if path.is_file() and os.access(path, os.X_OK)
+                   and (path.resolve().parent.parent / "lib/agk-terminal/bin/agk-tui").is_file()), None)
     if target is None:
         raise StationError(
-            "AGK-TUI launcher `agk` is missing; install the bundled component before using Station client controls"
+            "AGK is not publicly installed. Ask the administrator to run "
+            "station tui-install --operator agk-station; existing operators can use sudo -iu agk-station."
         )
     return target
 
@@ -763,6 +770,7 @@ def cmd_deps(args: argparse.Namespace) -> int:
 def cmd_platform_gateway(args: argparse.Namespace) -> int:
     """Run the native Hermes gateway under the owning Zone identity and HERMES_HOME."""
     from .hermes_platforms import build_gateway_argv, normalize_platform
+    from .native_process import run_bounded_native
 
     zone = _load_zone_record(args.zone)
     requested_platform = normalize_platform(getattr(args, "platform", None))
@@ -857,29 +865,24 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
             ([systemctl, "start", f"user@{zone_user.pw_uid}.service"], "start the Zone systemd user manager"),
         ):
             try:
-                prerequisite = subprocess.run(
-                    command, check=False, stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL, timeout=30,
-                )
-            except (OSError, subprocess.TimeoutExpired):
+                prerequisite = run_bounded_native(command, timeout=30)
+            except (OSError, subprocess.SubprocessError):
                 raise StationError(f"Could not {label} within its time limit; inspect Host service logs before retrying") from None
             if prerequisite.returncode != 0:
                 raise StationError(f"Could not {label}; inspect Host service logs before retrying")
     interactive = args.platform_command in {"setup", "configure"}
     try:
-        completed = subprocess.run(
-            argv, check=False, text=True,
-            stdout=None if interactive else subprocess.DEVNULL,
-            stderr=None if interactive else subprocess.DEVNULL,
-            timeout=None if interactive else 300,
-        )
+        # Wizards retain the human's TTY. Service actions have no interactive
+        # input and must clean up the runuser child group on timeout/cancel.
+        completed = (subprocess.run(argv, check=False) if interactive
+                     else run_bounded_native(argv, timeout=300))
         returncode = completed.returncode
     except subprocess.TimeoutExpired:
         returncode = 124
         payload["error"] = "Native Hermes command exceeded its time limit; inspect the owning Zone logs."
-    except OSError:
+    except (OSError, subprocess.SubprocessError):
         returncode = 127
-        payload["error"] = "Native Hermes command could not start; verify the shared launcher and Zone identity."
+        payload["error"] = "Native Hermes command could not complete safely; verify the shared launcher, Zone identity and logs."
     payload["returncode"] = returncode
     if not interactive:
         # JSON is consumed by bots and UI surfaces. Native output may contain
@@ -1208,13 +1211,24 @@ def cmd_backup_check(args: argparse.Namespace) -> int:
 
 def cmd_tui(args: argparse.Namespace) -> int:
     """Open AGK-TUI (Hermes / Codex / Claude Code / terminal sessions via RMUX)."""
-    import os
     target = _agk_launcher()
-    os.environ.setdefault('AGK_ENVIRONMENT', os.environ.get('USER') or Path.home().name)
     # Forward remaining argv after `tui`
     extra = list(getattr(args, 'tui_args', []) or [])
+    if extra and extra[0] == "--":
+        extra = extra[1:]
     os.execv(str(target), [str(target), *extra])
     return 0  # unreachable
+
+
+def cmd_tui_install(args: argparse.Namespace) -> int:
+    from .agk_launcher import install_agk_launcher
+
+    try:
+        result = install_agk_launcher(LayoutPaths.live(), operator=args.operator, plan=args.plan)
+    except OSError:
+        raise StationError("AGK installation paths are unavailable or unsafe; repair the dedicated operator installation") from None
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
 
 
 def cmd_recovery_rehearse(args: argparse.Namespace) -> int:
@@ -1226,7 +1240,7 @@ def cmd_recovery_rehearse(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="station", description=f"Agentik Station {PRODUCT_VERSION}")
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command")
 
 
     spec_cmd = sub.add_parser("spec", help="Create a validated versioned InstallSpec without mutating the Host")
@@ -1537,6 +1551,11 @@ def build_parser() -> argparse.ArgumentParser:
     tui.add_argument("tui_args", nargs=argparse.REMAINDER, help="Optional args forwarded to agk")
     tui.set_defaults(handler=cmd_tui)
 
+    tui_install = sub.add_parser("tui-install", help="Publish the existing private AGK installation through a sudo-authorized operator handoff")
+    tui_install.add_argument("--operator", required=True, choices=["agk-station"])
+    tui_install.add_argument("--plan", action="store_true")
+    tui_install.set_defaults(handler=cmd_tui_install)
+
     client = sub.add_parser("client", help="Legacy AGK controller compatibility; new clients use organization/OS instances")
     client.add_argument("--legacy", action="store_true", help="Explicitly use the older operator-home client workspace/profile model")
     client.add_argument("client_args", nargs=argparse.REMAINDER, help="Arguments forwarded to `agk client`")
@@ -1598,6 +1617,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.command is None:
+        parser.print_help()
+        return 0
     try:
         return int(args.handler(args))
     except StationError as exc:

@@ -34,7 +34,9 @@ SUPPORTED_PLATFORMS = (
 GATEWAY_ACTIONS = {
     "configure": ("setup",),
     "setup": ("gateway", "setup"),
-    "install": ("gateway", "install"),
+    # The pinned Hermes CLI otherwise starts immediately in a headless context.
+    # Keep Station's explicit install/start lifecycle, while enabling boot login.
+    "install": ("gateway", "install", "--no-start-now", "--start-on-login"),
     "start": ("gateway", "start"),
     "restart": ("gateway", "restart"),
     "status": ("gateway", "status"),

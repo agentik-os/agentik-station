@@ -1,6 +1,8 @@
 import os
+import pty
 import subprocess
 from pathlib import Path
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,7 +136,8 @@ def test_setup_cli_works_when_systemd_does_not_define_home(tmp_path: Path):
     assert result.stdout == "topology-ok\n"
 
 
-def test_agk_launcher_exports_current_linux_identity_as_environment(tmp_path: Path):
+@pytest.mark.parametrize("args", [[], ["tui"]])
+def test_agk_launcher_exports_current_linux_identity_as_environment(tmp_path: Path, args):
     install = tmp_path / "install"
     tui = install / "bin" / "agk-tui"
     tui.parent.mkdir(parents=True)
@@ -148,15 +151,39 @@ def test_agk_launcher_exports_current_linux_identity_as_environment(tmp_path: Pa
     env.pop("AGK_ENVIRONMENT", None)
     env["AGK_TERMINAL_ROOT"] = str(install)
 
-    result = subprocess.run(
-        [str(AGK)], env=env, text=True, capture_output=True, check=False
-    )
+    master, slave = pty.openpty()
+    try:
+        result = subprocess.run(
+            [str(AGK), *args], env=env, text=True, stdin=slave, stdout=slave,
+            stderr=subprocess.PIPE, check=False, timeout=5
+        )
+        output = os.read(master, 4096).decode()
+    finally:
+        os.close(slave)
+        os.close(master)
 
     expected = subprocess.run(
         ["id", "-un"], text=True, capture_output=True, check=True
     ).stdout.strip()
     assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == expected
+    assert output.strip() == expected
+
+
+@pytest.mark.parametrize("args", [[], ["tui"], ["tui", "--unexpected"]])
+def test_noninteractive_empty_agk_never_starts_native_or_python_runtime(tmp_path, args):
+    install = tmp_path / "install"
+    marker = tmp_path / "unexpected-start"
+    for relative in ("bin/agk-tui", "scripts/agk_control.py"):
+        file = install / relative
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(f"#!/bin/sh\ntouch '{marker}'\n")
+        file.chmod(0o755)
+    env = {**os.environ, "AGK_TERMINAL_ROOT": str(install)}
+    result = subprocess.run([str(AGK), *args], env=env, stdin=subprocess.DEVNULL,
+                            capture_output=True, text=True, timeout=5)
+    assert result.returncode == 2
+    assert "interactive terminal" in result.stderr or "without additional arguments" in result.stderr
+    assert not marker.exists()
 
 
 def test_agk_help_documents_interactive_session_and_setup_surfaces():

@@ -1,6 +1,53 @@
-# Agentik Station 11.22 Validation
+# Agentik Station 11.23 Validation
+
+## SSH operator and systemd repair — 11.23
+
+The live `moonbase` SSH account on `capital` reproduced a missing public `agk`
+command. The private operator installation did render its real Rust TUI over
+SSH/PTY and exited cleanly on `q`; a help-only check had not tested that public
+entrypoint. Source review also found that failed-install evidence could reset
+`/var/lib/station` to `0750`, and the Doctor's closed link policy had no native
+Hermes user-systemd enablement case. The existing live parent was `0711`:
+`z-system-discord` could read its own `.env`, while access to `dev/home` was denied.
+No credential contents were printed or copied.
+
+The old live release then reproduced the precise systemd contradiction through
+`station platform install --zone discord-bootstrap`: native Hermes installed
+and enabled its standard user service, created the absolute sibling-unit
+symlink, and the 11.22 Doctor failed **only** that link. A subsequent systemd
+readback exposed another defect: the native CLI's headless `install` defaults
+to immediate startup, although its underlying installer function does not.
+The gateway was observed active and explicitly stopped. No chat or model
+round-trip was accepted; this observation cannot establish absence of network
+activity during startup. The link is retained for corrected Doctor readback,
+not removed to conceal the failure. Station now supplies `--no-start-now` and
+`--start-on-login` explicitly and tests the public argv, not only the helper.
+
+This release repairs those paths and adds adversarial regression coverage.
+Publication, live launcher/service-link readback and final Doctor results are
+separate gates; none proves a Discord message or a paid model request worked.
+
+The final local Station/Factory suite passed **1,489 tests**, with **15 Linux-only
+process tests skipped on macOS**. The shipped AGK component suite passed **271
+tests**, with two absent local web-library skips covered separately by CI/VPS.
+Repository Doctor passed all **85 checks**; shell syntax, diff hygiene and
+deterministic metadata passed. Independent reviews covered both the constrained
+systemd-link policy and the privilege-dropping operator launcher. Initial
+headless-start changes also required updating two exact-argv regression
+expectations; the final complete run passed after those corrections.
 
 ## Native profile voice provider — 11.22
+
+The published commit `266e62d0c4bcd8c948d50735f11818296fb4a2e9` subsequently
+passed all six CI jobs and was deployed as immutable 11.22. The full VPS
+acceptance rerun passed its nine gates and final Doctor (**188 checks, zero
+issues**). All **256** focused voice/enrollment/process tests passed on Linux,
+including the cases skipped on macOS. Atlas's normal native plugin installation
+and discovery succeeded; the actual installed dispatcher used loopback Parakeet
+when a test-only OpenAI failure was simulated, and did not retry successful
+silence. Five other profiles, credentials and the immutable DevOps OS 11.12
+bundle were preserved. Live Discord and paid OpenAI acceptance were not performed.
+The following paragraphs retain the earlier staged evidence and its limitations.
 
 This release adds opt-in, one-role enrollment of a native Hermes transcription
 provider. It leaves independently versioned OS bundles and other profiles intact.

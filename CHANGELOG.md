@@ -1,5 +1,15 @@
 # Changelog
 
+## 11.23 — SSH operator access and native systemd reconciliation (2026-09-05)
+
+- Keep traversal-only Station parents at `0711`, including failed-install evidence handling; check the intermediate Zone anchors in Doctor.
+- Recognize narrowly validated native Hermes user-service enablement links without admitting arbitrary links, cross-Zone targets or unsafe unit paths.
+- Publish a guarded `agk` operator entrypoint for normal sudo-authorized SSH accounts; make `station tui` select an installed launcher and bare `station` show help.
+- Align AGK's Python controller with the dedicated `agk-station` identity and reject noninteractive TUI startup before spawning RMUX.
+- Supervise noninteractive Hermes service commands with bounded process-group cleanup and private output; retain the human TTY for setup wizards.
+- Explicitly disable Hermes' headless install-and-start default: `platform install` enables persistence without immediate startup; `platform start` remains the separate action.
+- Clarify instance-first Discord enrollment, numeric allowlists, channel restrictions and the distinction between a bootstrap Zone and an installed bootstrap OS.
+
 ## 11.22 — Explicit native voice-note fallback (2026-09-05)
 
 - Add the profile-scoped native Hermes `station-openai-parakeet` provider: OpenAI primary, bounded local Parakeet fallback on failure, and no retry of successful silence.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.22",
+  "release": "11.23",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",

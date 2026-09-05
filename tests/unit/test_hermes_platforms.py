@@ -71,3 +71,13 @@ def test_native_service_names_and_model_setup():
     assert gateway_service_name("default") == "hermes-gateway.service"
     assert gateway_service_name("forge") == "hermes-gateway-forge.service"
     assert GATEWAY_ACTIONS["configure"] == ("setup",)
+
+
+def test_headless_install_explicitly_disables_immediate_start_but_enables_persistence():
+    argv = build_gateway_argv(_zone(), "install", runtime_uid=12001,
+                              hermes_binary=Path("/usr/local/bin/hermes"))
+    assert argv[-6:] == ["--profile", "default", "gateway", "install", "--no-start-now", "--start-on-login"]
+    assert "--start-now" not in argv
+    start = build_gateway_argv(_zone(), "start", runtime_uid=12001,
+                               hermes_binary=Path("/usr/local/bin/hermes"))
+    assert start[-2:] == ["gateway", "start"]

@@ -1,4 +1,4 @@
-"""Read-only, closed native-cache link policy; never a privileged-write waiver."""
+"""Read-only, closed native runtime link policy; never a privileged-write waiver."""
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -10,6 +10,8 @@ import re
 import stat
 
 from .paths import LayoutPaths
+from .errors import StationError
+from .identifiers import validate_identifier
 
 
 class RuntimeLinkError(ValueError):
@@ -20,6 +22,7 @@ ALIASES = {"applypatch", "apply_patch", "codex-execve-wrapper", "codex-linux-san
 TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.+-]{0,254}\Z")
 NONCE = re.compile(r"codex-arg0[A-Za-z0-9_-]{6,64}\Z")
 ARCHES = {"x64": ("x86_64", "codex-linux-x64"), "arm64": ("aarch64", "codex-linux-arm64")}
+SYSTEMD_PARENT = (".config", "systemd", "user", "default.target.wants")
 
 
 def _identity(info):
@@ -129,7 +132,133 @@ def _codex_target(paths: LayoutPaths, target: str, cache: dict):
             cache[stamp] = True
 
 
-def _allowed(paths, link, state_root, owner, cache):
+def _systemd_fields(payload: bytes) -> dict:
+    """Read a bounded pinned-native unit grammar, not general systemd syntax.
+
+    Provenance: NousResearch/hermes-agent@29112bef099274229cadff79cdff7bf7b99c4b77,
+    hermes_cli/gateway.py:generate_systemd_unit/get_systemd_unit_path/systemd_install.
+    This checks link scope, not the service's runtime safety or readiness.
+    """
+    keys = {
+        "Unit": {"Description", "After", "Wants", "StartLimitIntervalSec"},
+        "Service": {"Type", "NotifyAccess", "WatchdogSec", "ExecStart", "WorkingDirectory", "Environment",
+                    "Restart", "RestartSec", "RestartForceExitStatus", "RestartPreventExitStatus", "KillMode",
+                    "KillSignal", "ExecReload", "ExecStopPost", "TimeoutStopSec", "StandardOutput", "StandardError"},
+        "Install": {"WantedBy"},
+    }
+    result, section = {}, None
+    for raw in payload.decode("utf-8").splitlines():
+        if any(ord(char) < 32 for char in raw) or "\\" in raw:
+            raise RuntimeLinkError("Unsupported native user-unit syntax")
+        line = raw.strip()
+        if not line or line.startswith(("#", ";")):
+            continue
+        if line.startswith("["):
+            section = line[1:-1]
+            if line != f"[{section}]" or section not in keys or section in result:
+                raise RuntimeLinkError("Unsupported or repeated native user-unit section")
+            result[section] = {}
+            continue
+        key, separator, value = line.partition("=")
+        if section is None or not separator or key not in keys[section]:
+            raise RuntimeLinkError("Unsupported native user-unit directive")
+        if key == "Environment":
+            match = re.fullmatch(r'"(PATH|VIRTUAL_ENV|HERMES_HOME|HERMES_SUPERVISED_CHILD)=([^"%]*)"', value)
+            if not match:
+                raise RuntimeLinkError("Unsupported native user-unit environment")
+            key, value = match.groups()
+        if key in result[section]:
+            raise RuntimeLinkError("Repeated native user-unit directive")
+        result[section][key] = value
+    if set(result) != set(keys):
+        raise RuntimeLinkError("Incomplete native user-unit sections")
+    return result
+
+
+def _installed_systemd_home(paths, human, state_root, profile, home_value, owner):
+    """Select only a canonical Zone root or a trusted installed OS team member."""
+    from . import os_lifecycle as lifecycle
+
+    base = state_root / "hermes"
+    if profile is None:
+        if home_value != str(base):
+            raise RuntimeLinkError("Default user unit does not select its Zone Hermes root")
+        return base
+    validate_identifier(profile, "Native service profile")
+    zone = lifecycle._trusted_json(paths.config / "zones.d" / f"{state_root.name}.json", paths, paths.config)
+    if zone.get("state_root") != str(state_root) or zone.get("human_root") != str(human):
+        raise RuntimeLinkError("User unit Zone differs from its trusted scope")
+    home = Path(home_value)
+    if home_value == str(base / "profiles" / profile):
+        # Legacy installed OS profiles still share the Zone-base Hermes root.
+        records = paths.varlib / "registry/os" / state_root.name
+        authority = lifecycle._authority(paths)
+        with lifecycle._directory(records, uid=authority[0],
+                                  trusted_root=paths.varlib if paths.test_mode else None) as fd:
+            names = os.listdir(fd)
+        if len(names) > 100:
+            raise RuntimeLinkError("Too many legacy OS records for bounded link verification")
+        matches = 0
+        for name in names:
+            if not name.endswith(".json"):
+                raise RuntimeLinkError("Unexpected legacy OS authority entry")
+            os_id = validate_identifier(name[:-5], "OS id")
+            record = lifecycle.load_os_runtime_record(paths, zone=zone, os_id=os_id, require_configured=True)
+            matches += profile in record["expected_profiles"]
+        if matches != 1:
+            raise RuntimeLinkError("Named user unit does not select one installed OS profile")
+    else:
+        from .os_instances import load_os_instance_record
+
+        relative = home.relative_to(state_root)
+        if (len(relative.parts) != 5 or relative.parts[0] != "os-instances"
+                or relative.parts[2:] != ("hermes", "profiles", profile)):
+            raise RuntimeLinkError("User unit does not select a canonical instance profile")
+        instance = validate_identifier(relative.parts[1], "OS instance id")
+        record = load_os_instance_record(paths, zone=zone, instance_id=instance, require_configured=True)
+        if (profile not in record["expected_profiles"]
+                or home_value != str(Path(record["hermes_home"]) / "profiles" / profile)):
+            raise RuntimeLinkError("User unit profile is not installed in its selected instance")
+    with _directory(home, state_root, owner):
+        pass
+    return home
+
+
+def _systemd_target(paths, link, target, human, state_root, owner):
+    unit_directory = link.parent.parent
+    unit_path = unit_directory / link.name
+    if target not in {str(unit_path), f"../{link.name}"}:
+        raise RuntimeLinkError("User-service enablement link must select its exact sibling unit")
+    match = re.fullmatch(r"hermes-gateway(?:-([a-z][a-z0-9-]{0,47}))?\.service", link.name)
+    if not match:
+        raise RuntimeLinkError("Unsupported native service name")
+    profile = match.group(1)
+    with _directory(unit_directory, state_root, owner) as unit_parent:
+        info = os.stat(link.name, dir_fd=unit_parent, follow_symlinks=False)
+        mode = stat.S_IMODE(info.st_mode)
+        if mode not in {0o600, 0o640, 0o644}:
+            raise RuntimeLinkError("Unsafe native user-unit permissions")
+        payload, info = _read_regular(unit_parent, link.name, owner, mode, 64 * 1024)
+        fields = _systemd_fields(payload)
+        service = fields["Service"]
+        home_value = service.get("HERMES_HOME", "")
+        home = _installed_systemd_home(paths, human, state_root, profile, home_value, owner)
+        with _directory(home, state_root, owner):
+            pass
+        python = str(paths.software / "tools/hermes/current/venv/bin/python")
+        expected_start = f"{python} -m hermes_cli.main" + (f" --profile {profile}" if profile else "") + " gateway run"
+        if (service.get("ExecStart") != expected_start or service.get("WorkingDirectory") != str(home)
+                or service.get("ExecStopPost") != f"-{python} -m gateway.cgroup_cleanup"
+                or service.get("ExecReload") != "/bin/kill -USR1 $MAINPID"
+                or service.get("HERMES_SUPERVISED_CHILD") != "1"
+                or service.get("Type") not in {"simple", "notify"}
+                or fields["Install"] != {"WantedBy": "default.target"}):
+            raise RuntimeLinkError("Native user unit does not match the scoped gateway contract")
+        if _identity(info) != _identity(os.stat(link.name, dir_fd=unit_parent, follow_symlinks=False)):
+            raise RuntimeLinkError("Native user unit changed during readback")
+
+
+def _allowed(paths, link, human, state_root, owner, cache):
     home = state_root / "home"
     if owner is None or not link.is_relative_to(home):
         return False
@@ -138,7 +267,8 @@ def _allowed(paths, link, state_root, owner, cache):
              and NONCE.fullmatch(relative[3]) and relative[4] in ALIASES)
     uv = (len(relative) == 6 and relative[:4] == (".cache", "uv", "wheels-v6", "pypi")
           and all(TOKEN.fullmatch(part) for part in relative[4:]))
-    if not codex and not uv:
+    systemd = len(relative) == 5 and relative[:4] == SYSTEMD_PARENT
+    if not codex and not uv and not systemd:
         return False
     with _directory(link.parent, state_root, owner) as parent:
         before = os.stat(link.name, dir_fd=parent, follow_symlinks=False)
@@ -147,13 +277,15 @@ def _allowed(paths, link, state_root, owner, cache):
         target = os.readlink(link.name, dir_fd=parent)
         if codex:
             _codex_target(paths, target, cache)
-        else:
+        elif uv:
             match = re.fullmatch(r"\.\./\.\./\.\./archive-v0/([A-Za-z0-9_-]{1,128})", target)
             if not match:
                 raise RuntimeLinkError("uv wheel alias is not confined to its exact same-Zone archive")
             archive = home / ".cache/uv/archive-v0" / match.group(1)
             with _directory(archive, state_root, owner):
                 pass
+        else:
+            _systemd_target(paths, link, target, human, state_root, owner)
         if (_identity(before) != _identity(os.stat(link.name, dir_fd=parent, follow_symlinks=False))
                 or os.readlink(link.name, dir_fd=parent) != target):
             raise RuntimeLinkError("Native cache alias changed during readback")
@@ -181,8 +313,8 @@ def audit_zone_links(paths: LayoutPaths, *, human: Path, state_root: Path,
                     if not stat.S_ISLNK(os.lstat(link).st_mode):
                         continue
                     try:
-                        approved = root == state_root and _allowed(paths, link, state_root, owner, cache)
-                    except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
+                        approved = root == state_root and _allowed(paths, link, human, state_root, owner, cache)
+                    except (OSError, ValueError, TypeError, KeyError, AttributeError, StationError) as exc:
                         approved = False
                         result["errors"].append(f"{link}: {type(exc).__name__}")
                     result["allowed" if approved else "unsafe"].append(link)

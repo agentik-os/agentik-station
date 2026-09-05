@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ "${1:-}" = tui ]; then
+  shift
+  [ "$#" -eq 0 ] || { echo 'Use agk tui without additional arguments, or agk help.' >&2; exit 2; }
+fi
+
+# Guard before any native TUI/RMUX or Python registry initialization.
+if [ "$#" -eq 0 ] && { [ ! -t 0 ] || [ ! -t 1 ]; }; then
+  echo 'AGK requires an interactive terminal; use agk help or agk status.' >&2
+  exit 2
+fi
+
 resolve_launcher() {
   local path=$1 target
   case "$path" in /*) ;; *) path=$PWD/$path ;; esac
@@ -40,7 +51,7 @@ case "${1:-}" in
 AGK-TUI · RMUX control plane
 
 Interactive:
-  agk
+  agk | agk tui
 
 Sessions:
   agk {status|sessions|projects|agents|os|mcp|skills|rules|system}

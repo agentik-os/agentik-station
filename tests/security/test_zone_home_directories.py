@@ -231,3 +231,60 @@ def test_station_doctor_wires_home_access_guard_before_rootless_files(tmp_path, 
     result = doctor.station_doctor(paths, repo_root=ROOT, full=True)
     assert not result.ok
     assert any(item["name"] == "zone:organization-alpha-prod:home-access" for item in result.issues)
+
+
+@pytest.mark.parametrize("defect", ["closed", "writable", "wrong-owner", "symlink", "file", "fifo", "missing"])
+def test_traversal_anchor_requires_real_authority_owned_search_only_directory(tmp_path, monkeypatch, defect):
+    directory = tmp_path / "anchor"
+    directory.mkdir(mode=0o711)
+    if defect == "closed":
+        directory.chmod(0o750)
+    elif defect == "writable":
+        directory.chmod(0o733)
+    elif defect == "wrong-owner":
+        original = os.lstat
+
+        def foreign_owner(path, *args, **kwargs):
+            info = original(path, *args, **kwargs)
+            if Path(path) == directory:
+                fields = list(info)
+                fields[4] += 10000
+                return os.stat_result(fields)
+            return info
+
+        monkeypatch.setattr(os, "lstat", foreign_owner)
+    else:
+        directory.rmdir()
+        if defect == "symlink":
+            directory.symlink_to(tmp_path)
+        elif defect == "file":
+            directory.write_text("preserve")
+        elif defect == "fifo":
+            os.mkfifo(directory)
+    result = doctor.DoctorResult("test")
+    assert not doctor._check_zone_traversal_directory(result, directory, "anchor", os.getuid())
+    assert not result.ok
+
+
+@pytest.mark.parametrize("anchor", ["state", "logs", "run", "backups"])
+def test_doctor_checks_intermediate_zone_traversal_before_private_descendants(tmp_path, monkeypatch, anchor):
+    paths = LayoutPaths.under(tmp_path.resolve() / "root")
+    spec = InstallSpec(
+        operation_id="op-intermediate-traversal", host_id="organization-alpha-prod-01", role="team",
+        install_system_packages=False, configure_fail2ban=False, enable_doctor_timer=False,
+        seed=SeedSpec("ORGANIZATIONS", "organization-alpha", "production", "organization-alpha"),
+    )
+    assert StationInstaller(ROOT, spec, paths=paths).apply() == "READY_FOR_SETUP"
+    directory = {"state": paths.zones_state, "logs": paths.log / "zones",
+                 "run": paths.run / "zones", "backups": paths.backups / "zones"}[anchor]
+    directory.chmod(0o750)
+    original = os.lstat
+
+    def no_private_descent(path, *args, **kwargs):
+        assert directory not in Path(path).parents, "Doctor inspected private paths through a closed shared anchor"
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "lstat", no_private_descent)
+    result = doctor.station_doctor(paths, repo_root=ROOT, full=True)
+    assert not result.ok
+    assert any(item["name"] == f"mode:zone-traversal:zones-{anchor}" for item in result.issues)

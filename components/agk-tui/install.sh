@@ -7,6 +7,7 @@ install_hermes=true
 install_hermes_fleet=false
 system_install=false
 defer_topology=false
+controls_only=false
 target_user=
 rmux_version=${RMUX_VERSION:-0.10.0}
 
@@ -17,11 +18,13 @@ while [ "$#" -gt 0 ]; do
     --without-hermes) install_hermes=false; shift ;;
     --with-hermes-fleet) install_hermes_fleet=true; shift ;;
     --defer-topology) defer_topology=true; shift ;;
+    --controls-only) controls_only=true; shift ;;
     --user) target_user=${2:?missing target user}; shift 2 ;;
     --rmux-version) rmux_version=${2:?missing RMUX version}; shift 2 ;;
     -h|--help)
-      echo "usage: ./install.sh [--system] [--user USER] [--prefix PATH] [--without-hermes] [--with-hermes-fleet] [--defer-topology] [--rmux-version VERSION]"
+      echo "usage: ./install.sh [--system] [--user USER] [--prefix PATH] [--without-hermes] [--with-hermes-fleet] [--defer-topology] [--rmux-version VERSION] [--controls-only]"
       echo "  --with-hermes-fleet  Build and expose the four-profile dashboard through Tailscale Serve (system install only)"
+      echo "  --controls-only     Refresh two reviewed Station operator controls only; no build, Hermes or state changes"
       exit 0
       ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
@@ -57,6 +60,15 @@ target_home=$(getent passwd "$target_user" | cut -d: -f6)
 
 install_root=$prefix/lib/agk-terminal
 bin_dir=$prefix/bin
+
+if [ "$controls_only" = true ]; then
+  [ "$system_install" = false ] && [ "$install_hermes_fleet" = false ] && \
+    [ "$defer_topology" = false ] && [ "$(id -un)" = "$target_user" ] || {
+    echo '--controls-only requires the owning Station operator, without system/fleet/topology options' >&2
+    exit 2
+  }
+  exec /usr/bin/python3 -I "$repo_root/scripts/refresh-controls.py" --prefix "$prefix"
+fi
 
 expose_agk_launcher() {
   local installed=$bin_dir/agk

@@ -15,6 +15,13 @@ evidence = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(evidence)
 
 
+def test_acceptance_requires_public_operator_handoff_and_controller_not_only_help():
+    script = (REPO / "scripts/ci_vps_acceptance.sh").read_text()
+    assert '"$REPO/station" tui-install --operator agk-station --plan >/dev/null' in script
+    assert '/usr/bin/timeout 30 /usr/local/bin/agk status >/dev/null' in script
+    assert script.index('/usr/bin/timeout 30 /usr/local/bin/agk status') < script.rindex('doctor --full')
+
+
 @pytest.fixture
 def workspace(tmp_path, monkeypatch):
     root = tmp_path.resolve()

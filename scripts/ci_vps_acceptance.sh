@@ -30,6 +30,10 @@ trap cleanup EXIT
 "$REPO/station" doctor --full
 "$REPO/station" os doctor --id devops-os --json >"$READBACK_DIR/devops-os-doctor.json"
 sudo -u agk-station -H "$STATION_HOME/.local/bin/agk" help >/dev/null
+# Check the public identity handoff and controller, not just private static help.
+# Interactive rendering and a real non-root SSH sudo handoff are separate PTY gates.
+"$REPO/station" tui-install --operator agk-station --plan >/dev/null
+/usr/bin/timeout 30 /usr/local/bin/agk status >/dev/null
 STATION_USER=agk-station STATION_HOME="$STATION_HOME" \
   "$REPO/scripts/station_toolchain_install.sh" --check
 systemctl is-enabled --quiet station-hermes-update.timer

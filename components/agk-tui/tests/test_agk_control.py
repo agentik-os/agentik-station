@@ -4,6 +4,7 @@ import importlib.util
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 
 MODULE_PATH = Path(__file__).parents[1] / "scripts" / "agk_control.py"
@@ -320,6 +321,17 @@ def test_public_single_user_environment_config(tmp_path, monkeypatch):
     assert env.name == "mission"
     assert env.home == tmp_path
     assert env.projects == tmp_path / "work/clients"
+
+
+def test_station_operator_uses_real_identity_and_matches_native_tui(tmp_path, monkeypatch):
+    monkeypatch.setattr(agk.pwd, "getpwuid", lambda _: SimpleNamespace(pw_name="agk-station", pw_dir=str(tmp_path)))
+    monkeypatch.setenv("USER", "moonbase")
+    monkeypatch.setenv("HOME", "/other/account")
+    monkeypatch.setenv("AGK_ENVIRONMENT", "foreign")
+    env = agk.Environment.current()
+    assert env.name == "agk-station"
+    assert env.home == tmp_path
+    assert env.projects == tmp_path / "workspace/projects"
 
 
 def test_public_environment_rejects_unknown_scope(tmp_path, monkeypatch):

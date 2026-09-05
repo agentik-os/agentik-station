@@ -231,7 +231,9 @@ class StationInstaller:
                 self.fs.rollback()
                 try:
                     evidence_fs = SafeFS(self.paths.allowed_roots)
-                    evidence_fs.mkdir(self.paths.varlib, 0o750)
+                    # Failure evidence must not revoke traversal from existing
+                    # Zone identities after an otherwise recoverable retry.
+                    evidence_fs.mkdir(self.paths.varlib, 0o711)
                     evidence_fs.mkdir(self.paths.receipts, 0o750)
                     self.receipt.persist(evidence_fs, self.paths.receipts)
                     self.fs = evidence_fs

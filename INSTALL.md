@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.22
+## Supported base for Station 11.23
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.22",
+  "release_version": "11.23",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -347,7 +347,32 @@ For a generic team Host:
 ## AGK-TUI
 
 Bootstrap installs AGK-TUI for `agk-station` (skip with `--skip-agk-tui`).
-Then: `agk` or `station tui` for live sessions. Bootstrap synchronizes redacted
+Then, from your normal SSH terminal: `agk`, `agk tui` or `station tui` for live sessions.
+The public launcher switches to `agk-station` using **existing sudo authorization**;
+it never grants sudo, opens the private operator home or copies login credentials.
+`agk status` is noninteractive; bare `station` displays help. The TUI requires a
+real terminal (`ssh -t` for a one-command SSH launch).
+
+For a reviewed 11.22 installation with missing public `agk`, update the checkout
+to the reviewed release first, then run this targeted repair **from that checkout**:
+
+```bash
+sudo -u agk-station -H ./components/agk-tui/install.sh \
+  --prefix /home/agk-station/.local --without-hermes --controls-only
+sudo ./station tui-install --operator agk-station --plan
+sudo ./station tui-install --operator agk-station
+agk status
+agk
+```
+
+The controls-only step updates two reviewed operator-owned launch/controller
+files, not Rust binaries, Hermes, configuration or session data. Modified local
+controls and an unrelated existing public `agk` are refused for explicit review.
+This repairs AGK entrypoints; install the new immutable Station kernel separately
+to update its Doctor/permissions behavior. Do not rerun full Host bootstrap only
+to repair a launcher, and do not add Zone users to `station-system`.
+
+Bootstrap synchronizes redacted
 metadata into `/home/agk-station/.agentik/station-sync.json`: root reads the
 protected metadata and the unprivileged operator writes its own snapshot. A
 missing or unreadable source is a reported failure, not an empty success. To
@@ -380,6 +405,11 @@ sudo ./scripts/station_deps_install.sh --all   # optional; installs/stages, then
 
 Multi-platform bots are executed under the owning Zone identity:
 
+`platform install` explicitly prevents Hermes' headless immediate-start default
+and enables boot/login persistence. `platform start` is a separate action after
+configuration and verification. An already-running service is not stopped by
+install, and native wizard offers must still be declined until setup is complete.
+
 ```bash
 sudo station platform setup --zone organization-alpha-dev --instance engineering --platform slack
 sudo station platform install --zone organization-alpha-dev --instance engineering
@@ -404,7 +434,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.22 publishes beside earlier releases; it never overwrites an old
+Station 11.23 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

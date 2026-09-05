@@ -99,16 +99,30 @@ gateway processes retain the canonical Zone `HOME`. Other CLI authentication and
 caches under that home may be shared within the Zone. This is not per-instance
 CLI/account isolation; enrollment must not automatically copy authentication.
 
-Doctor permits only two explicitly governed native cache-link layouts beneath
+Doctor permits explicitly governed native runtime-link layouts beneath
 the canonical Zone HOME: Codex's four temporary `arg0` executable aliases to the
 exact immutable shared-toolchain native binary (root-owned manifest and binary
 hash verified), and uv `wheels-v6/pypi` aliases to existing directories in that
-same Zone's `archive-v0` cache. Links and real cache parents must have the Zone's
+same Zone's `archive-v0` cache. A third exception recognizes only native Hermes
+`home/.config/systemd/user/default.target.wants/hermes-gateway[-profile].service`
+enablement links to the exact same-name sibling unit (canonical absolute target
+or `../unit.service`). The bounded, regular, single-link unit must bind the native
+gateway command, working directory and Hermes home to that Zone's default root
+or a trusted, completely installed OS profile/instance. Instance ledger and
+runtime-root readback remain mandatory; a matching filename is not authority.
+This contract follows [pinned Hermes's native user-unit generator](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/gateway.py#L3995).
+No service, linger, provider, account or chat readiness is inferred, and no unit
+is installed, started or executed by the link audit. Links and real parents must have the Zone's
 UID/GID; writable-by-other-user parents, escaping/dangling targets and links in
 authority paths still fail. This is read-only verification, never permission for
 privileged writes to follow links. Repository/release and Project link bans are
 unchanged: arbitrary `node_modules`, virtualenv and other native layouts are not
-implicitly supported by this narrow policy. Caches are not deleted to pass Doctor.
+implicitly supported by this narrow policy. Caches and legitimate enablement
+links are not deleted to pass Doctor. Shared Zone traversal anchors remain
+root-owned `0711`, including after a failed reconcile; private descendants keep
+their exact ownership and permissions. Doctor checks the intermediate `zones`
+anchors too, but real Zone-user access and Linux user-systemd/linger still require
+separate acceptance readback.
 
 Instance runtime roots are inode-bound. A copied/restored replacement is not
 automatically trusted; it requires reviewed repair or re-enrollment. No automatic

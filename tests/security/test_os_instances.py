@@ -391,7 +391,8 @@ def test_instance_gateway_uses_canonical_home_and_explicit_native_profile(runtim
         hermes_binary=Path("/fake/hermes"), director_profile=record["nano_director"], instance_id="alpha")
     assert f"HERMES_HOME={record['hermes_home']}" in argv
     assert f"HOME={Path(runtime.zone['state_root']) / 'home'}" in argv
-    assert argv[-4:] == ["--profile", record["nano_director"], "gateway", "install"]
+    assert argv[-6:] == ["--profile", record["nano_director"], "gateway", "install",
+                         "--no-start-now", "--start-on-login"]
 
 
 def test_instance_voice_defaults_preserve_explicit_source_overrides():
@@ -478,7 +479,9 @@ def test_registered_client_two_real_devops_instances_to_onboarding_and_gateway(r
         assert not gates["accounts"]["satisfied"] and not gates["gateway"]["satisfied"]
         argv = build_gateway_argv(zone, "install", runtime_uid=os.getuid(), hermes_binary=Path("/fake/hermes"),
             director_profile=record["nano_director"], instance_id=instance_id)
-        assert f"HERMES_HOME={record['hermes_home']}" in argv and argv[-3] == record["nano_director"]
+        assert f"HERMES_HOME={record['hermes_home']}" in argv
+        assert argv[-6:] == ["--profile", record["nano_director"], "gateway", "install",
+                             "--no-start-now", "--start-on-login"]
         records.append(record)
     assert not set(records[0]["expected_profiles"]) & set(records[1]["expected_profiles"])
     assert gateway_service_name(records[0]["nano_director"]) != gateway_service_name(records[1]["nano_director"])

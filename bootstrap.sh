@@ -449,6 +449,9 @@ if [[ "$INSTALL_AGK_TUI" -eq 1 ]]; then
     PATH="$STATION_HOME/.cargo/bin:$STATION_HOME/.local/bin:$PATH" \
     CARGO_HOME="$STATION_HOME/.cargo" RUSTUP_HOME="$STATION_HOME/.rustup" \
     bash "$agk_src/install.sh" --prefix "$STATION_HOME/.local" --without-hermes
+  # Public command enters the private operator through existing sudo authority.
+  # It neither opens the operator home nor installs the legacy --system stack.
+  "$REPO_DIR/station" tui-install --operator "$STATION_USER"
   bootstrap_checkpoint agk-tui success
 fi
 # Apply the exact reviewed spec using the already authorized bootstrap identity.

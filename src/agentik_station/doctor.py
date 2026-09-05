@@ -132,6 +132,21 @@ def _check_zone_home_directories(
     return True
 
 
+def _check_zone_traversal_directory(result: DoctorResult, path: Path, label: str, owner_uid: int) -> bool:
+    """Check the shared search-only anchor before inspecting private descendants."""
+    repair = "Reconcile this exact root-owned 0711 traversal anchor; do not recursively change Zone ownership."
+    try:
+        info = os.lstat(path)
+    except OSError as exc:
+        result.fail(label, f"Cannot inspect Zone traversal anchor {path}: {type(exc).__name__}", repair)
+        return False
+    if not stat.S_ISDIR(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o711 or info.st_uid != owner_uid:
+        result.fail(label, f"Zone traversal anchor {path} must be a real authority-owned directory with mode 0711", repair)
+        return False
+    result.pass_check(label, "Authority-owned 0711 directory; real Zone-user access requires separate readback.")
+    return True
+
+
 def repo_doctor(repo_root: Path) -> DoctorResult:
     repo_root = Path(repo_root)
     result = DoctorResult("repository")
@@ -924,9 +939,15 @@ def station_doctor(
 
     _check_mode(result, paths.config, {0o750}, "mode:/etc/station")
     _check_mode(result, paths.runtime, {0o755}, "mode:/srv/station")
-    for name, path in (("state", paths.varlib), ("logs", paths.log), ("run", paths.run), ("backups", paths.backups)):
-        _check_mode(result, path, {0o711}, f"mode:zone-traversal:{name}")
-    _check_mode(result, paths.varlib / "zone-bindings", {0o711}, "mode:zone-bindings")
+    anchor_uid = os.getuid() if paths.test_mode else 0
+    for name, path in (("state", paths.varlib), ("logs", paths.log), ("run", paths.run), ("backups", paths.backups),
+                       ("zones-state", paths.zones_state), ("zones-logs", paths.log / "zones"),
+                       ("zones-run", paths.run / "zones"), ("zones-backups", paths.backups / "zones"),
+                       ("zone-bindings", paths.varlib / "zone-bindings")):
+        if not _check_zone_traversal_directory(result, path, f"mode:zone-traversal:{name}", anchor_uid):
+            # Do not inspect descendants through an unsafe shared parent or
+            # mistake root's access for a Zone user's access.
+            return result
 
     catalog_by_id: dict[str, dict[str, Any]] = {}
     if repo_root is not None:
@@ -982,10 +1003,11 @@ def station_doctor(
             continue
 
         zone_id = zone.zone_id
+        if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
+            if not _check_zone_traversal_directory(result, human.parent, f"zone:{zone_id}:parent-traversal", anchor_uid):
+                continue
         _check_directory(result, human, f"zone:{zone_id}:human")
         _check_directory(result, state_root, f"zone:{zone_id}:state")
-        if zone.category in {"ORGANIZATIONS", "PROJECTS"}:
-            _check_mode(result, human.parent, {0o711}, f"zone:{zone_id}:parent-traversal")
         binding_path = paths.varlib / "zone-bindings" / f"{zone_id}.json"
         binding = _load_json(result, binding_path, f"zone:{zone_id}:readonly-binding")
         if binding is not None and binding != payload:
@@ -1042,7 +1064,7 @@ def station_doctor(
         else:
             result.pass_check(
                 f"zone:{zone_id}:symlinks",
-                f"No unapproved links; {len(runtime_links['allowed'])} governed native-cache aliases verified. "
+                f"No unapproved links; {len(runtime_links['allowed'])} governed native runtime links verified. "
                 "No provider or mission readiness implied.",
             )
 

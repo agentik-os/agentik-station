@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+import pwd
 
 
 CANONICAL_USERS = {
@@ -158,6 +159,12 @@ class Environment:
 
     @classmethod
     def current(cls) -> "Environment":
+        # Station's native TUI and Python session controller share the same
+        # operator namespace. Resolve the real identity, not caller USER/HOME.
+        account = pwd.getpwuid(os.geteuid())
+        if account.pw_name == "agk-station":
+            home = Path(account.pw_dir)
+            return cls("agk-station", home, home / "workspace/projects")
         user = os.environ.get("USER") or run("id", "-un").stdout.strip()
         if user in CANONICAL_USERS:
             return cls(*CANONICAL_USERS[user])
