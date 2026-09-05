@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "name": "agentik-station",
-  "release": "11.18",
+  "release": "11.19",
   "blueprint_version": 11,
   "posture": "final-repository-candidate",
   "archive_root": "agentik-station",
@@ -32,7 +32,7 @@
     "builder_librarian_gates": "7/7 PASS",
     "agk_tui_component_tests": 225
   },
-  "file_count": 1125,
+  "file_count": 1130,
   "files": [
     ".github/CODEOWNERS",
     ".github/PULL_REQUEST_TEMPLATE.md",
@@ -203,6 +203,7 @@
     "components/agk-tui/tests/test_macos_bootstrap.py",
     "components/agk-tui/tests/test_online_install.py",
     "components/agk-tui/tests/test_provider.py",
+    "components/agk-tui/tests/test_rmux_install_probe.py",
     "components/agk-tui/tests/test_runtime_integrity_contract.py",
     "components/agk-tui/tests/test_station_voice_and_setup_contract.py",
     "components/agk-tui/tests/test_sync_hermes_launcher.py",
@@ -418,6 +419,7 @@
     "docs/operations/04_DISCORD_DRIFT_RECONCILIATION.md",
     "docs/operations/05_ENGINEERING_EPISODE_MODEL.md",
     "docs/operations/06_FIRST_MISSION.md",
+    "docs/operations/DEPENDENCY_UPDATE_POLICY.md",
     "docs/orchestration/01_STATION_ORCHESTRATION_CONTRACT.md",
     "docs/orchestration/02_SEVEN_CAPABILITY_LANES.md",
     "docs/orchestration/03_CLARIFY_AND_PLAN.md",
@@ -1050,6 +1052,7 @@
     "scripts/station_hermes_update.sh",
     "scripts/station_parakeet_transcribe.sh",
     "scripts/station_toolchain_install.sh",
+    "scripts/station_voice_check.py",
     "scripts/systemd/station-hermes-update.service",
     "scripts/systemd/station-hermes-update.timer",
     "specs/01_DISCORD_PROVISIONER_CONTRACT.md",
@@ -1138,6 +1141,7 @@
     "tests/security/test_os_compiler_boundaries.py",
     "tests/security/test_os_instances.py",
     "tests/security/test_os_lifecycle.py",
+    "tests/security/test_parakeet_transcribe.py",
     "tests/security/test_project_creation.py",
     "tests/security/test_remote_bootstrap.py",
     "tests/security/test_safe_filesystem.py",
@@ -1158,6 +1162,7 @@
     "tests/unit/test_orchestration_cli.py",
     "tests/unit/test_release_generation.py",
     "tests/unit/test_tailscale_readiness.py",
-    "tests/unit/test_toolchain_launchers.py"
+    "tests/unit/test_toolchain_launchers.py",
+    "tests/unit/test_voice_check.py"
   ]
 }

@@ -419,8 +419,10 @@ if [[ "$INSTALL_VOICE" -eq 1 ]]; then
   sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" HERMES_HOME="$STATION_HOME/.hermes" \
     "$hermes_uv" pip install --python "$hermes_install_dir/venv/bin/python" \
     --editable "${hermes_install_dir}[voice,messaging]"
-  sudo -u "$STATION_USER" -H "$hermes_install_dir/venv/bin/python" -c \
-    'import discord, numpy, sounddevice; print("Hermes voice and messaging dependencies OK")'
+  # Discord/file audio needs codecs, not a local microphone or PulseAudio server.
+  sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" HERMES_HOME="$STATION_HOME/.hermes" \
+    PATH=/usr/local/bin:/usr/bin:/bin "$hermes_install_dir/venv/bin/python" -I -B \
+    "$REPO_DIR/scripts/station_voice_check.py"
   bootstrap_checkpoint voice success
 fi
 

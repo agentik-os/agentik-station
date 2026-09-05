@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1125
+Total files: 1130
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -171,6 +171,7 @@ Total files: 1125
 - `components/agk-tui/tests/test_macos_bootstrap.py`
 - `components/agk-tui/tests/test_online_install.py`
 - `components/agk-tui/tests/test_provider.py`
+- `components/agk-tui/tests/test_rmux_install_probe.py`
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
 - `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
 - `components/agk-tui/tests/test_sync_hermes_launcher.py`
@@ -386,6 +387,7 @@ Total files: 1125
 - `docs/operations/04_DISCORD_DRIFT_RECONCILIATION.md`
 - `docs/operations/05_ENGINEERING_EPISODE_MODEL.md`
 - `docs/operations/06_FIRST_MISSION.md`
+- `docs/operations/DEPENDENCY_UPDATE_POLICY.md`
 - `docs/orchestration/01_STATION_ORCHESTRATION_CONTRACT.md`
 - `docs/orchestration/02_SEVEN_CAPABILITY_LANES.md`
 - `docs/orchestration/03_CLARIFY_AND_PLAN.md`
@@ -1018,6 +1020,7 @@ Total files: 1125
 - `scripts/station_hermes_update.sh`
 - `scripts/station_parakeet_transcribe.sh`
 - `scripts/station_toolchain_install.sh`
+- `scripts/station_voice_check.py`
 - `scripts/systemd/station-hermes-update.service`
 - `scripts/systemd/station-hermes-update.timer`
 - `specs/01_DISCORD_PROVISIONER_CONTRACT.md`
@@ -1106,6 +1109,7 @@ Total files: 1125
 - `tests/security/test_os_compiler_boundaries.py`
 - `tests/security/test_os_instances.py`
 - `tests/security/test_os_lifecycle.py`
+- `tests/security/test_parakeet_transcribe.py`
 - `tests/security/test_project_creation.py`
 - `tests/security/test_remote_bootstrap.py`
 - `tests/security/test_safe_filesystem.py`
@@ -1127,3 +1131,4 @@ Total files: 1125
 - `tests/unit/test_release_generation.py`
 - `tests/unit/test_tailscale_readiness.py`
 - `tests/unit/test_toolchain_launchers.py`
+- `tests/unit/test_voice_check.py`

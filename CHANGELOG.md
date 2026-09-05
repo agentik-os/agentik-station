@@ -1,5 +1,18 @@
 # Changelog
 
+## 11.19 — Headless voice installation and main-only maintenance (2026-09-05)
+
+- separate VPS file/Discord audio prerequisites from local microphone/speaker
+  initialization; preserve explicit live voice and account acceptance gates;
+- accept a verified RMUX binary with no existing daemon as idle on a fresh
+  account, while still rejecting incompatible binaries and occupied bad endpoints;
+- publish Parakeet transcripts atomically without overwriting concurrent files
+  or following a competing directory/symlink;
+- retain reviewed dependency pins and pause automatic version-update branches;
+  archive the eight deferred proposals without claiming they were merged.
+
+Live VPS progress and remaining gates are recorded in `VALIDATION.md`.
+
 ## 11.18 — Native Hermes CLI and failure receipts (2026-09-05)
 
 - use Hermes' actual `--version` option in toolchain checks and the updater;

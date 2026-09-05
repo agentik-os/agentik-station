@@ -1,4 +1,4 @@
-# Agentik Station 11.18 Validation
+# Agentik Station 11.19 Validation
 
 ## Live VPS repair campaign — 2026-09-05
 
@@ -68,6 +68,40 @@ cases; independent review, repository Doctor and release metadata checks passed.
 An initial custom macOS fixture root inherited group `wheel` and correctly
 triggered 42 ownership refusals. Recreating that test-only base with the test
 account's group produced the passing run; no production guard was weakened.
+
+All six 11.18 CI jobs passed. The fifth full bootstrap installed the voice and
+messaging extras but its unconditional `sounddevice` import tried to initialize
+PulseAudio on the headless VPS and failed before AGK/kernel publication. That
+failed receipt is retained; its process group was empty before the next repair.
+The pinned Hermes Discord adapter uses file/stream codecs, not a local microphone.
+
+The replacement headless checker passed on the actual VPS: installed Python
+modules, PyNaCl authenticated encryption, PortAudio library binding without
+device initialization, Discord Opus and ffmpeg synthetic audio round-trips.
+Its 24 focused tests include a private-source/operator-checkout handoff regression.
+Local audio hardware, paid transcription/TTS and live Discord audio remain untested.
+
+An independent AGK installation attempt then exposed a fresh-account RMUX check
+that incorrectly required a running daemon. The revised native capabilities and
+endpoint check passed against actual RMUX 0.10.0, reporting `IDLE` without starting
+or accepting a daemon. The AGK Rust release build completed successfully using
+the locked dependencies and operator-owned external build cache. The complete
+AGK installation still requires readback after this fix.
+
+Parakeet transcript publication now refuses a competing output atomically.
+Eleven new regression cases exercised actual GNU filesystem tools, including
+concurrent files, directories, links and FIFO; all passed without overwrites.
+The complete shipped AGK-TUI suite passed **248 tests**, with two unavailable
+local web-library skips; those libraries have separate CI and actual VPS checks.
+The frozen 11.19 Station/Factory suite passed **891 tests**. An earlier concurrent
+test run correctly caught stale release provenance after the final test-file edit;
+metadata was regenerated before the complete passing rerun. Repository Doctor,
+shell syntax, metadata/diff checks and independent voice/RMUX review passed.
+
+Eight deferred Dependabot proposals were preserved under exact-SHA archive tags
+before closure; remote readback confirmed `main` as the only remaining branch.
+No proposed dependency upgrade was silently merged. See the
+[manual update policy](docs/operations/DEPENDENCY_UPDATE_POLICY.md).
 
 Corrected full bootstrap, real named-instance installation and external
 provider/chat/recovery acceptance remain pending at this checkpoint. Source

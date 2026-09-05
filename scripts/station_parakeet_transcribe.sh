@@ -62,5 +62,9 @@ curl --fail --silent --show-error --max-time 300 \
   exit 1
 }
 chmod 0600 "$temporary"
-mv -- "$temporary" "$output"
+# The output may have appeared while HTTP was in flight. Publish atomically
+# without replacing any entry or following a raced-in directory/symlink. The
+# private temporary and output share a filesystem, so link(2) is sufficient.
+ln --no-target-directory -- "$temporary" "$output"
+rm -- "$temporary"
 trap - EXIT

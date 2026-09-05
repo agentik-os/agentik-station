@@ -90,12 +90,53 @@ expose_agk_launcher() {
 
 rmux_works_for_target() {
   local candidate=$1
-  if [ "$(id -un)" = "$target_user" ]; then
-    env HOME="$target_home" "$candidate" list-sessions >/dev/null 2>&1
-  else
-    sudo -u "$target_user" env HOME="$target_home" \
-      "$candidate" list-sessions >/dev/null 2>&1
+  local probe=(env HOME="$target_home" python3 -I -B - "$candidate" "$rmux_version")
+  if [ "$(id -un)" != "$target_user" ]; then
+    probe=(sudo -u "$target_user" "${probe[@]}")
   fi
+  "${probe[@]}" <<'PY'
+import json
+import os
+import re
+import subprocess
+import sys
+
+candidate, expected_version = sys.argv[1:]
+try:
+    capabilities = subprocess.run(
+        [candidate, "capabilities", "--json"], capture_output=True, text=True, timeout=10,
+    )
+    if capabilities.returncode != 0 or len(capabilities.stdout) > 262144:
+        raise ValueError("capabilities unavailable")
+    report = json.loads(capabilities.stdout)
+    required = {"protocol.capabilities", "protocol.framed_errors", "rpc.detached"}
+    if (not isinstance(report, dict) or report.get("version") != expected_version
+            or type(report.get("wire_version")) is not int or report["wire_version"] != 8
+            or type(report.get("binary_contract_version")) is not int or report["binary_contract_version"] != 1
+            or not isinstance(report.get("capabilities"), list)
+            or not all(isinstance(item, str) for item in report["capabilities"])
+            or not required.issubset(report["capabilities"])):
+        raise ValueError("incompatible binary contract")
+    result = subprocess.run([candidate, "list-sessions"], capture_output=True, text=True, timeout=20)
+    if result.returncode == 0:
+        print("RMUX_INSTALL_CHECK: binary compatible; existing daemon protocol verified")
+        raise SystemExit(0)
+    # Native 0.10.0 list-sessions is read-only and does not start a daemon.
+    # A fresh account is idle, not broken. Never accept arbitrary errors or an
+    # extant endpoint (including a stale socket, special file or dangling link).
+    absent = re.fullmatch(r"no server running on (/[^\x00-\x1f\x7f]+)\n?", result.stderr)
+    if result.returncode != 1 or result.stdout or absent is None:
+        raise ValueError("daemon probe failed")
+    try:
+        os.lstat(absent.group(1))
+    except FileNotFoundError:
+        print("RMUX_INSTALL_CHECK: binary compatible; IDLE (no daemon started or verified)")
+    else:
+        raise ValueError("existing endpoint requires inspection")
+except (OSError, ValueError, subprocess.TimeoutExpired):
+    print("RMUX_INSTALL_CHECK: failed; inspect binary capabilities and the target user's endpoint", file=sys.stderr)
+    raise SystemExit(1)
+PY
 }
 
 expose_working_rmux() {
@@ -158,7 +199,7 @@ install_rmux() {
   [ -n "$package_root" ] || { echo "RMUX package layout is invalid" >&2; return 1; }
   "$package_root/install.sh" --prefix "$prefix"
   rmux_works_for_target "$bin_dir/rmux" || {
-    echo "installed RMUX cannot communicate with the target user's daemon" >&2
+    echo "installed RMUX failed binary/daemon compatibility checks; existing sessions were not changed" >&2
     return 1
   }
   expose_working_rmux "$bin_dir/rmux"
@@ -166,8 +207,8 @@ install_rmux() {
   trap - RETURN
 }
 
-install_rmux
 command -v python3 >/dev/null || { echo "Python 3 is required for AGK session commands" >&2; exit 1; }
+install_rmux
 if [ "$(id -un)" = "$target_user" ]; then
   cargo_bin=$(command -v cargo || true)
   [ -n "$cargo_bin" ] || { echo "Rust/Cargo is required to build the AGK TUI" >&2; exit 1; }
