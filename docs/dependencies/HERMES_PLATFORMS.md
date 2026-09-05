@@ -10,6 +10,21 @@ use the same Station lifecycle. `--platform` records the intended platform; it
 does not filter the wizard or restrict a service to one adapter. Select the
 platform inside Hermes. Service actions affect that profile's entire gateway.
 
+## Start with the right setup entrypoint
+
+Use `station platform configure` for **model/provider enrollment only**, then
+`station platform setup` for the native messaging wizard. Both accept the same
+explicit Zone/instance selectors and `--plan`; neither copies another profile's
+accounts. Existing `station os instance setup` and legacy `station os setup` also
+use the model-only route.
+
+At the pinned Hermes revision, bare `hermes setup` and `hermes setup gateway`
+can install/start the service as part of setup. Station instead delegates model
+enrollment to `hermes setup model`. The messaging route remains `hermes gateway
+setup`, whose explicit service offers must be declined until verification; its
+pre-wizard briefing is guidance, not an enforcement layer. See the
+[pinned section dispatcher](https://github.com/NousResearch/hermes-agent/blob/29112bef099274229cadff79cdff7bf7b99c4b77/hermes_cli/setup.py#L2803).
+
 ## Which bot are you connecting?
 
 | Station selection | Runtime selected | What it does not mean |
@@ -41,11 +56,17 @@ sudo station platform setup --zone discord-bootstrap --platform discord --plan
 ```
 
 The plan must show `z-system-discord`, the Zone's canonical home and
-`--profile default`. If model/provider enrollment is needed, use the explicit
-native command below: there is no public `station platform configure` action.
-This Bash example also opens the platform wizard and configures a nonsecret
-channel ACL. Replace the placeholder first; retain the existing bot identity
-unless deliberately rotating its token.
+`--profile default`. If its model/provider is not already enrolled:
+
+```bash
+sudo station platform configure --zone discord-bootstrap --plan
+sudo station platform configure --zone discord-bootstrap
+```
+
+This opens only the native model/provider section, not the full setup wizard.
+Then open the messaging wizard and configure a nonsecret channel ACL below.
+Replace the placeholder first; retain the existing bot identity unless
+deliberately rotating its token.
 
 ```bash
 set -euo pipefail
@@ -59,8 +80,6 @@ station_bootstrap_hermes() (
     PATH=/usr/local/bin:/usr/bin:/bin \
     /usr/local/bin/hermes --profile default "$@"
 )
-# If the intended model/provider is already enrolled, skip this setup command.
-station_bootstrap_hermes setup
 # Select Discord, explicit numeric human IDs, and the intended home channel.
 # Decline all early service install/start/restart offers, including at entry.
 sudo station platform setup --zone discord-bootstrap --platform discord
@@ -131,6 +150,8 @@ sudo station os instance setup --zone dev --instance engineering
 The last command opens the selected Director's model/provider wizard. Enroll
 only its intended account; separately verify any specialist accounts needed for
 delegation. Do not copy credentials between profiles, instances or Zones.
+This is the native model-only section; it does not invoke the full wizard's
+messaging/service setup.
 
 ### 1. Create and invite the Discord identity
 

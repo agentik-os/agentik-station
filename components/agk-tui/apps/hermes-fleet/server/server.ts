@@ -142,6 +142,20 @@ function authorizeRequest(
   return { allowed: true, status: 200, message: "OK" };
 }
 
+function parseRequestTarget(value: string | undefined): URL | null {
+  const target = value ?? "/";
+  // Fleet is an origin server, not a forward proxy. Reject alternate authority
+  // forms and URL parser exceptions before either HTTP or WebSocket routing.
+  if (!target.startsWith("/") || target.startsWith("//") || /[\\\x00-\x20\x7f#]/.test(target)) {
+    return null;
+  }
+  try {
+    return new URL(target, "http://fleet.invalid");
+  } catch {
+    return null;
+  }
+}
+
 function makeUpstreams(
   portOverrides: FleetServerOptions["upstreamPorts"] = {},
 ): readonly UpstreamTarget[] {
@@ -513,7 +527,11 @@ export function createFleetServer(options: FleetServerOptions = {}): Server {
       return;
     }
 
-    const parsed = new URL(request.url ?? "/", "http://fleet.invalid");
+    const parsed = parseRequestTarget(request.url);
+    if (!parsed) {
+      sendText(response, 400, "Malformed request target");
+      return;
+    }
     if (parsed.pathname === "/healthz") {
       const body = JSON.stringify({ status: "ok", organisations: ORGANISATIONS.map(({ id }) => id) });
       response.writeHead(200, {
@@ -570,7 +588,11 @@ export function createFleetServer(options: FleetServerOptions = {}): Server {
       return;
     }
 
-    const parsed = new URL(request.url ?? "/", "http://fleet.invalid");
+    const parsed = parseRequestTarget(request.url);
+    if (!parsed) {
+      rejectUpgrade(socket, 400, "Bad request");
+      return;
+    }
     const target = targetForPath(parsed.pathname, upstreams);
     if (!target) {
       rejectUpgrade(socket, 404, "WebSocket route not found");

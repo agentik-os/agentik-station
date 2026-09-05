@@ -2,6 +2,12 @@
 
 AGK client organization: `{{CLIENT_ID}}`.
 
+This is the legacy shared-operator workflow, not canonical Station client Zone
+registration. Its Hermes profile separates runtime state but shares the operator
+Unix identity and may share CLI accounts under `HOME`. Different clients and
+sensitive environments require separate Station Zones; no automatic migration
+or credential copying is performed.
+
 - Runtime: `{{RUNTIME_TYPE}}`
 - Hermes profile: `{{HERMES_PROFILE}}`
 - Secrets: `~/.config/agk/clients/{{CLIENT_ID}}/env`

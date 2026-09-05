@@ -769,7 +769,7 @@ def cmd_deps(args: argparse.Namespace) -> int:
 
 def cmd_platform_gateway(args: argparse.Namespace) -> int:
     """Run the native Hermes gateway under the owning Zone identity and HERMES_HOME."""
-    from .hermes_platforms import build_gateway_argv, normalize_platform
+    from .hermes_platforms import build_gateway_argv, normalize_platform, platform_setup_guidance
     from .native_process import run_bounded_native
 
     zone = _load_zone_record(args.zone)
@@ -850,11 +850,17 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
             "platform before recording ACCEPTED."
         ),
     }
+    if args.platform_command == "setup":
+        payload["setup_guidance"] = list(platform_setup_guidance(requested_platform))
     if args.plan:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
     if os.geteuid() != 0:
         raise StationError("Executing a Zone gateway action requires root for runuser identity switching")
+    if args.platform_command == "setup":
+        print(f"Station setup scope: Zone {args.zone}, profile {profile}", file=sys.stderr)
+        for instruction in payload["setup_guidance"]:
+            print(f"  - {instruction}", file=sys.stderr)
     if args.platform_command == "install":
         loginctl = shutil.which("loginctl")
         systemctl = shutil.which("systemctl")
@@ -1590,7 +1596,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     platform = sub.add_parser("platform", help="Zone-isolated Hermes messaging gateway")
     platform_sub = platform.add_subparsers(dest="platform_command", required=True)
-    for action in ("setup", "install", "start", "restart", "status", "doctor"):
+    for action in ("configure", "setup", "install", "start", "restart", "status", "doctor"):
         command = platform_sub.add_parser(action)
         command.add_argument("--zone", required=True)
         command.add_argument("--platform", help="Platform intent/name; native actions affect the selected profile's whole gateway")

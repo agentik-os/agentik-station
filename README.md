@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.23.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.24.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -449,6 +449,8 @@ station deps toolchain-check    # Observed tools versus reviewed pins
 station resource list           # Reusable resource catalog
 station resource stack-plan     # Inspect the preferred Project stack
 station tui                     # Open AGK-TUI (also agk or agk tui)
+agk commands                    # Full session, provider and compatibility command menu
+agk doctor --offline            # Installation checks; no account/network or gateway startup
 ```
 
 AGK-TUI opens Hermes, Codex, Claude Code and terminal sessions; it is a control
@@ -461,6 +463,10 @@ prints help. Existing installations missing the public launcher can use the
 For Discord, follow [the instance-first bot guide](docs/dependencies/HERMES_PLATFORMS.md):
 configure the selected Director, verify it, then install/start its native gateway.
 Account enrollment and external actions still follow [SETUP.md](SETUP.md).
+
+The [AGK acceptance record](docs/audit/2026-09-05-agk-tui-acceptance.md)
+distinguishes fixture tests, native terminal checks and still-pending live
+integrations. Offline Doctor does not authenticate a provider or accept a bot.
 
 </details>
 

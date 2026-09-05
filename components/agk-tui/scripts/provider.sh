@@ -113,7 +113,11 @@ install_provider() {
       ;;
     openrouter)
       installed hermes || install_provider hermes
-      if openrouter_ready; then hermes --version; else hermes setup model; fi
+      if [ "$install_mode" = "--no-login" ] || openrouter_ready; then
+        hermes --version
+      else
+        hermes setup model
+      fi
       ;;
     opencode)
       if ! installed opencode; then download_and_run https://opencode.ai/install; fi

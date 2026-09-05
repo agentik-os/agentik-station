@@ -1,4 +1,18 @@
-# Agentik Station 11.23 Validation
+# Agentik Station 11.24 Validation
+
+## AGK feature audit and Discord setup — 11.24
+
+The [mission plan and acceptance matrix](docs/audit/2026-09-05-agk-tui-acceptance.md)
+track this release's verification, reproduced defects and external limitations.
+Earlier release evidence below remains historical; it does not substitute for
+testing changed controls or accepting live accounts in this release.
+
+Final source verification: **1,503 Station/Factory tests passed** (15 Linux-only
+process cases skipped on macOS), and **520 AGK tests passed** (112 Rust, 384
+Python, 24 JavaScript; two optional local web-library skips). Format, Clippy,
+three TypeScript configurations, client/server builds, Node syntax, all 85
+repository Doctor checks and deterministic release metadata passed. Native
+installed acceptance and protected-file readback are separate Host gates.
 
 ## SSH operator and systemd repair — 11.23
 

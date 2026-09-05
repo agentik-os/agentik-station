@@ -1,5 +1,21 @@
 # Changelog
 
+## 11.24 — AGK feature audit and scoped Discord setup (2026-09-05)
+
+- Preserve Hermes profiles across forks, restore restarted sessions to the visible
+  list, reject rename collisions before native mutation and scope logical registry
+  operations to the selected environment without claiming Unix isolation.
+- Keep provider installation without login noninteractive; expose the complete
+  command menu and handle missing HOME and malformed Discord session metadata.
+- Reject malformed Fleet HTTP/WebSocket targets without crashing the server.
+- Run the full shipped Rust/Python/dashboard test pipeline outside the immutable
+  release tree; retain exact reviewed predecessor hashes for software repair.
+- Use native model-only configuration for Zone/OS setup, expose the first-bot
+  provider command and display Discord scope/security guidance before its wizard.
+- Correct bootstrap first-bot instructions to select `discord-bootstrap`, not
+  the shared operator profile. Bot creation, consent and activation remain human
+  steps, with live acceptance separate from local checks.
+
 ## 11.23 — SSH operator access and native systemd reconciliation (2026-09-05)
 
 - Keep traversal-only Station parents at `0711`, including failed-install evidence handling; check the intermediate Zone anchors in Doctor.

@@ -83,11 +83,17 @@ if [ "$discord_admin_json" != "[]" ]; then
   hermes config set platforms.discord.extra.allow_admin_from "$discord_admin_json" >/dev/null
   hermes config set platforms.discord.extra.group_allow_admin_from "$discord_admin_json" >/dev/null
 fi
+restrict_plugin_modes() {
+  # Copied public software must not inherit group/world write from a checkout.
+  # Restrict existing modes only; never traverse symlink entries or HOME/config.
+  find "$@" \( -type d -o -type f \) -exec chmod go-w {} +
+}
 for plugin_path in agentik_os platforms/discord; do
   plugin_target=$hermes_home/plugins/$plugin_path
   mkdir -p "$(dirname "$plugin_target")"
   rm -rf "$plugin_target.new"
   cp -a "$install_root/hermes/plugins/$plugin_path" "$plugin_target.new"
+  restrict_plugin_modes "$plugin_target.new"
   rm -rf "$plugin_target"
   mv "$plugin_target.new" "$plugin_target"
 done

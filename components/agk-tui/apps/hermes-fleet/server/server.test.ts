@@ -153,6 +153,38 @@ describe("Fleet request boundaries", () => {
       await close(fleet);
     }
   });
+
+  it.each(["//[", "//elsewhere.test/operator/", "/\\[", "http://elsewhere.test/", "/#fragment"])(
+    "rejects an invalid HTTP target without losing the server: %s",
+    async (target) => {
+      const fleet = createFleetServer({ allowedHosts: ["fleet.test"] });
+      const port = await listen(fleet);
+      try {
+        const rejected = await httpGet(port, target, { host: "fleet.test" });
+        expect(rejected.status).toBe(400);
+        expect((await httpGet(port, "/healthz", { host: "fleet.test" })).status).toBe(200);
+      } finally {
+        await close(fleet);
+      }
+    },
+  );
+
+  it.each(["//[", "//elsewhere.test/operator/", "/\\[", "http://elsewhere.test/"])(
+    "rejects an invalid WebSocket target without losing the server: %s",
+    async (target) => {
+      const fleet = createFleetServer({ allowedHosts: ["fleet.test"] });
+      const port = await listen(fleet);
+      try {
+        const rejected = await httpGet(port, target, {
+          host: "fleet.test", connection: "Upgrade", upgrade: "websocket",
+        });
+        expect(rejected.status).toBe(400);
+        expect((await httpGet(port, "/healthz", { host: "fleet.test" })).status).toBe(200);
+      } finally {
+        await close(fleet);
+      }
+    },
+  );
 });
 
 describe("Hermes HTTP proxy", () => {

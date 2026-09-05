@@ -2,7 +2,12 @@
 
 These instructions apply to every provider and agent working in this tree.
 
-## Isolation
+This legacy client scope shares its operator's Unix identity. Hermes profiles
+and routing rules are not filesystem or CLI-account sandboxes. Never claim this
+workspace is an independently isolated Station Zone, copy another client's
+credentials, or migrate it implicitly into the canonical Organization/Zone model.
+
+## Scope and data handling
 
 1. Work only inside this client boundary and its explicitly declared runtimes.
 2. Never read another client's workspace, memory, connection or credential.

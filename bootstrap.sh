@@ -560,8 +560,8 @@ Live sessions (Hermes, Codex, Claude Code, terminal):
   agk
   station tui
 
-Authentication remains operator-controlled:
-  hermes setup
+Operator CLI logins (these do not authenticate a Zone or OS instance):
+  hermes setup model  # operator's personal Hermes profile only
   codex              # follow the current sign-in flow
   gh auth login
   vercel login
@@ -569,6 +569,14 @@ Authentication remains operator-controlled:
   # Claude Code: install/login separately, then open via agk
   ./scripts/station_hermes_update.sh update
   ./scripts/station_deps_install.sh --list
-  hermes gateway setup   # multi-platform bots
+First Station Discord bot (isolated System Zone, not the operator home):
+  sudo station platform configure --zone discord-bootstrap --plan
+  sudo station platform configure --zone discord-bootstrap
+  sudo station platform setup --zone discord-bootstrap --platform discord --plan
+  sudo station platform setup --zone discord-bootstrap --platform discord
+  # The human owner supplies the bot identity and explicit user/channel allowlists.
+  # Decline native service install/start/restart offers; verify before starting.
+  # Follow docs/dependencies/HERMES_PLATFORMS.md for ACLs and live acceptance.
+  # Existing tokens stay in their current Zone/profile; never copy them to Atlas.
   # After Tailscale enrollment: sudo ./scripts/station_guided_setup_enable.sh
 EOF

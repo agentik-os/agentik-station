@@ -2,9 +2,18 @@
 
 Standard version: `2`
 
-Every client is an isolated product organization inside the `mission` profile.
-The Linux username is a runtime boundary; AGK business objects use the stable
+This is the **legacy shared-operator client workflow**, also selected explicitly
+by `station client --legacy`. Client workspaces and Hermes profiles separate
+routing, configuration and conversation state; clients inside `mission` share
+its Unix identity and may share CLI authentication under its `HOME`. They are
+not separate Station Zones or Unix sandboxes. AGK business objects use the stable
 client id from `.client/manifest.yaml`.
+
+For new Station clients, register their existing Organization environment Zones
+with `station organization register`, then enroll a domain runtime with
+`station os instance install`. OS instances and Projects are siblings in each
+Zone. Use different Zones for client/environment isolation. These legacy commands
+neither provision that boundary nor migrate existing client data or credentials.
 
 ## Sources of truth
 

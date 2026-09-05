@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import tempfile
@@ -51,6 +52,12 @@ def discover_profile_bots(home_root: Path = DEFAULT_HOME_ROOT) -> list[ProfileBo
     profiles: list[ProfileBot] = []
     for config_path in sorted(candidates):
         try:
+            hermes_home = config_path.parent.resolve()
+            relative = hermes_home.relative_to(home_root.resolve())
+            parts = relative.parts
+            if (len(parts) not in {2, 4} or parts[1] != ".hermes"
+                    or (len(parts) == 4 and parts[2] != "profiles")):
+                continue
             config = _read_yaml(config_path)
         except (OSError, ValueError, yaml.YAMLError):
             continue
@@ -65,7 +72,6 @@ def discover_profile_bots(home_root: Path = DEFAULT_HOME_ROOT) -> list[ProfileBo
         )
         if not required:
             continue
-        hermes_home = config_path.parent.resolve()
         # A named Hermes profile may intentionally inherit the parent bot
         # configuration while never owning a gateway process of its own.  Do
         # not report that shadow profile as a separate outage. A gateway
@@ -82,10 +88,8 @@ def discover_profile_bots(home_root: Path = DEFAULT_HOME_ROOT) -> list[ProfileBo
         )
         if not (hermes_home / "gateway_state.json").exists() and not explicitly_expected:
             continue
-        relative = hermes_home.relative_to(home_root.resolve())
-        parts = relative.parts
         linux_user = parts[0]
-        profile_name = parts[3] if len(parts) >= 4 and parts[2] == "profiles" else None
+        profile_name = parts[3] if len(parts) == 4 else None
         name = f"{linux_user}/{profile_name}" if profile_name else linux_user
         profiles.append(ProfileBot(name, hermes_home, required))
     return profiles
@@ -94,7 +98,7 @@ def discover_profile_bots(home_root: Path = DEFAULT_HOME_ROOT) -> list[ProfileBo
 def _pid_is_gateway(pid: Any) -> bool:
     try:
         numeric = int(pid)
-    except (TypeError, ValueError):
+    except (OverflowError, TypeError, ValueError):
         return False
     if numeric <= 1:
         return False
@@ -111,12 +115,17 @@ def profile_health(profile: ProfileBot) -> tuple[bool, str]:
         state = json.loads(state_path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False, "gateway state unavailable"
+    if not isinstance(state, dict):
+        return False, "gateway state invalid"
     if state.get("gateway_state") != "running" or not _pid_is_gateway(state.get("pid")):
         return False, "gateway process unavailable"
     platforms = state.get("platforms") or {}
+    if not isinstance(platforms, dict):
+        return False, "gateway platform state invalid"
     for platform in profile.required_platforms:
         platform_state = platforms.get(platform) or {}
-        if platform_state.get("state") != "connected" or platform_state.get("error_code"):
+        if (not isinstance(platform_state, dict)
+                or platform_state.get("state") != "connected" or platform_state.get("error_code")):
             return False, f"{platform} disconnected"
     return True, "connected"
 
@@ -227,11 +236,20 @@ def evaluate_profile(
 
     if healthy:
         return None
-    current = dict(record or {})
-    current.setdefault("down_since", now)
+    current = dict(record) if isinstance(record, dict) else {}
+    try:
+        down_since = float(current.get("down_since", now))
+    except (OverflowError, TypeError, ValueError):
+        down_since = float("nan")
+    if not math.isfinite(down_since) or down_since < 0 or down_since > now:
+        # Corrupt state cannot create an immediate alert or suppress one
+        # indefinitely. Restart the grace period without sending a message.
+        current = {}
+        down_since = now
+    current["down_since"] = down_since
     current["reason"] = reason
-    current.setdefault("alerted", False)
-    if not current["alerted"] and now - float(current["down_since"]) >= threshold:
+    current["alerted"] = current.get("alerted") is True
+    if not current["alerted"] and now - down_since >= threshold:
         if send():
             current["alerted"] = True
             current["alerted_at"] = now

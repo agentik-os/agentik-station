@@ -9,6 +9,24 @@ actions—not an automatic executor. Select `--organization`, `--zone` and `--in
 the actions specific. `--probe` adds only a bounded read of the selected systemd
 user service; it does not start Hermes or authenticate an account.
 
+For the first Station bot, use the explicit `discord-bootstrap` Zone, not a bare
+Hermes command in the `agk-station` operator home:
+
+```bash
+sudo station platform configure --zone discord-bootstrap --plan
+sudo station platform configure --zone discord-bootstrap
+sudo station platform setup --zone discord-bootstrap --platform discord --plan
+sudo station platform setup --zone discord-bootstrap --platform discord
+```
+
+`configure` opens only native model/provider enrollment. `setup` opens the native
+platform picker with a Station safety briefing; choose Discord and decline its
+service install/start/restart offers. The human creates/invites the bot and supplies
+its token only at the masked prompt. Set explicit human **and** channel allowlists,
+then follow [verify → install → start → live acceptance](docs/dependencies/HERMES_PLATFORMS.md#keep-the-existing-first-station-bot-in-discord-bootstrap--default).
+This route does not install a Control OS instance, grant sudo or enroll Atlas.
+Preserve any existing token in its current Zone/profile.
+
 ## Gate 1 — Host identity and private connectivity
 
 - enroll the Host in the approved Tailscale network;
@@ -45,6 +63,10 @@ sudo station os instance setup --zone acme-dev --instance engineering --plan
 sudo station os instance setup --zone acme-dev --instance engineering
 sudo station os instance show --zone acme-dev --instance engineering
 ```
+
+The Station OS setup commands use native `hermes setup model`, not the full
+wizard. Full `hermes setup` and `hermes setup gateway` can install/start services
+before Station's separate verification gate; do not substitute those commands.
 
 An untouched desired OS remains `NOT_INSTALLED`. Successful installation records
 `CONFIGURED` for the entire native team, not provider authentication. The root-owned
@@ -241,7 +263,7 @@ sudo station platform start --zone acme-dev --instance engineering
 sudo station setup --organization acme --zone acme-dev --instance engineering --probe --json
 ```
 
-Add `--plan` to the `station platform` commands to inspect the exact `runuser`/`HERMES_HOME` invocation before execution. `platform setup` opens Hermes' interactive gateway wizard; the platform flag validates operator intent and includes it in the emitted result, but tokens are entered only through Hermes. `install` enables linger and starts the Zone's systemd user manager so the gateway survives logout/reboot.
+Add `--plan` to the `station platform` commands to inspect the exact `runuser`/`HERMES_HOME` invocation before execution. `platform configure` opens only model/provider enrollment; `platform setup` opens Hermes' interactive gateway wizard with a safety briefing. The platform flag validates operator intent and includes it in the emitted result, but does not filter the picker. Tokens are entered only through Hermes. Decline native service offers until verification; `install` then enables linger and starts the Zone's systemd user manager so the gateway survives logout/reboot.
 
 Here `--plan` applies to `station platform` actions; `station setup` is already a
 read-only report. With neither `--instance` nor legacy `--os`, the platform command

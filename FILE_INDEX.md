@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1150
+Total files: 1155
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -167,16 +167,19 @@ Total files: 1150
 - `components/agk-tui/tests/test_composio_inventory.py`
 - `components/agk-tui/tests/test_controls_refresh.py`
 - `components/agk-tui/tests/test_discord_session_panel.py`
+- `components/agk-tui/tests/test_doctor_offline.py`
 - `components/agk-tui/tests/test_fleet_dashboard.py`
 - `components/agk-tui/tests/test_gateway_watchdog.py`
 - `components/agk-tui/tests/test_install_contract.py`
 - `components/agk-tui/tests/test_macos_bootstrap.py`
 - `components/agk-tui/tests/test_online_install.py`
+- `components/agk-tui/tests/test_plugin_install_permissions.py`
 - `components/agk-tui/tests/test_provider.py`
 - `components/agk-tui/tests/test_rmux_install_probe.py`
 - `components/agk-tui/tests/test_runtime_integrity_contract.py`
 - `components/agk-tui/tests/test_station_voice_and_setup_contract.py`
 - `components/agk-tui/tests/test_sync_hermes_launcher.py`
+- `components/agk-tui/tests/test_test_runner.py`
 - `components/agk-tui/tests/test_topology.py`
 - `components/agk-tui/tests/test_web_extraction.py`
 - `config/agent-runtime-policy.json`
@@ -250,6 +253,7 @@ Total files: 1150
 - `docs/assets/readme/station-mission-control.svg`
 - `docs/assets/readme/station-os-map.svg`
 - `docs/assets/readme/station-system-map.svg`
+- `docs/audit/2026-09-05-agk-tui-acceptance.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
@@ -1146,6 +1150,7 @@ Total files: 1150
 - `tests/unit/test_models.py`
 - `tests/unit/test_onboarding.py`
 - `tests/unit/test_orchestration_cli.py`
+- `tests/unit/test_platform_setup_entrypoint.py`
 - `tests/unit/test_release_generation.py`
 - `tests/unit/test_station_voice_provider.py`
 - `tests/unit/test_tailscale_readiness.py`

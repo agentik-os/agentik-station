@@ -189,6 +189,11 @@ run install -m 0755 "$repo_root/bin/agk-terminal" "$bin_dir/agk-terminal"
 for client_launcher in client-init client-doctor client-status client-env provision-client; do
   run install -m 0755 "$repo_root/bin/$client_launcher" "$bin_dir/$client_launcher"
 done
+restrict_plugin_modes() {
+  # Copied public software must not inherit group/world write from a checkout.
+  # Restrict existing modes only; never traverse symlink entries or HOME/config.
+  find "$@" \( -type d -o -type f \) -exec chmod go-w {} +
+}
 if [ "$dry_run" = true ]; then
   echo "  + synchronize Hermes plugins and Master OS Builder catalog"
 else
@@ -198,6 +203,8 @@ else
   cp -R "$repo_root/hermes/plugins/agentik_os" "$install_root/hermes/plugins/"
   cp -R "$repo_root/hermes/plugins/platforms/discord" \
     "$install_root/hermes/plugins/platforms/"
+  restrict_plugin_modes "$install_root/hermes/plugins/agentik_os" \
+    "$install_root/hermes/plugins/platforms/discord"
   cp -R "$repo_root/hermes/agents/master-os-builder" "$install_root/agents/"
   mkdir -p "$HOME/.config/rmux"
   if [ ! -e "$HOME/.config/rmux/rmux.conf" ]; then

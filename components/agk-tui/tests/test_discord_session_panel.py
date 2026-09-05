@@ -46,3 +46,17 @@ def test_resume_command_uses_native_admin_scoped_gateway_path():
     )
     with pytest.raises(ValueError):
         session_panel.resume_all_command("x; /clear")
+
+
+@pytest.mark.parametrize("timestamp", [float("nan"), float("inf"), -float("inf"), 1e300, "invalid"])
+def test_invalid_activity_timestamp_cannot_break_the_picker(timestamp):
+    rows = session_panel.session_picker_rows([{"id": "safe-session", "last_active": timestamp}])
+    assert len(rows) == 1
+    assert "activity unknown" in rows[0]["description"]
+
+
+@pytest.mark.parametrize("identifier", ["--all", "-l", ".", "..", ":other"])
+def test_resume_identifiers_cannot_be_flags_or_path_shorthand(identifier):
+    with pytest.raises(ValueError):
+        session_panel.resume_all_command(identifier)
+    assert session_panel.session_picker_rows([{"id": identifier}]) == []

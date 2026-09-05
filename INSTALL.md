@@ -51,7 +51,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.23
+## Supported base for Station 11.24
 
 The current safe-kernel provider supports:
 
@@ -151,7 +151,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.23",
+  "release_version": "11.24",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -353,8 +353,8 @@ it never grants sudo, opens the private operator home or copies login credential
 `agk status` is noninteractive; bare `station` displays help. The TUI requires a
 real terminal (`ssh -t` for a one-command SSH launch).
 
-For a reviewed 11.22 installation with missing public `agk`, publish the reviewed
-11.23 immutable Station kernel first, preserving the Host's desired state. Then
+For a reviewed 11.22/11.23 installation needing the current controls, publish the
+11.24 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -363,16 +363,33 @@ sudo -u agk-station -H /opt/station/current/components/agk-tui/install.sh \
 sudo station tui-install --operator agk-station --plan
 sudo station tui-install --operator agk-station
 agk status
+agk commands
+agk doctor --offline
 agk
 ```
 
-The controls-only step updates two reviewed operator-owned launch/controller
-files, not Rust binaries, Hermes, configuration or session data. Modified local
-controls and an unrelated existing public `agk` are refused for explicit review.
+The controls-only step checks eight exact existing operator software destinations:
+the launcher, controller, provider, watchdog, Doctor, sync script and the two
+operator Discord session-panel copies. It does not rebuild Rust, execute Hermes
+sync, restart gateways or change configuration/session data. Modified local
+software and an unrelated existing public `agk` are refused for explicit review.
 The source and target directory chains must not be group/world-writable. A normal
 Ubuntu private-group checkout can have `0775` directories: use the immutable
 release instead of weakening this check. Do not rerun full Host bootstrap only
 to repair a launcher, and do not add Zone users to `station-system`.
+
+Older private-group installs may also have `0775` software directories and `0664`
+plugin files. A repair must first verify the exact operator ownership, reviewed
+file hashes and directory chain, then remove group/world write only on the named
+software paths. Never recursively chmod the operator HOME or credential tree.
+The helper deliberately refuses those paths until that reviewed repair is done;
+new copies normalize only their freshly staged plugin software. In-memory Python
+plugins in an already-running gateway still require a later authorized restart.
+
+`agk doctor --offline` is a static installation inventory, with accounts, runtime
+behavior and services explicitly `NOT_CHECKED`. The existing default/`--full`
+Doctor retains its strict external checks and can fail for an unenrolled optional
+integration; neither mode substitutes for scoped live acceptance.
 
 Bootstrap synchronizes redacted
 metadata into `/home/agk-station/.agentik/station-sync.json`: root reads the
@@ -436,7 +453,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.23 publishes beside earlier releases; it never overwrites an old
+Station 11.24 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

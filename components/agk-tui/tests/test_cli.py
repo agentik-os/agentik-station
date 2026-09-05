@@ -10,6 +10,19 @@ CLI = ROOT / "bin" / "agk-terminal"
 AGK = ROOT / "bin" / "agk"
 
 
+def test_private_commands_alias_exposes_full_help_without_initializing_state(tmp_path):
+    result = subprocess.run(
+        [str(AGK), "commands"],
+        env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path),
+             "AGK_TERMINAL_ROOT": str(tmp_path / "not-installed")},
+        text=True, capture_output=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "agk specialist start AGENT_ID" in result.stdout
+    assert "agk provider" in result.stdout
+    assert not list(tmp_path.iterdir())
+
+
 def composio_fixture(tmp_path: Path) -> tuple[dict[str, str], Path]:
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
@@ -197,3 +210,10 @@ def test_agk_help_documents_interactive_session_and_setup_surfaces():
     assert result.returncode == 0, result.stderr
     for command in ("agk new", "agk close", "agk provider", "agk composio", "agk topology"):
         assert command in result.stdout
+
+
+def test_private_agk_help_survives_missing_home(tmp_path):
+    env = {"PATH": "/usr/bin:/bin", "AGK_TERMINAL_ROOT": str(tmp_path / "not-installed")}
+    result = subprocess.run([str(AGK), "--help"], env=env, capture_output=True, text=True, timeout=5)
+    assert result.returncode == 0, result.stderr
+    assert "agk new" in result.stdout

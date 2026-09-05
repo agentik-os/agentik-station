@@ -43,7 +43,7 @@ def test_worker_provider_setup_resolves_canonical_role_not_raw_profile(instance_
     zone, record, _ = instance_gateway
     assert cli.main(["os", "instance", "setup", "--zone", zone["id"], "--instance", "engineering", "--role", "forge", "--plan"]) == 0
     result = json.loads(capsys.readouterr().out)
-    assert result["argv"][-3:] == ["--profile", record["role_profile_map"]["forge"], "setup"]
+    assert result["argv"][-4:] == ["--profile", record["role_profile_map"]["forge"], "setup", "model"]
     assert result["role"] == "forge"
 
 

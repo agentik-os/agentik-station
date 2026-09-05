@@ -1,8 +1,18 @@
 # AGK client organizations
 
-AGK turns each Mission client into an isolated, resumable delivery system.
-This document describes the installed contract and the commands an operator
-uses. It does not authorize AGK to create remote resources during installation.
+This document describes AGK's **legacy shared-operator** client controller,
+selected explicitly through `station client --legacy` or direct `agk client`.
+It provides resumable, client-scoped delivery records, not independent Station
+Zone isolation. Clients under `mission` share that Unix identity and may share
+CLI authentication under its `HOME`; Hermes profiles are not Unix sandboxes.
+Installation does not authorize creation of remote resources.
+
+For new Station clients, use `station organization register` against already
+reconciled client environment Zones, then `station os instance install` for the
+domain runtime. OS instances and Projects are siblings in their owning Zone.
+Separate Zones provide hard client/environment isolation. The legacy controller
+does not create those Zones, enroll canonical OS instances, or migrate existing
+client data or credentials. See the repository's [instance contract](../../../docs/organization/05_OS_INSTANCES.md).
 
 ## Ownership model
 
@@ -20,8 +30,10 @@ uses. It does not authorize AGK to create remote resources during installation.
             Platform team    Platform team    Platform team
 ```
 
-The role definitions are shared. Client credentials, memory, repositories,
-runtime context, data and production authority are not shared.
+Role definitions are shared. Client records keep distinct credential references,
+memory paths, repositories and runtime mappings. The operator must not share
+client data or authority; this is a policy rule within one UID, not an enforced
+cross-client filesystem or account boundary.
 
 - Linear is the source of truth for product work and status.
 - GitHub is the source of truth for code and CI evidence.
@@ -95,7 +107,7 @@ matching category and channels, creates only missing resources, and rolls back
 resources created by that attempt if the remote sequence or local config
 commit fails.
 
-Activate the isolated Hermes context only after reviewing the client:
+Activate the client-scoped Hermes context only after reviewing the client:
 
 ```bash
 agk client activate acme --yes
@@ -105,7 +117,7 @@ agk client doctor acme --online
 
 Activation deliberately creates a blank profile instead of cloning another
 client or the collective profile. The returned `next_command` completes model
-authentication and configuration inside that new boundary. AGK refuses to
+authentication and configuration inside that profile. AGK refuses to
 start the client session until its `config.yaml` exists.
 
 ## Work lifecycle

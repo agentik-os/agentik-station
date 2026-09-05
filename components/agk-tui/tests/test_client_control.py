@@ -2215,6 +2215,19 @@ def test_client_activation_creates_a_blank_isolated_hermes_profile(layout, monke
     assert "proposal only" in content
 
 
+def test_legacy_client_scaffold_does_not_claim_unix_zone_isolation(layout):
+    client_control.create_client(layout, init_args())
+    workspace = layout.client("test-client")
+    instructions = (workspace / "AGENTS.md").read_text(encoding="utf-8")
+    readme = (workspace / "README.md").read_text(encoding="utf-8")
+    assert "not filesystem or CLI-account sandboxes" in instructions
+    assert "not canonical Station client Zone" in readme
+    standard = (ROOT / "client/CLIENT-STANDARD.md").read_text(encoding="utf-8")
+    assert "station client --legacy" in standard
+    assert "station organization register" in standard
+    assert "OS instances and Projects are siblings" in standard
+
+
 def test_client_provider_commands_keep_hermes_and_openrouter_in_profile(
     layout, monkeypatch
 ):

@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 
 MODULE_PATH = Path(__file__).parents[1] / "scripts" / "agk_control.py"
 SPEC = importlib.util.spec_from_file_location("agk_control_tested", MODULE_PATH)
@@ -525,3 +527,166 @@ def test_rmux_adapter_uses_stable_pane_id_for_respawn(monkeypatch):
     runtime.send_input("mission-moonbase", "continue safely")
     assert calls[-2][1:] == ("send-keys", "-t", "%42", "-l", "continue safely")
     assert calls[-1][1:] == ("send-keys", "-t", "%42", "Enter")
+
+
+@pytest.fixture
+def controlled_registry(tmp_path, monkeypatch):
+    monkeypatch.setattr(agk.shutil, "which", lambda name: f"/verified/{name}")
+    class Runtime:
+        def __init__(self):
+            self.live = set()
+            self.calls = []
+        def has_session(self, name):
+            return name in self.live
+        def create(self, name, kind, cwd, environment, command):
+            self.calls.append(("create", name, list(command)))
+            self.live.add(name)
+        def rename(self, old, new):
+            self.calls.append(("rename", old, new))
+            self.live.remove(old)
+            self.live.add(new)
+        def terminate(self, name):
+            self.calls.append(("terminate", name))
+            self.live.discard(name)
+        def respawn(self, name, cwd, command):
+            self.calls.append(("respawn", name, list(command)))
+        def panes(self):
+            return completed("\n".join(f"{name}|0|1|synthetic" for name in self.live))
+    runtime = Runtime()
+    registry = agk.RuntimeRegistry(agk.Environment("mission", tmp_path, tmp_path / "workspace"), runtime)
+    yield registry, runtime
+    registry.db.close()
+
+
+def test_fork_without_native_id_preserves_named_hermes_profile(controlled_registry):
+    registry, runtime = controlled_registry
+    source = registry.create(name="mission-source", kind="hermes", cwd=registry.env.home,
+                             command=["/verified/hermes", "--profile", "research"], hermes_profile="research")
+    fork = registry.fork(source, "mission-fork")
+    assert fork["hermes_profile"] == "research"
+    assert runtime.calls[-1][2] == ["/verified/hermes", "--profile", "research"]
+
+
+def test_restart_of_archived_session_restores_visible_record(controlled_registry):
+    registry, runtime = controlled_registry
+    row = registry.create(name="mission-closed", kind="shell", cwd=registry.env.home, command=["/bin/sh"])
+    registry.terminate(row)
+    row = registry.archive(row)
+    assert registry.rows() == []
+    restarted = registry.restart_frontend(row)
+    assert restarted["archived_at"] is None
+    assert restarted["status"] == "running"
+    assert registry.rows()[0]["id"] == row["id"]
+
+
+def test_rename_rejects_archived_name_collision_before_touching_rmux(controlled_registry):
+    registry, runtime = controlled_registry
+    first = registry.create(name="mission-first", kind="shell", cwd=registry.env.home, command=["/bin/sh"])
+    second = registry.create(name="mission-second", kind="shell", cwd=registry.env.home, command=["/bin/sh"])
+    registry.terminate(second)
+    registry.archive(second)
+    before = list(runtime.calls)
+    with pytest.raises(ValueError, match="registered"):
+        registry.rename(first, "mission-second")
+    assert runtime.calls == before
+    assert "mission-first" in runtime.live
+
+
+def test_registry_reads_and_reconcile_respect_selected_logical_environment(controlled_registry):
+    registry, runtime = controlled_registry
+    selected = registry.create(name="mission-selected", kind="shell", cwd=registry.env.home, command=["/bin/sh"])
+    other = agk.RuntimeRegistry(agk.Environment("private", registry.env.home, registry.env.home), runtime)
+    try:
+        foreign = other.create(name="private-unrelated", kind="shell", cwd=other.env.home, command=["/bin/sh"])
+        assert [row["id"] for row in registry.rows()] == [selected["id"]]
+        assert registry.get(foreign["id"]) is None
+        assert registry.get(foreign["name"]) is None
+        runtime.live.discard(foreign["rmux_session"])
+        registry.reconcile()
+        assert other.get(foreign["id"])["status"] == "running"
+        with pytest.raises(ValueError, match="registered"):
+            registry.create(name=foreign["name"], kind="shell", cwd=registry.env.home, command=["/bin/sh"])
+    finally:
+        other.db.close()
+
+
+@pytest.mark.parametrize("action", ["rename", "terminate", "purge", "restart_frontend", "fork", "archive", "update"])
+def test_foreign_registry_row_cannot_trigger_runtime_mutation(controlled_registry, action):
+    registry, runtime = controlled_registry
+    other = agk.RuntimeRegistry(agk.Environment("private", registry.env.home, registry.env.home), runtime)
+    try:
+        foreign = other.create(name="private-foreign", kind="shell", cwd=other.env.home, command=["/bin/cat"])
+        before = list(runtime.calls)
+        args = (foreign, "mission-other") if action in {"rename", "fork"} else (foreign,)
+        with pytest.raises(ValueError, match="environment"):
+            getattr(registry, action)(*args)
+        assert runtime.calls == before
+        assert other.get(foreign["id"])["status"] == "running"
+    finally:
+        other.db.close()
+
+
+def test_rmux_stable_pane_input_is_literal_not_shell(monkeypatch):
+    calls = []
+    def fake_run(*args, **kwargs):
+        calls.append(args)
+        return completed("%73\n")
+    monkeypatch.setattr(agk, "run", fake_run)
+    agk.RmuxRuntime().send_input("mission-synthetic", "$(never-run); --literal")
+    assert calls == [
+        ("rmux", "list-panes", "-t", "mission-synthetic", "-F", "#{pane_id}"),
+        ("rmux", "send-keys", "-t", "%73", "-l", "$(never-run); --literal"),
+        ("rmux", "send-keys", "-t", "%73", "Enter"),
+    ]
+
+
+@pytest.mark.parametrize("text", ["[broken, config]", "environment: [\nsecret-value"])
+def test_invalid_environment_config_is_rejected_without_source_disclosure(tmp_path, monkeypatch, text):
+    config = tmp_path / "environment.yaml"
+    config.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(agk.pwd, "getpwuid", lambda uid: SimpleNamespace(pw_name="audit", pw_dir=str(tmp_path)))
+    monkeypatch.setenv("USER", "audit")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("AGK_ENV_CONFIG", str(config))
+    with pytest.raises(SystemExit, match="Invalid AGK environment config") as error:
+        agk.Environment.current()
+    assert "secret-value" not in str(error.value)
+
+
+@pytest.mark.parametrize("document", ["[broken]", "mcp_servers:\n  1: {}\n  github: {}\n", "mcp_servers:\n  github: [broken]\n"])
+def test_malformed_mcp_config_is_reported_as_error_without_crashing(tmp_path, monkeypatch, document):
+    hermes = tmp_path / ".hermes"
+    hermes.mkdir()
+    (hermes / "config.yaml").write_text(document, encoding="utf-8")
+    monkeypatch.setattr(agk.shutil, "which", lambda name: None)
+    env = agk.Environment("mission", tmp_path, tmp_path)
+    assert agk.mcp_inventory(env)[0]["status"] == "error"
+    with pytest.raises(RuntimeError, match="MCP config|mcp_servers"):
+        agk.mcp_inventory(env, strict=True)
+
+
+@pytest.mark.parametrize("count", ["invalid", -1, 1.5, True, float("inf"), None])
+def test_invalid_composio_cache_entries_do_not_crash_or_claim_connections(tmp_path, count):
+    path = tmp_path / "cache.json"
+    path.write_text(agk.json.dumps({"schema_version": 1, "toolkits": [
+        {"name": "bad", "connections": count, "status": "connected"},
+        {"name": "good", "connections": 1, "status": "connected"},
+    ]}), encoding="utf-8")
+    assert agk.composio_toolkits(path) == [{"name": "good", "connections": 1, "status": "connected"}]
+
+
+@pytest.mark.parametrize("kind", ["agent", "workflow", "monitor"])
+def test_cli_new_rejects_orchestrator_only_types_before_runtime_initialization(monkeypatch, kind):
+    monkeypatch.setattr(sys, "argv", ["agk", "new", kind, "mission-test"])
+    monkeypatch.setattr(agk.Environment, "current", lambda: pytest.fail("must reject before runtime initialization"))
+    with pytest.raises(SystemExit) as error:
+        agk.main()
+    assert error.value.code == 2
+
+
+def test_create_requires_existing_directory_before_native_mutation(controlled_registry):
+    registry, runtime = controlled_registry
+    before = list(runtime.calls)
+    with pytest.raises(ValueError, match="directory"):
+        registry.create(name="mission-missing", kind="shell", cwd=registry.env.home / "missing", command=["/bin/cat"])
+    assert runtime.calls == before

@@ -91,7 +91,7 @@ def test_platform_plan_uses_trusted_director_not_sticky_profile(gateway, capsys)
 def test_provider_plan_uses_native_profile_setup_not_gateway_setup(gateway, capsys):
     assert cli.main(["os", "setup", "--zone", "example-dev", "--id", "devops-os", "--plan"]) == 0
     result = json.loads(capsys.readouterr().out)
-    assert result["argv"][-3:] == ["--profile", "atlas", "setup"]
+    assert result["argv"][-4:] == ["--profile", "atlas", "setup", "model"]
 
 
 @pytest.mark.parametrize("field,value", [("pw_uid", 0), ("pw_gid", 0), ("pw_gid", 12002), ("pw_dir", "/root"), ("pw_shell", "/bin/bash")])
@@ -211,7 +211,7 @@ def test_degraded_complete_os_can_open_repair_wizard(gateway, monkeypatch, capsy
     monkeypatch.setattr(sys.modules["agentik_station.os_lifecycle"], "load_os_runtime_record",
                         lambda *a, **k: {**loader(*a, **k), "state": "DEGRADED"})
     assert cli.main(["os", "setup", "--zone", "example-dev", "--id", "devops-os", "--plan"]) == 0
-    assert json.loads(capsys.readouterr().out)["argv"][-3:] == ["--profile", "atlas", "setup"]
+    assert json.loads(capsys.readouterr().out)["argv"][-4:] == ["--profile", "atlas", "setup", "model"]
 
 
 def test_zone_loader_rejects_record_paths_as_authority(tmp_path, monkeypatch):

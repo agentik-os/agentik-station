@@ -32,7 +32,9 @@ SUPPORTED_PLATFORMS = (
 )
 
 GATEWAY_ACTIONS = {
-    "configure": ("setup",),
+    # The full native setup wizard can install/start the gateway, even when
+    # messaging is skipped. Keep provider enrollment in its native model section.
+    "configure": ("setup", "model"),
     "setup": ("gateway", "setup"),
     # The pinned Hermes CLI otherwise starts immediately in a headless context.
     # Keep Station's explicit install/start lifecycle, while enabling boot login.
@@ -62,6 +64,25 @@ def normalize_platform(value: str | None) -> str | None:
             f"Unsupported Hermes platform {value!r}; choose one of: {', '.join(SUPPORTED_PLATFORMS)}"
         )
     return candidate
+
+
+def platform_setup_guidance(platform: str | None) -> tuple[str, ...]:
+    """Nonsecret briefing, not a replacement wizard or an enforced service gate."""
+    selected = normalize_platform(platform)
+    common = (
+        "This opens the native Hermes platform picker; --platform records intent, not a filter.",
+        "Keep configure -> verify -> install -> start: decline native install/start/restart offers, including at wizard entry.",
+        "Enter credentials only in the native masked prompts; preserve existing credentials in this exact Zone/profile.",
+        "Configuration is not acceptance: verify the intended bot, human/channel restrictions and live send/receive before declaring it ready.",
+    )
+    if selected != "discord":
+        return common
+    return common + (
+        "Discord: the human owner creates/invites the app at https://discord.com/developers/applications; use least privilege, not permanent Administrator.",
+        "Enable Message Content Intent. Use explicit numeric human IDs; Members Intent is needed only for username or role admission at the pinned Hermes version.",
+        "Set an explicit channel allowlist separately: the home channel is for notifications, not authorization. Do not use wildcard/allow-all admission or public bot-to-bot replies.",
+        "A bot token grants neither Linux sudo nor another Zone's accounts. Follow docs/dependencies/HERMES_PLATFORMS.md for channel ACLs and negative tests.",
+    )
 
 
 def build_gateway_argv(

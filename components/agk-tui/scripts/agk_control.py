@@ -28,6 +28,7 @@ CANONICAL_USERS = {
     "private": ("private", Path("/home/private"), Path("/home/private/workspace/projects")),
 }
 TYPES = {"hermes", "claude", "codex", "openrouter", "opencode", "shell", "agent", "workflow", "monitor"}
+LAUNCHABLE_TYPES = TYPES - {"agent", "workflow", "monitor"}
 STATES = {"running", "working", "idle", "waiting", "attention", "failed", "complete", "interrupted", "archived"}
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,79}$")
 VIEWS = ("sessions", "projects", "agents", "os", "mcp", "skills", "rules", "settings")
@@ -174,11 +175,14 @@ class Environment:
         ))
         config: dict[str, object] = {}
         try:
-            config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+            document = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+            config = {} if document is None else document
+            if not isinstance(config, dict):
+                raise ValueError("configuration must be an object")
         except FileNotFoundError:
             pass
         except (OSError, ValueError, yaml.YAMLError) as exc:
-            raise SystemExit(f"Invalid AGK environment config: {config_path}: {exc}") from exc
+            raise SystemExit(f"Invalid AGK environment config: {config_path}") from None
         name = str(os.environ.get("AGK_ENVIRONMENT") or config.get("environment") or "agentik")
         if name not in {"operator", "agentik", "mission", "private"}:
             raise SystemExit(f"Unsupported AGK environment: {name}")
@@ -390,15 +394,31 @@ class RuntimeRegistry:
         self.db.commit()
 
     def rows(self, include_archived: bool = False) -> list[sqlite3.Row]:
-        where = "" if include_archived else " WHERE archived_at IS NULL"
+        where = " WHERE environment=?"
+        if not include_archived:
+            where += " AND archived_at IS NULL"
         return list(self.db.execute(
-            "SELECT * FROM runtime_sessions" + where + " ORDER BY last_activity DESC"
+            "SELECT * FROM runtime_sessions" + where + " ORDER BY last_activity DESC",
+            (self.env.name,),
         ))
 
     def get(self, target: str) -> sqlite3.Row | None:
         return self.db.execute(
-            "SELECT * FROM runtime_sessions WHERE id=? OR name=?", (target, target)
+            "SELECT * FROM runtime_sessions WHERE environment=? AND (id=? OR name=?)",
+            (self.env.name, target, target),
         ).fetchone()
+
+    def _registered_name(self, name: str) -> bool:
+        # The RMUX namespace is shared by logical environments under one UID.
+        # Reserve names globally while exposing only this environment's rows.
+        return self.db.execute(
+            "SELECT 1 FROM runtime_sessions WHERE name=? OR rmux_session=?",
+            (name, name),
+        ).fetchone() is not None
+
+    def _require_owned_row(self, row: sqlite3.Row) -> None:
+        if row["environment"] != self.env.name or self.get(row["id"]) is None:
+            raise ValueError("runtime does not belong to the selected environment")
 
     def create(self, *, name: str, kind: str, cwd: Path, client: str | None = None,
                project: str | None = None, mission: str | None = None,
@@ -417,7 +437,9 @@ class RuntimeRegistry:
         allowed = self.env.home.resolve()
         if cwd != allowed and allowed not in cwd.parents:
             raise ValueError(f"cwd escapes the {self.env.name} trust boundary")
-        if self.get(name):
+        if not cwd.is_dir():
+            raise ValueError("cwd must be an existing directory")
+        if self._registered_name(name):
             raise ValueError(f"session already registered: {name}")
         if self.runtime.has_session(name):
             raise ValueError(f"unmanaged RMUX session already exists: {name}")
@@ -445,6 +467,7 @@ class RuntimeRegistry:
         return self.get(runtime_id)  # type: ignore[return-value]
 
     def update(self, row: sqlite3.Row, **values: object) -> sqlite3.Row:
+        self._require_owned_row(row)
         allowed = {"name", "status", "rmux_session", "last_activity", "archived_at", "exit_code"}
         unknown = set(values) - allowed
         if unknown:
@@ -456,6 +479,7 @@ class RuntimeRegistry:
         return self.get(row["id"])  # type: ignore[return-value]
 
     def event(self, row: sqlite3.Row, event: str, payload: dict[str, object] | None = None) -> None:
+        self._require_owned_row(row)
         self.db.execute(
             "INSERT INTO runtime_events(runtime_id,event,payload,created_at) VALUES(?,?,?,?)",
             (row["id"], event, json.dumps(payload or {}, sort_keys=True), time.time()),
@@ -475,8 +499,15 @@ class RuntimeRegistry:
         self.db.commit()
 
     def rename(self, row: sqlite3.Row, name: str) -> sqlite3.Row:
+        self._require_owned_row(row)
         if not NAME_RE.fullmatch(name):
             raise ValueError("name must be 3-80 lowercase letters, digits or hyphens")
+        if name == row["name"]:
+            return self.get(row["id"])  # type: ignore[return-value]
+        if self._registered_name(name):
+            raise ValueError(f"session already registered: {name}")
+        if self.runtime.has_session(name):
+            raise ValueError(f"unmanaged RMUX session already exists: {name}")
         self.runtime.rename(row["rmux_session"], name)
         updated = self.update(row, name=name, rmux_session=name)
         self.event(updated, "runtime.renamed", {"previous": row["name"]})
@@ -488,6 +519,7 @@ class RuntimeRegistry:
         return updated
 
     def terminate(self, row: sqlite3.Row) -> sqlite3.Row:
+        self._require_owned_row(row)
         self.runtime.terminate(row["rmux_session"])
         updated = self.update(row, status="interrupted", exit_code=-15)
         self.event(updated, "runtime.terminated")
@@ -495,6 +527,7 @@ class RuntimeRegistry:
 
     def purge(self, row: sqlite3.Row) -> str:
         """Stop a runtime and remove only its AGK registry metadata."""
+        self._require_owned_row(row)
         self.runtime.terminate(row["rmux_session"])
         runtime_id = str(row["id"])
         name = str(row["name"])
@@ -504,6 +537,7 @@ class RuntimeRegistry:
         return name
 
     def restart_frontend(self, row: sqlite3.Row) -> sqlite3.Row:
+        self._require_owned_row(row)
         command = json.loads(row["command_json"] or "[]")
         if not command:
             command = default_command(
@@ -513,7 +547,7 @@ class RuntimeRegistry:
             self.runtime.respawn(row["rmux_session"], row["cwd"], command)
         else:
             self.runtime.create(row["rmux_session"], row["type"], Path(row["cwd"]), self.env.name, command)
-        updated = self.update(row, status="running", exit_code=None)
+        updated = self.update(row, status="running", exit_code=None, archived_at=None)
         self.event(updated, "runtime.frontend_restarted", {"native_session": row["native_session"]})
         return updated
 
@@ -568,6 +602,7 @@ class RuntimeRegistry:
         return updated, False
 
     def fork(self, row: sqlite3.Row, name: str) -> sqlite3.Row:
+        self._require_owned_row(row)
         native = row["native_session"]
         if row["type"] == "codex" and native:
             command = ["codex", "fork", native]
@@ -582,7 +617,7 @@ class RuntimeRegistry:
             command.extend(["--in", row["cwd"]])
             native = None
         else:
-            command = default_command(row["type"])
+            command = default_command(row["type"], hermes_profile=row["hermes_profile"])
             native = None
         return self.create(name=name, kind=row["type"], cwd=Path(row["cwd"]),
                            client=row["client"], project=row["project"],
@@ -604,7 +639,9 @@ class RuntimeRegistry:
                     activity = 0
                 live_info.setdefault(parts[0], []).append((parts[1] == "1", activity, parts[3]))
         live = set(live_info)
-        managed = {row["rmux_session"] for row in self.rows(include_archived=True)}
+        managed = {row[0] for row in self.db.execute(
+            "SELECT rmux_session FROM runtime_sessions"
+        )}
         changed = 0
         now = time.time()
         for row in self.rows():
@@ -700,7 +737,8 @@ def mcp_inventory(env: Environment, *, strict: bool = False) -> list[dict[str, o
     """Return redacted MCP identity/state from Hermes config."""
     path = env.home / ".hermes" / "config.yaml"
     try:
-        config = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+        config = {} if document is None else document
     except FileNotFoundError:
         config = {}
     except (OSError, ValueError, yaml.YAMLError) as error:
@@ -708,8 +746,10 @@ def mcp_inventory(env: Environment, *, strict: bool = False) -> list[dict[str, o
             raise RuntimeError(f"Hermes MCP config is unreadable: {path}") from error
         return [{"name": "Hermes MCP config", "transport": "config",
                  "status": "error", "toolkits": []}]
-    servers = config.get("mcp_servers", {}) if isinstance(config, dict) else {}
-    if not isinstance(servers, dict):
+    servers = config.get("mcp_servers", {}) if isinstance(config, dict) else None
+    if (not isinstance(servers, dict)
+            or any(not isinstance(name, str) or not isinstance(raw, dict)
+                   for name, raw in servers.items())):
         if strict:
             raise RuntimeError(f"Hermes mcp_servers must be an object: {path}")
         return [{"name": "Hermes MCP config", "transport": "config",
@@ -805,10 +845,13 @@ def composio_toolkits(path: Path) -> list[dict[str, object]]:
     for item in raw:
         if not isinstance(item, dict) or not str(item.get("name") or "").strip():
             continue
+        connections = item.get("connections")
+        if type(connections) is not int or connections < 0:
+            continue
         result.append({
             "name": str(item["name"]),
             "status": str(item.get("status") or "unknown"),
-            "connections": int(item.get("connections") or 0),
+            "connections": connections,
         })
     return sorted(result, key=lambda item: str(item["name"]).lower())
 
@@ -1239,7 +1282,7 @@ def main() -> int:
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("status"); sub.add_parser("doctor"); sub.add_parser("sessions")
     new = sub.add_parser("new")
-    new.add_argument("type", choices=sorted(TYPES)); new.add_argument("name")
+    new.add_argument("type", choices=sorted(LAUNCHABLE_TYPES)); new.add_argument("name")
     new.add_argument("--cwd", type=Path); new.add_argument("--client"); new.add_argument("--project"); new.add_argument("--mission"); new.add_argument("--native-session"); new.add_argument("--profile")
     resume = sub.add_parser("resume"); resume.add_argument("target", nargs="?")
     open_p = sub.add_parser("open"); open_p.add_argument("target")

@@ -33,6 +33,11 @@ install_root=${AGK_TERMINAL_ROOT:-$prefix_root/lib/agk-terminal}
 # derive it from the effective Linux identity unless explicitly overridden.
 export AGK_ENVIRONMENT=${AGK_ENVIRONMENT:-$(id -un)}
 export AGK_TERMINAL_ROOT=$install_root
+if [ -z "${HOME:-}" ]; then
+  HOME=$(getent passwd "$(id -u)" 2>/dev/null | cut -d: -f6 || true)
+  HOME=${HOME:-$(cd ~ && pwd -P)}
+  export HOME
+fi
 export PATH="$install_root/bin:$HOME/.local/bin:$PATH"
 
 case "${1:-}" in
@@ -46,7 +51,7 @@ case "${1:-}" in
   provider|composio|hermes|topology|doctor)
     exec agk-terminal "$@"
     ;;
-  help|-h|--help)
+  commands|help|-h|--help)
     cat <<'EOF'
 AGK-TUI · RMUX control plane
 

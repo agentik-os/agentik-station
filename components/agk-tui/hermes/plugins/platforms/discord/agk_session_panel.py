@@ -7,12 +7,13 @@ bounded Discord select options and builds the native ``/resume`` command.
 
 from __future__ import annotations
 
+import math
 import re
 from datetime import datetime
 from typing import Any, Iterable
 
 
-_SESSION_ID_RE = re.compile(r"[A-Za-z0-9_.:-]{1,160}\Z")
+_SESSION_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,159}\Z")
 _HIDDEN_SOURCES = {"cron", "tool"}
 
 
@@ -35,9 +36,12 @@ def _last_active_label(row: dict[str, Any]) -> str:
         timestamp = float(raw)
     except (TypeError, ValueError):
         return "activity unknown"
-    if timestamp <= 0:
+    if not math.isfinite(timestamp) or timestamp <= 0:
         return "activity unknown"
-    return datetime.fromtimestamp(timestamp).astimezone().strftime("%d %b · %H:%M")
+    try:
+        return datetime.fromtimestamp(timestamp).astimezone().strftime("%d %b · %H:%M")
+    except (OverflowError, OSError, ValueError):
+        return "activity unknown"
 
 
 def session_picker_rows(

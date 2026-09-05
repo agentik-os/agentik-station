@@ -28,41 +28,114 @@ def controls(tmp_path, monkeypatch):
     monkeypatch.setattr(refresh, "_operator", lambda: account)
     previous = {}
     pairs = []
-    for relative in refresh.PREVIOUS:
+    for destination, (relative, mode) in refresh.TARGETS.items():
         src = source / relative
-        dst = prefix / ("bin/agk" if relative == "bin/agk" else "lib/agk-terminal/scripts/agk_control.py")
+        dst = home / destination
         src.parent.mkdir(parents=True, exist_ok=True)
         dst.parent.mkdir(parents=True, exist_ok=True)
         old = ("#!/bin/sh\n# old " + relative + "\n").encode()
         new = ("#!/bin/sh\n# new " + relative + "\n").encode()
         src.write_bytes(new)
         dst.write_bytes(old)
-        src.chmod(0o755)
-        dst.chmod(0o755)
-        previous[relative] = hashlib.sha256(old).hexdigest()
+        src.chmod(mode)
+        dst.chmod(mode)
+        previous[relative] = frozenset({hashlib.sha256(old).hexdigest()})
         pairs.append((src, dst, old, new))
     monkeypatch.setattr(refresh, "PREVIOUS", previous)
     return source, prefix, pairs
 
 
-def test_refresh_only_two_reviewed_controls_and_idempotent(controls):
+def changed_paths(prefix, pairs):
+    return [str(dst.relative_to(prefix.parent)) for _, dst, _, _ in pairs]
+
+
+def test_refresh_only_reviewed_software_and_idempotent(controls):
     source, prefix, pairs = controls
     untouched = [prefix / "lib/agk-terminal/bin/agk-tui", prefix / "lib/agk-terminal/config/providers.yaml",
-                 prefix.parent / ".hermes/.env", prefix.parent / ".agentik/runtime.db"]
+                 prefix.parent / ".hermes/.env", prefix.parent / ".agentik/runtime.db",
+                 prefix.parent / ".hermes/config.yaml",
+                 prefix.parent / ".hermes/profiles/other/plugins/platforms/discord/agk_session_panel.py"]
     for path in untouched:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(b"synthetic-do-not-touch")
         path.chmod(0o600)
     result = refresh.refresh_controls(source, prefix)
-    assert result == {"state": "CONTROLS_REFRESHED", "changed": ["agk", "agk_control.py"], "runtime_verified": False}
+    assert result == {"state": "CONTROLS_REFRESHED", "changed": changed_paths(prefix, pairs), "runtime_verified": False}
     for _, dst, _, new in pairs:
         assert dst.read_bytes() == new
-        assert stat.S_IMODE(dst.stat().st_mode) == 0o755
+        assert stat.S_IMODE(dst.stat().st_mode) == refresh.TARGETS[str(dst.relative_to(prefix.parent))][1]
     assert all(path.read_bytes() == b"synthetic-do-not-touch" for path in untouched)
     assert refresh.refresh_controls(source, prefix)["changed"] == []
 
 
-@pytest.mark.parametrize("which", [0, 1])
+def test_frozen_sources_use_actual_shipped_modes_not_destination_execute_bits(controls):
+    source, prefix, pairs = controls
+    for src, _, _, _ in pairs:
+        relative = src.relative_to(source)
+        shipped_mode = stat.S_IMODE((ROOT / relative).stat().st_mode)
+        src.chmod(shipped_mode & ~0o222)
+    # This Git-0644 helper is installed 0755 by the component installer. A
+    # frozen release has source mode0444: reading it is not an execution probe.
+    watchdog = source / "scripts/gateway_watchdog.py"
+    assert not watchdog.stat().st_mode & 0o111
+    assert refresh.refresh_controls(source, prefix)["changed"] == changed_paths(prefix, pairs)
+    assert stat.S_IMODE((prefix / "lib/agk-terminal/scripts/gateway_watchdog.py").stat().st_mode) == 0o755
+
+
+@pytest.mark.parametrize("version", ["11.22", "11.23"])
+def test_refresh_accepts_each_exact_reviewed_predecessor(controls, monkeypatch, version):
+    source, prefix, pairs = controls
+    previous = {}
+    for (relative, _), (_, dst, _, _) in zip(refresh.TARGETS.values(), pairs):
+        versions = {name: f"#!/bin/sh\n# {name} {relative}\n".encode()
+                    for name in ("11.22", "11.23")}
+        previous[relative] = frozenset(hashlib.sha256(value).hexdigest()
+                                       for value in versions.values())
+        dst.write_bytes(versions[version])
+    monkeypatch.setattr(refresh, "PREVIOUS", previous)
+    assert refresh.refresh_controls(source, prefix)["changed"] == changed_paths(prefix, pairs)
+    assert all(dst.read_bytes() == new for _, dst, _, new in pairs)
+
+
+def test_predecessor_allowlist_is_only_exact_reviewed_software():
+    assert refresh.PREVIOUS == {
+        "bin/agk": frozenset({
+            "f86d05b8e2c014056eb49e362bffcac2c9c73755536ebd5699b4b59364b68df8",
+            "4e84b0bf28eb936a062b476c52dc3d546281c1739dec2c117e7d97e96e829be6",
+        }),
+        "scripts/agk_control.py": frozenset({
+            "5ae627aa79d2eca21194b0b735dbee5030039c3a498526ec3f3b262f5773133d",
+            "0e527d95999f1bf052abe6b27adc1e01054c6f505328fb853d68da328ffcba5b",
+        }),
+        "scripts/provider.sh": frozenset({
+            "e9d8c11fe54612b7598cf4aa2690a5b8526300f5aa1ecca8a96a76fca0037c13",
+        }),
+        "scripts/gateway_watchdog.py": frozenset({
+            "a20c69424a87d6121ac62e54756836d4e63d7c090a7e80fff9a431c122f24419",
+        }),
+        "scripts/doctor.sh": frozenset({
+            "ace715215cecb66869c20aed1a7402fcdfc8c6fd6e36233421a4cb3c8b9b1c82",
+        }),
+        "hermes/plugins/platforms/discord/agk_session_panel.py": frozenset({
+            "28695b10ddc08b55f5563bb9a6fb712db7b2f8b8e6836cd1e77e724290b59b98",
+        }),
+        "scripts/sync-hermes.sh": frozenset({
+            "246dc7015ad4c4fb5722218a89127d7b244b9d5a4ab0b92e193a061733c27c80",
+        }),
+    }
+    assert {source for source, _ in refresh.TARGETS.values()} == set(refresh.PREVIOUS)
+    assert set(refresh.TARGETS) == {
+        ".local/bin/agk", ".local/lib/agk-terminal/scripts/agk_control.py",
+        ".local/lib/agk-terminal/scripts/provider.sh",
+        ".local/lib/agk-terminal/scripts/gateway_watchdog.py",
+        ".local/lib/agk-terminal/scripts/doctor.sh",
+        ".local/lib/agk-terminal/hermes/plugins/platforms/discord/agk_session_panel.py",
+        ".hermes/plugins/platforms/discord/agk_session_panel.py",
+        ".local/lib/agk-terminal/scripts/sync-hermes.sh",
+    }
+
+
+@pytest.mark.parametrize("which", range(len(refresh.TARGETS)))
 def test_customized_controls_preserved_before_any_write(controls, which):
     source, prefix, pairs = controls
     pairs[which][1].write_bytes(b"operator customized script")
@@ -91,6 +164,20 @@ def test_unsafe_controls_are_not_followed_or_replaced(controls, kind):
     assert pairs[0][1].read_bytes() == pairs[0][2]
 
 
+@pytest.mark.parametrize("which", [5, 6])
+def test_writable_or_missing_panel_copy_blocks_the_complete_refresh(controls, which):
+    source, prefix, pairs = controls
+    target = pairs[which][1]
+    target.chmod(0o664)
+    with pytest.raises(ValueError, match="Unsafe controls file"):
+        refresh.refresh_controls(source, prefix)
+    assert all(dst.read_bytes() == old for _, dst, old, _ in pairs)
+    target.unlink()
+    with pytest.raises(OSError):
+        refresh.refresh_controls(source, prefix)
+    assert pairs[0][1].read_bytes() == pairs[0][2]
+
+
 def test_symlinked_destination_parent_is_refused(controls):
     source, prefix, pairs = controls
     parent = pairs[1][1].parent
@@ -115,7 +202,7 @@ def test_changed_target_between_preflight_and_write_is_preserved(controls, monke
     def racing_read(*args):
         nonlocal count
         count += 1
-        if count == 5:
+        if count == 2 * len(pairs) + 1:
             pairs[0][1].write_bytes(b"concurrent operator edit")
         return read(*args)
     monkeypatch.setattr(refresh, "_read", racing_read)
@@ -133,7 +220,7 @@ def test_parent_rename_cannot_claim_readback_of_obsolete_directory(controls, mon
         nonlocal count
         count += 1
         data = read(*args)
-        if count == 6:
+        if count == 2 * len(pairs) + 2:
             parent = pairs[0][1].parent
             parent.rename(parent.with_name("obsolete-bin"))
             parent.mkdir()
@@ -182,7 +269,7 @@ def test_partial_write_failure_can_retry_without_claiming_rollback(controls, mon
     assert pairs[0][1].read_bytes() == pairs[0][3]
     assert pairs[1][1].read_bytes() == pairs[1][2]
     assert not list(prefix.rglob(".station-control-*"))
-    assert refresh.refresh_controls(source, prefix)["changed"] == ["agk_control.py"]
+    assert refresh.refresh_controls(source, prefix)["changed"] == changed_paths(prefix, pairs[1:])
 
 
 @pytest.mark.parametrize("uid,user,home", [(0, "agk-station", "/home/agk-station"), (1000, "moonbase", "/home/moonbase"), (2000, "agk-station", "/other/home")])

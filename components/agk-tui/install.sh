@@ -24,7 +24,7 @@ while [ "$#" -gt 0 ]; do
     -h|--help)
       echo "usage: ./install.sh [--system] [--user USER] [--prefix PATH] [--without-hermes] [--with-hermes-fleet] [--defer-topology] [--rmux-version VERSION] [--controls-only]"
       echo "  --with-hermes-fleet  Build and expose the four-profile dashboard through Tailscale Serve (system install only)"
-      echo "  --controls-only     Refresh two reviewed Station operator controls only; no build, Hermes or state changes"
+      echo "  --controls-only     Refresh reviewed Station operator software only; no build, state, auth or services"
       exit 0
       ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
@@ -268,11 +268,18 @@ install -m 0644 "$repo_root/config/topology.yaml" "$install_root/config/topology
 install -m 0644 "$repo_root/config/providers.yaml" "$install_root/config/providers.yaml"
 install -m 0644 "$repo_root/config/rules.yaml" "$install_root/config/rules.yaml"
 install -m 0644 "$repo_root/config/hermes.env.example" "$install_root/config/hermes.env.example"
+restrict_plugin_modes() {
+  # Copied public software must not inherit group/world write from a checkout.
+  # Restrict existing modes only; never traverse symlink entries or HOME/config.
+  find "$@" \( -type d -o -type f \) -exec chmod go-w {} +
+}
 rm -rf "$install_root/hermes/plugins/agentik_os" \
   "$install_root/hermes/plugins/platforms/discord"
 cp -a "$repo_root/hermes/plugins/agentik_os" "$install_root/hermes/plugins/"
 cp -a "$repo_root/hermes/plugins/platforms/discord" \
   "$install_root/hermes/plugins/platforms/"
+restrict_plugin_modes "$install_root/hermes/plugins/agentik_os" \
+  "$install_root/hermes/plugins/platforms/discord"
 install -m 0644 "$repo_root/hermes/dashboard-themes/agentik-shadcn.yaml" \
   "$install_root/hermes/dashboard-themes/agentik-shadcn.yaml"
 install -m 0644 "$repo_root/hermes/dashboard-themes/agentik-shadcn-light.yaml" \
