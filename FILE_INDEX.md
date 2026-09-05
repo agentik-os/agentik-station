@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1134
+Total files: 1135
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -1118,6 +1118,7 @@ Total files: 1134
 - `tests/security/test_shared_toolchain.py`
 - `tests/security/test_strix_boundaries.py`
 - `tests/security/test_vps_acceptance_evidence.py`
+- `tests/security/test_vps_zone_toolchain_acceptance.py`
 - `tests/security/test_zone_compilation.py`
 - `tests/security/test_zone_home_directories.py`
 - `tests/unit/test_agent_rules.py`

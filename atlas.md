@@ -652,11 +652,11 @@ Voice is an input/output transport, not a second agent brain. Station installs H
 
 ```text
 STT primary: OpenAI gpt-transcribe
-STT Discord failover: local Parakeet v0.8.0 on 127.0.0.1:5092
+STT Discord voice-channel failover: local Parakeet v0.8.0 on 127.0.0.1:5092
 TTS: OpenAI gpt-4o-mini-tts, voice alloy
 ```
 
-The OpenAI key stays in the owning Zone. Parakeet is local ASR/STT, not TTS; its reviewed int8 image is pinned by digest, read-only, capability-dropped and resource-limited. A Discord audio message is first transcribed through the selected OpenAI path; if that request fails, only that Discord path retries through local Parakeet. The transcript then enters the same Hermes session, OS Director and mission graph as text. Voice becomes `OPERATIONAL` only after paid OpenAI STT/TTS, forced Parakeet fallback, Discord voice-note/channel and restart readback all pass.
+The OpenAI key stays in the owning Zone. Parakeet is local ASR/STT, not TTS; its reviewed int8 image is pinned by digest, read-only, capability-dropped and resource-limited. It is a shared unauthenticated loopback service, not tenant-isolated ASR. The shipped hook retries a Discord voice-channel sample through Parakeet only when native transcription returns failure. Uploaded voice notes use a separate Hermes path that is not currently connected to this hook. The resulting transcript enters the same Hermes session, OS Director and mission graph as text. Voice becomes `OPERATIONAL` only after applicable paid OpenAI STT/TTS, forced channel fallback, Discord voice-note/channel and restart readback pass; voice-note Parakeet fallback still requires implementation in a reviewed adapter/OS release.
 
 ## 14. DevOps OS team map
 
@@ -988,7 +988,7 @@ No document may promote those items to `OPERATIONAL` before their evidence exist
 - [ ] Messaging passes inbound, outbound, unauthorized-user and restart tests.
 - [ ] Tailscale setup links are private, expire/consume once, and leave no credential in chat, argv, logs, session state or evidence.
 - [ ] OpenAI `gpt-transcribe` and `gpt-4o-mini-tts` pass a real Zone-scoped round-trip.
-- [ ] A forced OpenAI STT failure proves Discord audio falls back to local Parakeet.
+- [ ] Forced native Discord voice-channel transcription failure proves channel fallback to local Parakeet; uploaded voice notes are tested separately.
 - [ ] DevOps work passes Architect → Forge → Sentinel → Release → SRE gates as applicable.
 - [ ] Every client has a complete `.client/operations.yaml`; Blocked records contain all five fields and correction loops preserve their original context.
 - [ ] Composio Discord is bound to the exact Zone principal, passes an approved read-only probe and cannot select another Zone account.

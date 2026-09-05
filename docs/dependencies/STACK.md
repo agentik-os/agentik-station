@@ -72,7 +72,7 @@ These projects are not interchangeable Python dependencies:
 | Honcho | SDK 2.4.0 | isolated Python 3.13 venv | API/self-host, Zone credentials, memory round-trip |
 | Hindsight | client 0.9.2 | isolated Python 3.13 client; Hermes uses native `hermes memory setup` | provider enrollment + Zone-isolation/recall test |
 | TigerVNC | distro package; upstream v1.16.2 reviewed | `apt` package install | private-network binding, auth, firewall and viewer readback |
-| Parakeet | v0.8.0 / immutable image digest | loopback-only, read-only int8 container and Hermes command-STT adapter | health + synthetic/Discord fallback transcription readback |
+| Parakeet | v0.8.0 / immutable image digest | shared loopback-only, read-only int8 container and Hermes command-STT adapter | health + synthetic/Discord voice-channel fallback readback; voice-note attachment fallback is not implemented |
 
 ```bash
 station deps list

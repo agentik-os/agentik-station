@@ -116,6 +116,7 @@ def publish(output: Path, profile: str, doctor: Path) -> dict:
             "devops-os-doctor",
             "agk-entrypoint",
             "pinned-toolchain-including-discord-js",
+            "shared-zone-cli-pins-private-home-network-isolated",
             "hermes-update-timer",
             "scrapegraphai-crawl4ai-imports-and-chromium-launch",
             *(["parakeet-loopback-health"] if profile == "full" else []),

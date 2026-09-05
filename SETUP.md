@@ -77,7 +77,8 @@ the [instance contract](docs/organization/05_OS_INSTANCES.md) for new client run
 - keep OpenAI `gpt-transcribe` as primary STT and `gpt-4o-mini-tts`/`alloy` as TTS unless the owning Zone declares another reviewed route;
 - store `OPENAI_API_KEY` or `VOICE_TOOLS_OPENAI_KEY` only in the owning Zone's Hermes credential store/environment;
 - verify `station-parakeet.service` binds only to `127.0.0.1:5092` and passes `/health`;
-- force the primary STT to fail and verify a Discord voice note transcribes through Parakeet;
+- force native Discord voice-channel transcription to fail and verify the channel sample transcribes through Parakeet;
+- test uploaded voice notes separately through Hermes' native message path; Station's Parakeet hook is not connected to attachments yet;
 - verify a real OpenAI STT/TTS round-trip and billing/account scope before claiming the paid path ready;
 - verify Discord `/voice` reply mode and voice-channel permissions with external readback.
 

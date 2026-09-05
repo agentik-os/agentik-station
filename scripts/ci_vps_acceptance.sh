@@ -66,6 +66,95 @@ for record in records:
 print('PASS: real Zone traversal, private bindings and cross-Zone denial')
 PY
 
+# Verify the public shared tools as a real Zone, never through the operator's
+# private PATH or accounts. A separate network namespace forbids provider or
+# telemetry traffic even if a CLI changes its --version implementation.
+python3 -I -B - "$REPO/config/versions.lock" <<'PY_ZONE_TOOLS'
+import json
+import pathlib
+import pwd
+import re
+import subprocess
+import sys
+
+TOOLS = {
+    'node': 'NODE_VERSION', 'npm': 'NPM_VERSION', 'npx': 'NPM_VERSION',
+    'gh': 'GITHUB_CLI_VERSION', 'vercel': 'VERCEL_CLI_VERSION', 'codex': 'CODEX_CLI_VERSION',
+    'shadcn': 'SHADCN_CLI_VERSION', 'uv': 'UV_VERSION', 'uvx': 'UV_VERSION',
+    'python-latest': 'PYTHON_VERSION', 'python-ai': 'AI_PYTHON_VERSION',
+}
+
+ZONE_TOOL_PROBE = '''import json, os, re, shutil, subprocess, sys
+expected = json.loads(sys.argv[1])
+pins = json.loads(sys.argv[2])
+assert os.getuid() == expected['uid'] != 0, 'Probe must run as the selected non-root Zone'
+assert os.getgid() == expected['gid'], 'Probe must use the Zone primary group'
+assert os.environ.get('HOME') == expected['home'], 'Zone HOME changed'
+assert os.environ.get('HERMES_HOME') == expected['hermes_home'], 'Zone HERMES_HOME changed'
+assert os.environ.get('PATH') == '/usr/local/bin:/usr/bin:/bin', 'Private operator PATH inherited'
+environment = dict(os.environ)
+for name, version in pins.items():
+    executable = '/usr/local/bin/' + name
+    assert shutil.which(name) == executable, 'Public Zone command unavailable: ' + name
+    try:
+        result = subprocess.run([executable, '--version'], env=environment, cwd='/',
+                                stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        raise RuntimeError('Zone version probe failed: ' + name) from None
+    if result.returncode or not re.search(r'(?<![0-9.])' + re.escape(version) + r'(?![0-9.])',
+                                         result.stdout + result.stderr):
+        raise RuntimeError('Zone version readback failed: ' + name)
+    print('PASS: Zone public ' + name + ' ' + version)
+'''
+
+
+def select_zone(records):
+    candidates = sorted((record for record in records
+                         if record.get('placement') == 'local' and record.get('category') != 'SYSTEM'),
+                        key=lambda record: (record.get('category') != 'AGENTIK', record['id']))
+    if not candidates:
+        raise ValueError('No non-system local Zone available for toolchain acceptance')
+    return candidates[0]
+
+
+def verify_zone_tools(record, pins):
+    account = pwd.getpwnam(record['unix_user'])
+    home = str(pathlib.Path(record['state_root']) / 'home')
+    if account.pw_uid == 0 or account.pw_dir != home:
+        raise ValueError('Zone identity does not match its canonical private HOME')
+    versions = {name: pins.get(key, '') for name, key in TOOLS.items()}
+    if any(not re.fullmatch(r'[0-9]+(?:\.[0-9]+){1,3}', value) for value in versions.values()):
+        raise ValueError('Missing or malformed toolchain acceptance pins')
+    expected = {'uid': account.pw_uid, 'gid': account.pw_gid, 'home': home,
+                'hermes_home': record['hermes_home']}
+    command = ['/usr/bin/unshare', '--net', '--', '/usr/sbin/runuser', '--user', account.pw_name,
+               '--', '/usr/bin/env', '-i', 'HOME=' + home, 'HERMES_HOME=' + record['hermes_home'],
+               'PATH=/usr/local/bin:/usr/bin:/bin', 'CI=1', 'DO_NOT_TRACK=1',
+               'NPM_CONFIG_UPDATE_NOTIFIER=false', 'PYTHONDONTWRITEBYTECODE=1',
+               '/usr/bin/python3', '-I', '-B', '-c', ZONE_TOOL_PROBE,
+               json.dumps(expected), json.dumps(versions)]
+    try:
+        result = subprocess.run(command, cwd='/', stdin=subprocess.DEVNULL,
+                                capture_output=True, text=True, timeout=360)
+    except (OSError, subprocess.SubprocessError):
+        raise RuntimeError('Network-isolated Zone toolchain probe could not complete') from None
+    if result.returncode:
+        # Never echo native CLI output: a future version could include config.
+        raise RuntimeError('Network-isolated Zone toolchain probe failed; inspect native versions and namespace support')
+    print('PASS: real Zone public toolchain pins, private HOME and network-isolated version readback')
+
+
+def main(lock):
+    pins = dict(line.split('=', 1) for line in pathlib.Path(lock).read_text().splitlines()
+                if re.fullmatch(r'[A-Z][A-Z0-9_]*=\S+', line))
+    records = [json.loads(path.read_text()) for path in pathlib.Path('/etc/station/zones.d').glob('*.json')]
+    verify_zone_tools(select_zone(records), pins)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])
+PY_ZONE_TOOLS
+
 if [[ "$PROFILE" == full ]]; then
   systemctl is-enabled --quiet station-parakeet.service
   curl --fail --silent --show-error --max-time 5 http://127.0.0.1:5092/health >/dev/null

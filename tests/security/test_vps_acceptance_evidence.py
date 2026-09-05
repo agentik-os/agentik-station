@@ -53,7 +53,8 @@ def test_full_keeps_the_additional_parakeet_gate(workspace):
     root, doctor = workspace
     payload = evidence.publish(root / "station-vps-acceptance.json", "full", doctor)
     assert payload["checks"][-1] == "parakeet-loopback-health"
-    assert len(payload["checks"]) == 8
+    assert len(payload["checks"]) == 9
+    assert "shared-zone-cli-pins-private-home-network-isolated" in payload["checks"]
 
 
 @pytest.mark.parametrize("path", ["/etc/passwd", "/root/evidence.json", "/tmp/other.json", "/tmp/station-vps-acceptance...json", "/tmp/station-vps-acceptance.SECRET.json"])

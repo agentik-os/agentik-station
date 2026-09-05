@@ -145,6 +145,22 @@ cases. Repository Doctor, regenerated release metadata and diff hygiene passed.
 Live publication of the shared CLIs and repaired Zone parents still requires
 unprivileged VPS readback; these local tests are not that acceptance.
 
+The first shared-toolchain VPS publication correctly stopped before any shared
+release or public launcher was created: the native Node archive includes an
+empty `lib/node_modules/npm/.npmrc` placeholder. The correction omits only this
+exact empty, trusted regular single-link file without reading its contents.
+Nonempty configuration, links, special files and other `.npmrc` paths remain
+refused. Separately, voice documentation now distinguishes the implemented
+Discord voice-channel Parakeet hook from uploaded voice-note attachments, whose
+native Hermes transcription path is not connected to that hook.
+
+The final pre-deployment 11.20 suite passed **1,047 tests**, including 85
+shared-toolchain cases and 67 combined VPS evidence/Zone toolchain acceptance
+cases. Independent reviews found no blocker in the ownership, TLS, shared-code
+or Zone-probe changes. The actual VPS acceptance additionally requires all eleven
+public CLI pins under a real Zone identity with its canonical HOME/HERMES_HOME
+and an isolated network namespace; this does not authenticate any provider.
+
 ## Previous client-instance validation — 11.14
 
 Local verification on 2026-09-05, after the client-owned OS instance implementation:

@@ -17,7 +17,7 @@ flowchart LR
 
     AUDIO[Voice input / Discord audio] --> GATEWAY
     GATEWAY -->|primary STT| OPENAI_STT[OpenAI gpt-transcribe]
-    GATEWAY -->|Discord failure only| PARAKEET[Local Parakeet<br/>127.0.0.1:5092]
+    GATEWAY -->|voice-channel native STT failure only| PARAKEET[Shared local Parakeet<br/>127.0.0.1:5092]
     OPENAI_STT --> BRAIN
     PARAKEET --> BRAIN
     BRAIN -->|TTS| OPENAI_TTS[OpenAI gpt-4o-mini-tts]

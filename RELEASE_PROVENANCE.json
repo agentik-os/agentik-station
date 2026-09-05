@@ -9,7 +9,7 @@
   "generated_by": "scripts/generate_release_metadata.py",
   "release": "11.20",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1131,
+  "subject_count": 1132,
   "subjects": [
     {
       "executable": false,
@@ -158,8 +158,8 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "4c27117c90d1de0d2e09f3982e78afd2c046b29b6f7901937e9ff45c487c6c7e",
-      "size": 14300
+      "sha256": "06bb8bde30c1c373e091de2f4427d370e4a7e4683bed2505bc5743dd953fc21c",
+      "size": 14462
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "3c531b6f01917bba54ee7c4cc40f1685130ffcf3211778b51fc93a4e61756720",
-      "size": 12525
+      "sha256": "96cc6a9098add169030982bd2ff16c7fdb6812aea8789d353bb91bd56a0f731c",
+      "size": 13602
     },
     {
       "executable": false,
@@ -194,8 +194,8 @@
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "6077b34abe15bea268992e642fa83fe2da8e1fca8b601881b1feca18a24b36cf",
-      "size": 59294
+      "sha256": "35f1586adbef3caa205ee222d1b7864dec537d5adc8a9d0926b8fc1e0edb6e54",
+      "size": 59610
     },
     {
       "executable": true,
@@ -1610,14 +1610,14 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "e7d8f71d8fdde7dc194284d5412bd53e79a06da52b3d498289cfe69a4355ff6a",
-      "size": 7821
+      "sha256": "a4c0767dbdef7b00d016f495f7041a2b5a6f10fd1001952ea45687ea8dff9777",
+      "size": 7879
     },
     {
       "executable": false,
       "path": "docs/dependencies/VOICE_AND_GUIDED_SETUP.md",
-      "sha256": "e3ca75756524e20cdc13eb4134e7609493928ea5597c5f48bcfa3665b4ab8e28",
-      "size": 8164
+      "sha256": "02d65d54ca2a664d595ff92859e07e1e7a5d74e8223cda81fbe6477943309b9d",
+      "size": 8828
     },
     {
       "executable": false,
@@ -1712,8 +1712,8 @@
     {
       "executable": false,
       "path": "docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd",
-      "sha256": "afbae9b9f4b8cb948ff5efa25199e43f67eca4d0896ccd4221f97f310c281cbe",
-      "size": 1016
+      "sha256": "5f07ec42439acdd07e85aca76b138d0701cf1c0ab18d1abdc11e51d658df73c2",
+      "size": 1040
     },
     {
       "executable": false,
@@ -6044,14 +6044,14 @@
     {
       "executable": true,
       "path": "scripts/ci_vps_acceptance.sh",
-      "sha256": "a651eb1e4d9492ccfcedf519173772b8573d8415bdb20a3b2a82326e4d05e8f3",
-      "size": 3601
+      "sha256": "3c520d6c7359c5fdf57eea17d0cdd7451d4291b5fc691c919e7a56c27d358422",
+      "size": 8270
     },
     {
       "executable": false,
       "path": "scripts/ci_vps_evidence.py",
-      "sha256": "f3711a1c6bb88c053d5b21e0c724c542d02b8dc8177a719cf0eb0bdfba37683d",
-      "size": 7271
+      "sha256": "75b0c5b833b95f45ca7557f27842edc690b794cfbaf83fa1c215d422d88d3d5c",
+      "size": 7337
     },
     {
       "executable": true,
@@ -6104,8 +6104,8 @@
     {
       "executable": false,
       "path": "scripts/station_shared_toolchain.py",
-      "sha256": "08b8788e2779770d0c2c500e2d9e69c76f12f7d41afd2fdcd4487b97b4bbcb5b",
-      "size": 23661
+      "sha256": "894e60419b3bbc83320ca06ed5c92c3492f4f14d76471ecb373dc646b49f7051",
+      "size": 24389
     },
     {
       "executable": true,
@@ -6674,8 +6674,8 @@
     {
       "executable": false,
       "path": "tests/security/test_shared_toolchain.py",
-      "sha256": "7d35ee3ca6d35883489f9d350741aeedde0b257a454c8edf392705e95026aec0",
-      "size": 24510
+      "sha256": "78a21e54be21ec4067ca96adc2616b39603b705adba9809aa6e28c63fba09696",
+      "size": 29764
     },
     {
       "executable": false,
@@ -6686,8 +6686,14 @@
     {
       "executable": false,
       "path": "tests/security/test_vps_acceptance_evidence.py",
-      "sha256": "595b928a7d6ab5c45cb222ba6837329575bb5b21e21a9272b0885167ba48140c",
-      "size": 9751
+      "sha256": "3544edad627691ea189f2b0632727a2d135ffe9dcc0d016e852ec005354db4cd",
+      "size": 9836
+    },
+    {
+      "executable": false,
+      "path": "tests/security/test_vps_zone_toolchain_acceptance.py",
+      "sha256": "400b099c2fa02c979071a796e43ac5eecca362335c571cdd83f8f347679b6873",
+      "size": 8268
     },
     {
       "executable": false,

@@ -2,25 +2,33 @@
 
 Hermes remains the single runtime brain. Station adds two host capabilities around it:
 
-1. a reviewed voice path with OpenAI audio as primary and local Parakeet ASR as Discord failover;
+1. a reviewed voice path with OpenAI audio as primary and local Parakeet ASR as Discord voice-channel failover;
 2. a one-time setup-link broker that lets an authorized bot show a short Tailnet-only button instead of asking a human to manipulate the terminal or paste a secret into chat.
 
-Neither capability weakens the Zone boundary. Every bot still runs as the owning Zone Unix user with that Zone's `HERMES_HOME`.
+Every bot still runs as the owning Zone Unix user with that Zone's `HERMES_HOME`. Parakeet is a shared, unauthenticated loopback service accessible to local Zones, not a per-Zone ASR service or tenant-isolated boundary.
 
 Diagram source: [`docs/diagrams/15_GUIDED_SETUP_AND_VOICE.mmd`](../diagrams/15_GUIDED_SETUP_AND_VOICE.mmd).
 
 ## Default voice topology
 
 ```text
-voice input / Discord voice note
+Discord voice-channel input
   → owning Hermes gateway/profile
   → OpenAI gpt-transcribe (primary)
-  → if Discord primary STT fails: 127.0.0.1:5092 Parakeet (local fallback)
+  → if native channel STT fails: 127.0.0.1:5092 Parakeet (local fallback)
   → transcript enters the same Hermes session
   → Hermes central reasoning + OS team/tools
   → OpenAI gpt-4o-mini-tts, voice alloy
   → voice response on the originating Hermes surface
 ```
+
+The shipped Parakeet hook is in the Discord adapter's PCM voice-channel path
+(`_process_voice_input`). Uploaded voice notes/attachments use Hermes' separate
+message-transcription path; Station does not currently wire that path to
+Parakeet. The channel hook runs only after native transcription returns failure,
+not necessarily after the first OpenAI failure if Hermes recovers internally.
+Do not claim voice-note Parakeet fallback from an HTTP health check or direct
+adapter test. Extending it needs a reviewed adapter/OS release and live acceptance.
 
 Bootstrap installs Hermes' explicit `voice` and `messaging` extras plus `ffmpeg`, Opus and PortAudio. It seeds new Zone configs from [`config/hermes/voice.default.yaml`](../../config/hermes/voice.default.yaml), but never overwrites an existing `config.yaml`.
 
@@ -101,6 +109,6 @@ Installation proves only `INSTALLABLE`/`READY_FOR_SETUP`. Before claiming voice 
 2. setup link expiry, one-time use, wrong-principal delivery prevention and absence of secrets in chat/log/session/evidence;
 3. provider login or key readback from the owning Zone;
 4. OpenAI STT and TTS round-trip;
-5. forced OpenAI failure followed by a successful Parakeet Discord transcription;
+5. forced native channel-transcription failure followed by successful Parakeet transcription;
 6. Discord voice note and voice-channel reply;
 7. gateway restart/reboot persistence and least-privilege guild permissions.

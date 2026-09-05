@@ -158,10 +158,20 @@ def _inventory(sources: dict[str, Path], owners: set[int]):
                 for name in dirs + files:
                     if name in CACHES or name.endswith((".pyc", ".pyo")):
                         continue
-                    if name in PRIVATE or name.startswith(".env."):
-                        raise SharedToolchainError(f"Private state is forbidden in shared software: {destination}/{name}")
                     original = Path(root) / name
-                    candidates.append((original, Path(destination) / original.relative_to(source)))
+                    relative = Path(destination) / original.relative_to(source)
+                    if str(relative) == "node/lib/node_modules/npm/.npmrc":
+                        # The reviewed Node archive bundles an empty npm config
+                        # placeholder. It is not executable code: omit it without
+                        # reading its contents. Never exempt nonempty/private
+                        # configuration, aliases, or any other .npmrc location.
+                        info = _checked(original, owners)
+                        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size != 0:
+                            raise SharedToolchainError(f"Unsafe bundled npm config placeholder: {relative}")
+                        continue
+                    if name in PRIVATE or name.startswith(".env."):
+                        raise SharedToolchainError(f"Private state is forbidden in shared software: {relative}")
+                    candidates.append((original, relative))
         else:
             raise SharedToolchainError("Software allowlist root must not be a symlink or special file")
         for original, relative in candidates:

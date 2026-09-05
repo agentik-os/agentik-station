@@ -169,6 +169,20 @@ def assert_no_exports(layout):
     assert not any(os.path.lexists(layout.public / name) for name in EXPORTS)
 
 
+def forbid_content_read(publisher, monkeypatch, target):
+    """Record helper reads; even an empty excluded config must never be opened."""
+    original = publisher.__globals__["_read"]
+    observed = []
+
+    def checked(path, *args, **kwargs):
+        observed.append(Path(path))
+        assert Path(path) != target, "excluded/private npm configuration must not be read"
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setitem(publisher.__globals__, "_read", checked)
+    return observed
+
+
 def test_publish_complete_private_state_free_toolchain_and_idempotent_retry(layout):
     original = snapshot(layout.home)
     result = layout.publish()
@@ -368,6 +382,109 @@ def test_secret_shaped_files_inside_explicit_software_root_are_rejected(layout, 
     with pytest.raises((ValueError, OSError, RuntimeError)):
         layout.publish()
     assert path.read_text() == "synthetic private material; never publish\n"
+    assert_no_exports(layout)
+
+
+@pytest.mark.parametrize("mode", [0o600, 0o644])
+def test_only_empty_bundled_npm_placeholder_is_omitted_without_reading(layout, publisher,
+                                                                    monkeypatch, mode):
+    placeholder = write(layout.node / "lib/node_modules/npm/.npmrc", "")
+    placeholder.chmod(mode)
+    observed = forbid_content_read(publisher, monkeypatch, placeholder)
+    layout.publish()
+    release = final_root(layout)
+    relative = "node/lib/node_modules/npm/.npmrc"
+    assert not os.path.lexists(release / relative)
+    manifest = json.loads((release / "MANIFEST.json").read_text())
+    assert relative not in manifest["files"]
+    original = snapshot(release)
+    placeholder.write_text("")
+    layout.publish()
+    assert final_root(layout) == release
+    assert snapshot(release) == original
+    assert placeholder.lstat().st_size == 0
+    assert observed and placeholder not in observed
+
+
+@pytest.mark.parametrize("content", ["\n", "registry=https://synthetic.invalid\n",
+                                      "//registry.npmjs.org/:_authToken=SYNTHETIC_NOT_A_REAL_TOKEN\n"])
+def test_nonempty_bundled_npm_config_is_rejected_without_reading_or_disclosing(
+        layout, publisher, monkeypatch, capsys, content):
+    placeholder = write(layout.node / "lib/node_modules/npm/.npmrc", content)
+    observed = forbid_content_read(publisher, monkeypatch, placeholder)
+    with pytest.raises(ValueError) as failure:
+        layout.publish()
+    output = capsys.readouterr()
+    assert "SYNTHETIC_NOT_A_REAL_TOKEN" not in str(failure.value) + output.out + output.err
+    assert "registry=" not in str(failure.value) + output.out + output.err
+    assert observed and placeholder not in observed
+    assert_no_exports(layout)
+
+
+def test_bundled_npm_config_becoming_nonempty_blocks_retry_without_changing_exports(
+        layout, publisher, monkeypatch):
+    placeholder = write(layout.node / "lib/node_modules/npm/.npmrc", "")
+    observed = forbid_content_read(publisher, monkeypatch, placeholder)
+    layout.publish()
+    release = final_root(layout)
+    original_release, original_exports = snapshot(release), snapshot(layout.public)
+    placeholder.write_text("//registry.npmjs.org/:_authToken=SYNTHETIC_ROTATED_PRIVATE_CONFIG\n")
+    with pytest.raises(ValueError):
+        layout.publish()
+    assert snapshot(release) == original_release
+    assert snapshot(layout.public) == original_exports
+    assert observed and placeholder not in observed
+
+
+@pytest.mark.parametrize("kind", ["symlink", "dangling", "fifo", "directory", "hardlink",
+                                  "group-writable", "world-writable", "wrong-owner"])
+def test_bundled_npm_placeholder_unsafe_type_or_authority_is_rejected_without_reading(
+        layout, publisher, monkeypatch, kind):
+    placeholder = layout.node / "lib/node_modules/npm/.npmrc"
+    sentinel = write(layout.root / "unrelated-empty-config", "")
+    if kind == "symlink":
+        placeholder.symlink_to(sentinel)
+    elif kind == "dangling":
+        placeholder.symlink_to(layout.root / "absent-config")
+    elif kind == "fifo":
+        os.mkfifo(placeholder)
+    elif kind == "directory":
+        placeholder.mkdir()
+    elif kind == "hardlink":
+        os.link(sentinel, placeholder)
+    else:
+        write(placeholder, "")
+        if kind in {"group-writable", "world-writable"}:
+            placeholder.chmod(0o664 if kind == "group-writable" else 0o646)
+        else:
+            original_lstat = Path.lstat
+
+            def wrong_owner(path, *args, **kwargs):
+                info = original_lstat(path, *args, **kwargs)
+                if path == placeholder:
+                    fields = list(info)
+                    fields[4] = os.getuid() + 10000
+                    return os.stat_result(fields)
+                return info
+
+            monkeypatch.setattr(Path, "lstat", wrong_owner)
+    observed = forbid_content_read(publisher, monkeypatch, placeholder)
+    with pytest.raises(ValueError):
+        layout.publish()
+    assert observed and placeholder not in observed
+    assert_no_exports(layout)
+
+
+@pytest.mark.parametrize("location", ["node-root", "node-nested", "global-npm"])
+def test_empty_npmrc_elsewhere_remains_forbidden_without_reading(layout, publisher,
+                                                               monkeypatch, location):
+    folder = {"node-root": layout.node, "node-nested": layout.node / "include/node",
+              "global-npm": layout.packages["npm"]}[location]
+    private = write(folder / ".npmrc", "")
+    observed = forbid_content_read(publisher, monkeypatch, private)
+    with pytest.raises(ValueError):
+        layout.publish()
+    assert observed and private not in observed
     assert_no_exports(layout)
 
 
