@@ -1,5 +1,15 @@
 # Agentik Station Security Contract
 
+## Personal Workstation boundary
+
+The npm Workstation installer runs as the existing non-root user. Its private
+paths and profile names prevent accidental adoption, not access by that Unix
+identity to other personal files. It is not Zone/client isolation. Enrollment
+must never copy account credentials or invoke the native activating gateway
+wizard implicitly. Service activation separately authorizes the disclosed
+account-level launchd/systemd integration; normal npm installation has no
+system-modifying lifecycle hooks. See [the deployment contract](docs/distribution/workstation.md).
+
 ## Threat model
 
 Station runs privileged installation code and will eventually mediate private projects, client environments, source control, model providers, Discord bots, Composio accounts, and deployment systems. Inputs may come from command arguments, JSON desired state, repository content, remote Hosts, agents, plugins, external tools, and Zone-owned files.

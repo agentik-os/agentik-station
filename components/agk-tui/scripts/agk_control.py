@@ -435,7 +435,17 @@ class RuntimeRegistry:
             raise ValueError("Hermes profile must be a safe lowercase profile id")
         cwd = cwd.expanduser().resolve()
         allowed = self.env.home.resolve()
-        if cwd != allowed and allowed not in cwd.parents:
+        permitted = cwd == allowed or allowed in cwd.parents
+        if os.environ.get("STATION_WORKSTATION_ROOT"):
+            # Shared canonical resolver used by the plugin and controller. Load
+            # just this stdlib helper, not the Hermes plugin __init__ package.
+            import importlib.util
+            helper = Path(__file__).resolve().parents[1] / "hermes/plugins/agentik_os/workstation.py"
+            spec = importlib.util.spec_from_file_location("agk_workstation_scope", helper)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            permitted = module.permitted_cwd(cwd, self.env.home)
+        if not permitted:
             raise ValueError(f"cwd escapes the {self.env.name} trust boundary")
         if not cwd.is_dir():
             raise ValueError("cwd must be an existing directory")

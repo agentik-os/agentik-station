@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1156
+Total files: 1189
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -125,6 +125,7 @@ Total files: 1156
 - `components/agk-tui/hermes/plugins/agentik_os/web_fetch.py`
 - `components/agk-tui/hermes/plugins/agentik_os/web_plugin.py`
 - `components/agk-tui/hermes/plugins/agentik_os/web_runtime.py`
+- `components/agk-tui/hermes/plugins/agentik_os/workstation.py`
 - `components/agk-tui/hermes/plugins/platforms/discord/AGK_PATCHSET.md`
 - `components/agk-tui/hermes/plugins/platforms/discord/__init__.py`
 - `components/agk-tui/hermes/plugins/platforms/discord/adapter.py`
@@ -182,6 +183,8 @@ Total files: 1156
 - `components/agk-tui/tests/test_test_runner.py`
 - `components/agk-tui/tests/test_topology.py`
 - `components/agk-tui/tests/test_web_extraction.py`
+- `components/agk-tui/tests/test_workstation_cli_guards.py`
+- `components/agk-tui/tests/test_workstation_scope.py`
 - `config/agent-runtime-policy.json`
 - `config/composio/discord-tool-policy.json`
 - `config/deps/stack.yaml`
@@ -256,8 +259,10 @@ Total files: 1156
 - `docs/audit/2026-09-05-agk-tui-acceptance.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
+- `docs/audit/2026-09-05-portable-install-plan.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/2026-09-05-vps-workflow-review.md`
+- `docs/audit/2026-09-05-workstation-acceptance.md`
 - `docs/audit/V10_AUDIT_EVIDENCE.zip`
 - `docs/audit/V10_PROFESSIONAL_AUDIT.md`
 - `docs/builder/01_BUILDER_OS_CANONICAL.md`
@@ -313,6 +318,7 @@ Total files: 1156
 - `docs/distribution/01_CLIENT_DUPLICATION.md`
 - `docs/distribution/02_COMMERCIAL_MODELS.md`
 - `docs/distribution/03_MARKETPLACE.md`
+- `docs/distribution/workstation.md`
 - `docs/engineering/01_ENGINEERING_CONSTITUTION.md`
 - `docs/engineering/02_VERIFICATION_ENGINEERING.md`
 - `docs/engineering/03_GAUNTLET_LOOP.md`
@@ -475,6 +481,32 @@ Total files: 1156
 - `factory/workflows/04_failure_recovery.yaml`
 - `install`
 - `installer/install_station.py`
+- `installer/npm/cli.mjs`
+- `installer/npm/connectors.mjs`
+- `installer/npm/gateway.mjs`
+- `installer/npm/onboarding.mjs`
+- `installer/npm/process.mjs`
+- `installer/npm/prompts.mjs`
+- `installer/npm/runtime.mjs`
+- `installer/npm/state.mjs`
+- `installer/npm/supervisor.mjs`
+- `installer/npm/test/cli.test.mjs`
+- `installer/npm/test/connectors.test.mjs`
+- `installer/npm/test/gateway.test.mjs`
+- `installer/npm/test/native-install.mjs`
+- `installer/npm/test/native-session-smoke.py`
+- `installer/npm/test/native-tui-smoke.py`
+- `installer/npm/test/onboarding.test.mjs`
+- `installer/npm/test/pack-smoke.mjs`
+- `installer/npm/test/package.test.mjs`
+- `installer/npm/test/process.test.mjs`
+- `installer/npm/test/readiness.test.mjs`
+- `installer/npm/test/runtime.test.mjs`
+- `installer/npm/test/state.test.mjs`
+- `installer/npm/test/ui.test.mjs`
+- `installer/npm/test/web.test.mjs`
+- `installer/npm/ui.mjs`
+- `installer/npm/web.mjs`
 - `modules/backup-recovery/MODULE.json`
 - `modules/backup-recovery/README.md`
 - `modules/catalog.json`
@@ -979,6 +1011,7 @@ Total files: 1156
 - `os/station-maintainer/views/VIEWS.yaml`
 - `os/station-maintainer/workflows/WORKFLOWS.yaml`
 - `os/station-maintainer/workflows/hermes-upstream-upgrade.yaml`
+- `package.json`
 - `pyproject.toml`
 - `resources/CATALOG.json`
 - `resources/README.md`

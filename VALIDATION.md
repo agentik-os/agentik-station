@@ -1,4 +1,17 @@
-# Agentik Station 11.25 Validation
+# Agentik Station 11.26 Validation
+
+## Personal Workstation — 11.26
+
+The [portable installation mission](docs/audit/2026-09-05-portable-install-plan.md)
+defines the independent branch owners, native macOS acceptance, npm packaging,
+security regressions and service-activation limits. Earlier release counts below
+remain historical and are not claims for the changed Workstation implementation.
+
+The [acceptance record](docs/audit/2026-09-05-workstation-acceptance.md) records
+1,513 Station/Factory passes, 157 npm tests, 561 AGK tests and the fresh installed
+macOS package acceptance: 20 required native checks, 10 TUI views, three sizes,
+synthetic session lifecycle and zero observed changes to 12 protected personal
+files. Live accounts, service activation and npm publication are separate gates.
 
 ## Isolated installation-version probes — 11.25
 

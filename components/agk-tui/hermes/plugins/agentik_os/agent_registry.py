@@ -13,6 +13,7 @@ from pathlib import Path
 import yaml
 
 from tools.registry import tool_error, tool_result
+from .workstation import agk_executable
 
 
 _ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,79}$")
@@ -150,7 +151,7 @@ def handle_agent(args: dict, **_kwargs) -> str:
         if action == "start":
             if not row:
                 workspace = _prepare_workspace(definition)
-                result = _run(["/usr/local/bin/agk", "new", "hermes", session, "--cwd", str(workspace)])
+                result = _run([agk_executable(), "new", "hermes", session, "--cwd", str(workspace)])
                 if result.returncode:
                     return tool_error((result.stderr or result.stdout or "agent launch failed")[:2000])
             if instruction:
@@ -171,7 +172,7 @@ def handle_agent(args: dict, **_kwargs) -> str:
                 return tool_error("could not capture agent output")
             return tool_result({"success": True, "agent": agent_id, "output": result.stdout[-40000:]})
         return tool_error("unknown agent action")
-    except (OSError, RuntimeError, sqlite3.Error, subprocess.TimeoutExpired) as exc:
+    except (OSError, ValueError, RuntimeError, sqlite3.Error, subprocess.TimeoutExpired) as exc:
         return tool_error(f"Agentik agent operation failed safely: {exc}")
 
 

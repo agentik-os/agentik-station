@@ -1,5 +1,16 @@
 # Canonical Agentik Station Architecture
 
+## Deployment modes
+
+The canonical Host architecture below is Linux-only. Release 11.26 additionally
+provides **Workstation**, a personal macOS/Linux npm-driven deployment with
+private paths inside a user-selected `station` directory. It is not a Host
+reconciler, a Zone, a multi-client boundary or an operational OS-instance ledger.
+All its processes retain the invoking Unix user's authority. Existing account
+credentials and Hermes are not automatically adopted. Native launchd/systemd
+integration is a separately confirmed service activation. See
+[the Workstation contract](docs/distribution/workstation.md).
+
 ## 1. Architectural objective
 
 Station must host and control private work, Agentik development, OS creation, personal projects, local organization development, and remote organization/project production without mixing filesystem access, identities, credentials, memory, connected accounts, or runtime evidence.

@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.25.** The supported foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own implementation and evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.26.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -87,6 +87,54 @@ Production credentials do not enter development automatically. A passing test is
 </details>
 
 ## Quickstart
+
+### Your Mac or existing Linux computer — Workstation
+
+**Keep your machine. Give Station its own home.** The personal installer has a
+responsive terminal identity, real phase feedback, a private Hermes profile and
+explicit verification. No reset, automatic sudo, shell-profile rewrite, copied
+credentials or surprise gateway startup.
+
+The npm package is prepared in this repository; **registry publication is a
+separate step, not assumed complete**. Use the checked-out package today:
+
+```bash
+git clone --branch main --single-branch https://github.com/agentik-os/agentik-station.git
+cd agentik-station
+
+# Node 22.14+, npm, uv, Git, Cargo/Rust and native build tools required.
+node installer/npm/cli.mjs plan --root "$HOME/station"
+npm install --global .  # requires an already user-writable npm prefix; no sudo
+
+agentik-station install --root "$HOME/station"
+agentik-station model --root "$HOME/station"
+agentik-station discord --root "$HOME/station"  # guided, masked enrollment
+agentik-station activate --root "$HOME/station" # explicit service/network approval
+agentik-station tui --root "$HOME/station"
+```
+
+Prefer no global npm entry? Replace `agentik-station` with
+`node installer/npm/cli.mjs`. `npm install` alone only installs the CLI package;
+it has **no lifecycle hook** that installs tools or starts services.
+
+```text
+Your computer
+└── station/                         personal namespace · your existing Unix user
+    ├── bin/                         scoped agk, hermes and tool launchers
+    ├── tools/                       pinned native runtimes and web workers
+    ├── resources/                   reusable CLI/SDK inputs; no client secrets
+    ├── personal/home/              independent Hermes/CLI config and state
+    ├── projects/                   your declared personal workspaces
+    ├── cache/                      downloads, builds, browser assets, RMUX socket
+    └── evidence/                   append-only attempt and verification receipts
+```
+
+This keeps personal state separate through explicit paths, **not by Unix
+permissions between clients**. For Organizations, isolated Zones and OS teams,
+use Linux Host mode below. Existing personal Hermes and its service remain
+independent. [Workstation capabilities, prerequisites and limits →](docs/distribution/workstation.md)
+
+### Your dedicated VPS — Station Host
 
 Start on a **fresh Ubuntu/Debian VPS** with systemd, `apt-get`, network/DNS access, Git, and distribution Python **3.11+**. Use a **non-root user with sudo**; run your coding agent as that user. Review [installation](INSTALL.md) and [security](SECURITY.md) first. Other operating systems are not supported Host targets by this installer.
 

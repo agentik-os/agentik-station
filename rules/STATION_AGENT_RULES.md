@@ -16,6 +16,14 @@ These rules apply to Hermes profiles, LLM providers, coding CLIs, subagents, aut
 
 ## Respect the Station filesystem
 
+- In explicitly enrolled **personal Workstation** mode, resolve the validated
+  `.station-workstation.json` context first. Keep software in `station/tools`,
+  reusable resources in `station/resources`, personal work in `station/projects`
+  and configuration/runtime in `station/personal/home`. Do not apply Host FHS
+  provisioning or call this namespace a Zone. Never adopt the real account's
+  Hermes, provider auth or shell files. Native service enrollment is separately
+  approved. The canonical Host paths below remain unchanged outside this mode.
+
 - Desired state and policy: `/etc/station`.
 - Immutable releases and shared software: `/opt/station`.
 - Human navigation, Zones and Projects: `/srv/station`.

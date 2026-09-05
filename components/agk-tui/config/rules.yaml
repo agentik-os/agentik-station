@@ -1,5 +1,19 @@
 version: 1
 rules:
+  - id: personal-workstation-layout
+    title: Respect the enrolled personal Station directory
+    enabled: true
+    providers: ["*"]
+    content: >-
+      When STATION_WORKSTATION_ROOT is present, validate the enrolled
+      .station-workstation.json context before work. Keep personal Project work
+      under that root's projects directory, reusable inputs under resources,
+      software under tools, and configuration/state under personal/home. Never
+      copy the real account's Hermes or provider credentials or edit its shell
+      files automatically. This same-UID namespace is not a Zone or a client
+      sandbox; do not run Linux Host provisioning or fabricate OS-instance
+      operational ledgers in it. Plan, verify and retain evidence before claims.
+
   - id: complete-request-ledger
     title: Complete every requested item
     enabled: true

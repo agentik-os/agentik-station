@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "release": "11.25",
+  "release": "11.26",
   "contract": "AGK OS v2",
   "source_root": "os",
   "packages": [

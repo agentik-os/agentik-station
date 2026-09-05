@@ -6,6 +6,15 @@ action=${1:-list}
 install_mode=${3:-}
 hermes_home=${HERMES_HOME:-${HOME:?}/.hermes}
 
+if [ -n "${STATION_WORKSTATION_ROOT:-}" ]; then
+  workstation_component=${AGK_TERMINAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}
+  /usr/bin/python3 -I -S "$workstation_component/hermes/plugins/agentik_os/workstation.py" --validate >/dev/null || exit 2
+  if [ "$action" = install ]; then
+    echo 'Station Workstation owns pinned dependencies: use agentik-station repair --root PATH; model enrollment uses agentik-station model --root PATH. Installed CLIs retain their scoped login commands.' >&2
+    exit 2
+  fi
+fi
+
 installed() { command -v "$1" >/dev/null 2>&1; }
 
 hermes_is_official() {

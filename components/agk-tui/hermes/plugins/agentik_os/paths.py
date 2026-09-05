@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from .workstation import workstation_root
 
 
 _SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -51,7 +53,8 @@ class PathResolver:
         elif self.environment == "agentik":
             root = self.home / "workspace" / "projects"
         elif self.environment == "private":
-            root = self.home / "workspace" / "projects"
+            workstation = workstation_root()
+            root = workstation / "projects" if workstation else self.home / "workspace" / "projects"
         else:
             raise PermissionError("Operator does not own business projects")
         return _contained(root, root / slug)
@@ -79,8 +82,14 @@ class PathResolver:
             if not slug or project_path is None: raise ValueError("mission resolution requires slug and project_path")
             return self.mission(slug, project_path=project_path)
         if kind == "hermes_state":
+            workstation = workstation_root()
+            if workstation:
+                return _contained(self.home, Path(os.environ.get("HERMES_HOME", self.home / ".hermes")))
             return _contained(self.home, self.home / ".hermes")
         if kind == "workspace":
+            workstation = workstation_root()
+            if workstation:
+                return workstation / "projects"
             return _contained(self.home, self.home / "workspace")
         if kind in {"knowledge", "artifact"}:
             workspace = self.resolve("workspace")
@@ -90,9 +99,14 @@ class PathResolver:
         if kind == "secrets":
             return _contained(self.home, self.home / ".secrets")
         if kind in {"runtime", "logs", "backups"}:
+            if workstation_root():
+                return _contained(self.home, self.home / ".agentik" / kind)
             root = Path("/var/agentik") / kind
             return _contained(root, root / self.environment)
         if kind == "os_registry":
+            workstation = workstation_root()
+            if workstation:
+                return workstation / "resources/os-registry"
             return Path("/opt/agentik/os-registry")
         if kind == "operator_admin":
             if self.environment != "operator": raise PermissionError("operator administration belongs to Operator")

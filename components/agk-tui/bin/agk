@@ -42,6 +42,11 @@ export PATH="$install_root/bin:$HOME/.local/bin:$PATH"
 
 case "${1:-}" in
   client)
+    if [ -n "${STATION_WORKSTATION_ROOT:-}" ]; then
+      /usr/bin/python3 -I -S "$install_root/hermes/plugins/agentik_os/workstation.py" --validate >/dev/null || exit 2
+      echo 'Client Organizations and isolated OS instances belong to a Linux Station Host with independent-UID Zones. The legacy agk client controller is not supported in personal Workstation mode; use the Host station organization/project/os instance workflow.' >&2
+      exit 2
+    fi
     shift
     if [ -x "$install_root/venv/bin/python" ]; then
       exec "$install_root/venv/bin/python" "$install_root/scripts/client_control.py" "$@"

@@ -1,6 +1,6 @@
 # AGK-TUI
 
-> **AGK-TUI is the RMUX mapping and terminal-session component of [Station](https://github.com/agentik-os/Station).**
+> **AGK-TUI is the RMUX mapping and terminal-session component of [Station](https://github.com/agentik-os/agentik-station).**
 > For a complete Discord + Hermes + AGK-TUI + Portal installation, use Station.
 
 ## Product boundary
@@ -9,7 +9,7 @@ AGK-TUI owns the native terminal UI, RMUX session persistence, pane mapping,
 provider-terminal launching and session navigation. Complete-VPS concerns —
 Hermes fleet deployment, Discord bots and token lifecycle, the private Portal,
 provider policy, Operative Systems, global rules, backups, updates and rollback —
-are owned by the public [Station repository](https://github.com/agentik-os/Station).
+are owned by the public [Station repository](https://github.com/agentik-os/agentik-station).
 
 Existing full-stack bootstrap surfaces remain temporarily for compatibility and
 migration, but new platform behavior and new installations are developed in
@@ -380,7 +380,12 @@ agk
 Use `--core-only` to omit optional providers, or run
 `./bootstrap-macos.sh` from a clone.
 
-### Existing Linux/macOS profile
+### Existing Linux profile
+
+The standalone `install.sh` below is Linux-oriented. For a non-destructive,
+personal macOS/Linux Station deployment, use the current
+[Workstation installer](../../docs/distribution/workstation.md), not the legacy
+`bootstrap-macos.sh` account-modifying compatibility path.
 
 ```bash
 git clone https://github.com/agentik-os/AGK-TUI.git

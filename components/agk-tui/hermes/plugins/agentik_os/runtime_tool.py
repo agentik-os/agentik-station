@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 
 from tools.registry import tool_error, tool_result
+from .workstation import agk_executable, permitted_cwd
 
 
 _NAME = re.compile(r"^[a-z0-9][a-z0-9-]{2,79}$")
@@ -84,9 +85,9 @@ def handle_runtime(args: dict, **_kwargs) -> str:
                 return tool_error("spawn requires agent_type hermes|claude|codex and a canonical session name")
             cwd = Path(str(args.get("cwd") or _home())).expanduser().resolve()
             home = _home()
-            if cwd != home and home not in cwd.parents:
+            if not permitted_cwd(cwd, home):
                 return tool_error("cwd escapes the current Linux environment")
-            result = _bounded_run(["/usr/local/bin/agk", "new", kind, name, "--cwd", str(cwd)], timeout=30)
+            result = _bounded_run([agk_executable(), "new", kind, name, "--cwd", str(cwd)], timeout=30)
             if result.returncode:
                 return tool_error((result.stderr or result.stdout or "AGK spawn failed").strip()[:2000])
             return tool_result({"success": True, "action": "spawn", "session": name, "agent_type": kind})

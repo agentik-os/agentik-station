@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.25",
+  "release": "11.26",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1153,
+  "subject_count": 1186,
   "subjects": [
     {
       "executable": false,
@@ -38,8 +38,8 @@
     {
       "executable": false,
       "path": ".github/workflows/ci.yml",
-      "sha256": "7e843999bdbf3ccaa6422f5dd0b7c0804dfe66c61480664e0fa16325659e4ad2",
-      "size": 8979
+      "sha256": "ecbb03c0a9160137f5ebc6e746a50f009bd9e06e641de180c934f3f0a00bf1aa",
+      "size": 10449
     },
     {
       "executable": false,
@@ -74,14 +74,14 @@
     {
       "executable": false,
       "path": "ARCHITECTURE.md",
-      "sha256": "bacb76de6b97acbc2d1bc83337b78bbc682526a6cb85304dbf7350f2a4d858a3",
-      "size": 17064
+      "sha256": "d87eeac74e9538360c223ab7d7ae4f2b484319cb4bfb9c56a3ff898853bd5842",
+      "size": 17678
     },
     {
       "executable": false,
       "path": "CHANGELOG.md",
-      "sha256": "ba0ba6a0f510462ab92e1450de5e950a6788a648e1718c637724ae75bb02cdad",
-      "size": 18651
+      "sha256": "e6009eda069814cfb0f81d9023d924a0c9e51145a2a3c069c086e569b82086b0",
+      "size": 19646
     },
     {
       "executable": false,
@@ -110,8 +110,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "8f797e3c50ef97fd29a5e4b915ada91fcea5ff54a279b77c9a6bd6e39fd1d33c",
-      "size": 23942
+      "sha256": "260738e4bf02a1ce631ac1300dd22082220d46f02c23dedb9cf97ed48ba96b16",
+      "size": 24511
     },
     {
       "executable": false,
@@ -134,8 +134,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "b4730d71fe56d0b46b53e28982e5b3f37bd454a608026825e1aeaf53e610136f",
-      "size": 44214
+      "sha256": "93b6eb435edd676b8d468ba8949b0b0dc51f8eddfedc75a273e57827b19898f9",
+      "size": 46700
     },
     {
       "executable": false,
@@ -146,20 +146,20 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "084415f7fe229e6364414d4a9a2f69a47bbe5ea8ca6cd63bb3a0a581fb44e60f",
+      "sha256": "de3e7542d65194ca6210e86cce2e145ddbc95c7045ff7f3dc8cc49129bb52541",
       "size": 83216
     },
     {
       "executable": false,
       "path": "SECURITY.md",
-      "sha256": "b5f7c5ee5d2f4f26cececfe6d8a23ade06553aa8e9fe53aa908116d44a11e30c",
-      "size": 11108
+      "sha256": "4f34f778825fca02ccb5a0dee5d7ad392b41e974dd7025e5477cabfff9b222fb",
+      "size": 11699
     },
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "2ff99ae1f18f2ec74c9815b9908f4d287f03b4ded9846fef067a422ffb8d764b",
-      "size": 18782
+      "sha256": "701c711519644dd8b7c9695aba4e373d217fb683a25ca14d22da3786cb3685cf",
+      "size": 19029
     },
     {
       "executable": false,
@@ -170,8 +170,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "85df8253688acf4198bdedec6abded521740eb6eb642bac9abbd2097dbe283dd",
-      "size": 24706
+      "sha256": "9b7546a9faa277c0465b31bd2afe75a3630edbd2e6decc0d943a564c7a81c1bc",
+      "size": 25472
     },
     {
       "executable": false,
@@ -188,14 +188,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "1ed3465f206609d1c168cc997eb4d4903a4bee4a58f9dfe77657304e1310842a",
+      "sha256": "a773de67cd41bcb35045f8fe5cab77abd736ddb560004ba33ea7746579cb6dff",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "09e45c5b48a017ffe6b7cd089ff26c913ee1da5444ceeda4f70b1437f612a844",
-      "size": 59861
+      "sha256": "1c4e0304eb288183e2eebf53378c68f0cf47500378f3a9743ecb0ee19cefbcf4",
+      "size": 60146
     },
     {
       "executable": true,
@@ -224,8 +224,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/README.md",
-      "sha256": "b922a28f8b0057a723ff7c7f5d86c1b004c4a2edf81192c08707af58bd1600bc",
-      "size": 27722
+      "sha256": "efdb8d7caa82e2a99277953ac45641a774af0540458996cd06614a2a7e5872c1",
+      "size": 28005
     },
     {
       "executable": false,
@@ -422,14 +422,14 @@
     {
       "executable": true,
       "path": "components/agk-tui/bin/agk",
-      "sha256": "94a54f416f35db6b0a2f5f5c3cda4fd176f716bc5e5aa0a8d1678add40af4013",
-      "size": 2875
+      "sha256": "4a19a944264a98d6dc7c53f664a9add1ebc598bff47eb8fc1c54572158365f7e",
+      "size": 3332
     },
     {
       "executable": true,
       "path": "components/agk-tui/bin/agk-terminal",
-      "sha256": "a914a2064e57932670ae6cf2831a683d808d4f1ec1e9bedd69b97ca1231ebde6",
-      "size": 3896
+      "sha256": "d2dd9a24ac6d7916f3077f3adcac4027d9a5d4fa67fe4750282227fa9fe65243",
+      "size": 5156
     },
     {
       "executable": true,
@@ -548,8 +548,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/config/rules.yaml",
-      "sha256": "ffae28bf11400a84af0eaaca6d2752c211e38a5c8e2dd4f9d2b422dd786955b1",
-      "size": 1448
+      "sha256": "6fe03b7d2ffe02713a68a2e2473c1f9a785ce42a6fe4ed401268c893f12e9db1",
+      "size": 2217
     },
     {
       "executable": false,
@@ -614,8 +614,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/agent_registry.py",
-      "sha256": "f09a1ecdea1bb688d7802f495a5e59e1ec88d595275b1b0632007a67e0477d20",
-      "size": 8712
+      "sha256": "65fa73d45743ca4ff246acc8e0d8e0a52557b3410c86c931b158ba459ae49c46",
+      "size": 8760
     },
     {
       "executable": false,
@@ -668,8 +668,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/paths.py",
-      "sha256": "3f4d42e2540c0b73d202f9760860a47a17feecab9400ff8f87c58fb969a0de8f",
-      "size": 5516
+      "sha256": "95ff8b71f5f60ab9ff2e533b53a395c8332f76c9d830e135909a6f4eac4a9e3e",
+      "size": 6202
     },
     {
       "executable": false,
@@ -686,8 +686,8 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/runtime_tool.py",
-      "sha256": "8cd77b5c943bdd24965364cf4fc1764c60524ab33a369f74781de003e68f74ab",
-      "size": 5028
+      "sha256": "1d30ce6f1b7ceb7848939964734b8b6d6af27f3c4dd59b9265d24d521e53f1eb",
+      "size": 5068
     },
     {
       "executable": false,
@@ -728,8 +728,14 @@
     {
       "executable": false,
       "path": "components/agk-tui/hermes/plugins/agentik_os/web_runtime.py",
-      "sha256": "d77f016942ab317a130d638fe530e0de133dc95a45b169c7b0e60ef313b79c30",
-      "size": 401
+      "sha256": "8e05f70b0352dce2f33a73d7936c505b915941821dbeca5c15b1ccb43b647a81",
+      "size": 1107
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/hermes/plugins/agentik_os/workstation.py",
+      "sha256": "2492e634b39354ac46013622eb726085aba49bd13b71009a054e4b21a49d2b9d",
+      "size": 3589
     },
     {
       "executable": false,
@@ -812,8 +818,8 @@
     {
       "executable": true,
       "path": "components/agk-tui/scripts/agk_control.py",
-      "sha256": "21a84b2cc3566fe2d1ed59c9d95f7aa15d7026d28e0a3ce5ef5aa898d3753c9a",
-      "size": 72827
+      "sha256": "447478f253cfefdb9bc788453412e9db418ebe9840096539659c5a4cde413c09",
+      "size": 73465
     },
     {
       "executable": true,
@@ -854,8 +860,8 @@
     {
       "executable": true,
       "path": "components/agk-tui/scripts/provider.sh",
-      "sha256": "9e1bb99c5ae16c2ae89f66c4e507de05e2dbf6e7fd70be6955c38fe9a318ea7d",
-      "size": 5241
+      "sha256": "bf197a1f35fc84629c87097692b163d586a160921baec4dc8a389b74d6c3f534",
+      "size": 5774
     },
     {
       "executable": false,
@@ -1072,6 +1078,18 @@
       "path": "components/agk-tui/tests/test_web_extraction.py",
       "sha256": "d961b23e47f80b4741b61274e507591f23f04bb2a4f240f8eb4fd8ea85072d75",
       "size": 14666
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/tests/test_workstation_cli_guards.py",
+      "sha256": "633c9382f9e4c35e60aa786915df840e6d59a7b24c32202e034d25c8c995653f",
+      "size": 5004
+    },
+    {
+      "executable": false,
+      "path": "components/agk-tui/tests/test_workstation_scope.py",
+      "sha256": "7a03d72571580db91a446703e57c1443bcd85139f3c3b174bbaa8b9e6a6c6145",
+      "size": 6242
     },
     {
       "executable": false,
@@ -1346,7 +1364,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "ac5333a89fc56476d34f0e8428cd2529e35a979e70aa0ce5c885553c3864c336",
+      "sha256": "a2882dcf294a184117db6b9884c80f53333868cef6679e24ec8f111f99c4fb15",
       "size": 2339
     },
     {
@@ -1519,6 +1537,12 @@
     },
     {
       "executable": false,
+      "path": "docs/audit/2026-09-05-portable-install-plan.md",
+      "sha256": "31349473b190edd989813084f5dc58ea93f25d76c0671b5bae520fa3c4f9fa48",
+      "size": 4637
+    },
+    {
+      "executable": false,
       "path": "docs/audit/2026-09-05-station-deep-audit.md",
       "sha256": "c549e9d0920177651ec9f88c7984a2429c2d8829444c46bb62682598af3ad973",
       "size": 19407
@@ -1528,6 +1552,12 @@
       "path": "docs/audit/2026-09-05-vps-workflow-review.md",
       "sha256": "adda0e7552391c55363781245c0c0db70b5970eab7eb964c3e3fc7d492ff5279",
       "size": 9622
+    },
+    {
+      "executable": false,
+      "path": "docs/audit/2026-09-05-workstation-acceptance.md",
+      "sha256": "817a212b23d68ee2f383730d771c1305a81b3290104edf6f0dc1af6d03da610c",
+      "size": 6293
     },
     {
       "executable": false,
@@ -1858,6 +1888,12 @@
       "path": "docs/distribution/03_MARKETPLACE.md",
       "sha256": "ce66c89e3913f16a70b2441788f33e9711c9fd4ebc3da1d8e0531fe36ef1dfdd",
       "size": 824
+    },
+    {
+      "executable": false,
+      "path": "docs/distribution/workstation.md",
+      "sha256": "35a6266d776f806c8b14dabf645d2a5d0dc4a06056e0ebb4579a57d65950f312",
+      "size": 13225
     },
     {
       "executable": false,
@@ -2832,6 +2868,162 @@
       "size": 331
     },
     {
+      "executable": true,
+      "path": "installer/npm/cli.mjs",
+      "sha256": "05c533caea9d00ca632239825ba113076d1d13f63ad60fd1bec4cdf0886cb315",
+      "size": 10260
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/connectors.mjs",
+      "sha256": "4b37e1b076c473e8a462346c2c4361b47766bde6acaed6d343340bbf79036782",
+      "size": 24556
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/gateway.mjs",
+      "sha256": "88490457769ab4186d46cce51eb2b99d62ad7fb0696b5bc226c22c964edf7edf",
+      "size": 27082
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/onboarding.mjs",
+      "sha256": "74e4dd37faa094f5fb808292520dc78557a313d12474bd2eacb9e520817938ad",
+      "size": 5224
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/process.mjs",
+      "sha256": "4b7ded53a6bbdf6945fa87600ccd5e51783771adf177835ca3ef347386ca4f46",
+      "size": 3759
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/prompts.mjs",
+      "sha256": "6d7a5e56717e58f51c9d74aec8320561d939c58be4af799a06dc5a67296d0d7c",
+      "size": 1050
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/runtime.mjs",
+      "sha256": "27500d1ec6460590c31774259e322766ac1068b0daf0b2de6d3b9d9907f8fe0a",
+      "size": 27676
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/state.mjs",
+      "sha256": "ec72b44a24e13d0c2c25b39f4dbc4d0e79cf33f2b8308731c22ea4b2cdabf3f0",
+      "size": 7240
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/supervisor.mjs",
+      "sha256": "0a06d046d6ec4e6944695c97fac2eac3b9b710982d5e0edf7afda65c8ff9846f",
+      "size": 956
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/cli.test.mjs",
+      "sha256": "9278b86b5100a03e3c5b26d6b70cd4151b49761112f6d939819f9bb6d2af26e1",
+      "size": 8971
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/connectors.test.mjs",
+      "sha256": "85656d902fd3ffc61e680c2c3a0727fa2ef1900999bcc8de6927ce779b09ca0a",
+      "size": 13089
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/gateway.test.mjs",
+      "sha256": "7747d920a6d56ba0af2b4687465a6348047c4c1532066e78a23fcb10fd9b095a",
+      "size": 20294
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/native-install.mjs",
+      "sha256": "5a1bd83229deaeac01e1b6a17bb75b434bc66971ae39847a26119e6d49098924",
+      "size": 5142
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/native-session-smoke.py",
+      "sha256": "5c11826a5caf6f26262cf433512e9424a6937c4c69c28fbc23069cecc3a40dc3",
+      "size": 4579
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/native-tui-smoke.py",
+      "sha256": "9f9106da9e40e837a3c084efecd93cf225b271c4508f6f0fd33ce26b9cbe6c69",
+      "size": 6091
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/onboarding.test.mjs",
+      "sha256": "fb8c4b171e38b8c8daeb36caf9a699fe5602d0b8e76e51fd899dfc5d687354bb",
+      "size": 9580
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/pack-smoke.mjs",
+      "sha256": "c81e0fe4a53babc27235822314b74f4af9b472cc5b689832dd6342357a9c9488",
+      "size": 2821
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/package.test.mjs",
+      "sha256": "f41a04e5c61080cd18cb5a9ffe7807258f4dddf36ba51c102a254db85c154cf2",
+      "size": 968
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/process.test.mjs",
+      "sha256": "c94d4ac67b774a71eae5582929b4a5846b0fa449ba56c838ac573f13052226e6",
+      "size": 7666
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/readiness.test.mjs",
+      "sha256": "c06dc72e4a3aee276dde44613e22f1ba9fb4be65bf13cd6691c9ea05d66bfac7",
+      "size": 785
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/runtime.test.mjs",
+      "sha256": "32321ae056413015bdcbd342cdafc286dcf110b30a28296ce03167b1a965b971",
+      "size": 14697
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/state.test.mjs",
+      "sha256": "1fc444618c1f198478f8b4b6c47512cec4deac4be451c35fec5c71e8302d6e2d",
+      "size": 4573
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/ui.test.mjs",
+      "sha256": "87eb2ccc4ea739917a43d864efebf819172e265e6f6d1b9cb11a93dd0ceeed31",
+      "size": 9667
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/web.test.mjs",
+      "sha256": "754100fe3efa5c023bbded43b7d6b4aeef395b5361e8cc450b055d7e16ed3d01",
+      "size": 1616
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/ui.mjs",
+      "sha256": "cd20a53c5c1b3bc261b6a4395e50d3911bbc355b1541a2166339cac45dd96397",
+      "size": 9966
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/web.mjs",
+      "sha256": "ee4833c0ae5103b51803b773972c36454175322e81d1560b37e1e5d6999b5320",
+      "size": 4694
+    },
+    {
       "executable": false,
       "path": "modules/backup-recovery/MODULE.json",
       "sha256": "2b263573a7bdd6e041359744c95aedf5f55ad288d04e6e65b7316d439818c476",
@@ -2846,7 +3038,7 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "33cbba23f0e686b193edd0782449cbaecdb2d267bbc10a3f677dfd589779e000",
+      "sha256": "9a1e49b5153b968b57da423d0f64a44eea1826fab780979006655018bc7d135e",
       "size": 10769
     },
     {
@@ -3092,7 +3284,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "25dd86ff375106b40d0d92985a24e5c00c8a3f495a4ca1de8a2aa259c419d088",
+      "sha256": "f307596c66eaaa9220ac94095ed6207b1411dd3555e026bd8aac7f2c51666a9b",
       "size": 3188
     },
     {
@@ -5857,8 +6049,14 @@
     },
     {
       "executable": false,
+      "path": "package.json",
+      "sha256": "8683b56888d8068797fcd6641ccb06699e9c91bdf1c4a1322046645b13f5111b",
+      "size": 1064
+    },
+    {
+      "executable": false,
       "path": "pyproject.toml",
-      "sha256": "ed4f7a98d3cd4cb333c509e18fbc2c7a23930db358399639efbebcf12ba4babe",
+      "sha256": "0f4f57f477a8a5169ea81118b4683ee55254deae13b6d90bca746f3c72150630",
       "size": 720
     },
     {
@@ -5966,8 +6164,8 @@
     {
       "executable": false,
       "path": "rules/STATION_AGENT_RULES.md",
-      "sha256": "cc967900d06ce32415d497c677be41326d286560f235615a88d88d4262231e4a",
-      "size": 7186
+      "sha256": "95d5289129a60b20f911a1858dbc16647844ae0b2f295a6ada88257a38686da6",
+      "size": 7739
     },
     {
       "executable": false,
@@ -6320,7 +6518,7 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "3f8de8c5377492bd091ec3733dd6dc5ffb55e8615d745f3a64abd7fad84c8b3f",
+      "sha256": "9df92850fa28621b84ec99a48bf1a5dcaf98469d3ced73aae3297de1af4edbfa",
       "size": 1851
     },
     {

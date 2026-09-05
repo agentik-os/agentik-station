@@ -1,5 +1,15 @@
 # Bootstrap entrypoint
 
+## Choose the deployment boundary first
+
+**Station Host** below remains the Linux/systemd/apt control plane with independent
+Unix identities for Zones. **Station Workstation** is a separate, non-root
+macOS/Linux personal installation under a chosen `station` folder. It does not
+reconcile Host state, create Zones, reset the computer, or adopt existing Hermes
+or CLI credentials. Its npm entry has no installation lifecycle hooks. Follow
+[the Workstation guide](docs/distribution/workstation.md) for that mode; do not
+run a legacy full-VPS bootstrap on a laptop.
+
 The preferred first install on a fresh Host is `bootstrap.sh`. It creates the dedicated `agk-station` sudo account, keeps the repository and user tools outside `/root`, installs the pinned operator toolchain and reviewed Hermes release, and then delegates to the typed Station kernel.
 
 ```bash
@@ -51,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.25
+## Supported base for Station 11.26 Host
 
 The current safe-kernel provider supports:
 
@@ -151,7 +161,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.25",
+  "release_version": "11.26",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -361,7 +371,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22/11.23 installation needing the current controls, publish the
-11.25 immutable Station kernel first, preserving the Host's desired state. Then
+11.26 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -460,7 +470,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.25 publishes beside earlier releases; it never overwrites an old
+Station 11.26 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

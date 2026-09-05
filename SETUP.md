@@ -1,5 +1,9 @@
 # Setup and Acceptance Gates
 
+For the personal macOS/Linux installer, use the separate
+[Workstation setup and acceptance sequence](docs/distribution/workstation.md#connect-discord-privately).
+The Host/Zone instructions below do not apply to a same-user Workstation namespace.
+
 A successful base install means `READY_FOR_SETUP`, not `OPERATIONAL`.
 
 For the 11.14 client-owned instance sequence, follow [the first-mission guide](docs/operations/06_FIRST_MISSION.md).

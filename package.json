@@ -1,0 +1,22 @@
+{
+  "name": "@agentik-os/station",
+  "version": "11.26.0",
+  "description": "Agentik Station — a reviewed, personal macOS/Linux AI workstation installer and Linux Host guide",
+  "type": "module",
+  "engines": { "node": ">=22.14.0" },
+  "bin": {
+    "agentik-station": "installer/npm/cli.mjs",
+    "station-install": "installer/npm/cli.mjs"
+  },
+  "scripts": { "test": "node --test installer/npm/test/*.test.mjs" },
+  "files": [
+    "installer/npm/*.mjs", "components/agk-tui/", "config/", "resources/",
+    "rules/", "scripts/station_voice_check.py", "os/", "VERSION", "LICENSE.md", "THIRD_PARTY.md", "docs/distribution/workstation.md"
+  ],
+  "repository": { "type": "git", "url": "git+https://github.com/agentik-os/agentik-station.git" },
+  "homepage": "https://github.com/agentik-os/agentik-station",
+  "bugs": { "url": "https://github.com/agentik-os/agentik-station/issues" },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "publishConfig": { "access": "public", "provenance": true },
+  "keywords": ["hermes", "agentik", "ai", "workstation", "discord", "tui"]
+}

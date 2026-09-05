@@ -1,5 +1,20 @@
 # Changelog
 
+## 11.26 — Personal Workstation and npm entry (2026-09-05)
+
+- Add a dependency-free, branded npm installer with reviewed personal macOS/Linux
+  paths, explicit repair, private subprocess environment and preserved evidence.
+- Install pinned Hermes, complete AGK support files and native RMUX without
+  adopting personal accounts, invoking a Host reset or changing shell profiles.
+- Correct Hermes case-colliding attribution checkout on macOS and preserve the
+  complete three-binary RMUX distribution rather than guessing a single binary.
+- Map personal Project/runtime paths through validated Workstation context;
+  canonical Linux identities and client Zone boundaries remain unchanged.
+- Add private Discord enrollment and separately confirmed, namespaced native
+  service activation; never use an implicitly activating gateway wizard.
+- Keep native binaries/imports/plugin checks, external accounts, unsupported
+  services, voice and live acceptance distinct. npm publication is separate.
+
 ## 11.25 — Account-independent installation probes (2026-09-05)
 
 - Run native CLI version probes with a cleared environment and disposable,
