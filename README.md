@@ -19,7 +19,7 @@ Bring your projects, models and tools. Give every mission an owner, a workspace 
 **[System map](#the-whole-system)** · **[Install](#quickstart)** · **[OS factory](#operative-systems)** · **[Tools](#the-toolchain)** · **[Discord](#discord-is-the-cockpit)** · **[Filesystem](#clean-by-construction)** · **[Atlas](atlas.md)**
 
 > [!IMPORTANT]
-> **Current posture: alpha / repository candidate, release line 11.28.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
+> **Current posture: alpha / repository candidate, release line 11.29.** The Linux Host foundation targets `READY_FOR_SETUP`, not a fully operational AI workforce. The personal macOS/Linux Workstation installer is a separate mode, not a Zone or client-isolation system. Instance installation establishes a runtime envelope and team; domain apps, accounts, live chat, recovery and provider acceptance need their own evidence. Follow the [first-mission workflow](docs/operations/06_FIRST_MISSION.md) and [readiness gates](#readiness-without-the-fine-print). Source is publicly readable; **[all rights reserved](LICENSE.md)**, not an open-source license.
 
 ## Why Station
 
@@ -542,7 +542,7 @@ The CI badge reports **repository checks**, not the health of your VPS. The [mod
 > [!WARNING]
 > The bootstrap operator currently has broad passwordless sudo. A Hermes profile is **not** a filesystem sandbox, and role descriptions are **not** complete tool ACL enforcement. Strix's Docker-capable worker belongs on a separate disposable LAB Host. Review [SECURITY.md](SECURITY.md) and the [remaining audit decisions](docs/audit/2026-09-05-station-deep-audit.md#remaining-findings-and-decisions--not-silently-implemented) before granting access to real data or production.
 
-**Updates are explicit about their limits.** Bootstrap enables a weekly Hermes updater by default, with backup, Doctor and gateway observations; `--skip-hermes-auto-update` opts out. This is not yet the complete canary/ring-promotion or verified code-and-state rollback workflow. Existing-profile upgrades remain supervised. See [INSTALL.md](INSTALL.md#optional-dependency-stack--hermes-auto-update).
+**Updates follow a compatible Station release.** The weekly watcher inventories upstream candidates without independently pulling Hermes. `station update plan/check` covers the delivered pins and SBOM; `sudo station status --software` checks the installed stack. Fresh 11.29+ npm Workstations support reviewed software migration with a predecessor baseline and recovery journal; legacy roots, active services and changed software require review. This is not unattended database/profile/fleet migration. See [the update contract](docs/operations/COORDINATED_UPDATES.md).
 
 ### What these diagrams promise
 

@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.28`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.29`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 **Laptop/existing machine:** [Station Workstation](docs/distribution/workstation.md)
 provides a personal macOS/Linux Hermes+AGK installation under one folder. It does
@@ -873,27 +873,34 @@ Every cron, trigger or persistent bot starts disabled. Run a fresh session using
 
 ## 17. Hermes and dependency updates
 
-Initial Hermes installation is pinned to a reviewed release/commit. The separate updater requests a native backup and records Doctor/gateway results:
+Hermes and its surrounding dependencies form a reviewed, coupled release. The
+weekly timer discovers candidates without independently changing the runtime:
 
 ```bash
 station hermes check
-station hermes update
+station update plan
+station update check
 sudo station deps enable-auto-update
 ```
 
 The weekly timer is enabled by bootstrap unless explicitly skipped. Update flow:
 
 ```text
-check upstream
-→ record candidate
-→ pre-update backup
-→ apply native upstream update
-→ Hermes Doctor and gateway observation
-→ receipt
-→ keep candidate or require reviewed state/code recovery on failure
+inventory all delivered sources, packages and images
+→ observe upstream release/commit candidates (read-only)
+→ review security, adapters, SDKs, lockfiles and persistence migrations
+→ test a new immutable Station release in a LAB/canary
+→ back up and deploy only the accepted software scope
+→ native software verification, then owning-profile live acceptance
+→ retain evidence and require explicit recovery on failure
 ```
 
-The timer can advance Hermes beyond the initial repository pin; it is not a canary approval workflow. There is no supported automatic state-restore CLI in the pinned Hermes release. Automatic update does not automatically promote every OS or dependency. OS migrations, plugins, messaging platforms and external applications keep their own compatibility/readback gates. Version changes belong in `config/versions.lock` and resource recipes only after review.
+The timer cannot advance Hermes beyond the reviewed pin. Fresh 11.29+ npm
+Workstations can migrate verified software with `update-plan`, `update --yes`
+and interrupted-update recovery; existing legacy baselines, active services and
+customized software require review. OS migrations, plugins, messaging platforms
+and external applications retain their own compatibility/readback gates. See
+[coordinated updates and recovery](docs/operations/COORDINATED_UPDATES.md).
 
 Station releases themselves are immutable:
 

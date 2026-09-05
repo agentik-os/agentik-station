@@ -13,7 +13,7 @@ hermes:
   auto_update:
     unit: station-hermes-update.timer
     schedule: weekly
-    note: Enabled by bootstrap unless --skip-hermes-auto-update; updates run as agk-station, with backup, Doctor and receipt.
+    note: Enabled by bootstrap unless --skip-hermes-auto-update; discovers all declared upstreams as agk-station. Applying updates requires a tested coupled Station release, never an independent Hermes pull.
 voice:
   policy: OpenAI audio is primary; local Parakeet is installed as a selectable command provider. Explicit station voice setup enrolls one OS role's native OpenAI-to-Parakeet provider for voice notes and other native STT; the older AGK operator hook remains channel-only.
   hermes_extras: [voice, messaging]

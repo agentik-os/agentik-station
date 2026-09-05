@@ -4,6 +4,12 @@
 retain reviewed versions in `config/versions.lock`, package manifests/lockfiles,
 and immutable GitHub Action SHA pins until a replacement passes review.
 
+From 11.29, `station update plan/check` inventories the delivered SBOM, all lock
+pins and server-source/image bundles. A read-only weekly `upstream-inventory`
+workflow uploads candidates without creating branches. The Host timer also
+performs discovery only; it no longer updates Hermes independently. See
+[coupled release deployment and npm software migration](COORDINATED_UPDATES.md).
+
 `.github/dependabot.yml` sets `open-pull-requests-limit: 0` for pip, both npm
 directories, and GitHub Actions. This pauses automatic version-update PRs; it
 does not disable Dependabot vulnerability alerts or the dependency graph.

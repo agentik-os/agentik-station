@@ -53,7 +53,7 @@ still needs a human-set password before later interactive sudo can work. The
 default remains broad passwordless operator sudo; see `SECURITY.md` before use.
 
 AGK-TUI never independently installs Hermes during bootstrap: the parent bootstrap
-owns that lifecycle, including `--skip-hermes`. The weekly updater is enabled only
+owns that lifecycle, including `--skip-hermes`. The weekly discovery timer is enabled only
 after selected dependency and setup stages succeed. When Tailnet enrollment is
 missing, optional guided setup reports `LOCAL_BROKER_READY_TAILNET_NOT_READY`
 instead of claiming a private URL; an explicit enable request still fails until
@@ -61,7 +61,7 @@ enrollment is complete. Loopback health is retried within a bounded startup wind
 
 # Installation Contract
 
-## Supported base for Station 11.28 Host
+## Supported base for Station 11.29 Host
 
 The current safe-kernel provider supports:
 
@@ -161,7 +161,7 @@ For automation and remote bootstrap, use a versioned JSON spec rather than recon
 ```json
 {
   "schema_version": 1,
-  "release_version": "11.28",
+  "release_version": "11.29",
   "operation_id": "op-organization-alpha-prod-001",
   "host_id": "organization-alpha-prod-01",
   "role": "team",
@@ -374,7 +374,7 @@ it never grants sudo, opens the private operator home or copies login credential
 real terminal (`ssh -t` for a one-command SSH launch).
 
 For a reviewed 11.22–11.25 installation needing the current controls, publish the
-11.28 immutable Station kernel first, preserving the Host's desired state. Then
+11.29 immutable Station kernel first, preserving the Host's desired state. Then
 run this targeted repair from its **immutable release**, not a writable checkout:
 
 ```bash
@@ -427,13 +427,14 @@ The snapshot does not enroll accounts or turn the legacy AGK client UI into the
 canonical Organization/instance registry.
 
 
-## Optional dependency stack + Hermes auto-update
+## Dependency stack and coordinated updates
 
 After bootstrap (`READY_FOR_SETUP`):
 
 ```bash
-./scripts/station_hermes_update.sh check
-./scripts/station_hermes_update.sh update
+station hermes check
+station update plan
+station update check
 sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
 station deps toolchain-check
 ./scripts/station_deps_install.sh --list
@@ -442,7 +443,12 @@ sudo station deps install --all   # independent software repair from the immutab
 sudo station deps full-check      # exhaustive native inventory; nonzero if incomplete
 ```
 
-`station hermes update` requests an upstream backup, runs Hermes Doctor after a successful update, observes gateway status and writes a receipt under the owning `HERMES_HOME`. Bootstrap enables the weekly timer by default; pass `--skip-hermes-auto-update` to opt out. A failed update or Doctor returns non-zero with a repair action. The pinned Hermes CLI has no supported automatic state-restore command: preserve its native backup and review state/code recovery explicitly. Station does not claim that a backup was restored or that code compatibility was recovered.
+The weekly timer now discovers candidates across the delivered dependency set;
+it does not independently update Hermes. `--skip-hermes-auto-update` retains its
+timer opt-out meaning. Git and non-Git Hermes source checks do not execute native
+update commands or import real profiles. Applying changed pins requires a new
+reviewed Station release and compatibility gates. See
+[coordinated updates, npm migration and recovery](docs/operations/COORDINATED_UPDATES.md).
 
 The default full stack now includes reviewed Linux AMD64 server software bundles
 for Langfuse, Honcho, Hindsight and ChatbotX, not just source checkouts or SDKs.
@@ -484,7 +490,7 @@ now belong under `/opt/station/os-distributions`, not a Zone-writable Hermes par
 Do not overwrite an already published same-version release: choose a new reviewed
 release ID and retain the previous release/backup for rollback.
 
-Station 11.28 publishes beside earlier releases; it never overwrites an old
+Station 11.29 publishes beside earlier releases; it never overwrites an old
 immutable release. New schema-3 instance ledgers live under
 `/var/lib/station/registry/os-instances/<zone>/<instance>.json`; compiled bundles
 live under `/opt/station/os-instance-distributions/<zone>/<instance>/<os>/<version>/`.

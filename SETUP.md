@@ -243,7 +243,7 @@ its profiles or that a bot has Linux sudo authority.
 
 OS mission automations stay disabled until their applicable acceptance gates pass.
 Infrastructure services/timers are separate: bootstrap can enable Station Doctor,
-the weekly Hermes updater and the enrolled guided-setup broker as documented.
+the weekly read-only dependency discovery and the enrolled guided-setup broker as documented.
 
 Acceptance uses only:
 
@@ -295,8 +295,9 @@ ScrapeGraphAI/Playwright, Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, Tiger
 ```bash
 ./scripts/station_deps_install.sh --list
 sudo ./scripts/station_deps_install.sh --component <id>
-./scripts/station_hermes_update.sh update
+station update plan
+station update check
 sudo ./scripts/station_deps_install.sh --enable-hermes-auto-update
 ```
 
-See `docs/dependencies/STACK.md`. Install/readback state is reported separately from repository maturity; no component becomes OPERATIONAL merely because its package or source is present.
+See `docs/dependencies/STACK.md` and the [coordinated update contract](docs/operations/COORDINATED_UPDATES.md). The timer only discovers candidates; a reviewed compatible release is required before deployment. Install/readback state is reported separately from repository maturity; no component becomes OPERATIONAL merely because its package or source is present.

@@ -295,9 +295,9 @@ async function installAGK(ctx, found, run) {
   }
   await copyTree(ctx, path.join(p.agk, 'hermes/dashboard-themes'), path.join(p.profile, 'dashboard-themes'));
   await copyTree(ctx, path.join(p.agk, 'hermes/agents'), path.join(p.profile, 'agents'));
-  for (const name of ['agentik-os', 'platforms/discord']) await run(p.hermes, ['--profile', ctx.profile, 'plugins', 'enable', '--no-allow-tool-override', name], { env });
+  if (!ctx.preserveEnrollment) for (const name of ['agentik-os', 'platforms/discord']) await run(p.hermes, ['--profile', ctx.profile, 'plugins', 'enable', '--no-allow-tool-override', name], { env });
   // This projection stays wholly in Workstation HOME, never the user's providers.
-  await run(path.join(p.agk, 'venv/bin/python'), [path.join(p.agk, 'scripts/sync-rules.py')], { env });
+  if (!ctx.preserveEnrollment) await run(path.join(p.agk, 'venv/bin/python'), [path.join(p.agk, 'scripts/sync-rules.py')], { env });
 }
 
 export async function installCLIs(ctx, found, run) {

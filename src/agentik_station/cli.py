@@ -160,6 +160,11 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 
 def cmd_status(args: argparse.Namespace) -> int:
+    if args.software:
+        from .full_stack import check
+        result = check(repository_root(), operator='agk-station')
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0 if result['full_software_verified'] else 1
     path = LayoutPaths.live().observed / "host.json"
     if path.is_symlink() or not path.is_file():
         payload = {
@@ -169,6 +174,8 @@ def cmd_status(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2) if args.json else "NOT_INSTALLED\nNEXT: " + payload["next_repair_action"])
         return 1
     payload = json.loads(path.read_text(encoding="utf-8"))
+    payload['observation_scope'] = 'recorded-kernel-state-not-current-software-or-live-acceptance'
+    payload['software_readback_command'] = 'sudo station status --software'
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
@@ -176,6 +183,8 @@ def cmd_status(args: argparse.Namespace) -> int:
         print("Host:", payload.get("host_id"))
         print("Release:", payload.get("release_version"))
         print("Zones:", ", ".join(payload.get("zones", [])) or "none")
+        print('Recorded kernel state; NOT_CONFIGURED does not mean software is absent.')
+        print('Current software inventory: sudo station status --software')
         for module in payload.get("modules", []):
             print(f"- {module['id']}: design={module['maturity']} runtime={module.get('runtime_readiness', 'UNKNOWN')}")
         if payload.get("next_repair_action"):
@@ -719,16 +728,14 @@ def cmd_release_rollback(args: argparse.Namespace) -> int:
 
 
 def cmd_hermes_update(args: argparse.Namespace) -> int:
-    """Apply a backed-up, Doctor-gated Hermes update with a durable receipt."""
-    import os
-    script = repository_root() / "scripts" / "station_hermes_update.sh"
-    if not script.is_file():
-        raise StationError(f"missing {script}")
-    mode = "check" if args.check_only else "update"
-    cmd = ["bash", str(script), mode]
-    print("RUNNING", " ".join(cmd))
-    completed = subprocess.run(cmd, check=False)
-    return int(completed.returncode)
+    """Compatibility alias: independent native updates cannot preserve coupled pins."""
+    from .hermes_updates import run_check
+    result = run_check(LayoutPaths.live())
+    if not args.check_only:
+        result['status'] = 'COORDINATED_RELEASE_REQUIRED'
+        result['next_repair_action'] = 'Use station update plan/check, review all compatibility gates, then deploy the accepted immutable Station release. No independent Hermes update was applied.'
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result['status'] == 'PLAN_READY' else 1
 
 
 def cmd_deps(args: argparse.Namespace) -> int:
@@ -917,6 +924,13 @@ def cmd_hermes_check(args: argparse.Namespace) -> int:
     result = run_check(LayoutPaths.live(), record=args.record)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["status"] == "PLAN_READY" else 1
+
+
+def cmd_update_inventory(args: argparse.Namespace) -> int:
+    from .updates import inventory, check
+    result = check(repository_root()) if args.update_command == 'check' else inventory(repository_root())
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if args.update_command == 'plan' or result['collection_succeeded'] else 1
 
 
 def _os_catalog_entry(os_id: str) -> tuple[dict[str, Any], Path]:
@@ -1293,6 +1307,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = sub.add_parser("status")
     status.add_argument("--json", action="store_true")
+    status.add_argument('--software', action='store_true', help='Run current native full-stack software checks (root); does not accept accounts or missions')
     status.set_defaults(handler=cmd_status)
 
     setup = sub.add_parser("setup")
@@ -1579,12 +1594,17 @@ def build_parser() -> argparse.ArgumentParser:
     client.add_argument("client_args", nargs=argparse.REMAINDER, help="Arguments forwarded to `agk client`")
     client.set_defaults(handler=cmd_client)
 
+    update = sub.add_parser('update', help='Coupled dependency inventory and upstream proposals; never independently applies latest')
+    update_sub = update.add_subparsers(dest='update_command', required=True)
+    for action in ('plan', 'check'):
+        update_sub.add_parser(action).set_defaults(handler=cmd_update_inventory)
+
     hermes = sub.add_parser("hermes")
     hermes_sub = hermes.add_subparsers(dest="hermes_command", required=True)
     hermes_check = hermes_sub.add_parser("check", help="Plan-only Hermes update check (never applies)")
     hermes_check.add_argument("--record", action="store_true")
     hermes_check.set_defaults(handler=cmd_hermes_check)
-    hermes_update = hermes_sub.add_parser("update", help="Apply Hermes update with backup, Doctor and receipt")
+    hermes_update = hermes_sub.add_parser("update", help="Plan a coupled Station release; never independently updates Hermes")
     hermes_update.add_argument("--check-only", action="store_true")
     hermes_update.set_defaults(handler=cmd_hermes_update)
 

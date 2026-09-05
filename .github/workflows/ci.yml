@@ -15,7 +15,7 @@ jobs:
   portable-native-linux:
     name: Native Linux Workstation (no accounts)
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -28,8 +28,12 @@ jobs:
         run: |
           python -m pip install uv==0.12.9 playwright==1.62.0
           python -m playwright install-deps chromium
+      - name: Prepare the ephemeral runner's native user service manager
+        run: |
+          sudo loginctl enable-linger "$(id -un)"
+          sudo systemctl start "user@$(id -u).service"
       - name: Install packed Workstation and exercise native TUI and synthetic sessions
-        run: node installer/npm/test/native-install.mjs
+        run: node installer/npm/test/native-install.mjs --update-lifecycle
 
   portable-package:
     name: npm Workstation (${{ matrix.os }})

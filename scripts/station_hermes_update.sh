@@ -2,6 +2,12 @@
 # Update Hermes as the Station account with backup, Doctor and durable receipt.
 set -Eeuo pipefail
 
+# Scheduled discovery must consider the complete Station bill of materials.
+# Never let a timer independently mutate Hermes to an unreviewed upstream HEAD.
+if [[ "${1:-update}" == auto ]]; then
+  exec /usr/bin/python3 -I -B /opt/station/current/station update check
+fi
+
 STATION_USER="${STATION_USER:-agk-station}"
 STATION_HOME="${STATION_HOME:-/home/${STATION_USER}}"
 HERMES_HOME_VALUE="${HERMES_HOME:-$STATION_HOME/.hermes}"
@@ -11,6 +17,8 @@ RECEIPT_ROOT="${HERMES_UPDATE_RECEIPTS:-$HERMES_HOME_VALUE/station-update-receip
 HERMES_INSTALL_DIR="${HERMES_INSTALL_DIR:-/opt/station/tools/hermes/current}"
 
 run_as_station() {
+  (
+  cd -- "$STATION_HOME" || exit 2
   if [[ "$(id -un)" == "$STATION_USER" ]]; then
     env HOME="$STATION_HOME" HERMES_HOME="$HERMES_HOME_VALUE" \
       PATH="$STATION_HOME/.local/bin:$PATH" "$@"
@@ -18,6 +26,7 @@ run_as_station() {
     sudo -u "$STATION_USER" -H env HOME="$STATION_HOME" HERMES_HOME="$HERMES_HOME_VALUE" \
       PATH="$STATION_HOME/.local/bin:$PATH" "$@"
   fi
+  )
 }
 
 probe_version() {

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createContext, initialize } from '../state.mjs';
-import { safeInstallPhase, installationDiagnostics } from '../cli.mjs';
+import { safeInstallPhase, installationDiagnostics, main } from '../cli.mjs';
 
 const entry = fileURLToPath(new URL('../cli.mjs', import.meta.url));
 
@@ -70,6 +70,32 @@ test('help --json is valid JSON with no banner or native output', async t => {
   assert.equal(result.status, 0);
   assert.match(json(result).help, /agentik-station plan/);
   await untouched(f);
+});
+
+test('an interrupted update appearing during lock acquisition blocks verification', async t => {
+  const f = await fixture(t);
+  const ctx = await createContext({ root: f.root, sourceRoot: fileURLToPath(new URL('../../../', import.meta.url)) });
+  await initialize(ctx);
+  const originalMkdir = fs.mkdir, originalWrite = process.stdout.write;
+  let output = '', injected = false;
+  fs.mkdir = async (...args) => {
+    const result = await originalMkdir(...args);
+    if (args[0] === path.join(ctx.root, '.install.lock')) {
+      injected = true;
+      await fs.writeFile(path.join(ctx.root, '.station-update.json'), '{}', { mode: 0o600 });
+    }
+    return result;
+  };
+  process.stdout.write = chunk => { output += chunk; return true; };
+  let code;
+  try { code = await main(['verify', '--root', ctx.root, '--json']); }
+  finally { fs.mkdir = originalMkdir; process.stdout.write = originalWrite; }
+  assert.equal(injected, true); assert.equal(code, 1);
+  const report = JSON.parse(output);
+  assert.equal(report.phase, 'lock');
+  assert.match(report.checks[0].detail, /update-recover/);
+  assert.equal(await fs.readFile(path.join(ctx.root, '.station-update.json'), 'utf8'), '{}');
+  await assert.rejects(fs.lstat(path.join(ctx.root, '.install.lock')), { code: 'ENOENT' });
 });
 
 test('plan JSON preserves spaced root and deterministic profile without creating it', async t => {

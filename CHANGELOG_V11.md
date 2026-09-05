@@ -1,3 +1,12 @@
+## 11.29 — Coupled update discovery and owned npm migration
+
+- Add whole-SBOM/version-lock update planning, public registry observations and a read-only scheduled GitHub report without new branches.
+- Stop unattended independent Hermes updates; retain timer names/opt-out while requiring a tested coupled Station release.
+- Make Hermes update checks account-free and explicit about Git versus immutable/tarball source provenance.
+- Expose current native software evidence through `station status --software`, distinct from recorded kernel/configuration state.
+- Add npm software baselines, explicit update plans, owned-tree migration and failure recovery without moving completed virtual environments or replacing projects/accounts.
+- Refuse missing legacy baselines, changed code, active/ambiguous services, private session endpoints and unreviewed downgrades.
+
 ## 11.28 — Required full Host software inventory
 
 - Make the full software stack default; require explicit `--minimal` for partial installs.

@@ -114,11 +114,17 @@ rebuilt; the installer does not silently overwrite an existing published runtime
 
 ```bash
 station hermes check
-station hermes update
+station update plan
+station update check
 sudo station deps enable-auto-update
 ```
 
-The update wrapper requests a pre-update backup, runs Hermes Doctor after a successful update, observes the gateway, stores a receipt in `$HERMES_HOME/station-update-receipts`, and exits non-zero on failed validation. Bootstrap enables the weekly timer by default; `--skip-hermes-auto-update` opts out. The pinned Hermes CLI does not expose a supported automatic state-restore command. On failure, preserve its native backup and follow the receipt's explicit state/code recovery action; Station never reports an unperformed restore as successful.
+The bootstrap-enabled weekly timer now performs coupled dependency discovery
+without changing Hermes. `--skip-hermes-auto-update` opts out. Registry/source
+observations never authorize new pins: review the SDKs, adapters, image digests,
+state migrations and native tests before deploying a new Station release.
+`station hermes update` reports that coordinated-release requirement instead of
+pulling an independent HEAD. See [update and recovery gates](../operations/COORDINATED_UPDATES.md).
 
 Upstream references: [Hermes updating](https://hermes-agent.nousresearch.com/docs/getting-started/updating), [Codex CLI](https://developers.openai.com/codex/cli), [Composio CLI](https://docs.composio.dev/docs/cli), [Vercel CLI](https://vercel.com/docs/cli), [GitHub CLI](https://cli.github.com/manual/).
 

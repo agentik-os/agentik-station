@@ -56,7 +56,7 @@ export async function createContext({ root, sourceRoot, platform = process.platf
     ...Object.fromEntries(['tools', 'bin', 'cache', 'evidence', 'resources', 'projects'].map(d => [d, path.join(selected,d)])),
     hermesHome: path.join(home, '.hermes'), profile: `station-${createHash('sha256').update(selected).digest('hex').slice(0,12)}`, pins });
 }
-export async function inspectInstallation(ctx) {
+export async function inspectInstallation(ctx, { recovery = false } = {}) {
   await assertSafePath(ctx.root);
   let stat;
   try { stat = await fs.lstat(ctx.root); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
@@ -67,6 +67,9 @@ export async function inspectInstallation(ctx) {
   if (marker.schema !== 1 || marker.mode !== 'workstation' || marker.root !== ctx.root || marker.profile !== ctx.profile || marker.uid !== process.getuid()) throw new Error('Workstation ownership/context mismatch.');
   for (const dir of managedDirs) {
     const target=path.join(ctx.root, dir);
+    if (recovery && ['bin', 'tools', 'resources'].includes(dir)) {
+      try { await fs.lstat(target); } catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+    }
     await assertSafePath(target, { allowMissing: false });
     const stat=await fs.lstat(target);
     if (!stat.isDirectory() || stat.uid !== process.getuid() || (stat.mode & 0o077)) throw new Error(`Managed path is not your private directory: ${target}`);

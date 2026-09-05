@@ -160,7 +160,7 @@ Additional bootstrap operations (outside the kernel InstallSpec)
   mode:         ${MODE}
   installation: $([[ $MINIMAL -eq 1 ]] && echo minimal-partial || echo full-stack)
   Hermes:       $([[ $INSTALL_HERMES -eq 1 ]] && echo install || echo skip)
-  Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly backup/Doctor timer' || echo ' disabled')
+  Hermes update:$([[ $INSTALL_HERMES_AUTO_UPDATE -eq 1 ]] && echo ' weekly coupled dependency discovery' || echo ' disabled')
   Codex:        $([[ $INSTALL_CODEX -eq 1 ]] && echo install || echo skip)
   Toolchain:    $([[ $INSTALL_TOOLCHAIN -eq 1 ]] && echo install || echo skip)
   AGK-TUI:      $([[ $INSTALL_AGK_TUI -eq 1 ]] && echo install || echo skip)
@@ -606,7 +606,8 @@ Operator CLI logins (these do not authenticate a Zone or OS instance):
   vercel login
   composio login && composio setup --target auto
   # Claude Code: install/login separately, then open via agk
-  ./scripts/station_hermes_update.sh update
+  station update plan
+  station update check  # read-only candidates; never independently pulls Hermes
   ./scripts/station_deps_install.sh --list
 First Station Discord bot (isolated System Zone, not the operator home):
   sudo station platform configure --zone discord-bootstrap --plan

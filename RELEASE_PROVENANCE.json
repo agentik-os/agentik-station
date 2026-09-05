@@ -7,9 +7,9 @@
     "RELEASE_PROVENANCE.json"
   ],
   "generated_by": "scripts/generate_release_metadata.py",
-  "release": "11.28",
+  "release": "11.29",
   "schema_version": "agk-release-provenance/v1",
-  "subject_count": 1214,
+  "subject_count": 1223,
   "subjects": [
     {
       "executable": false,
@@ -38,14 +38,20 @@
     {
       "executable": false,
       "path": ".github/workflows/ci.yml",
-      "sha256": "ecbb03c0a9160137f5ebc6e746a50f009bd9e06e641de180c934f3f0a00bf1aa",
-      "size": 10449
+      "sha256": "e238fc635b2f90c042044986861fea9d176bbaaabbf67003ab7e3c8ffd2b72a8",
+      "size": 10661
     },
     {
       "executable": false,
       "path": ".github/workflows/release-provenance.yml",
       "sha256": "5732de6495e27ea9e4c05c8065c51186a4c7d13e04a7ec75b07976047d47de3f",
       "size": 1616
+    },
+    {
+      "executable": false,
+      "path": ".github/workflows/upstream-inventory.yml",
+      "sha256": "be08f8760b2fa207ac36ed01a077edab22dc3a739f3d6da9bd90233ffd6c9a29",
+      "size": 1542
     },
     {
       "executable": false,
@@ -86,8 +92,8 @@
     {
       "executable": false,
       "path": "CHANGELOG_V11.md",
-      "sha256": "e3598628838d39864cd72fb8d55b49fdbb4e91b7718c1c280619fb0ecc732732",
-      "size": 7685
+      "sha256": "92f285a8f3f38e59670615e97b20a2e52539f5d2e7b6299291065f0ff804b7aa",
+      "size": 8550
     },
     {
       "executable": false,
@@ -110,8 +116,8 @@
     {
       "executable": false,
       "path": "INSTALL.md",
-      "sha256": "bd218293836d4db02e355ad6abc705c830ce637e73b91a16c53bc3bef96a6e03",
-      "size": 25466
+      "sha256": "f2bf7bbd0c9484b91fcc45c204781ff592614779f7bfe2fff15ef363f6ccf40b",
+      "size": 25345
     },
     {
       "executable": false,
@@ -134,8 +140,8 @@
     {
       "executable": false,
       "path": "README.md",
-      "sha256": "05808e87381840f4e9a426946b73eee5eb566500bb8d5bb28769437807dc3d38",
-      "size": 48010
+      "sha256": "0bca5b34323c59c7f2f26832bdae425efe771cf47e6256b963559d0ddd71cde2",
+      "size": 48179
     },
     {
       "executable": false,
@@ -146,7 +152,7 @@
     {
       "executable": false,
       "path": "SBOM.cdx.json",
-      "sha256": "c89cd289b1613bab55f365253da45c86aa8efbee465ab9f2647ed12b90e2e6da",
+      "sha256": "3a3d83e57f926a813bac9c0aa5b4b71ddbc1763b5e06efe6ae6b3ae18c8a3cdb",
       "size": 100502
     },
     {
@@ -158,8 +164,8 @@
     {
       "executable": false,
       "path": "SETUP.md",
-      "sha256": "969f4f3a535abed186bc5d762ed074a3e56124d8b8edf6f860a7641ae327da16",
-      "size": 19464
+      "sha256": "c532689ce94972f468fa9cfdb833f80744006c13a403b08fbfd1782fdbea2b5d",
+      "size": 19655
     },
     {
       "executable": false,
@@ -170,8 +176,8 @@
     {
       "executable": false,
       "path": "VALIDATION.md",
-      "sha256": "26f0a5d2ba9a2441ea4f3447b5e4fbe840bead99572ada466e53343a75969f4c",
-      "size": 27647
+      "sha256": "950754bd3b0219ceb44fff73aa21601efd562983ff82fb386dae18a3ff9ec89f",
+      "size": 28676
     },
     {
       "executable": false,
@@ -188,14 +194,14 @@
     {
       "executable": false,
       "path": "VERSION",
-      "sha256": "3e864a6e23111bf96180bd940b61cee7167d9f631ccb08f6921d4bdcca56d9d3",
+      "sha256": "0d11c28349033d163198708ae8298f994c1c26e189e41eab9e6bb4d4120ffb1e",
       "size": 6
     },
     {
       "executable": false,
       "path": "atlas.md",
-      "sha256": "32cd29e34e129c736b34c57ea49bdfab1b42647e4fc72daeea129bc845d9855a",
-      "size": 61698
+      "sha256": "2988b0d9cc4f0652758ded0a209181be928d4872dcdb4c33078c4de99cdbf58a",
+      "size": 61945
     },
     {
       "executable": true,
@@ -206,8 +212,8 @@
     {
       "executable": true,
       "path": "bootstrap.sh",
-      "sha256": "d946e6c43868422a09846302812f2913559031d924cb15878d4031d73d6d2c5a",
-      "size": 31643
+      "sha256": "6071a9f90675934a3f4a4df1bd284bc8c47dc1e2bb7c1eef1dcbff8510728c88",
+      "size": 31711
     },
     {
       "executable": false,
@@ -1106,8 +1112,8 @@
     {
       "executable": false,
       "path": "config/deps/stack.yaml",
-      "sha256": "382d47de679cc0ba8e2f3e7ac6ccdb54be4bb8439254e3adfaea571fb74af487",
-      "size": 7197
+      "sha256": "c06e77beb48188f80c957907a9ee4d4b9fa1979ea015bebab835d801ac6fd515",
+      "size": 7279
     },
     {
       "executable": false,
@@ -1364,7 +1370,7 @@
     {
       "executable": false,
       "path": "contracts/release-manifest.schema.json",
-      "sha256": "e08bab62d7a69a1f3959a8f3e728ff379b19e7e8f102aaf447059f0baff3c708",
+      "sha256": "d5dfdca8824313dce20ccee9946f539220d0681dce294b4cf607725b5519f7e3",
       "size": 2339
     },
     {
@@ -1537,6 +1543,12 @@
     },
     {
       "executable": false,
+      "path": "docs/audit/2026-09-05-coordinated-updates-plan.md",
+      "sha256": "f1fd5cd639989b1bd380d6506f4133cf09946d8cddfd1a4deb24009afe8f689f",
+      "size": 7387
+    },
+    {
+      "executable": false,
       "path": "docs/audit/2026-09-05-full-stack-install-plan.md",
       "sha256": "fffef1fa688cd425c76a47656ab0621c334d8fa245f88770d420fb69056d8b38",
       "size": 8364
@@ -1700,8 +1712,8 @@
     {
       "executable": false,
       "path": "docs/dependencies/STACK.md",
-      "sha256": "cbb7a2b678dc38302daf82cf3d5d2dfa9c5c633377fc75de987dac2baf2bf49f",
-      "size": 9233
+      "sha256": "a4346ce6c4f8a419f6661acdfe76f932cc2c04878e1ae45713ce03419f17433d",
+      "size": 9196
     },
     {
       "executable": false,
@@ -1916,8 +1928,8 @@
     {
       "executable": false,
       "path": "docs/distribution/workstation.md",
-      "sha256": "d7015fbf69f5116809b6643ff533d16aa0810bb7fca014fd8b16450a13d5c298",
-      "size": 13929
+      "sha256": "2cded8246e04293148a48fa82ededc5984024c507df2ae2c02531845bfcbd28f",
+      "size": 14163
     },
     {
       "executable": false,
@@ -2060,14 +2072,14 @@
     {
       "executable": false,
       "path": "docs/hermes-updates/01_UPSTREAM_UPDATE_POLICY.md",
-      "sha256": "3e3ea5585c50ee779c98ce4536748f73442555c4615641b6a48c9636c6b8c76f",
-      "size": 969
+      "sha256": "4d431c3de4070f230effb2c6291aa80b874544f40a8306e318d3be25f0411e50",
+      "size": 1439
     },
     {
       "executable": false,
       "path": "docs/hermes-updates/02_UPDATE_DETECTION.md",
-      "sha256": "ac9f56ea73b93026a45fc7aaba39d23c25efd8799489f265275902c6022a3447",
-      "size": 552
+      "sha256": "46b5cd2e597a51d3a88e66ff64c936ecbb68aa7158a654803a9284d104921c90",
+      "size": 1009
     },
     {
       "executable": false,
@@ -2407,9 +2419,15 @@
     },
     {
       "executable": false,
+      "path": "docs/operations/COORDINATED_UPDATES.md",
+      "sha256": "bdd76aac118102ce8cc9d3353dc5a1358c71b311326bca377ce9a8074d1b5b4d",
+      "size": 7203
+    },
+    {
+      "executable": false,
       "path": "docs/operations/DEPENDENCY_UPDATE_POLICY.md",
-      "sha256": "7ff4f915fb21c21dbb0046e651dd83c0ff990ce129cd588dac24ccfde58ca9b8",
-      "size": 4249
+      "sha256": "741169b2f1f219056aa3ca2aa6510f317b4028c5b0e8539a1cbbc3d705b446da",
+      "size": 4637
     },
     {
       "executable": false,
@@ -2894,8 +2912,8 @@
     {
       "executable": true,
       "path": "installer/npm/cli.mjs",
-      "sha256": "2c63a83d32e7c68579b101fade8cca3d9ea9c16c0d3c539ce51d063c8eab7098",
-      "size": 13112
+      "sha256": "73a68ed45e24d23dd9ed904bdaba980d54cf19d96afdeb65eebce213822eeb4e",
+      "size": 15026
     },
     {
       "executable": false,
@@ -2930,14 +2948,14 @@
     {
       "executable": false,
       "path": "installer/npm/runtime.mjs",
-      "sha256": "78fa25d8ac7c383b1b044350392ff323a5905d3afd6882cd69b1d4d782b3d53c",
-      "size": 32237
+      "sha256": "a93e674b2c9db95d470871819de6e8ae38d2a44638e76bbe915262a1bd7a2b41",
+      "size": 32295
     },
     {
       "executable": false,
       "path": "installer/npm/state.mjs",
-      "sha256": "ec72b44a24e13d0c2c25b39f4dbc4d0e79cf33f2b8308731c22ea4b2cdabf3f0",
-      "size": 7240
+      "sha256": "c989d5f2897b762940aaefa4f105cb5579835538f50b5b8c39023cf3d2c94dda",
+      "size": 7448
     },
     {
       "executable": false,
@@ -2954,8 +2972,8 @@
     {
       "executable": false,
       "path": "installer/npm/test/cli.test.mjs",
-      "sha256": "eea5f03ab55805c1a1301607592a3966442e6dede502e0dd6a3c1a7140388e39",
-      "size": 12354
+      "sha256": "00e613b4b88e2422348cbe5228218513289828bcbfb780e92f0c6d64cd96fa59",
+      "size": 13640
     },
     {
       "executable": false,
@@ -2978,8 +2996,8 @@
     {
       "executable": false,
       "path": "installer/npm/test/native-install.mjs",
-      "sha256": "470d508ee40d83f7c88607e4795b1837932f21d1ce8e9a4efd89c8e336106b42",
-      "size": 6013
+      "sha256": "8d4c61dae5e209cf5a92ed44d964ab2c47e7f78a7b879aa40ff835ded135d16d",
+      "size": 7032
     },
     {
       "executable": false,
@@ -2992,6 +3010,12 @@
       "path": "installer/npm/test/native-tui-smoke.py",
       "sha256": "9f9106da9e40e837a3c084efecd93cf225b271c4508f6f0fd33ce26b9cbe6c69",
       "size": 6091
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/test/native-update.mjs",
+      "sha256": "2d529d5b3469c4b3ddd2b5e61e119719d559184fa7a8ea09995303b9bafe6b24",
+      "size": 3455
     },
     {
       "executable": false,
@@ -3043,6 +3067,12 @@
     },
     {
       "executable": false,
+      "path": "installer/npm/test/update.test.mjs",
+      "sha256": "032a180764b9724be403d297745ecd2b9e32c2344683312303ed19c04ee8982d",
+      "size": 19157
+    },
+    {
+      "executable": false,
       "path": "installer/npm/test/web.test.mjs",
       "sha256": "754100fe3efa5c023bbded43b7d6b4aeef395b5361e8cc450b055d7e16ed3d01",
       "size": 1616
@@ -3052,6 +3082,12 @@
       "path": "installer/npm/ui.mjs",
       "sha256": "cd20a53c5c1b3bc261b6a4395e50d3911bbc355b1541a2166339cac45dd96397",
       "size": 9966
+    },
+    {
+      "executable": false,
+      "path": "installer/npm/update.mjs",
+      "sha256": "00abb5137304896f87b0afda80f7634986cda12e332f428e2d417e6277e69a94",
+      "size": 19780
     },
     {
       "executable": false,
@@ -3074,8 +3110,8 @@
     {
       "executable": false,
       "path": "modules/catalog.json",
-      "sha256": "bd93e2bb63d0fb8a41cb4fc115ff0e6acabfd78289ae2e54c8107f7358fab7eb",
-      "size": 11938
+      "sha256": "62359ef216e8a4a22ece6c3c0dde51dda3cc092a7662b80a1d8aacb04dc64045",
+      "size": 12013
     },
     {
       "executable": false,
@@ -3320,7 +3356,7 @@
     {
       "executable": false,
       "path": "os/CATALOG.json",
-      "sha256": "1ea759521c226ee0cb52aec686e3051021a51429d0073e69f1e6dcb8f78a2443",
+      "sha256": "caabc00693ccfa7f3d6082bf73e236fd063cf38d417da555b68fdb20b90664e8",
       "size": 3188
     },
     {
@@ -6086,13 +6122,13 @@
     {
       "executable": false,
       "path": "package.json",
-      "sha256": "b03d6a49b2580572399e0e0f7b682b785f32e8fb8b5e86c7d9166eca9d288ea7",
+      "sha256": "b0348b1504200fbcb10dfbdf4db0539ffc2e75e9cf9aad796a14f4749c0793a5",
       "size": 1064
     },
     {
       "executable": false,
       "path": "pyproject.toml",
-      "sha256": "5383996b8e60d9a4748a42cf64cb36cbb8187dc4de03a9237cbf83fc68294e48",
+      "sha256": "341876f994d6250f888fff0fe7eda07994a06aedeb09925139c38ed92180ba2e",
       "size": 720
     },
     {
@@ -6452,8 +6488,8 @@
     {
       "executable": true,
       "path": "scripts/station_deps_install.sh",
-      "sha256": "d824b1f637f3ca4fd3ded6976ba958285e8342d282d04080d01dcf7591cedc95",
-      "size": 20320
+      "sha256": "f4fe78645f4850c37c0d2fe22a3ff8b96d55efaef61df74f99fd06b886137b02",
+      "size": 20381
     },
     {
       "executable": true,
@@ -6464,8 +6500,8 @@
     {
       "executable": true,
       "path": "scripts/station_hermes_update.sh",
-      "sha256": "774e0e35673e2e9fad00ff8e269201c2836f4cd80d3a9420dfbe7ae864cf082c",
-      "size": 6511
+      "sha256": "78eede5ad4f0306871eb1497d1a87018d0b885146394b0e768b4f591db2f8c05",
+      "size": 6823
     },
     {
       "executable": true,
@@ -6494,14 +6530,14 @@
     {
       "executable": false,
       "path": "scripts/systemd/station-hermes-update.service",
-      "sha256": "8e088804ef554e75f88a95b4dd3ef0fb3b95256b915f282727a2705d6ec385e2",
-      "size": 472
+      "sha256": "1ea0d8b23740acebc9316fd6af3e37317166d7f46554327a5556ac9de4230236",
+      "size": 505
     },
     {
       "executable": false,
       "path": "scripts/systemd/station-hermes-update.timer",
-      "sha256": "c186a48b44ee4e141a0cf6a71ebc5d194e39c5dbc7dbb824bba338da263205ba",
-      "size": 168
+      "sha256": "0559507fef884aa79a95b05608a83226d5627d05782b7428fa47363a02833a31",
+      "size": 184
     },
     {
       "executable": false,
@@ -6626,8 +6662,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/cli.py",
-      "sha256": "f434cbb51a03ba57cfb10181fc2047784df29e826ef5dfd71265a0616bd76ccc",
-      "size": 77064
+      "sha256": "af79f4020b0bb12bf094e0ba4e77d449ecee141af110a14ab1b50102d9836eaf",
+      "size": 78619
     },
     {
       "executable": false,
@@ -6638,14 +6674,14 @@
     {
       "executable": false,
       "path": "src/agentik_station/constants.py",
-      "sha256": "cf285681993d7df470602aefe31a8b3d10b025e1e5b2c7091ab44b297db6bed0",
+      "sha256": "b2e7d340730f533413caceac13a72fa47cc33d9f2bd892c7fbf70a0b66b2ac18",
       "size": 1851
     },
     {
       "executable": false,
       "path": "src/agentik_station/doctor.py",
-      "sha256": "28bbd0bf5f04b8f997439c4fe3519c2e89eab6885c58e3ec5a505c20de24f044",
-      "size": 59180
+      "sha256": "eb263158589dc42a807c350874e7447a020c47d2ad0ff9bc0c4aceb8859d0d5e",
+      "size": 59308
     },
     {
       "executable": false,
@@ -6680,8 +6716,8 @@
     {
       "executable": false,
       "path": "src/agentik_station/hermes_updates.py",
-      "sha256": "e78fe1c425336ae5f0567e0a763d57296e9721bd083cdfacadb58f6a0cf3c8a5",
-      "size": 3005
+      "sha256": "c16246da4da32d7ad3f0524ef47e03abc49d6f41bf59a4d70d17858398665f7a",
+      "size": 5816
     },
     {
       "executable": false,
@@ -6844,6 +6880,12 @@
       "path": "src/agentik_station/strix.py",
       "sha256": "fde454e4eedd3b145280b8e485b0db6fd529f230105e28e84d24a85efd4e68a0",
       "size": 21187
+    },
+    {
+      "executable": false,
+      "path": "src/agentik_station/updates.py",
+      "sha256": "01599c3ba1aff23769af9b36c2f93782cff3100eb9d2eb9cea15940efef84c45",
+      "size": 9451
     },
     {
       "executable": false,
@@ -7057,6 +7099,12 @@
     },
     {
       "executable": false,
+      "path": "tests/security/test_hermes_update_ancestry.py",
+      "sha256": "f53510e5e117ad5c8412d874e23f8409f45ccb4d6d0b12d33846489048b69518",
+      "size": 3812
+    },
+    {
+      "executable": false,
       "path": "tests/security/test_native_process.py",
       "sha256": "3962d1b16165d7c57240ac1c3374b72d75dc6c5230d35f6590033dd5d726f495",
       "size": 9375
@@ -7147,6 +7195,12 @@
     },
     {
       "executable": false,
+      "path": "tests/security/test_update_inventory.py",
+      "sha256": "4adc56cec7a4c3884b03d6cae2c8e2018f181f447dc7ab429d2cebd29532fc7d",
+      "size": 8703
+    },
+    {
+      "executable": false,
       "path": "tests/security/test_vps_acceptance_evidence.py",
       "sha256": "a1c8016469a929080f2210568665f05410aa374edf28eb5c6fba91fbaebd90ab",
       "size": 10266
@@ -7208,8 +7262,8 @@
     {
       "executable": false,
       "path": "tests/unit/test_hermes_update_receipt.py",
-      "sha256": "bf43b7b6d44c15a0fbaf726106451f80608c165012f5c5c96f5c10c4f352638f",
-      "size": 9175
+      "sha256": "b2d624a7e18a84facf7d96fb967414541c8be24baa10955085e2558b92319172",
+      "size": 9151
     },
     {
       "executable": false,

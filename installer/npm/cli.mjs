@@ -9,6 +9,7 @@ import { provision, verify, prerequisites } from './runtime.mjs';
 import { gateway } from './gateway.mjs';
 import { terminalPrompts } from './prompts.mjs';
 import { onboarding } from './onboarding.mjs';
+import { updatePlan, applyUpdate, recoverUpdate, recordSoftware, requireNoPendingUpdate, assertIdle, acquireRecoveryLock } from './update.mjs';
 
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const shellQuote = value => `'${String(value).replaceAll("'", "'\\''")}'`;
@@ -55,6 +56,9 @@ const help = `Agentik Station · Chief AI Officer workstation
   agentik-station install [--root PATH] [--yes]
   agentik-station verify [--root PATH]
   agentik-station repair [--root PATH] --yes
+  agentik-station update-plan [--root PATH]
+  agentik-station update [--root PATH] --yes
+  agentik-station update-recover [--root PATH] --yes
   agentik-station discord [--root PATH]
   agentik-station model [--root PATH]
   agentik-station activate [--root PATH]
@@ -81,7 +85,7 @@ export function parseArgs(args) {
       result[arg.slice(2)] = value;
     } else throw new Error('Unknown option; use --help. No argument value was recorded.');
   }
-  if (!['install','plan','verify','repair','discord','model','activate','status','tui','help'].includes(result.command)) throw new Error('Unknown command; use --help.');
+  if (!['install','plan','verify','repair','update-plan','update','update-recover','discord','model','activate','status','tui','help'].includes(result.command)) throw new Error('Unknown command; use --help.');
   if (!['host','workstation'].includes(result.mode)) throw new Error('Mode must be workstation or host.');
   if (result.root && !path.isAbsolute(result.root)) throw new Error('--root must be absolute.');
   return result;
@@ -129,20 +133,38 @@ export async function main(args = process.argv.slice(2)) {
       phase = 'destination';
       if (action === 'install') await initialize(ctx);
       else if (!(await inspectInstallation(ctx))) throw new Error('No recognized installation to repair.');
-    } else if (!(await inspectInstallation(ctx))) throw new Error('No recognized installation. Run plan, then install.');
+    } else if (!(await inspectInstallation(ctx, { recovery: action === 'update-recover' }))) throw new Error('No recognized installation. Run plan, then install.');
+    if (action !== 'update-recover') await requireNoPendingUpdate(ctx);
+    if (action === 'update-plan') {
+      const report = await updatePlan(ctx);
+      if (opts.json) process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+      else process.stdout.write(`Station ${report.from} → ${report.to}\nChanged dependency pins: ${report.changedPins.join(', ') || 'none'}\nReviewed software only; inactive gateway/RMUX and predecessor baseline required.\nProjects and accounts are preserved. Run update --yes only after review.\n`);
+      return 0;
+    }
+    if (['update','update-recover'].includes(action) && !opts.yes) throw new Error('Review update-plan, then explicitly use --yes. No software was changed.');
+    phase = 'lock';
+    unlock = action === 'update-recover' ? await acquireRecoveryLock(ctx) : await acquireLock(ctx);
+    // Recheck under the lock: an earlier update may have been interrupted
+    // between our initial inspection and this atomic acquisition.
+    if (action !== 'update-recover') await requireNoPendingUpdate(ctx);
     if (action === 'tui') {
       ui?.close();
       await run(path.join(ctx.bin,'agk'), [], { env: { PATH: process.env.PATH || '/usr/bin:/bin', HOME: ctx.home, TERM: process.env.TERM || 'xterm-256color' }, cwd: ctx.projects, interactive: true, timeoutMs: 24*60*60_000 });
       return 0;
     }
-    phase = 'lock';
-    unlock = await acquireLock(ctx);
     const emit = event => {
       phase = safeInstallPhase(event?.phase) || phase;
       ui?.event(event);
     };
     let report;
-    if (['install','repair','verify'].includes(action)) {
+    if (action === 'update') {
+      const preflight = await prerequisites(ctx, { run });
+      if (preflight.checks.some(c => c.status === 'blocked')) throw new Error('Missing update prerequisites; no software was changed.');
+      report = await applyUpdate(ctx, { run, provision, verify, emit });
+    } else if (action === 'update-recover') {
+      await assertIdle(ctx, { run });
+      report = await recoverUpdate(ctx);
+    } else if (['install','repair','verify'].includes(action)) {
       phase = action === 'verify' ? 'verify' : 'provision';
       const provisioned = action === 'verify' ? null : await provision(ctx, { run, emit });
       phase = 'verify';
@@ -151,6 +173,7 @@ export async function main(args = process.argv.slice(2)) {
       if (!report?.checks) throw new Error('Verifier did not return checks.');
       if (provisioned?.checks) report.checks = [...provisioned.checks, ...report.checks];
       report.status = softwareStatus(report.checks);
+      if (action === 'install' && report.status === 'ready-for-setup') await recordSoftware(ctx, { initial: true });
       report.scope = 'required-workstation-software-only';
       report.capabilityStatus = report.checks.every(c=>c.status==='verified') ? 'locally-verified' : 'incomplete';
       report.next = [shellQuote(path.join(ctx.bin,'agk')), ...['model','discord','activate'].map(command=>`agentik-station ${command} --root ${shellQuote(ctx.root)}`)];

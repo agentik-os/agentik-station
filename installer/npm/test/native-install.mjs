@@ -57,6 +57,11 @@ try {
   console.log('Checking native Hermes MCP template with synthetic tools and no network...');
   const chatbotx=await run(path.join(root,'tools/hermes/venv/bin/python'),['-I','-B',path.join(sourceRoot,'installer/npm/test/native-chatbotx-smoke.py'),root],{env:{PATH:env.PATH,HOME:base,PYTHONDONTWRITEBYTECODE:'1'},cwd:base,timeoutMs:60000});
   result.chatbotxNativeTemplate=JSON.parse(chatbotx.stdout);
+  console.log('Verifying the managed update predecessor inventory...');
+  const update=await import(pathToFileURL(path.join(packaged,'installer/npm/update.mjs')));
+  const plan=await update.updatePlan(ctx);
+  assert.equal(plan.from,ctx.release);
+  result.updateBaseline='native-software-inventory-verified';
   for(const name of ['native-tui-smoke.py','native-session-smoke.py']) {
     console.log(`Running ${name} (synthetic; no models)...`);
     const native=await run(path.join(root,'tools/agk-terminal/venv/bin/python'),[path.join(sourceRoot,'installer/npm/test',name),root],{env:{PATH:env.PATH,HOME:account,PYTHONDONTWRITEBYTECODE:'1'},cwd:base,timeoutMs:180000});
@@ -74,4 +79,12 @@ finally {
   // before verification. Full details remain in private retained evidence;
   // never print arbitrary report details, exception text or native output.
   console.log(JSON.stringify({status:result.status,root,evidence:path.join(base,'native-acceptance.json'),...installationDiagnostics(result.install,result.installExitCode),changedProtectedFiles:result.changedProtectedFiles,error:result.error?'Native acceptance failed; inspect the bounded diagnostics and retained private evidence.':undefined},null,2));
+}
+if (result.status === 'verified' && process.argv.includes('--update-lifecycle')) {
+  console.log('Testing native update lifecycle with the same reviewed upstream versions...');
+  const update = await run(process.execPath, [path.join(sourceRoot, 'installer/npm/test/native-update.mjs'), root],
+    { env: { PATH: env.PATH, HOME: account, PYTHONDONTWRITEBYTECODE: '1' }, cwd: sourceRoot,
+      timeoutMs: 45 * 60_000, allowFailure: true });
+  if (update.code !== 0) { process.exitCode = 1; console.error('Native update lifecycle failed; preserve the private transaction evidence.'); }
+  else console.log('Native update lifecycle passed; synthetic successor label, no service activation or account migration.');
 }

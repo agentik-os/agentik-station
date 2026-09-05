@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1217
+Total files: 1226
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -8,6 +8,7 @@ Total files: 1217
 - `.github/dependabot.yml`
 - `.github/workflows/ci.yml`
 - `.github/workflows/release-provenance.yml`
+- `.github/workflows/upstream-inventory.yml`
 - `.github/workflows/vps-acceptance.yml`
 - `.gitignore`
 - `AGENTS.md`
@@ -259,6 +260,7 @@ Total files: 1217
 - `docs/audit/2026-09-05-agk-tui-acceptance.md`
 - `docs/audit/2026-09-05-chatbotx-acceptance.md`
 - `docs/audit/2026-09-05-chatbotx-install-plan.md`
+- `docs/audit/2026-09-05-coordinated-updates-plan.md`
 - `docs/audit/2026-09-05-full-stack-install-plan.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
@@ -404,6 +406,7 @@ Total files: 1217
 - `docs/operations/04_DISCORD_DRIFT_RECONCILIATION.md`
 - `docs/operations/05_ENGINEERING_EPISODE_MODEL.md`
 - `docs/operations/06_FIRST_MISSION.md`
+- `docs/operations/COORDINATED_UPDATES.md`
 - `docs/operations/DEPENDENCY_UPDATE_POLICY.md`
 - `docs/orchestration/01_STATION_ORCHESTRATION_CONTRACT.md`
 - `docs/orchestration/02_SEVEN_CAPABILITY_LANES.md`
@@ -502,6 +505,7 @@ Total files: 1217
 - `installer/npm/test/native-install.mjs`
 - `installer/npm/test/native-session-smoke.py`
 - `installer/npm/test/native-tui-smoke.py`
+- `installer/npm/test/native-update.mjs`
 - `installer/npm/test/onboarding.test.mjs`
 - `installer/npm/test/pack-smoke.mjs`
 - `installer/npm/test/package.test.mjs`
@@ -510,8 +514,10 @@ Total files: 1217
 - `installer/npm/test/runtime.test.mjs`
 - `installer/npm/test/state.test.mjs`
 - `installer/npm/test/ui.test.mjs`
+- `installer/npm/test/update.test.mjs`
 - `installer/npm/test/web.test.mjs`
 - `installer/npm/ui.mjs`
+- `installer/npm/update.mjs`
 - `installer/npm/web.mjs`
 - `modules/backup-recovery/MODULE.json`
 - `modules/backup-recovery/README.md`
@@ -1144,6 +1150,7 @@ Total files: 1217
 - `src/agentik_station/runtime_links.py`
 - `src/agentik_station/service_software.py`
 - `src/agentik_station/strix.py`
+- `src/agentik_station/updates.py`
 - `src/agentik_station/voice.py`
 - `station`
 - `station.sh`
@@ -1179,6 +1186,7 @@ Total files: 1217
 - `tests/security/test_doctor_boundaries.py`
 - `tests/security/test_existing_zone_identity.py`
 - `tests/security/test_full_stack.py`
+- `tests/security/test_hermes_update_ancestry.py`
 - `tests/security/test_native_process.py`
 - `tests/security/test_organizations.py`
 - `tests/security/test_os_compiler_boundaries.py`
@@ -1194,6 +1202,7 @@ Total files: 1217
 - `tests/security/test_shared_toolchain.py`
 - `tests/security/test_strix_boundaries.py`
 - `tests/security/test_systemd_runtime_links.py`
+- `tests/security/test_update_inventory.py`
 - `tests/security/test_vps_acceptance_evidence.py`
 - `tests/security/test_vps_zone_toolchain_acceptance.py`
 - `tests/security/test_zone_compilation.py`

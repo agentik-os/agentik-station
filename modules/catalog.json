@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "release": "11.28",
+  "release": "11.29",
   "states": [
     "SPECIFIED",
     "SCAFFOLDED",
@@ -46,7 +46,7 @@
     {
       "id": "hermes-runtime",
       "maturity": "INSTALLABLE",
-      "claim": "AGK OS sources compile into Hermes Profile Distributions. Root-owned instance ledgers bind exact bundles and complete namespaced teams to one Zone/OS instance; Projects are optional sibling scopes, not instance containers. Legacy Project-bound runtimes remain explicit. Safe retries preserve completed profiles. Selected-Director setup and full-team Doctor are explicit. Bootstrap installs the reviewed shared runtime and weekly updater; live accounts and fresh-session acceptance remain separate.",
+      "claim": "AGK OS sources compile into Hermes Profile Distributions. Root-owned instance ledgers bind exact bundles and complete namespaced teams to one Zone/OS instance; Projects are optional sibling scopes, not instance containers. Legacy Project-bound runtimes remain explicit. Safe retries preserve completed profiles. Selected-Director setup and full-team Doctor are explicit. Bootstrap installs the reviewed shared runtime and weekly read-only dependency discovery; deployment requires a new accepted coupled release. Live accounts and fresh-session acceptance remain separate.",
       "binary_probes": ["hermes"],
       "next_repair_action": "Read station setup --json, select the owning Zone/Organization, use station os instance install/setup/verify, then complete fresh-session/provider/chat acceptance. Declare existing Projects only when needed."
     },

@@ -379,7 +379,7 @@ enable_hermes_auto_update() {
   install_hermes_updater
   systemctl enable --now station-hermes-update.timer
   systemctl list-timers station-hermes-update.timer --no-pager || true
-  echo "Hermes weekly auto-update timer enabled."
+  echo "Station weekly dependency discovery timer enabled; deployment requires a reviewed compatible release."
 }
 
 if [[ "$CHECK_WEB" -eq 1 ]]; then

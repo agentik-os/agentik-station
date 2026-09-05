@@ -1,5 +1,5 @@
 [Unit]
-Description=Agentik Station Hermes auto-update (agk-station)
+Description=Agentik Station coupled upstream discovery (agk-station; no automatic deployment)
 After=network-online.target
 Wants=network-online.target
 

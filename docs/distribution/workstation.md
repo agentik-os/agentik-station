@@ -46,9 +46,9 @@ dedicated directory whose parent exists. Existing directories, including empty
 unmanaged ones, are refused rather than adopted. Keep the path short enough for
 RMUX's native Unix socket limit. Paths containing spaces are supported.
 
-The repository prepares `@agentik-os/station` version `11.28.0`; this documentation
+The repository prepares `@agentik-os/station` version `11.29.0`; this documentation
 does **not** claim that npm publication has happened. After an authorized registry
-publication, `npx @agentik-os/station@11.28.0` can launch the same installer.
+publication, `npx @agentik-os/station@11.29.0` can launch the same installer.
 The package has no dependencies or npm lifecycle installation scripts: npm
 install alone never installs Hermes, modifies the OS or starts a gateway.
 The npm package/cache itself lives in npm's chosen prefix/cache; Station-managed
@@ -220,10 +220,13 @@ Repair resumes missing owned software only after explicit review. It refuses
 changed source, substituted paths, unmanaged content and competing operation
 locks. It does not erase projects, credential files, evidence or prior attempts.
 A stale `.install.lock` needs operator inspection, not blind deletion.
-Changed installed support files require a reviewed migration; this initial
-Workstation release does not implement in-place version upgrades or unattended
-auto-update. Use a new dedicated root for a newly reviewed version and reenroll
-deliberately. Never move virtual environments or copy accounts automatically.
+Fresh 11.29+ installations record a verified software baseline. A newer reviewed
+npm package can use `update-plan`, `update --yes` and `update-recover --yes` to
+replace owned software with recovery evidence while preserving projects/accounts.
+Existing service bindings and RMUX endpoints must be explicitly cleared first;
+updates never stop or restart them automatically. Older installations without a
+baseline require reviewed migration, not silent adoption. See the complete
+[coordinated update contract](../operations/COORDINATED_UPDATES.md).
 
 Noninteractive subprocesses use bounded output/time and a held process-group
 supervisor. Same-group children are cleaned up after completion or cancellation.

@@ -1,0 +1,42 @@
+name: upstream-inventory
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Discover candidates without updating files, branches, accounts or services
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          result=0
+          ./station update check > "$RUNNER_TEMP/station-upstream.json" || result=$?
+          test "$result" -le 1
+          python - "$RUNNER_TEMP/station-upstream.json" <<'PY'
+          import json,sys
+          report=json.load(open(sys.argv[1]))
+          assert report['applied'] is False and report['compatible'] is False
+          print('Observed components:',report['component_count'])
+          print('Metadata requests completed:',report['collection_succeeded'])
+          print('All sources automatically resolved:',report['discovery_complete'])
+          print('Manual source/image review remains an explicit acceptance gate.')
+          PY
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: upstream-candidates-not-accepted
+          path: ${{ runner.temp }}/station-upstream.json
+          if-no-files-found: error
+          retention-days: 30

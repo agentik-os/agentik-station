@@ -1,5 +1,5 @@
 [Unit]
-Description=Weekly verified Hermes update for Agentik Station
+Description=Weekly dependency discovery for a reviewed Agentik Station update
 
 [Timer]
 OnCalendar=weekly

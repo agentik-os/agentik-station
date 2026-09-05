@@ -1,4 +1,20 @@
-# Agentik Station 11.28 Validation
+# Agentik Station 11.29 Validation
+
+## Coordinated updates — 11.29
+
+The [update mission plan](docs/audit/2026-09-05-coordinated-updates-plan.md)
+separates upstream discovery, compatibility acceptance, npm software migration
+and production deployment. All 203 npm tests pass, including predecessor drift,
+inactive runtime gates, interrupted/concurrent recovery and corrupt-baseline
+refusal. Native packed macOS installation passed 21 required checks, service/MCP
+templates, TUI and synthetic sessions, with 14 personal files unchanged. Native
+software migration with a synthetic successor label and unchanged upstream pins
+also passed, including protected in-root configuration comparison. Final Linux
+CI and installed Host readback are independent gates; no future upstream
+compatibility, legacy adoption or unattended database migration is inferred.
+The final complete Station/Factory run passed **1,874 tests**, with 21 Linux-only
+skips on macOS. Repository Doctor, deterministic metadata and the exact packed
+consumer installation/launcher smoke test passed.
 
 ## Required full Host stack — 11.28
 

@@ -87,7 +87,7 @@ def test_check_only_uses_exact_native_argv_without_update_or_restore(updater, ch
                                                "before_version": 0, "after_version": 0}
 
 
-@pytest.mark.parametrize("mode", ["update", "auto"])
+@pytest.mark.parametrize("mode", ["update"])
 def test_successful_update_uses_exact_native_argv_without_restore(updater, mode):
     observed = updater(mode)
     assert observed.result.returncode == 0, observed.result.stderr
@@ -135,7 +135,7 @@ def test_failed_doctor_requires_manual_recovery_without_inventing_restore_argv(u
     assert f"NEXT_REPAIR_ACTION={repair}" in observed.result.stdout
 
 
-@pytest.mark.parametrize("mode", ["check", "update", "auto"])
+@pytest.mark.parametrize("mode", ["check", "update"])
 @pytest.mark.parametrize("failure", [{"BEFORE_VERSION_RC": 17}, {"BEFORE_VERSION_EMPTY": 1}])
 def test_before_version_failure_records_receipt_without_attempting_update(updater, mode, failure):
     observed = updater(mode, **failure)
@@ -148,7 +148,7 @@ def test_before_version_failure_records_receipt_without_attempting_update(update
     assert "no update was attempted" in observed.receipt["next_repair_action"]
 
 
-@pytest.mark.parametrize("mode", ["check", "update", "auto"])
+@pytest.mark.parametrize("mode", ["check", "update"])
 @pytest.mark.parametrize("failure", [{"AFTER_VERSION_RC": 19}, {"AFTER_VERSION_EMPTY": 1}])
 def test_after_version_failure_cannot_leave_a_successful_receipt(updater, mode, failure):
     observed = updater(mode, **failure)
