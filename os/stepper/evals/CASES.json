@@ -917,6 +917,699 @@
         }
       },
       "valid": false
+    },
+    {
+      "id": "valid-story-map-transition",
+      "kind": "transition",
+      "skill": "story-map",
+      "input": {
+        "journey": "Recall one consenting test participant",
+        "role": "Clinic operator (synthetic)"
+      },
+      "output": {
+        "map": {
+          "actor": "Clinic operator (synthetic)",
+          "journey": "Recall one consenting test participant",
+          "activities": [
+            {
+              "id": "find",
+              "label": "Find eligible test record",
+              "tasks": [
+                {
+                  "id": "select",
+                  "label": "Select synthetic record",
+                  "status": "existing"
+                }
+              ]
+            },
+            {
+              "id": "send",
+              "label": "Offer one slot",
+              "tasks": [
+                {
+                  "id": "notify",
+                  "label": "Record simulated send",
+                  "status": "missing"
+                }
+              ]
+            },
+            {
+              "id": "confirm",
+              "label": "Confirm result",
+              "tasks": [
+                {
+                  "id": "display",
+                  "label": "Show confirmation",
+                  "status": "missing"
+                }
+              ]
+            }
+          ]
+        },
+        "holes": [
+          "No real SMS integration accepted"
+        ],
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Synthetic exercise only; no patient data or live message"
+        ]
+      },
+      "valid": true
+    },
+    {
+      "id": "valid-slice-thin-transition",
+      "kind": "transition",
+      "skill": "slice-thin",
+      "input": {
+        "map": {
+          "actor": "Clinic operator (synthetic)",
+          "journey": "Recall one consenting test participant",
+          "activities": [
+            {
+              "id": "find",
+              "label": "Find eligible test record",
+              "tasks": [
+                {
+                  "id": "select",
+                  "label": "Select synthetic record",
+                  "status": "existing"
+                }
+              ]
+            },
+            {
+              "id": "send",
+              "label": "Offer one slot",
+              "tasks": [
+                {
+                  "id": "notify",
+                  "label": "Record simulated send",
+                  "status": "missing"
+                }
+              ]
+            },
+            {
+              "id": "confirm",
+              "label": "Confirm result",
+              "tasks": [
+                {
+                  "id": "display",
+                  "label": "Show confirmation",
+                  "status": "missing"
+                }
+              ]
+            }
+          ]
+        },
+        "outcome": "One test record walks selection through confirmation"
+      },
+      "output": {
+        "slice": {
+          "id": "recall-skeleton",
+          "outcome": "One test record walks selection through confirmation",
+          "activity_ids": [
+            "find",
+            "send",
+            "confirm"
+          ],
+          "strategy": "walking-skeleton",
+          "acceptance_checks": [
+            "Test operator can see selected record, simulated send and confirmation"
+          ],
+          "demo": "Complete one synthetic recall using a fake send log",
+          "dependencies": []
+        },
+        "out_of_scope": [
+          "campaigns",
+          "analytics",
+          "role administration",
+          "real messaging"
+        ],
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Carrier integration is unverified"
+        ]
+      },
+      "valid": true
+    },
+    {
+      "id": "valid-shape-bet-transition",
+      "kind": "transition",
+      "skill": "shape-bet",
+      "input": {
+        "problem": "Recall work is a feature pile rather than a usable path",
+        "appetite": {
+          "amount": 2,
+          "unit": "weeks"
+        }
+      },
+      "output": {
+        "pitch": {
+          "problem": "Recall work is a feature pile rather than a usable path",
+          "appetite": {
+            "amount": 2,
+            "unit": "weeks"
+          },
+          "solution": "One record, one template, fake send log, one confirmation",
+          "rabbit_holes": [
+            "Carrier integration"
+          ],
+          "success_signal": "Owner recognizes one complete synthetic journey"
+        },
+        "no_gos": [
+          "No real patient contact",
+          "No platform rebuild"
+        ],
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Two-week appetite provided by exercise owner"
+        ]
+      },
+      "valid": true
+    },
+    {
+      "id": "valid-sequence-releases-transition",
+      "kind": "transition",
+      "skill": "sequence-releases",
+      "input": {
+        "slices": [
+          {
+            "id": "recall-skeleton",
+            "outcome": "One test record walks selection through confirmation",
+            "activity_ids": [
+              "find",
+              "send",
+              "confirm"
+            ],
+            "strategy": "walking-skeleton",
+            "acceptance_checks": [
+              "Test operator can see selected record, simulated send and confirmation"
+            ],
+            "demo": "Complete one synthetic recall using a fake send log",
+            "dependencies": []
+          }
+        ],
+        "constraints": "Synthetic exercise: keep the supplied appetite and fake send log; no real messages."
+      },
+      "output": {
+        "sequence": [
+          {
+            "slice_id": "recall-skeleton",
+            "position": 1,
+            "kind": "walking-skeleton",
+            "delay": "medium",
+            "risk": "low",
+            "depends_on": []
+          }
+        ],
+        "stop_rule": "Stop if carrier integration consumes the appetite; keep the fake send log",
+        "wip_limit": 1,
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Qualitative delay/risk only"
+        ]
+      },
+      "valid": true
+    },
+    {
+      "id": "changed-supplied-appetite",
+      "kind": "transition",
+      "skill": "shape-bet",
+      "input": {
+        "problem": "Recall work is a feature pile rather than a usable path",
+        "appetite": {
+          "amount": 2,
+          "unit": "weeks"
+        }
+      },
+      "output": {
+        "pitch": {
+          "problem": "Recall work is a feature pile rather than a usable path",
+          "appetite": {
+            "amount": 3,
+            "unit": "weeks"
+          },
+          "solution": "One record, one template, fake send log, one confirmation",
+          "rabbit_holes": [
+            "Carrier integration"
+          ],
+          "success_signal": "Owner recognizes one complete synthetic journey"
+        },
+        "no_gos": [
+          "No real patient contact",
+          "No platform rebuild"
+        ],
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Two-week appetite provided by exercise owner"
+        ]
+      },
+      "valid": false
+    },
+    {
+      "id": "dropped-source-slice",
+      "kind": "transition",
+      "skill": "sequence-releases",
+      "input": {
+        "slices": [
+          {
+            "id": "recall-skeleton",
+            "outcome": "One test record walks selection through confirmation",
+            "activity_ids": [
+              "find",
+              "send",
+              "confirm"
+            ],
+            "strategy": "walking-skeleton",
+            "acceptance_checks": [
+              "Test operator can see selected record, simulated send and confirmation"
+            ],
+            "demo": "Complete one synthetic recall using a fake send log",
+            "dependencies": []
+          },
+          {
+            "id": "omitted-later",
+            "outcome": "One test record walks selection through confirmation",
+            "activity_ids": [
+              "find",
+              "send",
+              "confirm"
+            ],
+            "strategy": "end-to-end",
+            "acceptance_checks": [
+              "Test operator can see selected record, simulated send and confirmation"
+            ],
+            "demo": "Complete one synthetic recall using a fake send log",
+            "dependencies": [
+              "recall-skeleton"
+            ]
+          }
+        ],
+        "constraints": "Synthetic exercise: keep the supplied appetite and fake send log; no real messages."
+      },
+      "output": {
+        "sequence": [
+          {
+            "slice_id": "recall-skeleton",
+            "position": 1,
+            "kind": "walking-skeleton",
+            "delay": "medium",
+            "risk": "low",
+            "depends_on": []
+          }
+        ],
+        "stop_rule": "Stop if carrier integration consumes the appetite; keep the fake send log",
+        "wip_limit": 1,
+        "confidence": "C",
+        "evidence": [],
+        "assumptions": [
+          "Qualitative delay/risk only"
+        ]
+      },
+      "valid": false
+    },
+    {
+      "id": "cyclic-input-backlog",
+      "kind": "artifact",
+      "skill": "sequence-releases",
+      "artifact_kind": "input",
+      "input": {
+        "slices": [
+          {
+            "id": "recall-skeleton",
+            "outcome": "One test record walks selection through confirmation",
+            "activity_ids": [
+              "find",
+              "send",
+              "confirm"
+            ],
+            "strategy": "walking-skeleton",
+            "acceptance_checks": [
+              "Test operator can see selected record, simulated send and confirmation"
+            ],
+            "demo": "Complete one synthetic recall using a fake send log",
+            "dependencies": [
+              "omitted-later"
+            ]
+          },
+          {
+            "id": "omitted-later",
+            "outcome": "One test record walks selection through confirmation",
+            "activity_ids": [
+              "find",
+              "send",
+              "confirm"
+            ],
+            "strategy": "end-to-end",
+            "acceptance_checks": [
+              "Test operator can see selected record, simulated send and confirmation"
+            ],
+            "demo": "Complete one synthetic recall using a fake send log",
+            "dependencies": [
+              "recall-skeleton"
+            ]
+          }
+        ],
+        "constraints": "Synthetic exercise: keep the supplied appetite and fake send log; no real messages."
+      },
+      "valid": false
+    },
+    {
+      "id": "prepared-input-bound-handoff",
+      "kind": "handoff",
+      "input": {
+        "workflow": "step-loop",
+        "artifacts": {
+          "story-map": {
+            "map": {
+              "actor": "Clinic operator (synthetic)",
+              "journey": "Recall one consenting test participant",
+              "activities": [
+                {
+                  "id": "find",
+                  "label": "Find eligible test record",
+                  "tasks": [
+                    {
+                      "id": "select",
+                      "label": "Select synthetic record",
+                      "status": "existing"
+                    }
+                  ]
+                },
+                {
+                  "id": "send",
+                  "label": "Offer one slot",
+                  "tasks": [
+                    {
+                      "id": "notify",
+                      "label": "Record simulated send",
+                      "status": "missing"
+                    }
+                  ]
+                },
+                {
+                  "id": "confirm",
+                  "label": "Confirm result",
+                  "tasks": [
+                    {
+                      "id": "display",
+                      "label": "Show confirmation",
+                      "status": "missing"
+                    }
+                  ]
+                }
+              ]
+            },
+            "holes": [
+              "No real SMS integration accepted"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Synthetic exercise only; no patient data or live message"
+            ]
+          },
+          "slice-thin": {
+            "slice": {
+              "id": "recall-skeleton",
+              "outcome": "One test record walks selection through confirmation",
+              "activity_ids": [
+                "find",
+                "send",
+                "confirm"
+              ],
+              "strategy": "walking-skeleton",
+              "acceptance_checks": [
+                "Test operator can see selected record, simulated send and confirmation"
+              ],
+              "demo": "Complete one synthetic recall using a fake send log",
+              "dependencies": []
+            },
+            "out_of_scope": [
+              "campaigns",
+              "analytics",
+              "role administration",
+              "real messaging"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Carrier integration is unverified"
+            ]
+          },
+          "shape-bet": {
+            "pitch": {
+              "problem": "Recall work is a feature pile rather than a usable path",
+              "appetite": {
+                "amount": 2,
+                "unit": "weeks"
+              },
+              "solution": "One record, one template, fake send log, one confirmation",
+              "rabbit_holes": [
+                "Carrier integration"
+              ],
+              "success_signal": "Owner recognizes one complete synthetic journey"
+            },
+            "no_gos": [
+              "No real patient contact",
+              "No platform rebuild"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Two-week appetite provided by exercise owner"
+            ]
+          },
+          "sequence-releases": {
+            "sequence": [
+              {
+                "slice_id": "recall-skeleton",
+                "position": 1,
+                "kind": "walking-skeleton",
+                "delay": "medium",
+                "risk": "low",
+                "depends_on": []
+              }
+            ],
+            "stop_rule": "Stop if carrier integration consumes the appetite; keep the fake send log",
+            "wip_limit": 1,
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Qualitative delay/risk only"
+            ]
+          }
+        },
+        "inputs": {
+          "story-map": {
+            "journey": "Recall one consenting test participant",
+            "role": "Clinic operator (synthetic)"
+          },
+          "slice-thin": {
+            "map": {
+              "actor": "Clinic operator (synthetic)",
+              "journey": "Recall one consenting test participant",
+              "activities": [
+                {
+                  "id": "find",
+                  "label": "Find eligible test record",
+                  "tasks": [
+                    {
+                      "id": "select",
+                      "label": "Select synthetic record",
+                      "status": "existing"
+                    }
+                  ]
+                },
+                {
+                  "id": "send",
+                  "label": "Offer one slot",
+                  "tasks": [
+                    {
+                      "id": "notify",
+                      "label": "Record simulated send",
+                      "status": "missing"
+                    }
+                  ]
+                },
+                {
+                  "id": "confirm",
+                  "label": "Confirm result",
+                  "tasks": [
+                    {
+                      "id": "display",
+                      "label": "Show confirmation",
+                      "status": "missing"
+                    }
+                  ]
+                }
+              ]
+            },
+            "outcome": "One test record walks selection through confirmation"
+          },
+          "shape-bet": {
+            "problem": "Recall work is a feature pile rather than a usable path",
+            "appetite": {
+              "amount": 2,
+              "unit": "weeks"
+            }
+          },
+          "sequence-releases": {
+            "slices": [
+              {
+                "id": "recall-skeleton",
+                "outcome": "One test record walks selection through confirmation",
+                "activity_ids": [
+                  "find",
+                  "send",
+                  "confirm"
+                ],
+                "strategy": "walking-skeleton",
+                "acceptance_checks": [
+                  "Test operator can see selected record, simulated send and confirmation"
+                ],
+                "demo": "Complete one synthetic recall using a fake send log",
+                "dependencies": []
+              }
+            ],
+            "constraints": "Synthetic exercise: keep the supplied appetite and fake send log; no real messages."
+          }
+        }
+      },
+      "valid": true
+    },
+    {
+      "id": "output-only-handoff-refused",
+      "kind": "handoff",
+      "input": {
+        "workflow": "step-loop",
+        "artifacts": {
+          "story-map": {
+            "map": {
+              "actor": "Clinic operator (synthetic)",
+              "journey": "Recall one consenting test participant",
+              "activities": [
+                {
+                  "id": "find",
+                  "label": "Find eligible test record",
+                  "tasks": [
+                    {
+                      "id": "select",
+                      "label": "Select synthetic record",
+                      "status": "existing"
+                    }
+                  ]
+                },
+                {
+                  "id": "send",
+                  "label": "Offer one slot",
+                  "tasks": [
+                    {
+                      "id": "notify",
+                      "label": "Record simulated send",
+                      "status": "missing"
+                    }
+                  ]
+                },
+                {
+                  "id": "confirm",
+                  "label": "Confirm result",
+                  "tasks": [
+                    {
+                      "id": "display",
+                      "label": "Show confirmation",
+                      "status": "missing"
+                    }
+                  ]
+                }
+              ]
+            },
+            "holes": [
+              "No real SMS integration accepted"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Synthetic exercise only; no patient data or live message"
+            ]
+          },
+          "slice-thin": {
+            "slice": {
+              "id": "recall-skeleton",
+              "outcome": "One test record walks selection through confirmation",
+              "activity_ids": [
+                "find",
+                "send",
+                "confirm"
+              ],
+              "strategy": "walking-skeleton",
+              "acceptance_checks": [
+                "Test operator can see selected record, simulated send and confirmation"
+              ],
+              "demo": "Complete one synthetic recall using a fake send log",
+              "dependencies": []
+            },
+            "out_of_scope": [
+              "campaigns",
+              "analytics",
+              "role administration",
+              "real messaging"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Carrier integration is unverified"
+            ]
+          },
+          "shape-bet": {
+            "pitch": {
+              "problem": "Recall work is a feature pile rather than a usable path",
+              "appetite": {
+                "amount": 2,
+                "unit": "weeks"
+              },
+              "solution": "One record, one template, fake send log, one confirmation",
+              "rabbit_holes": [
+                "Carrier integration"
+              ],
+              "success_signal": "Owner recognizes one complete synthetic journey"
+            },
+            "no_gos": [
+              "No real patient contact",
+              "No platform rebuild"
+            ],
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Two-week appetite provided by exercise owner"
+            ]
+          },
+          "sequence-releases": {
+            "sequence": [
+              {
+                "slice_id": "recall-skeleton",
+                "position": 1,
+                "kind": "walking-skeleton",
+                "delay": "medium",
+                "risk": "low",
+                "depends_on": []
+              }
+            ],
+            "stop_rule": "Stop if carrier integration consumes the appetite; keep the fake send log",
+            "wip_limit": 1,
+            "confidence": "C",
+            "evidence": [],
+            "assumptions": [
+              "Qualitative delay/risk only"
+            ]
+          }
+        }
+      },
+      "valid": false
     }
   ]
 }

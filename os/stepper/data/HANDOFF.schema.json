@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "StepperHandoff"
+    },
+    "valid": {
+      "const": true
+    },
+    "source_os": {
+      "const": "stepper-os"
+    },
+    "target_os": {
+      "const": "builder-os"
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "workflow": {
+          "const": "step-loop"
+        },
+        "artifacts": {
+          "type": "object",
+          "properties": {
+            "story-map": {
+              "type": "object"
+            },
+            "slice-thin": {
+              "type": "object"
+            },
+            "shape-bet": {
+              "type": "object"
+            },
+            "sequence-releases": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "story-map",
+            "slice-thin",
+            "shape-bet",
+            "sequence-releases"
+          ],
+          "additionalProperties": false
+        },
+        "inputs": {
+          "type": "object",
+          "properties": {
+            "story-map": {
+              "type": "object"
+            },
+            "slice-thin": {
+              "type": "object"
+            },
+            "shape-bet": {
+              "type": "object"
+            },
+            "sequence-releases": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "story-map",
+            "slice-thin",
+            "shape-bet",
+            "sequence-releases"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "workflow",
+        "artifacts",
+        "inputs"
+      ],
+      "additionalProperties": false
+    },
+    "workflow_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "artifact_sha256": {
+      "type": "object",
+      "properties": {
+        "story-map": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "slice-thin": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "shape-bet": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "sequence-releases": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "story-map",
+        "slice-thin",
+        "shape-bet",
+        "sequence-releases"
+      ],
+      "additionalProperties": false
+    },
+    "claim": {
+      "const": "PREPARED_NOT_EXECUTED"
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "source_verified": {
+      "const": false
+    },
+    "user_accepted": {
+      "const": false
+    },
+    "operational": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "valid",
+    "source_os",
+    "target_os",
+    "workflow",
+    "workflow_sha256",
+    "artifact_sha256",
+    "claim",
+    "execution_authorized",
+    "source_verified",
+    "user_accepted",
+    "operational"
+  ],
+  "additionalProperties": false
+}

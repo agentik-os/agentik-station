@@ -1,5 +1,9 @@
 {
   "schema_version": 1,
+  "execution_schema": "skills/builder-execution/schemas/evidence.schema.json",
+  "validator_claim": "EVIDENCE_BOUND_NOT_ACCEPTED",
+  "recorded_commands_proven_executed": false,
+  "reviewer_identity_proven": false,
   "states": [
     "PREPARED",
     "OBSERVED",

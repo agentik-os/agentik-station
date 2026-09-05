@@ -1,3 +1,18 @@
+## 11.33 — Executable Stepper/Builder handoffs and complete dependency checks
+
+- Stepper 0.2.0 validates source/output transitions and produces revalidatable,
+  hash-bound Builder handoffs; malformed identities, dependency cycles and drift
+  cannot pass merely because separate artifacts have valid shapes.
+- Builder 11.14 adds a native executable skill for scoped mission/DAG/ownership/
+  review-gate planning and exact artifact/evidence binding. No parallel scheduler,
+  command execution, account adoption or inflated live-readiness claim.
+- Both build teams receive the actual resource catalog, preferred stack plan and
+  exhaustive Host software checklist inside their native profiles.
+- Grouped web/memory probes continue after ordinary failures, honor interruption,
+  and reject ambiguous/no-op requests before running installers.
+- Existing configured instances remain preserved; changed immutable OS versions
+  require deliberate migration or pristine-instance replacement, not forced copy.
+
 ## 11.32 — Correct native delegation semantics
 
 - Distinguish transient Hermes children from persistent named-profile tasks in

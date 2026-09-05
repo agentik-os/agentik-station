@@ -176,3 +176,37 @@ def test_missing_component_argument_fails_without_running_installers(harness, ar
     assert not harness.calls.exists()
     assert not harness.mutations.exists()
     assert not harness.receipt.exists()
+
+
+@pytest.mark.parametrize("arguments", [(), ("--check-memory", "--check-voice"),
+                                      ("--check-strix", "--check-strix"),
+                                      ("--check-hermes-clients", "--check-memory")])
+def test_empty_or_multiple_probe_selection_never_claims_success(harness, arguments):
+    result = harness.run(*arguments)
+    assert result.returncode == 2
+    assert not harness.calls.exists()
+    assert not harness.mutations.exists()
+    assert not harness.receipt.exists()
+
+
+@pytest.mark.parametrize("flag,components", [("--check-web", ["scrapegraphai", "crawl4ai"]),
+                                            ("--check-memory", ["honcho", "hindsight"])])
+@pytest.mark.parametrize("status", [0, 1, 43, 130, 143])
+def test_grouped_checks_attempt_independent_components_but_honor_interruptions(tmp_path, flag, components, status):
+    repo = tmp_path / "repo"
+    (repo / "scripts").mkdir(parents=True)
+    (repo / "config").mkdir()
+    (repo / "config/versions.lock").write_text("")
+    source = SCRIPT.read_text()
+    start = source.index("probe_dependency() {")
+    end = source.index("\ninstall_service_software()", start)
+    probe = ("probe_dependency() {\n"
+             "  printf '%s\\n' \"$1\"\n"
+             f"  if [[ \"$1\" == {shlex.quote(components[0])} ]]; then return {status}; fi\n"
+             "  return 0\n}\n")
+    entry = repo / "scripts/station_deps_install.sh"
+    entry.write_text(source[:start] + probe + source[end:])
+    result = subprocess.run(["/bin/bash", str(entry), flag], capture_output=True,
+                            text=True, timeout=10, env={"PATH": "/usr/bin:/bin"})
+    assert result.stdout.splitlines() == (components[:1] if status in {130, 143} else components)
+    assert result.returncode == (status if status in {130, 143} else int(status != 0))

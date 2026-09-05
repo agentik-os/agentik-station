@@ -1,7 +1,20 @@
 programs:
-  - id: doctor
+  - id: builder-prepare
+    entrypoint: skills/builder-execution/scripts/runner.py
+    command: prepare
+    input_schema: skills/builder-execution/schemas/mission.schema.json
+    output_claim: PREPARED_NOT_EXECUTED
+    authority: read-only-explicit-workspace
     deterministic: true
-  - id: package-validation
+  - id: builder-evidence-check
+    entrypoint: skills/builder-execution/scripts/runner.py
+    command: verify
+    input_schema: skills/builder-execution/schemas/evidence.schema.json
+    output_claim: EVIDENCE_BOUND_NOT_ACCEPTED
+    authority: read-only-explicit-workspace
     deterministic: true
-  - id: evidence-ledger-validation
-    deterministic: true
+external_checks:
+  - station-os-doctor
+  - package-specific-tests
+  - independent-review-and-applicable-live-readback
+operational_from_program_exit: false

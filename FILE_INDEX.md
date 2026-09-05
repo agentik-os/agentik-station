@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1317
+Total files: 1334
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -265,6 +265,7 @@ Total files: 1317
 - `docs/audit/2026-09-05-coordinated-updates-plan.md`
 - `docs/audit/2026-09-05-full-stack-install-plan.md`
 - `docs/audit/2026-09-05-operational-control-plane.md`
+- `docs/audit/2026-09-05-os-installation-improvement-plan.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
 - `docs/audit/2026-09-05-portable-install-plan.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
@@ -572,6 +573,7 @@ Total files: 1317
 - `modules/zone-runtime/README.md`
 - `os/CATALOG.json`
 - `os/_shared/skills/station-orchestration/SKILL.md`
+- `os/_shared/skills/station-resources/SKILL.md`
 - `os/_template/01_MASTER/README.md`
 - `os/_template/02_DIRECTOR/README.md`
 - `os/_template/03_NANOTEAM/README.md`
@@ -688,6 +690,12 @@ Total files: 1317
 - `os/builder/skills/17_independent_review.md`
 - `os/builder/skills/18_packaging_registry.md`
 - `os/builder/skills/ORDER.yaml`
+- `os/builder/skills/builder-execution/SKILL.md`
+- `os/builder/skills/builder-execution/examples/librarian.md`
+- `os/builder/skills/builder-execution/examples/mission.json`
+- `os/builder/skills/builder-execution/schemas/evidence.schema.json`
+- `os/builder/skills/builder-execution/schemas/mission.schema.json`
+- `os/builder/skills/builder-execution/scripts/runner.py`
 - `os/builder/team/TEAM.yaml`
 - `os/builder/update/MIGRATIONS.yaml`
 - `os/builder/views/VIEWS.yaml`
@@ -1042,6 +1050,7 @@ Total files: 1317
 - `os/stepper/adapters/ADAPTERS.md`
 - `os/stepper/automations/AUTOMATIONS.yaml`
 - `os/stepper/capabilities/CAPABILITIES.yaml`
+- `os/stepper/data/HANDOFF.schema.json`
 - `os/stepper/data/SCHEMA.json`
 - `os/stepper/deployment/DEPLOYMENT.yaml`
 - `os/stepper/director/PROFILE.md`
@@ -1054,10 +1063,16 @@ Total files: 1317
 - `os/stepper/evals/EVALS.yaml`
 - `os/stepper/evidence/SCHEMA.json`
 - `os/stepper/examples/README.md`
+- `os/stepper/examples/builder-handoff.json`
+- `os/stepper/examples/sequence-releases.input.json`
 - `os/stepper/examples/sequence-releases.json`
+- `os/stepper/examples/shape-bet.input.json`
 - `os/stepper/examples/shape-bet.json`
+- `os/stepper/examples/slice-thin.input.json`
 - `os/stepper/examples/slice-thin.json`
+- `os/stepper/examples/step-loop-bound.json`
 - `os/stepper/examples/step-loop.json`
+- `os/stepper/examples/story-map.input.json`
 - `os/stepper/examples/story-map.json`
 - `os/stepper/examples/unwedge.json`
 - `os/stepper/governance/POLICY.yaml`
@@ -1251,6 +1266,8 @@ Total files: 1317
 - `tests/conftest.py`
 - `tests/contract/test_agk_tui_integration.py`
 - `tests/contract/test_atlas_and_resources.py`
+- `tests/contract/test_build_resource_delivery.py`
+- `tests/contract/test_builder_execution.py`
 - `tests/contract/test_chatbotx_install.py`
 - `tests/contract/test_deps_stack.py`
 - `tests/contract/test_devops_os_semantics.py`

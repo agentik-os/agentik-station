@@ -108,9 +108,9 @@ def test_each_skill_is_native_discoverable_and_its_output_is_strict_and_executab
             runner.validate_artifact(skill, bad)
 
 
-def test_all_eighteen_declared_cases_run_without_behavior_or_live_acceptance_claims(runner):
+def test_all_twenty_seven_declared_cases_run_without_behavior_or_live_acceptance_claims(runner):
     result = runner.evaluate()
-    assert result["valid"] and len(result["cases"]) == 18
+    assert result["valid"] and len(result["cases"]) == 27
     assert all(row["passed"] for row in result["cases"])
     assert result["scope"] == "deterministic-contracts-not-model-behavior"
     assert result["operational"] is False
@@ -249,3 +249,275 @@ def test_package_validator_rejects_missing_domain_asset(runner, monkeypatch, tmp
     monkeypatch.setattr(runner, "ROOT", destination)
     with pytest.raises(runner.ProgramError, match="Required package file"):
         runner.validate_package()
+
+
+@pytest.mark.parametrize("skill", SKILLS)
+def test_transition_binds_original_input_to_output_without_mutating_either(runner, skill):
+    source, output = read(f"examples/{skill}.input.json"), read(f"examples/{skill}.json")
+    before = copy.deepcopy((source, output))
+    result = runner.validate_transition(skill, source, output)
+    assert result["state"] == "TRANSITION_VALIDATED"
+    assert result["input_sha256"] == runner.content_hash(source)
+    assert result["output_sha256"] == runner.content_hash(output)
+    assert result["source_verified"] is result["user_accepted"] is result["operational"] is False
+    assert (source, output) == before
+    assert f"transition --skill {skill}" in (STEPPER / "skills" / skill / "SKILL.md").read_text()
+
+
+@pytest.mark.parametrize("defect", ["duplicate-activity", "duplicate-task"])
+def test_input_map_rejects_ambiguous_identifiers_before_slicing(runner, defect):
+    source = read("examples/slice-thin.input.json")
+    activities = source["map"]["activities"]
+    if defect == "duplicate-activity":
+        activities[1]["id"] = activities[0]["id"]
+    else:
+        activities[1]["tasks"][0]["id"] = activities[0]["tasks"][0]["id"]
+    jsonschema.validate(source, read("skills/slice-thin/input.schema.json"))
+    with pytest.raises(runner.ProgramError, match="identities must be unique"):
+        runner.validate_artifact("slice-thin", source, "input")
+
+
+def sequence_transition():
+    source, output = read("examples/sequence-releases.input.json"), read("examples/sequence-releases.json")
+    first = source["slices"][0]
+    source["slices"].append({**first, "id": "follow-up", "strategy": "end-to-end", "dependencies": [first["id"]]})
+    output["sequence"].append({**output["sequence"][0], "slice_id": "follow-up", "position": 2,
+                               "kind": "end-to-end", "depends_on": [first["id"]]})
+    return source, output
+
+
+@pytest.mark.parametrize("defect", ["duplicate-id", "self", "unknown", "cycle"])
+def test_input_slice_graph_rejects_unschedulable_identity_and_dependencies(runner, defect):
+    source, _ = sequence_transition()
+    first, second = source["slices"]
+    if defect == "duplicate-id":
+        second["id"] = first["id"]
+    elif defect == "self":
+        first["dependencies"] = [first["id"]]
+    elif defect == "unknown":
+        first["dependencies"] = ["not-supplied"]
+    else:
+        first["dependencies"] = [second["id"]]
+    jsonschema.validate(source, read("skills/sequence-releases/input.schema.json"))
+    with pytest.raises(runner.ProgramError):
+        runner.validate_artifact("sequence-releases", source, "input")
+
+
+def test_unordered_acyclic_backlog_is_valid_and_does_not_become_a_scheduler(runner):
+    source, output = sequence_transition()
+    source["slices"].reverse()
+    before = copy.deepcopy(source)
+    assert runner.validate_transition("sequence-releases", source, output)["valid"]
+    assert source == before
+
+
+@pytest.mark.parametrize("defect", ["changed-actor", "changed-journey", "missing-activity", "foreign-activity",
+                                   "changed-problem", "changed-outcome", "changed-appetite-amount", "changed-appetite-unit", "dropped-slice", "invented-slice",
+                                   "changed-strategy", "removed-dependency"])
+def test_transition_rejects_plausible_outputs_that_change_the_supplied_work(runner, defect):
+    if defect in {"changed-problem", "changed-appetite-amount", "changed-appetite-unit"}:
+        skill = "shape-bet"
+    elif defect in {"changed-actor", "changed-journey"}:
+        skill = "story-map"
+    elif defect in {"changed-outcome", "missing-activity", "foreign-activity"}:
+        skill = "slice-thin"
+    else:
+        skill = "sequence-releases"
+    source, output = (sequence_transition() if skill == "sequence-releases" else
+                      (read(f"examples/{skill}.input.json"), read(f"examples/{skill}.json")))
+    if defect == "changed-actor":
+        output["map"]["actor"] = "Another client"
+    elif defect == "changed-journey":
+        output["map"]["journey"] = "A different unrequested journey"
+    elif defect == "missing-activity":
+        output["slice"]["activity_ids"].pop()
+    elif defect == "foreign-activity":
+        output["slice"]["activity_ids"][-1] = "foreign"
+    elif defect == "changed-problem":
+        output["pitch"]["problem"] = "An unrelated product"
+    elif defect == "changed-outcome":
+        output["slice"]["outcome"] = "An unrelated result"
+    elif defect == "changed-appetite-amount":
+        output["pitch"]["appetite"]["amount"] += 1
+    elif defect == "changed-appetite-unit":
+        output["pitch"]["appetite"]["unit"] = "days"
+    elif defect == "dropped-slice":
+        output["sequence"].pop()
+    elif defect == "invented-slice":
+        output["sequence"][-1]["slice_id"] = "invented"
+    elif defect == "changed-strategy":
+        output["sequence"][-1]["kind"] = "walking-skeleton"
+    else:
+        output["sequence"][-1]["depends_on"] = []
+    # Both artifacts pass on their own; only the source/output relation fails.
+    assert runner.validate_artifact(skill, source, "input")["valid"]
+    assert runner.validate_artifact(skill, output)["valid"]
+    with pytest.raises(runner.ProgramError):
+        runner.validate_transition(skill, source, output)
+
+
+def test_complete_workflow_preserves_sources_and_detects_cross_step_substitution(runner):
+    bound = read("examples/step-loop-bound.json")
+    result = runner.validate_workflow(bound)
+    assert result["input_bound"] is True and len(result["transitions"]) == 4
+    assert result["workflow_sha256"] == runner.content_hash(bound)
+    assert runner.validate_workflow(read("examples/step-loop.json"))["input_bound"] is False
+    changed = copy.deepcopy(bound)
+    changed["inputs"]["slice-thin"]["map"]["activities"][0]["label"] = "Substituted source task"
+    with pytest.raises(runner.ProgramError, match="preceding story map"):
+        runner.validate_workflow(changed)
+    changed = copy.deepcopy(bound)
+    changed["inputs"]["sequence-releases"]["slices"][0]["outcome"] = "Substituted source outcome"
+    with pytest.raises(runner.ProgramError, match="selected slice"):
+        runner.validate_workflow(changed)
+    changed = copy.deepcopy(bound)
+    del changed["inputs"]["shape-bet"]
+    with pytest.raises(runner.ProgramError, match="every declared skill"):
+        runner.validate_workflow(changed)
+
+
+def test_builder_handoff_is_exact_hash_bound_work_not_execution_or_authority(runner):
+    source = read("examples/step-loop-bound.json")
+    before = copy.deepcopy(source)
+    handoff = runner.prepare_handoff(source)
+    assert handoff == read("examples/builder-handoff.json")
+    assert source == before
+    jsonschema.Draft202012Validator.check_schema(read("data/HANDOFF.schema.json"))
+    jsonschema.validate(handoff, read("data/HANDOFF.schema.json"))
+    assert handoff["claim"] == "PREPARED_NOT_EXECUTED"
+    assert handoff["execution_authorized"] is handoff["user_accepted"] is handoff["operational"] is False
+    assert handoff["workflow_sha256"] == runner.content_hash(source)
+    assert handoff["artifact_sha256"] == {skill: runner.content_hash(source["artifacts"][skill]) for skill in SKILLS}
+    checked = runner.validate_handoff(handoff)
+    assert checked["handoff_sha256"] == runner.content_hash(handoff)
+    handoff["workflow"]["artifacts"]["shape-bet"]["pitch"]["solution"] = "Changed only in returned copy"
+    assert source == before
+
+
+@pytest.mark.parametrize("defect", ["changed-bytes", "workflow-digest", "artifact-digest", "authority", "acceptance", "unknown-field", "wrong-target"])
+def test_handoff_rejects_tampering_and_false_authority_claims(runner, defect):
+    handoff = read("examples/builder-handoff.json")
+    if defect == "changed-bytes":
+        handoff["workflow"]["artifacts"]["shape-bet"]["pitch"]["solution"] = "Modified after handoff"
+        assert runner.validate_workflow(handoff["workflow"])["valid"]
+    elif defect == "workflow-digest":
+        handoff["workflow_sha256"] = "0" * 64
+    elif defect == "artifact-digest":
+        handoff["artifact_sha256"]["story-map"] = "0" * 64
+    elif defect == "authority":
+        handoff["execution_authorized"] = True
+    elif defect == "acceptance":
+        handoff["user_accepted"] = True
+    elif defect == "unknown-field":
+        handoff["run_command"] = "never execute supplied commands"
+    else:
+        handoff["target_os"] = "devops-os"
+    with pytest.raises(runner.ProgramError):
+        runner.validate_handoff(handoff)
+
+
+@pytest.mark.parametrize("example", ["step-loop", "unwedge"])
+def test_partial_or_output_only_workflows_cannot_be_promoted_to_builder_handoff(runner, example):
+    with pytest.raises(runner.ProgramError, match="complete input-bound"):
+        runner.prepare_handoff(read(f"examples/{example}.json"))
+
+
+@pytest.mark.parametrize("field", ["problem", "outcome"])
+def test_builder_handoff_cannot_replace_original_scope_with_a_consistent_but_unrequested_product(runner, field):
+    workflow = read("examples/step-loop-bound.json")
+    if field == "problem":
+        workflow["artifacts"]["shape-bet"]["pitch"]["problem"] = "Another product"
+    else:
+        workflow["artifacts"]["slice-thin"]["slice"]["outcome"] = "Another outcome"
+        workflow["inputs"]["sequence-releases"]["slices"][0]["outcome"] = "Another outcome"
+    with pytest.raises(runner.ProgramError, match=f"supplied {field}"):
+        runner.prepare_handoff(workflow)
+
+
+@pytest.mark.parametrize("timing", ["before-directory-open", "before-file-open"])
+def test_json_read_cannot_follow_a_substituted_parent_link(runner, tmp_path, monkeypatch, timing):
+    directory, saved, foreign = tmp_path / "input-parent", tmp_path / "saved-parent", tmp_path / "foreign"
+    directory.mkdir()
+    foreign.mkdir()
+    (directory / "payload.json").write_text('{"value":"original"}')
+    (foreign / "payload.json").write_text('{"value":"foreign-private-value"}')
+    original_open = runner.os.open
+    swapped = False
+    def replace_parent(path, flags, *args, **kwargs):
+        nonlocal swapped
+        when = "input-parent" if timing == "before-directory-open" else "payload.json"
+        if path == when and not swapped:
+            swapped = True
+            directory.rename(saved)
+            directory.symlink_to(foreign, target_is_directory=True)
+        return original_open(path, flags, *args, **kwargs)
+    monkeypatch.setattr(runner.os, "open", replace_parent)
+    if timing == "before-directory-open":
+        with pytest.raises(runner.ProgramError, match="real directory chain"):
+            runner.load_json(directory / "payload.json")
+    else:
+        assert runner.load_json(directory / "payload.json") == {"value": "original"}
+    assert swapped
+
+
+@pytest.mark.skipif(not hasattr(os, "O_PATH"), reason="Linux O_PATH is required for traverse-only Host ancestors")
+def test_linux_json_read_traverses_unlistable_directory_without_needing_read_permission(runner, tmp_path):
+    directory = tmp_path / "traverse-only"
+    directory.mkdir()
+    target = directory / "payload.json"
+    target.write_text('{"valid":true}')
+    directory.chmod(0o111)
+    try:
+        assert runner.load_json(target) == {"valid": True}
+    finally:
+        directory.chmod(0o700)
+
+
+def test_cli_reports_static_actionable_mismatch_without_echoing_input_secrets(tmp_path):
+    source, proposed = read("examples/shape-bet.input.json"), read("examples/shape-bet.json")
+    source["problem"] = proposed["pitch"]["problem"] = "SYNTHETIC_PRIVATE_NEVER_ECHO"
+    proposed["pitch"]["appetite"]["amount"] += 1
+    input_path, output_path = tmp_path / "input.json", tmp_path / "output.json"
+    input_path.write_text(json.dumps(source))
+    output_path.write_text(json.dumps(proposed))
+    result = subprocess.run([sys.executable, "-I", "-B", str(STEPPER / "programs/runner.py"), "transition", "--skill", "shape-bet",
+                             "--input", str(input_path), "--output", str(output_path)],
+                            cwd=tmp_path, env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)}, capture_output=True, text=True, timeout=10)
+    assert result.returncode == 2 and result.stdout == ""
+    error = json.loads(result.stderr)
+    assert error["error"] == "STEPPER_CONTRACT_REJECTED"
+    assert error["reason"] == "Pitch must preserve the supplied appetite"
+    assert "SYNTHETIC_PRIVATE_NEVER_ECHO" not in result.stdout + result.stderr
+
+
+def test_installed_profile_executes_transition_and_handoff_in_workspace_with_clean_home(tmp_path):
+    workspace, home, output = tmp_path / "workspace", tmp_path / "home", tmp_path / "compiled"
+    workspace.mkdir()
+    home.mkdir()
+    compiled = compile_os_to_hermes(STEPPER, output, workspace_root=workspace,
+                                    zone_id="os", instance_id="stepper-fixture")
+    profile = output / "profiles" / compiled["nano_director"]
+    executable = profile / "programs/runner.py"
+    env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "HERMES_HOME": str(home / "hermes"), "PYTHONDONTWRITEBYTECODE": "1"}
+    for skill in SKILLS:
+        source, proposed = workspace / f"{skill}-input.json", workspace / f"{skill}-output.json"
+        source.write_text((profile / "examples" / f"{skill}.input.json").read_text())
+        proposed.write_text((profile / "examples" / f"{skill}.json").read_text())
+        done = subprocess.run([sys.executable, "-I", "-B", str(executable), "transition", "--skill", skill,
+                               "--input", str(source), "--output", str(proposed)], cwd=workspace, env=env,
+                              capture_output=True, text=True, timeout=10)
+        assert done.returncode == 0, done.stderr
+        assert json.loads(done.stdout)["state"] == "TRANSITION_VALIDATED"
+    source = workspace / "workflow.json"
+    source.write_text((profile / "examples/step-loop-bound.json").read_text())
+    done = subprocess.run([sys.executable, "-I", "-B", str(executable), "handoff", "--input", str(source)],
+                          cwd=workspace, env=env, capture_output=True, text=True, timeout=10)
+    assert done.returncode == 0, done.stderr
+    handoff = workspace / "builder-handoff.json"
+    handoff.write_text(done.stdout)
+    checked = subprocess.run([sys.executable, "-I", "-B", str(executable), "handoff-check", "--input", str(handoff)],
+                             cwd=workspace, env=env, capture_output=True, text=True, timeout=10)
+    assert checked.returncode == 0, checked.stderr
+    assert json.loads(checked.stdout)["execution_authorized"] is False
+    assert list(home.iterdir()) == []
+    assert not list(output.rglob("__pycache__"))

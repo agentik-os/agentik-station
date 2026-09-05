@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "release": "11.32",
+  "release": "11.33",
   "contract": "AGK OS v2",
   "source_root": "os",
   "packages": [
@@ -34,7 +34,7 @@
     {
       "id": "builder-os",
       "path": "os/builder",
-      "version": "11.13",
+      "version": "11.14",
       "maturity": "INSTALLABLE",
       "runtime_state": "NOT_INSTALLED",
       "claim": "Canonical source passes the Station OS source contract and is compiler-ready. Live Hermes/runtime verification remains a separate evidence gate.",
@@ -52,7 +52,7 @@
     {
       "id": "stepper-os",
       "path": "os/stepper",
-      "version": "0.1.1",
+      "version": "0.2.0",
       "maturity": "INSTALLABLE",
       "runtime_state": "NOT_INSTALLED",
       "claim": "Canonical three-profile Hermes package with four typed skills, two workflows and deterministic artifact/evaluation programs. Provider, instance and live user acceptance remain separate gates.",

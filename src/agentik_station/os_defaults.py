@@ -146,10 +146,15 @@ def _plan(repo_root: Path, paths: LayoutPaths) -> tuple[dict, dict | None, dict]
             ready = old["state"] in {"CONFIGURED", "VERIFIED"} and not old.get("default_readback_failed")
             item.update(state="PRESERVED" if matches else "CONFLICT", argv=[],
                         recorded_os_id=old["os_id"], recorded_version=old["os_version"],
-                        recorded_state=old["state"])
+                        recorded_state=old["state"],
+                        source_version_matches=matches and old["os_version"] == package["version"])
             if not matches or not ready:
                 report["ok"] = False
                 item["next_repair_action"] = "Inspect the existing instance; defaults never migrate or resume it."
+            elif not item["source_version_matches"]:
+                item["next_repair_action"] = (
+                    "A different package version is delivered, but this native team was preserved. "
+                    "Review a scoped profile migration before claiming its new capabilities; do not force-reinstall.")
         report["instances"].append(item)
     report["state"] = "PLAN_READY" if report["ok"] else "REVIEW_REQUIRED"
     return report, zone, packages

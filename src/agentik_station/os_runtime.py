@@ -238,6 +238,22 @@ def _profile_distribution(
     routing = resolve_package(source.parents[1], os_id)
     (destination / "OS_ROUTING.json").write_text(json.dumps(routing, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     distribution += '  - OS_ROUTING.json\n'
+    if os_id in {"stepper-os", "builder-os"}:
+        from .resources import build_os_resource_index
+        resource_skill = source.parent / "_shared/skills/station-resources"
+        SafeFS._assert_existing_absolute_chain(resource_skill)
+        for entry in resource_skill.iterdir():
+            if entry.is_symlink() or not entry.is_file() or entry.stat().st_nlink != 1:
+                raise ValidationError("Shared resource skill must contain only regular source files")
+        shutil.copytree(resource_skill, destination / "skills/station-resources", symlinks=False)
+        index = build_os_resource_index(source.parents[1])
+        (destination / "STATION_RESOURCES.json").write_text(
+            json.dumps(index, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        distribution += '  - STATION_RESOURCES.json\n'
+        profile_text += ("\n\n## Delivered tools and resources\n\n"
+                         "Read STATION_RESOURCES.json and load the station-resources skill before selecting "
+                         "tools or installing Project dependencies. The catalog declares capabilities, "
+                         "not connected accounts, live acceptance or permission.\n")
     config_template = (source / "hermes/config.template.yaml").read_text(encoding="utf-8")
     config = _profile_config(config_template, profile_id, project_root)
     defaults_path = source.parents[1] / "config/hermes/orchestration.default.yaml"

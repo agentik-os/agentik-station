@@ -2,7 +2,7 @@
   "schema_version": "agk-os/v2",
   "os_id": "builder-os",
   "name": "Builder OS",
-  "version": "11.13",
+  "version": "11.14",
   "nano_director": "master-os-builder",
   "nanoteam": [
     "domain-scout",

@@ -31,15 +31,16 @@ PLATFORMS=0
 ALL=0
 CHECK_WEB=0
 PROBE=""
+PROBE_COUNT=0
 
 while (($#)); do
   case "$1" in
     --all) ALL=1; shift;;
     --check-web) CHECK_WEB=1; shift;;
-    --check-hermes-clients) PROBE=hermes-clients; shift;;
-    --check-memory) PROBE=memory; shift;;
-    --check-strix) PROBE=strix; shift;;
-    --check-voice) PROBE=voice; shift;;
+    --check-hermes-clients) PROBE=hermes-clients; PROBE_COUNT=$((PROBE_COUNT + 1)); shift;;
+    --check-memory) PROBE=memory; PROBE_COUNT=$((PROBE_COUNT + 1)); shift;;
+    --check-strix) PROBE=strix; PROBE_COUNT=$((PROBE_COUNT + 1)); shift;;
+    --check-voice) PROBE=voice; PROBE_COUNT=$((PROBE_COUNT + 1)); shift;;
     --list) LIST_ONLY=1; shift;;
     --component) [[ $# -ge 2 && "$2" != --* ]] || { usage >&2; exit 2; }; COMPONENTS+=("$2"); shift 2;;
     --enable-hermes-auto-update) ENABLE_AUTO=1; shift;;
@@ -56,9 +57,13 @@ if [[ "$ALL" -eq 1 && "${#COMPONENTS[@]}" -ne 0 ]]; then
   exit 2
 fi
 action_count=$((ENABLE_AUTO + LIST_ONLY + PLATFORMS + CHECK_WEB))
-[[ -z "$PROBE" ]] || action_count=$((action_count + 1))
+action_count=$((action_count + PROBE_COUNT))
 if [[ "$action_count" -gt 1 || ( "$action_count" -ne 0 && ( "$ALL" -ne 0 || "${#COMPONENTS[@]}" -ne 0 ) ) ]]; then
   echo 'Choose one action; do not combine probes, timer changes and component installs' >&2
+  exit 2
+fi
+if [[ "$action_count" -eq 0 && "$ALL" -eq 0 && "${#COMPONENTS[@]}" -eq 0 ]]; then
+  usage >&2
   exit 2
 fi
 for id in ${COMPONENTS[@]+"${COMPONENTS[@]}"}; do
@@ -267,6 +272,19 @@ check_web_runtime() {
   probe_dependency "$component"
 }
 
+check_dependencies() {
+  # Preserve each structured probe result. One missing runtime must not hide
+  # independent later checks, but an explicit interruption stops the batch.
+  local failed=0 component status
+  for component in "$@"; do
+    status=0
+    probe_dependency "$component" || status=$?
+    [[ "$status" -ne 130 && "$status" -ne 143 ]] || return "$status"
+    [[ "$status" -eq 0 ]] || failed=1
+  done
+  return "$failed"
+}
+
 install_tigervnc() {
   [[ "$(id -u)" -eq 0 ]] || { echo "tigervnc apt install needs root" >&2; return 2; }
   apt-get update
@@ -383,17 +401,14 @@ enable_hermes_auto_update() {
 }
 
 if [[ "$CHECK_WEB" -eq 1 ]]; then
-  check_web_runtime scrapegraphai "$SCRAPEGRAPHAI_VERSION"
-  check_web_runtime crawl4ai "$CRAWL4AI_PYTHON_VERSION"
+  check_dependencies scrapegraphai crawl4ai
   exit 0
 fi
 
 if [[ -n "$PROBE" ]]; then
   if [[ "$PROBE" == memory ]]; then
-    failed=0
-    probe_dependency honcho || failed=1
-    probe_dependency hindsight || failed=1
-    exit "$failed"
+    check_dependencies honcho hindsight
+    exit 0
   fi
   probe_dependency "$PROBE"
   exit 0
@@ -476,5 +491,5 @@ done
 
 echo
 echo "Done. Runtime remains unverified until component Doctor and external readback."
-echo "Platforms: hermes gateway setup && hermes gateway start"
+echo "Platforms: use station platform setup --zone <zone> --instance <instance>, then verify, install and start separately."
 echo "Guide: $ROOT/docs/dependencies/HERMES_PLATFORMS.md"

@@ -1,0 +1,28 @@
+{
+  "schema_version": "station-builder-mission/v1",
+  "mission_id": "synthetic-service-os",
+  "scope": {
+    "mode": "zone", "host": "synthetic-host", "zone": "os", "instance": "builder",
+    "organization": null, "project": null,
+    "workspace": "/srv/station/2_ZONES/6_FACTORY/os/os/instances/builder/workspace"
+  },
+  "target": {"kind": "os-package", "os_id": "synthetic-service-os", "version": "0.1.0", "package_root": "package/synthetic-service"},
+  "brief": {
+    "goal": "Create a synthetic service OS package with deterministic contracts and recovery evidence.",
+    "users": ["Synthetic operator"],
+    "constraints": ["Synthetic fixtures only; no providers or services enrolled.", "Research is a fixture, not independently verified knowledge."],
+    "non_goals": ["Deploying to a client or publishing the package"]
+  },
+  "inputs": [{"kind": "librarian", "path": "research/librarian.md", "sha256": "7d045f271d40ef2c0f0304a04c2c8aae50a873b90b4dfd3936f3b1f90bb328a5"}],
+  "turn_budget": 48,
+  "criteria": [
+    {"id": "contract-tests", "description": "The actual deterministic tests pass, including invalid input fixtures.", "kind": "deterministic", "verifier": "test-engineer"},
+    {"id": "independent-review", "description": "A separate reviewer reports contract and boundary findings.", "kind": "independent-review", "verifier": "specification-reviewer"},
+    {"id": "recovery-rehearsal", "description": "Synthetic artifact recovery is rehearsed without accounts or deployment.", "kind": "recovery", "verifier": "recovery-auditor"}
+  ],
+  "tasks": [
+    {"id": "build", "goal": "Implement the smallest testable package and test its contracts.", "owner": "program-engineer", "verifier": "test-engineer", "depends_on": [], "outputs": ["package/synthetic-service/CONTRACT.json"], "criteria": ["contract-tests"], "max_turns": 24},
+    {"id": "review", "goal": "Review the completed package independently and record findings.", "owner": "security-tenancy-reviewer", "verifier": "specification-reviewer", "depends_on": ["build"], "outputs": ["review/findings.md"], "criteria": ["independent-review"], "max_turns": 12},
+    {"id": "recover", "goal": "Prepare and rehearse recovery of the synthetic deliverable.", "owner": "os-architect", "verifier": "recovery-auditor", "depends_on": ["build"], "outputs": ["recovery/rehearsal.md"], "criteria": ["recovery-rehearsal"], "max_turns": 12}
+  ]
+}

@@ -40,7 +40,9 @@
       "bindings": [
         "slice.activity_ids are declared map activities",
         "sequence includes the selected slice",
-        "shape appetite is supplied, not inferred"
+        "shape appetite is supplied, not inferred",
+        "optional inputs bind every skill transition and preceding output; required for Builder handoff",
+        "original actor, journey, problem and selected outcome are preserved"
       ],
       "compensation": "Preserve partial artifacts; return a failure receipt. No external rollback."
     },
@@ -69,7 +71,8 @@
       ],
       "bindings": [
         "selected slice occurs in the release sequence",
-        "source map is supplied alongside the queue"
+        "source map is supplied alongside the queue",
+        "optional inputs bind every skill transition; output-only checks never claim source binding"
       ],
       "compensation": "Preserve existing sequence and proposed smaller slice separately; no tracker mutation."
     }

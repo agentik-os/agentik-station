@@ -40,6 +40,8 @@ def tree_digest(root: Path, *, exclude: tuple[str, ...] = ()) -> str:
 def inputs_digest(source: Path) -> str:
     roots = [source, REPO / "os/_shared", REPO / "rules/STATION_AGENT_RULES.md",
              REPO / "config/hermes/orchestration.default.yaml", REPO / "os/CATALOG.json",
+             REPO / "resources/CATALOG.json", REPO / "src/agentik_station/resources.py",
+             REPO / "src/agentik_station/full_stack.py",
              REPO / "src/agentik_station/os_runtime.py", Path(__file__),
              REPO / "components/agk-tui/hermes/plugins/agentik_os"]
     return hashlib.sha256("\0".join(tree_digest(root) for root in roots).encode()).hexdigest()

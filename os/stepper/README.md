@@ -14,6 +14,12 @@ On Host use station os catalog, station os resolve --name stepper and station os
 
 Run python3 programs/runner.py validate-package from the canonical package, and python3 programs/runner.py evaluate from either the package or its distributed profile. Run python3 programs/runner.py validate --skill story-map --input examples/story-map.json for a typed artifact. The validator has no network, subprocess, credential, or write capability. It validates supplied work; it does not claim a model produced it or a user accepted it.
 
+## Input-bound validation and Builder handoff
+
+The native skills validate their original input and proposed output together with `transition --skill <id> --input <input.json> --output <output.json>`. This checks actor/journey identity, complete journey coverage, the original problem/outcome, the supplied appetite, and the exact slice inventory/dependencies. Changed wording or scope must be clarified in the original input rather than silently substituted in an output. An unordered acyclic input backlog is valid; cycles, unknown dependencies and duplicate identities are refused. These are deterministic contract checks, not model-behavior scores.
+
+`examples/step-loop-bound.json` includes all four original inputs plus the outputs. From the package directory, `python3 -I -B programs/runner.py handoff --input examples/step-loop-bound.json` produces the typed example in `examples/builder-handoff.json`; `handoff-check --input <handoff.json>` rechecks its contents and hashes. Installed skills use an absolute runner path and workspace-local inputs instead. The handoff envelope is in `data/HANDOFF.schema.json`; the runner separately validates its embedded artifacts against the existing skill schemas and transition rules. Builder consumes this file as a hash-bound input, with its own explicit scope and separate Librarian evidence. No files, workers, accounts or services are created by these commands. Hash validity never means user acceptance, execution authority or verified research.
+
 ## Research and provenance
 
 The supplied v0.1.0 ZIP contains 52 text files, 49 bibliographic candidates and 150 structured practices. Useful content is adapted into the canonical package; the original ZIP is not redistributed. See provenance/IMPORT.json and its per-file mapping. Imported assertions of verified books, quality91 and confidenceA are reported claims, not Station verification. No license is invented. Publisher/source checking remains a Librarian task before evidence promotion; no book/PDF text is included.

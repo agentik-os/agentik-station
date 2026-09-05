@@ -1,3 +1,5 @@
+native_execution_entrypoint: builder-execution
+canonical_knowledge_order: ORDERED_SKILLS.yaml
 ordered_skills:
   - clarify-and-plan
   - build-with-leverage

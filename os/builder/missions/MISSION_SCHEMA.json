@@ -1,5 +1,8 @@
 {
   "schema_version": 1,
+  "execution_schema": "skills/builder-execution/schemas/mission.schema.json",
+  "native_entrypoint": "builder-execution",
+  "prepared_graph_is_execution_authority": false,
   "required": [
     "goal",
     "constraints",

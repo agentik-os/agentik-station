@@ -1,0 +1,20 @@
+{
+  "slices": [
+    {
+      "id": "recall-skeleton",
+      "outcome": "One test record walks selection through confirmation",
+      "activity_ids": [
+        "find",
+        "send",
+        "confirm"
+      ],
+      "strategy": "walking-skeleton",
+      "acceptance_checks": [
+        "Test operator can see selected record, simulated send and confirmation"
+      ],
+      "demo": "Complete one synthetic recall using a fake send log",
+      "dependencies": []
+    }
+  ],
+  "constraints": "Synthetic exercise: keep the supplied appetite and fake send log; no real messages."
+}

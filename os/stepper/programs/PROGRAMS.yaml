@@ -26,3 +26,30 @@ programs:
     outputs: [case-results]
     idempotency: same-package-same-result
     recovery: repair-package-and-repeat
+  - id: validate-transition
+    entrypoint: programs/runner.py
+    command: transition
+    authority: read-only
+    deterministic: true
+    inputs: [skill-id, original-input-json, proposed-output-json]
+    outputs: [input-output-hash-bound-receipt]
+    idempotency: same-input-output-same-receipt
+    recovery: preserve-original-input-and-correct-output
+  - id: prepare-builder-handoff
+    entrypoint: programs/runner.py
+    command: handoff
+    authority: read-only
+    deterministic: true
+    inputs: [complete-input-bound-step-loop]
+    outputs: [StepperHandoff]
+    idempotency: same-canonical-workflow-same-handoff
+    recovery: provide-missing-source-inputs-or-correct-transitions
+  - id: verify-builder-handoff
+    entrypoint: programs/runner.py
+    command: handoff-check
+    authority: read-only
+    deterministic: true
+    inputs: [StepperHandoff]
+    outputs: [handoff-hash-and-validation-receipt]
+    idempotency: same-handoff-same-receipt
+    recovery: regenerate-from-preserved-source-workflow

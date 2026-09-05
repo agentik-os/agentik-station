@@ -1,6 +1,6 @@
 id: builder-os
 name: "Builder OS"
-version: "11.13"
+version: "11.14"
 contract: AGK OS v2
 nano_director: master-os-builder
 purpose: "Compile verified domain knowledge and AGK contracts into complete, installable, testable, recoverable Operative Systems."

@@ -109,7 +109,9 @@ def test_core_installs_native_teams_without_gateway_auth_or_project_scope(host):
     assert all(kwargs["organization_id"] is None for _, kwargs in host.calls)
     assert list(Path(host.zone["hermes_home"]).iterdir()) == []
     before = {host.ledger(name): host.ledger(name).read_bytes() for name, _ in defaults.DEFAULTS}
-    assert all(row["state"] == "PRESERVED" for row in host.install()["instances"])
+    repeated = host.install()["instances"]
+    assert all(row["state"] == "PRESERVED" and row["source_version_matches"] is True for row in repeated)
+    assert all("next_repair_action" not in row for row in repeated)
     assert len(host.calls) == 3
     assert all(path.read_bytes() == content for path, content in before.items())
 
@@ -142,6 +144,9 @@ def test_existing_old_version_is_preserved_without_resume_or_reconfiguration(hos
     assert all(kwargs["instance_id"] != "builder" for _, kwargs in host.calls)
     assert result["ok"] is (state == "CONFIGURED")
     assert result["instances"][1]["state"] == "PRESERVED"
+    assert result["instances"][1]["source_version_matches"] is False
+    if state == "CONFIGURED":
+        assert "scoped profile migration" in result["instances"][1]["next_repair_action"]
 
 
 def test_existing_other_package_blocks_mutation_without_adoption(host):

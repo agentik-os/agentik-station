@@ -67,7 +67,9 @@ sudo station os instance chat --zone os --instance stepper
 `resolve` is read-only. With no Zone/instance it identifies the package and roles,
 not an installed runtime. With both, it reads the trusted instance and complete
 native team before returning exact routing. Existing default instances are
-preserved, not force-reinstalled or silently upgraded. For another Zone, use
+preserved, not force-reinstalled or silently upgraded. A differing version reports
+`source_version_matches: false` with an explicit migration action; it is not
+reported as delivery of the new native capabilities. For another Zone, use
 `station os instance install` with explicit ownership and an instance ID.
 
 On personal macOS/Linux Workstation, npm installation compiles and installs
@@ -117,6 +119,52 @@ registry, controller and delivered manifest. This does not turn that legacy
 session into a client-owned canonical OS instance.
 
 ## What is actually verified?
+
+### Stepper 0.2.0 and Builder 11.14: executable handoffs
+
+Stepper now checks **transitions**, not just isolated JSON outputs: the story map
+must preserve its requested journey, slicing must cover that map and retain the
+requested outcome, shaping must preserve the problem and supplied appetite, and
+the release sequence must retain its complete
+slice/dependency inventory. A complete input-bound `step-loop` can produce a
+`StepperHandoff` with canonical workflow/artifact hashes. Its `handoff-check`
+command revalidates the embedded workflow; changing an artifact invalidates the
+handoff. This is prepared domain input, not proof the idea is correct or accepted.
+
+Builder's native `builder-execution` skill includes a real standard-library
+program in every compiled team profile. Its `prepare` command validates a scoped
+mission, required Librarian input, optional Stepper handoff, dependency graph,
+explicit file ownership, separate verifier roles, turn allocation and delivery
+criteria. It emits ordered work packets for the existing Hermes execution flow;
+it does not dispatch agents, execute commands or create another task scheduler.
+
+After authorized execution, `verify` binds the mission, declared artifacts and
+check-evidence files to their exact hashes. Missing, changed, failed or blocked
+evidence cannot yield an all-reported-checks-passed result. Valid evidence remains
+`EVIDENCE_BOUND_NOT_ACCEPTED`: the parser does **not** prove that a recorded command
+ran, that a named reviewer is real, or that a user journey passed. Native execution,
+independent review and applicable live acceptance still supply those proofs.
+
+Load the installed native skills for the exact commands and schemas; keep the
+actual mission/artifacts in the owning workspace, not in the immutable package.
+
+### Delivered resources are visible to the build team
+
+Every newly compiled Stepper/Builder profile receives `STATION_RESOURCES.json`
+and the native `station-resources` skill. The index is generated from the real
+resource catalog and exhaustive Host software checklist, including the preferred
+web stack's exact argv plan. It is explicitly `DECLARED_NOT_PROBED`, not a copied
+installation receipt or someone else's account state. OS selection alone never
+automatically installs Project dependencies or enables every MCP/memory backend.
+
+On a Host, `sudo station deps full-check` verifies all fixed software groups while
+preserving independent failures. Workstation uses its own verification report;
+it does not imply the Linux-only server/container capabilities exist on a Mac.
+Repositories may be delivered as pinned clients, native plugins, Python packages,
+browser runtimes or digest-checked server images: a Git checkout count is not a
+software inventory. Server images are not running services, and a shared SDK is
+not an authenticated account. The reviewed Ponytail native security rejection
+remains visible rather than being silently skipped or bypassed.
 
 Stepper includes four strict input/output schema pairs, two workflow contracts,
 positive/negative fixtures and a deterministic read-only validator. Each native

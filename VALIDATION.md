@@ -1,4 +1,33 @@
-# Agentik Station 11.32 Validation
+# Agentik Station 11.33 Validation
+
+## Stepper/Builder execution and dependency inventory — 11.33
+
+The source mission/checklist is
+[`docs/audit/2026-09-05-os-installation-improvement-plan.md`](docs/audit/2026-09-05-os-installation-improvement-plan.md).
+Stepper/Builder emit prepared packets and byte-bound evidence reports, never
+proof of actual model execution or external acceptance. The resource index is
+source-only, distribution-owned and tied to Workstation compilation inputs.
+
+Pre-change native VPS inventory on deployed 11.32 verified **17 of 18** fixed
+software groups in 34.481 seconds, including all four complete server image
+bundles. Ponytail remains a retained native-security rejection, not a fresh scan.
+Server deployment/accounts and preferred-stack Project installation remain
+separate from that software evidence. The reviewed Hermes HEAD matched its pin
+and had no tracked modifications. No credentials or services were changed by
+this read-only audit. This baseline does not itself certify the new release.
+
+The final local source run passed **2,115 Station/Factory tests**, with 23
+Linux-only skips, **263 npm tests**, and **461 AGK tests**, with two native-web
+library skips on this macOS test environment. All 27 Stepper evaluations and
+the repository Doctor passed. The skips remain distinct native Linux acceptance
+gates. A fresh extracted npm package then installed all 29 native profiles
+(Stepper 3, Builder 11, Librarian 15), passed six required OS readbacks, three
+launcher checks, all 27 Stepper evaluations and four bound transitions, the
+Stepper handoff/check, and Builder preparation plus changed-input rejection.
+All 14 Stepper/Builder profiles contained the generated resource index. Its 839
+payload files matched the checkout. This reused clean pinned Hermes software;
+it is not a fresh full-dependency installation or a live model/account test.
+Published-commit CI and the targeted VPS upgrade remain separate checks.
 
 ## Native role-routing semantics — 11.32
 

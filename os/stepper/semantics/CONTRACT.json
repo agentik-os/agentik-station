@@ -87,7 +87,14 @@
     "skills/sequence-releases/SKILL.md",
     "skills/sequence-releases/input.schema.json",
     "skills/sequence-releases/output.schema.json",
-    "examples/sequence-releases.json"
+    "examples/sequence-releases.json",
+    "data/HANDOFF.schema.json",
+    "examples/story-map.input.json",
+    "examples/slice-thin.input.json",
+    "examples/shape-bet.input.json",
+    "examples/sequence-releases.input.json",
+    "examples/step-loop-bound.json",
+    "examples/builder-handoff.json"
   ],
   "runtime_assets": [
     "skills",
@@ -96,6 +103,7 @@
     "workflows",
     "routing",
     "evals",
+    "data",
     "examples"
   ],
   "validator": "programs/runner.py",

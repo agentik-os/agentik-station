@@ -1,0 +1,42 @@
+{
+  "map": {
+    "actor": "Clinic operator (synthetic)",
+    "journey": "Recall one consenting test participant",
+    "activities": [
+      {
+        "id": "find",
+        "label": "Find eligible test record",
+        "tasks": [
+          {
+            "id": "select",
+            "label": "Select synthetic record",
+            "status": "existing"
+          }
+        ]
+      },
+      {
+        "id": "send",
+        "label": "Offer one slot",
+        "tasks": [
+          {
+            "id": "notify",
+            "label": "Record simulated send",
+            "status": "missing"
+          }
+        ]
+      },
+      {
+        "id": "confirm",
+        "label": "Confirm result",
+        "tasks": [
+          {
+            "id": "display",
+            "label": "Show confirmation",
+            "status": "missing"
+          }
+        ]
+      }
+    ]
+  },
+  "outcome": "One test record walks selection through confirmation"
+}
