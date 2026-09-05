@@ -26,7 +26,7 @@
       "const": "agentik-station"
     },
     "release": {
-      "const": "11.33"
+      "const": "11.34"
     },
     "blueprint_version": {
       "const": 11

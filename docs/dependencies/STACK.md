@@ -53,7 +53,13 @@ station deps toolchain-check
 sudo station deps web-check
 ```
 
-Installation is not authentication. Complete `gh auth login`, `vercel login`, `composio login`, Codex sign-in and `hermes setup` only for the principals that need them. For Discord tools, use `station provider composio-discord plan|link|verify --zone <zone-id>`; the selected Composio account is an adapter behind Hermes, not another bot Gateway.
+Installation is not authentication. Complete each native account flow only for
+the principal that needs it; use Station's model-only setup route instead of
+substituting the full Hermes wizard. For Discord tools, inspect
+`station provider composio-discord plan --zone <zone-id>`. Its current link/verify
+facade cannot establish a trusted developer project/workdir binding and refuses
+before account execution. See [the exact missing binding](COMPOSIO_DEVELOPER_BINDING.md).
+The intended Composio account is an adapter behind Hermes, not another bot Gateway.
 
 ## Project resource recipe
 

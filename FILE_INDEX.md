@@ -1,6 +1,6 @@
 # FILE_INDEX
 
-Total files: 1334
+Total files: 1339
 
 - `.github/CODEOWNERS`
 - `.github/PULL_REQUEST_TEMPLATE.md`
@@ -268,6 +268,7 @@ Total files: 1334
 - `docs/audit/2026-09-05-os-installation-improvement-plan.md`
 - `docs/audit/2026-09-05-ponytail-native-scan.md`
 - `docs/audit/2026-09-05-portable-install-plan.md`
+- `docs/audit/2026-09-05-post-install-continuation.md`
 - `docs/audit/2026-09-05-station-deep-audit.md`
 - `docs/audit/2026-09-05-stepper-orchestration-plan.md`
 - `docs/audit/2026-09-05-vps-workflow-review.md`
@@ -290,6 +291,7 @@ Total files: 1334
 - `docs/builder/14_BUILDER_HANDOFF_TEMPLATE.md`
 - `docs/builder/15_REPO_DRIFT_AND_FIXES.md`
 - `docs/builder/16_OS_V2_COMPLETENESS_MATRIX.md`
+- `docs/dependencies/COMPOSIO_DEVELOPER_BINDING.md`
 - `docs/dependencies/FULL_STACK.md`
 - `docs/dependencies/HERMES_PLATFORMS.md`
 - `docs/dependencies/STACK.md`
@@ -1275,6 +1277,7 @@ Total files: 1334
 - `tests/contract/test_orchestration_state.py`
 - `tests/contract/test_os_orchestration.py`
 - `tests/contract/test_plan.py`
+- `tests/contract/test_ponytail_guidance.py`
 - `tests/contract/test_readme_presentation.py`
 - `tests/contract/test_release_manifest.py`
 - `tests/contract/test_repo_architecture.py`
@@ -1317,6 +1320,7 @@ Total files: 1334
 - `tests/security/test_zone_home_directories.py`
 - `tests/unit/test_agent_rules.py`
 - `tests/unit/test_agk_public_launcher.py`
+- `tests/unit/test_composio_binary.py`
 - `tests/unit/test_configuration.py`
 - `tests/unit/test_guided_setup.py`
 - `tests/unit/test_guided_setup_enable.py`
@@ -1328,6 +1332,7 @@ Total files: 1334
 - `tests/unit/test_models.py`
 - `tests/unit/test_onboarding.py`
 - `tests/unit/test_orchestration_cli.py`
+- `tests/unit/test_platform_activation_verification.py`
 - `tests/unit/test_platform_setup_entrypoint.py`
 - `tests/unit/test_release_generation.py`
 - `tests/unit/test_station_voice_provider.py`

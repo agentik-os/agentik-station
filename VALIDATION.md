@@ -1,4 +1,21 @@
-# Agentik Station 11.33 Validation
+# Agentik Station 11.34 Validation
+
+## Post-installation routing and readiness — 11.34
+
+The [continuation audit](docs/audit/2026-09-05-post-install-continuation.md)
+addresses contradictory Ponytail guidance, Zone Composio executable selection
+and selected OS gateway activation after missing or stale verification. Prior native 11.33 evidence below remains
+historical; unchanged teams/accounts are preserved, not reinstalled to certify
+the new Station controls. Current release tests and scoped readback are separate.
+
+The final local Station/Factory suite passed **2,256 tests**, with 23 Linux-only
+skips; all **263 npm tests** and the packed-consumer offline installation smoke
+passed. Repository Doctor passed **97 checks**. After the final atlas clarification,
+regenerated metadata and **255 contract tests** passed (two Linux-only skips).
+Published-commit Linux CI and native 11.34 Host readback remain separate gates.
+Composio's CLI is installed, but the trusted developer-project/workdir binding
+is not implemented: the facade now refuses before native/account calls instead
+of presenting invalid or ambiguously scoped commands as working enrollment.
 
 ## Stepper/Builder execution and dependency inventory — 11.33
 
@@ -27,7 +44,13 @@ Stepper handoff/check, and Builder preparation plus changed-input rejection.
 All 14 Stepper/Builder profiles contained the generated resource index. Its 839
 payload files matched the checkout. This reused clean pinned Hermes software;
 it is not a fresh full-dependency installation or a live model/account test.
-Published-commit CI and the targeted VPS upgrade remain separate checks.
+The [completed acceptance record](docs/audit/2026-09-05-os-installation-improvement-plan.md#completed-native-acceptance-for-1133)
+now records all nine published-commit CI jobs passing, the fresh Linux consumer
+installation, and targeted native VPS acceptance: 29 profiles, 14 resource indexes,
+27 Stepper evaluations, Builder handoff/tamper checks and 192 full Doctor checks.
+Protected account files and tracked service activation states remained unchanged.
+Ponytail, server/account enrollment and live LLM missions remain separate unmet
+gates; npm registry publication did not occur.
 
 ## Native role-routing semantics — 11.32
 

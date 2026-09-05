@@ -173,6 +173,9 @@ def test_gateway_wizard_preserves_human_terminal_without_detached_supervisor(gat
 
 @pytest.mark.parametrize("failure", ["timeout", "missing", "supervisor", "nonzero"])
 def test_service_prerequisite_failure_is_bounded_private_and_stops_native(gateway, monkeypatch, capsys, failure):
+    loader = sys.modules["agentik_station.os_lifecycle"].load_os_runtime_record
+    monkeypatch.setattr(sys.modules["agentik_station.os_lifecycle"], "load_os_runtime_record",
+                        lambda *a, **k: {**loader(*a, **k), "state": "VERIFIED"})
     monkeypatch.setattr(cli.os, "geteuid", lambda: 0)
     existing_which = cli.shutil.which
     monkeypatch.setattr(cli.shutil, "which", lambda name: f"/usr/bin/{name}" if name in {"loginctl", "systemctl"} else existing_which(name))

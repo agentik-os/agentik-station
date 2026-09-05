@@ -1,3 +1,21 @@
+## 11.34 — Accurate post-install readiness and verified gateway activation
+
+- Correct Ponytail module/engineering claims: the required plugin remains
+  security-blocked and NOT_INSTALLED, with an upstream acceptance repair path.
+- Require current full-team verification before an OS instance or legacy OS
+  gateway is installed, started or restarted. Stale verification reports the
+  exact scoped repair command; provider/platform setup remains accessible.
+- Clarify that persistent specialist provider access must be tested through its
+  mapped native profile, not inferred from a transient delegated child.
+- Resolve Zone Composio calls through the pinned root-owned public export, never
+  an ambient PATH entry or the private operator home. Account setup is separate.
+- Correct the pinned Composio command templates and expose the missing trusted
+  developer project/workdir binding. Link/verify no longer issue invalid commands
+  or risk consumer-identity fallback; they remain unavailable until that binding
+  is implemented and accepted, with no account or tool output exposed.
+- Close the retained 11.33 native/CI acceptance record without claiming accounts,
+  live missions, running server applications or npm registry publication.
+
 ## 11.33 — Executable Stepper/Builder handoffs and complete dependency checks
 
 - Stepper 0.2.0 validates source/output transitions and produces revalidatable,

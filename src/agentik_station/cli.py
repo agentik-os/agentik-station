@@ -596,107 +596,103 @@ def cmd_client(args: argparse.Namespace) -> int:
 
 
 def _composio_binary() -> Path:
-    candidates = [
-        Path(shutil.which("composio") or ""),
-        Path("/home/agk-station/.local/bin/composio"),
-        Path("/usr/local/bin/composio"),
-    ]
-    target = next(
-        (path for path in candidates if path.is_absolute() and path.is_file() and os.access(path, os.X_OK)),
-        None,
-    )
-    if target is None:
-        raise StationError("Pinned Composio CLI is missing; run `station deps toolchain-install` first")
-    return target
+    """Resolve only Station's public code export, never an operator's PATH/home."""
+    from .os_lifecycle import _read_bytes
+    from .os_runtime import require_root_owned_directory_chain
+
+    message = ("Pinned public Composio CLI is missing or untrusted; ask the administrator "
+               "to review `station deps toolchain-install` before Zone setup")
+    public = Path("/usr/local/bin/composio")
+    try:
+        lock = _read_bytes(repository_root() / "config/versions.lock", uid=0,
+                           immutable=True, limit=65536).decode("ascii")
+        versions = [line.partition("=")[2] for line in lock.splitlines()
+                    if line.partition("=")[0] == "COMPOSIO_CLI_VERSION"]
+        if (len(versions) != 1 or len(versions[0].split(".")) != 3
+                or any(not part.isdecimal() for part in versions[0].split("."))):
+            raise StationError(message)
+        target = Path("/opt/station/tools/composio") / versions[0] / "composio"
+        for parent in (public.parent, target.parent):
+            require_root_owned_directory_chain(parent)
+            if any(not path.stat(follow_symlinks=False).st_mode & 0o001
+                   for path in (parent, *parent.parents)):
+                raise StationError(message)
+        link = public.lstat()
+        executable = target.lstat()
+        if (not stat.S_ISLNK(link.st_mode) or link.st_uid != 0 or link.st_nlink != 1
+                or os.readlink(public) != str(target)
+                or not stat.S_ISREG(executable.st_mode) or executable.st_uid != 0
+                or executable.st_nlink != 1 or executable.st_mode & 0o6022
+                or executable.st_mode & 0o005 != 0o005):
+            raise StationError(message)
+    except (OSError, UnicodeError, StationError):
+        raise StationError(message) from None
+    return public
 
 
 def cmd_composio_discord(args: argparse.Namespace) -> int:
-    """Plan, authorize or read back the Zone-scoped Composio Discord adapter."""
+    """Describe the blocked developer binding; never guess a Composio project."""
     from .providers.composio import stable_principal
 
     zone = _load_zone_record(args.zone)
     action = args.composio_discord_command
+    if action not in {"plan", "link", "verify"}:
+        raise ValidationError("Unknown Composio Discord action")
     organization = str(zone.get("organization") or "") or None
     principal = stable_principal(args.zone, organization, "atlas")
-    commands = {
-        "link": ["connected-accounts", "link", "discord"],
-        "verify": ["connected-accounts", "list", "--toolkits", "discord"],
-    }
+    guide = "docs/dependencies/COMPOSIO_DEVELOPER_BINDING.md"
+    blocker = (
+        "Composio Discord setup requires an explicit trusted developer-project and owning Zone "
+        "working-directory binding. Station does not yet provide that binding contract; link/verify "
+        "are disabled before any native or account call. No consumer-account or caller-directory "
+        f"fallback is allowed. See {guide}."
+    )
+    if action != "plan":
+        raise StationError(blocker)
+
     payload: dict[str, Any] = {
         "schema_version": 1,
         "adapter": "composio-discord",
         "role": "zone-scoped-tool-adapter",
         "gateway": "hermes-native",
+        "state": "CONFIGURATION_REQUIRED",
+        "claim": "NON_EXECUTABLE_TEMPLATES",
         "zone_id": args.zone,
         "principal": principal,
         "policy": "config/composio/discord-tool-policy.json",
+        "execution_authorized": False,
+        "accounts_checked": False,
         "operational": False,
-    }
-    if action == "plan":
-        payload.update(
+        "command_templates": [
             {
-                "state": "READY_FOR_SETUP",
-                "commands": [
-                    ["composio", *commands["link"]],
-                    ["composio", *commands["verify"]],
-                    ["composio", "tools", "list", "--toolkit", "discord"],
-                ],
-                "next_repair_action": (
-                    "Run the link action as the owning Zone identity, complete OAuth, then run verify and a "
-                    "read-only tool before accepting the adapter."
-                ),
-            }
-        )
-        print(json.dumps(payload, indent=2, sort_keys=True))
-        return 0
-
-    if os.geteuid() != 0:
-        raise StationError("Composio Discord link/verify requires root for Zone identity switching")
-    binary = _composio_binary()
-    unix_user = validate_identifier(str(zone.get("unix_user", "")), "Zone Unix user")
-    entry = pwd.getpwnam(unix_user)
-    runuser = Path(shutil.which("runuser") or "/usr/sbin/runuser")
-    if not runuser.is_file():
-        raise StationError("runuser is required for Zone-isolated Composio setup")
-    home = Path(entry.pw_dir)
-    argv = [
-        str(runuser),
-        "--user",
-        unix_user,
-        "--",
-        "/usr/bin/env",
-        "-i",
-        f"HOME={home}",
-        "PATH=/usr/local/bin:/usr/bin:/bin",
-        f"COMPOSIO_USER_ID={principal}",
-        str(binary),
-        *commands[action],
-    ]
-    interactive = action == "link"
-    completed = subprocess.run(
-        argv,
-        check=False,
-        text=True,
-        capture_output=not interactive,
-        timeout=None if interactive else 120,
-    )
-    payload["returncode"] = completed.returncode
-    payload["state"] = (
-        "AUTH_FLOW_COMPLETED_NOT_VERIFIED"
-        if action == "link" and completed.returncode == 0
-        else ("OBSERVED_NOT_ACCEPTED" if completed.returncode == 0 else "DEGRADED")
-    )
-    if not interactive:
-        payload["stdout"] = completed.stdout[-12000:]
-        payload["stderr"] = completed.stderr[-12000:]
-    payload["next_repair_action"] = (
-        f"Run `station provider composio-discord verify --zone {args.zone}`, then execute and read back an "
-        "approved read-only Discord tool."
-        if action == "link" and completed.returncode == 0
-        else "Accept only after account ACTIVE status, policy validation and a read-only Discord tool readback."
-    )
+                "action": "link",
+                "argv": ["composio", "dev", "connected-accounts", "link", "discord",
+                         "--project-name", "<VERIFIED_DEVELOPER_PROJECT_NAME>",
+                         "--user-id", principal, "--no-browser"],
+                "cwd": "<VERIFIED_OWNING_ZONE_DEVELOPER_WORKDIR>",
+            },
+            {
+                "action": "account-readback",
+                "argv": ["composio", "dev", "connected-accounts", "list",
+                         "--toolkits", "discord", "--user-id", principal],
+                "cwd": "<SAME_DEVELOPER_PROJECT_ENROLLED_WORKDIR>",
+            },
+            {
+                "action": "tool-catalog",
+                "argv": ["composio", "tools", "list", "discord"],
+                "cwd": "<VERIFIED_OWNING_ZONE_DEVELOPER_WORKDIR>",
+            },
+        ],
+        "prerequisites": [
+            "Explicit developer organization/project selection and matching local project context; neither is inferred.",
+            "Validated owning Zone principal, working directory and separately enrolled native Composio login.",
+            "Native developer mode must be enabled; Station does not change it or enroll a project.",
+            "Fresh matching ACTIVE account and approved read-only Discord tool evidence before acceptance.",
+        ],
+        "next_repair_action": blocker,
+    }
     print(json.dumps(payload, indent=2, sort_keys=True))
-    return int(completed.returncode)
+    return 0
 
 
 def cmd_release_list(_: argparse.Namespace) -> int:
@@ -810,14 +806,25 @@ def cmd_platform_gateway(args: argparse.Namespace) -> int:
         runtime = load_os_runtime_record(
             LayoutPaths.live(), zone=zone, os_id=args.os, require_configured=True,
         )
-    if runtime and runtime["state"] == "DEGRADED" and args.platform_command in {"install", "start", "restart"}:
-        raise ValidationError("Repair the selected Director and rerun OS verification before starting its gateway")
     profile = runtime["nano_director"] if runtime else "default"
     if role:
         role = validate_identifier(role, "OS team role")
         profile = runtime["role_profile_map"].get(role)
         if profile is None:
             raise ValidationError("Requested role is not in this instance's trusted Hermes team")
+    if runtime and runtime["state"] != "VERIFIED" and args.platform_command in {"install", "start", "restart"}:
+        # The trusted reader downgrades stale verification to CONFIGURED. Both
+        # fresh and changed teams must pass current full-team verification;
+        # selecting a worker cannot bypass that gate. Zone default has no OS
+        # ledger and retains its separately documented native Doctor workflow.
+        verify_argv = (["sudo", "station", "os", "instance", "verify", "--zone", args.zone,
+                        "--instance", instance_id] if instance_id else
+                       ["sudo", "station", "os", "verify", "--zone", args.zone, "--id", runtime["os_id"]])
+        raise ValidationError(
+            f"Current full-team verification is required before gateway {args.platform_command} "
+            f"(local state: {runtime['state']}). After model/platform setup, run `{' '.join(verify_argv)}`; "
+            "repair any reported failures, then retry the same gateway action."
+        )
     hermes = next(
         (path for path in (Path("/usr/local/bin/hermes"), Path(shutil.which("hermes") or "")) if path.is_absolute() and path.is_file()),
         None,

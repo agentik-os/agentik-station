@@ -1,18 +1,31 @@
-# Ponytail Engineering Standard
+# Ponytail Engineering Integration
 
 Repository: `DietrichGebert/ponytail`
 
-Ponytail is installed for DevOps/Builder/Engineering OSs as a Hermes plugin:
+## Current delivery gate
 
-```bash
-hermes plugins install DietrichGebert/ponytail --enable
-```
+Ponytail remains a required engineering integration for DevOps/Builder/Engineering
+OSs, but is **NOT_INSTALLED** on the reviewed Host. Repository maturity is
+**SCAFFOLDED**: the retained native Hermes security scan rejected the reviewed
+v4.9.0 immutable pin. Plugin commands and modes are unavailable; declaring a
+profile policy does not install or enable them.
 
-Restart Hermes after install.
+Keep the guard intact. Repair requires an upstream-reviewed scanner correction
+or published plugin distribution, a reviewed immutable pin, the full native
+security scan, and then scoped runtime/command/ACL acceptance. Do not filter the
+source, manually copy the plugin, add a trust exception or bypass scanning.
+Repeating the blocked installation or restarting Hermes is not a repair. See
+the [native scan evidence](../audit/2026-09-05-ponytail-native-scan.md).
 
-## Purpose
+## Intended purpose and currently usable Station guidance
 
-Ponytail enforces the engineering instinct to avoid unnecessary code while preserving validation, security, accessibility and error handling.
+Ponytail's intended role is to reinforce the engineering instinct to avoid
+unnecessary code while preserving validation, security, accessibility and error
+handling. It is not currently an active enforcement layer.
+
+Independent engineering work can continue using Station's existing reviewed
+reuse/minimal-change guidance below. Applying that guidance is not executing
+Ponytail and does not satisfy Ponytail-dependent acceptance.
 
 Canonical ladder:
 
@@ -34,18 +47,18 @@ Can the change be extremely small?
 Only then write the minimum new code required
 ```
 
-## DevOps lifecycle
+## Current independent engineering lifecycle
 
 ```text
 PLAN FIRST
 → inspect existing system
 → architecture / task graph
-→ PONYTAIL LADDER
+→ Station reuse/minimal-change guidance
 → implement
 → deterministic tests
-→ ponytail-review
+→ observed simplification review
 → QA
-→ security / ponytail-audit where relevant
+→ security review where relevant
 → independent review
 → PR / CI
 → staging
@@ -54,7 +67,10 @@ PLAN FIRST
 → evidence
 ```
 
-## Profile mapping
+## Intended profile mapping — unavailable until accepted
+
+After the delivery gate passes, these are the intended modes, not current
+profile configuration or proof of separate runtime identities:
 
 ```text
 devops-director  → full
@@ -66,6 +82,12 @@ auditor/security → audit
 reviewer         → review + debt
 maintainer       → debt + gain
 ```
+
+The reviewed plugin keeps mode in process-global state and may use Unix `HOME`
+for defaults. Profiles alone do not isolate either behavior. Before enablement,
+verify the exact instance/profile, gateway admission and slash-command ACLs;
+never grant plugin lifecycle commands to untrusted chat users. Keep the accepted
+revision in the canonical `config/versions.lock` through a reviewed release.
 
 ## Guardrail
 
@@ -81,8 +103,13 @@ Ponytail is not permission to skip required engineering work. Never remove:
 
 ## Position inside the v4 engineering harness
 
-Ponytail is the simplification gate before implementation and again during review. It does not replace Verification Engineering, Gauntlet critics, security review or tests.
+Ponytail is intended to assist simplification before implementation and during
+review once installed and accepted. It does not replace Verification Engineering,
+Gauntlet critics, security review or tests. Until then, the current independent
+path is:
 
 ```text
-Understand → Ponytail → Build → Verify → Gauntlet → Integrate → Live Verify
+Understand → Station reuse guidance → Build → Verify → Gauntlet → Integrate → Live Verify
 ```
+
+This path does not report Ponytail as available or close its delivery blocker.

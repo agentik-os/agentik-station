@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": "ponytail",
-  "maturity": "INSTALLABLE",
-  "claim": "Ponytail v4.9.0 is installable at an immutable commit through the native Hermes plugin protocol; coding-session acceptance is pending.",
+  "maturity": "SCAFFOLDED",
+  "claim": "Ponytail is a required but NOT_INSTALLED integration: the pinned v4.9.0 tree remains blocked by the retained native Hermes security rejection. Station's installation guard is implemented; plugin availability and runtime acceptance are not established.",
   "binary_probes": [],
-  "next_repair_action": "Run station deps install --component ponytail, inspect hermes plugins list, and pass a coding-session check."
+  "next_repair_action": "Review an upstream scanner correction or published distribution, bind an immutable pin, and pass a fresh full native security scan before scoped runtime, command and authorization acceptance. Do not bypass the guard or retry the rejected tree as a repair."
 }

@@ -448,7 +448,7 @@ def _instance_onboarding(paths: LayoutPaths, report: dict[str, Any], zone: dict[
     gates.append(_gate("accounts", "UNKNOWN_NOT_AUTHENTICATED",
                        "Each required native profile needs its own verified provider/account access; no credentials are read or inherited as proof.",
                        depends_on=("os",), action=_action(["station", "os", "instance", "setup", *selector] if record else [],
-                           "Configure the exact instance Director, then verify specialist provider access with a fresh delegated mission. Setup does not automatically authenticate the whole team.",
+                           "Configure the exact instance Director, then verify each required persistent specialist through its mapped native profile. A transient delegate_task child does not select that specialist profile or prove its provider access. Setup does not automatically authenticate the whole team.",
                            sudo=bool(record), mutates=bool(record))))
     gateway = _probe_gateway(zone, record["nano_director"], instance_id=instance_id) if probe and record and zone else {
         "state": "UNKNOWN_NOT_PROBED", "claim": "NO_SERVICE_OR_CHAT_READBACK"}

@@ -26,7 +26,7 @@ It exercises:
 - deployment
 - evidence
 - Discord team binding
-- Ponytail
+- intended Ponytail integration (required; blocked delivery)
 
 ## Structure
 
@@ -50,17 +50,24 @@ Engineering Lead
 └── Data
 ```
 
-## Ponytail is canonical
+## Ponytail is required, not currently available
 
-Install on the Node when DevOps/Builder OS is enabled:
+Ponytail remains **NOT_INSTALLED** on the reviewed Host because its reviewed
+immutable pin was rejected by the retained native Hermes security scan. Its
+integration maturity is **SCAFFOLDED**; plugin commands and modes are unavailable.
+Installing DevOps or Builder profiles does not install or enable Ponytail.
 
-```bash
-hermes plugins install DietrichGebert/ponytail --enable
-```
+Repair requires an upstream-reviewed scanner correction or published plugin
+distribution, a reviewed immutable pin, the full native security scan and then
+scoped runtime/command/ACL acceptance. Preserve the guard; do not filter source,
+manually copy the plugin, add a trust exception or bypass scanning. See the
+[native scan evidence](../audit/2026-09-05-ponytail-native-scan.md).
 
-Restart Hermes, verify plugin, and pin revision in `agentik.lock`.
+Independent engineering work can continue with Station's reviewed reuse and
+validation guidance. This is not Ponytail execution and does not close its
+delivery blocker. An explicitly Ponytail-dependent task remains pending.
 
-Mapping:
+Intended mapping after acceptance, not current configuration:
 
 ```text
 DevOps Director → full
@@ -80,7 +87,7 @@ Intent
 → Plan first
 → Understand existing system
 → Architecture / Graph
-→ Ponytail ladder
+→ Station reuse/minimal-change guidance
 → Loop-Graph plan
 → Allocate isolated worktrees
 → Parallel/subagent execution where safe
@@ -89,7 +96,7 @@ Intent
 → Deterministic Verification Engineering gates
 → Gauntlet independent critic
 → bounded revision loop when needed
-→ ponytail-review
+→ observed simplification review
 → QA
 → Security
 → Independent Integration Review
@@ -104,6 +111,9 @@ Intent
 → Knowledge / skill candidate
 → Done
 ```
+
+The lifecycle above can serve independent work while Ponytail is unavailable.
+It never reports an unexecuted plugin check as passed.
 
 ## Discord surface
 

@@ -55,7 +55,10 @@ Preserve any existing token in its current Zone/profile.
 - assign an independent runtime namespace to each Zone and a dedicated `HERMES_HOME` to each named OS instance;
 - compile AGK OS definitions into Hermes Profile Distributions, profiles/Bots, Skills, plugins, MCP/tool filters, boards, cron, and gateway bindings;
 - configure the instance workspace and explicit allowed Projects; these are routing/policy declarations, not a same-Zone filesystem sandbox;
-- enable Ponytail only for Builder/DevOps/engineering profiles that require it;
+- Ponytail remains required but security-blocked and NOT_INSTALLED; do not enable
+  it or repeatedly retry the rejected tree. A reviewed upstream correction and
+  fresh full native security acceptance must precede any scoped
+  Builder/DevOps/engineering enablement;
 - run Hermes Doctor and `hermes plugins doctor ... --ci` for Station plugins;
 - execute Zone-boundary negative tests;
 - store receipts/evidence before raising readiness.
@@ -92,6 +95,12 @@ repair. `sudo station os instance verify --zone acme-dev --instance engineering`
 Doctor evidence, never live mission acceptance. Reconfigure first, then verify:
 changing a profile's configuration invalidates its previous verification.
 
+OS-scoped `platform install`, `start` and `restart` require this current
+full-team `VERIFIED` result, including their plans. A missing or stale result
+returns the exact scoped `station os instance verify` (or legacy `os verify`)
+command. Provider/platform setup and observation remain available for repair;
+the separate Zone-default bot route keeps its native Doctor sequence.
+
 Configure a worker's provider only when its role needs separate enrollment; the
 canonical role is resolved through the trusted map, not a guessed native name:
 
@@ -124,7 +133,9 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 - run `station deps toolchain-check` and compare observed versions with `config/versions.lock`;
 - authenticate GitHub CLI with `gh auth login`, then verify with `gh auth status`;
 - authenticate Vercel only where deployment is required, then verify with `vercel whoami`;
-- authenticate Composio with `composio login` only for the owning principal, then use the explicit provider plan/link/verify flow and verify only the declared connections;
+- authenticate Composio only for the owning principal after reviewing its developer
+  project binding; the Station Discord facade's plan explains the outstanding
+  project/workdir requirement and does not authenticate a connection;
 - sign in to Codex through its current interactive flow; never copy a personal token into a shared Zone;
 - bind each Project only to its declared repositories;
 - use development/staging credentials by default;
@@ -132,6 +143,11 @@ Details: [`docs/dependencies/VOICE_AND_GUIDED_SETUP.md`](docs/dependencies/VOICE
 - verify actual read/write scope with safe probes;
 - map executor-neutral roles to available Hermes/Codex/Claude executors;
 - require observed tests/review/CI before merge-readiness claims.
+
+Station's Zone Composio commands use only the pinned root-owned public export
+at `/usr/local/bin/composio`, not the operator's private executable or ambient
+PATH. If that export is missing or changed, repair the shared software; do not
+open the operator's home permissions or copy its Composio account into a Zone.
 
 ## Gate 4 — Composio connected capability plane
 
@@ -144,8 +160,13 @@ deploys a ChatbotX server or enables marketing actions.
 
 - map a stable Station principal to the correct organization and Zone;
 - inspect `station provider composio-discord plan --zone <zone-id>`;
-- run `sudo station provider composio-discord link --zone <zone-id>` and complete the hosted OAuth flow;
-- run `sudo station provider composio-discord verify --zone <zone-id>` and one approved read-only tool probe;
+- establish an explicit trusted Composio developer project/workdir binding before
+  executing an OAuth or account-list command; the current `link`/`verify` facade
+  refuses without this implemented binding rather than falling back to a consumer
+  identity or the caller's project;
+- follow [the pinned developer binding requirements](docs/dependencies/COMPOSIO_DEVELOPER_BINDING.md);
+  scoped OAuth, ACTIVE-account readback and an approved read-only tool test remain
+  acceptance gates, not results of the current plan;
 - configure only declared toolkits and connected accounts;
 - enforce `config/composio/discord-tool-policy.json`; unknown execution is denied;
 - keep Hermes as the only messaging Gateway; neither Composio nor discord.js owns sessions or chat ingress;
@@ -297,9 +318,17 @@ Keep Hermes tokens in the selected instance/profile's credential configuration;
 Zone-base broker credentials are not instance enrollment. Do not claim OPERATIONAL
 for a platform until bidirectional live message readback passes.
 
-## Gate — Optional dependency stack
+## Gate — Required Host dependency stack
 
-ScrapeGraphAI/Playwright, Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC, Parakeet and the isolated discord.js SDK are declared in `config/deps/stack.yaml`. ScrapeGraphAI and Crawl4AI install by default; `--skip-scrapegraphai` / `--skip-crawl4ai` deliberately omit the selected runtime. Run `sudo station deps web-check`, then a fresh-session extraction in the owning Zone. The automatic adapters process public HTML without JavaScript; see [web limits and profile activation](resources/scrapegraphai/README.md).
+ScrapeGraphAI/Playwright, Langfuse, Honcho, Hindsight, Ponytail, Crawl4AI, TigerVNC,
+Parakeet and the isolated discord.js SDK are declared in `config/deps/stack.yaml`
+and selected by the default full Host installation. Skips deliberately select a
+partial installation and require `--minimal`; they do not clear full-stack
+acceptance. Ponytail remains security-blocked, and server images still require
+separate service/account setup. Run `sudo station deps full-check`, then
+`sudo station deps web-check` and a fresh-session extraction in the owning Zone.
+The automatic adapters process public HTML without JavaScript; see
+[web limits and profile activation](resources/scrapegraphai/README.md).
 
 ```bash
 ./scripts/station_deps_install.sh --list

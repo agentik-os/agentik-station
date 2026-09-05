@@ -13,22 +13,23 @@ devops-engineering
 ├── architecture-review
 ├── github-pr
 ├── evidence-capture
-└── ponytail integration
+└── ponytail integration (required; blocked delivery)
 ```
 
 ## Ponytail
 
-Ponytail is a canonical **engineering discipline plugin** for DevOps/Builder/Engineering OSs.
+Ponytail is the intended **engineering discipline plugin** for DevOps/Builder/
+Engineering OSs. It remains required but **NOT_INSTALLED** on the reviewed Host:
+the retained native Hermes security scan rejected its reviewed immutable pin.
+The integration is **SCAFFOLDED**; its commands and modes are unavailable.
 
-Official Hermes install:
+Repair requires an upstream-reviewed scanner correction or published plugin
+distribution, a reviewed immutable pin, the full native security scan and then
+scoped runtime/command/ACL acceptance. Preserve the guard; no filtered source,
+manual plugin copy, trust exception or bypass. See the
+[native scan evidence](../audit/2026-09-05-ponytail-native-scan.md).
 
-```bash
-hermes plugins install DietrichGebert/ponytail --enable
-```
-
-Restart Hermes after installation.
-
-Expected available commands/skills include:
+Intended commands/skills after acceptance, **not available now**:
 
 ```text
 /ponytail
@@ -39,11 +40,16 @@ Expected available commands/skills include:
 /ponytail-help
 ```
 
-Policy:
-- FULL mode by default for engineering Director/Architect/Developer
-- review/audit skills for Reviewer/QA/Security
-- pin the plugin revision in `agentik.lock`
+Future scoped policy, only after the delivery gate passes:
+
+- intended FULL mode for engineering Director/Architect/Developer;
+- intended review/audit skills for Reviewer/QA/Security;
+- retain the reviewed plugin revision in canonical `config/versions.lock`;
+- verify process-global mode and Unix `HOME` defaults do not cross the intended runtime scope;
 - never grant plugin lifecycle commands to untrusted Discord users
+
+Independent work can use Station's reviewed engineering guidance without
+pretending that it is Ponytail. Ponytail-dependent acceptance remains pending.
 
 ## Agentik Control plugin
 

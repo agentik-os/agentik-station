@@ -68,4 +68,14 @@ DevOps OS
     └── test-runner
 ```
 
-Ponytail is enabled for code-producing/reviewing DevOps profiles according to the DevOps policy.
+Ponytail is intended for code-producing/reviewing DevOps profiles, but remains
+required and **NOT_INSTALLED** on the reviewed Host. Its commands and modes are
+unavailable: the retained native Hermes security scan rejected the immutable pin.
+Profile installation is not plugin enablement. Repair requires an upstream-reviewed
+scanner correction or published distribution, a reviewed immutable pin, the full
+native security scan and scoped runtime/command/ACL acceptance, without bypassing
+the guard. See the [native scan evidence](../audit/2026-09-05-ponytail-native-scan.md)
+and [intended policy](04_DEVOPS_OS.md#ponytail-is-required-not-currently-available).
+
+Independent team work may use Station's reviewed engineering guidance; it is not
+Ponytail execution and cannot satisfy Ponytail-dependent acceptance.

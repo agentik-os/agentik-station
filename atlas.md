@@ -2,7 +2,7 @@
 
 This is the operator's end-to-end map of Agentik Station: what every major part is, where it lives, who controls it, how Hermes connects it, how an Operative System is built and installed, how Discord becomes the human cockpit, and how the DevOps team executes work safely.
 
-The Atlas describes Station software release `11.33`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
+The Atlas describes Station software release `11.34`; individual OS/resource packages retain their independently reviewed versions. It separates implemented repository behavior from external setup that still needs real credentials and readback. Start here, then use `ARCHITECTURE.md`, `SECURITY.md`, `INSTALL.md` and `SETUP.md` for the normative details.
 
 Stepper is now a canonical OS: Map Steward maps/slices the journey, Shaper defines
 the bet, Sequencer orders releases. It cooperates with Librarian (verified inputs),
@@ -799,11 +799,15 @@ sudo station deps toolchain-install
 station deps toolchain-check
 station provider status
 station provider composio-discord plan --zone <zone-id>
-sudo station provider composio-discord link --zone <zone-id>
-sudo station provider composio-discord verify --zone <zone-id>
 # Legacy shared-operator controller only; not instance verification:
 station client --legacy doctor <client-id> --online
 ```
+
+The Composio plan contains non-executable templates. Its `link` and `verify`
+actions currently refuse before native/account calls: the trusted external
+developer-project and owning Zone workdir binding is not implemented yet.
+See the [developer-binding contract](docs/dependencies/COMPOSIO_DEVELOPER_BINDING.md);
+installed CLI software is not an accepted Discord account integration.
 
 ## 16. Fresh Host installation: exact path
 
@@ -984,7 +988,7 @@ Repository-verified or implemented:
 - universal provider/CLI rule distribution;
 - resource catalog and exact web-product stack plan;
 - Hermes multi-platform gateway lifecycle wrapper;
-- Composio binding plus default-deny Discord tool policy and guided link/readback commands;
+- Composio principal/policy scaffolding and pinned public CLI resolution; developer-project/workdir binding and executable Discord link/readback remain unavailable;
 - isolated, integrity-pinned discord.js SDK resource with no second Gateway;
 - default read-only shared ScrapeGraphAI 2.2.2 and Crawl4AI 0.9.3 Python runtimes with Zone-local HOME/cache/credentials;
 - `station_scrapegraph` extracts structured data via the Zone OpenAI key; `station_crawl4ai` is the explicit no-LLM Markdown fallback. Both consume guarded public HTML, with DNS-pinned connections, redirect checks and JavaScript disabled;

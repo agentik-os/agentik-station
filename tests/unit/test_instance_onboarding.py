@@ -40,6 +40,8 @@ def test_instance_owns_workspace_without_project_gate(layout, monkeypatch):
     assert report["scope"]["organization_id"] == "alpha"
     assert report["scope"]["role_profile_map"] == record["role_profile_map"]
     assert report["next_action"]["argv"] == ["station", "os", "instance", "setup", "--zone", "alpha-dev", "--instance", "engineering"]
+    assert "mapped native profile" in report["next_action"]["human_action"]
+    assert "transient delegate_task child does not select" in report["next_action"]["human_action"]
     assert not report["operational"]
     assert "station platform setup --zone alpha-dev --instance engineering" in onboarding.render_onboarding_report(report)
 
